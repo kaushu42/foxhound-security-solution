@@ -31,4 +31,5 @@ class PaloAltoEngine(Engine):
 
     def _process(self, data: pd.DataFrame):
         data = data[self._COLUMNS_TO_KEEP]
+        data.columns = [self._INPUT_TO_OUTPUT_MAP[c] for c in data.columns]
         return data
