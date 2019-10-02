@@ -55,12 +55,13 @@ class Engine(ABC):
         output_filename = self._OUTPUT_PATH + '/OUTPUT_' + filename
         processed_data.to_csv(output_filename)
 
-    def _run_for_one(self, csv):
-        data = self._read_csv(csv)
+    def _run_for_one(self, csv_path: str):
+        data = self._read_csv(csv_path)
         data = self._process(data)
         self._dump(csv, data)
 
-    def run(self):
+    def run(self, verbose=False):
         for csv in self._csvs:
+            if verbose:
+                print('Processing:', csv)
             self._run_for_one(csv)
-            break

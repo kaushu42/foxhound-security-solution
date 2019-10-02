@@ -5,14 +5,7 @@ from .Engine import pd
 class PaloAltoEngine(Engine):
     def __init__(self, input_path: str, output_path: str):
         super().__init__(input_path, output_path)
-        self._DATA_FIELDS = (
-            'virtual_system',
-            'source_ip', 'source_port',
-            'destination_ip', 'destination_port',
-            'bytes_sent', 'bytes_received', 'repeat_count',
-            'application', 'packets_received', 'packets_sent',
-            'ip_protocol', 'time_elapsed'
-        )
+
         self._COLUMNS_TO_KEEP = [
             'Virtual System',
             'Source address', 'Source Port',
@@ -32,4 +25,9 @@ class PaloAltoEngine(Engine):
     def _process(self, data: pd.DataFrame):
         data = data[self._COLUMNS_TO_KEEP]
         data.columns = [self._INPUT_TO_OUTPUT_MAP[c] for c in data.columns]
+        data.loc[:, 'virtual_system'] = data['virtual_system'].map(
+            self._get_number_from_string)
         return data
+
+    def _get_number_from_string(self, string: str):
+        return int(''.join(x for x in string if x.isdigit()))
