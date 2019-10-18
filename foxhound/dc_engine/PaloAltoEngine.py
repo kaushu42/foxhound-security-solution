@@ -12,7 +12,9 @@ class PaloAltoEngine(Engine):
             'Destination address', 'Destination Port',
             'Bytes Sent', 'Bytes Received', 'Repeat Count',
             'Application', 'Packets Sent', 'Packets Received',
-            'IP Protocol', 'Elapsed Time (sec)'
+            'IP Protocol', 'Elapsed Time (sec)',
+            'Source Zone', 'Destination Zone',
+            'Rule',
         ]
 
         self._INPUT_TO_OUTPUT_MAP = {

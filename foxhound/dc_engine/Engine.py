@@ -22,7 +22,9 @@ class Engine(ABC):
             'destination_ip', 'destination_port',
             'bytes_sent', 'bytes_received', 'repeat_count',
             'application', 'packets_received', 'packets_sent',
-            'ip_protocol', 'time_elapsed'
+            'protocol', 'time_elapsed',
+            'source_zone', 'destination_zone',
+            'firewall_rule',
         )
 
         self._INPUT_TO_OUTPUT_MAP = {}
