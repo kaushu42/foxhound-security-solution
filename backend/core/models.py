@@ -39,59 +39,6 @@ class RuleDictionary(models.Model):
         return self.__repr__()
 
 
-# class IPDictionary(models.Model):
-#     IP_PUBLIC_PRIVATE_CHOICES = (('Public', 'Public'), ('Private', 'Private'))
-
-#     DEVICE_TYPE_CHOICES = (
-#         ('Switch', 'Switch'),
-#         ('Router', 'Router'),
-#         ('ApplicationServer', 'ApplicationServer'),
-#         ('DbServer', 'DbServer'),
-#         ('EndUser', 'EndUser'),
-#     )
-
-#     virtual_system = models.ForeignKey(VirtualSystem, on_delete=models.CASCADE)
-#     ip_address = models.CharField(max_length=50)
-#     ip_name = models.CharField(max_length=150)
-#     ip_public_private_type = models.CharField(
-#         max_length=50, choices=IP_PUBLIC_PRIVATE_CHOICES)
-#     device_type = models.CharField(max_length=50, choices=DEVICE_TYPE_CHOICES)
-#     description = models.CharField(max_length=250)
-
-#     def __repr__(self):
-#         return f'{self.virtual_system, self.ip_address}'
-
-#     def __str__(self):
-#         return self.__repr__()
-
-
-# class ProcessedLog(models.Model):
-#     LOG_TYPE_CHOICES = (
-#         ("Traffic", "Traffic"),
-#         ("Threat", "Threat"),
-#         ("URL Filtering", "URL Filtering"),
-#         ("WildFire   Submission", "WildFire Submission"),
-#         ("Data Filtering", "Data Filtering"),
-#         ("Correlation", "Correlation"),
-#         ("HIP Matching", "HIP Matching"),
-#         ("System", "System"),
-#         ("Alarms", "Alarms"),
-#         ("Unified", "Unified"),
-#     )
-#     log_type = models.CharField(max_length=50,
-#                                 choices=LOG_TYPE_CHOICES,
-#                                 default=LOG_TYPE_CHOICES[0])
-#     log_name = models.CharField(max_length=250)
-#     log_date = models.DateField(auto_now_add=True)
-#     log_process_date = models.DateTimeField(auto_now_add=True)
-
-#     def __repr__(self):
-#         return self.log_name
-
-#     def __str__(self):
-#         return self.__repr__()
-
-
 class Log(models.Model):
     virtual_system = models.ForeignKey(
         VirtualSystem,
@@ -107,8 +54,11 @@ class Log(models.Model):
     application = models.CharField(max_length=50)
     packets_received = models.BigIntegerField()
     packets_sent = models.BigIntegerField()
-    ip_protocol = models.CharField(max_length=50)
+    protocol = models.CharField(max_length=50)
     time_elapsed = models.BigIntegerField()
+    source_zone = models.CharField(max_length=50)
+    destination_zone = models.CharField(max_length=50)
+    firewall_rule = models.CharField(max_length=50)
     date = models.DateField(auto_now_add=True)
 
     def __repr__(self):

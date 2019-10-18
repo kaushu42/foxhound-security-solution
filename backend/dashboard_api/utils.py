@@ -10,7 +10,7 @@ def str_to_date(string):
     """
     try:
         return datetime.datetime.strptime(string, '%Y-%m-%d')
-    except ValueError:
+    except Exception:
         return None
 
 

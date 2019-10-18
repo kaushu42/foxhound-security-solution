@@ -9,7 +9,7 @@ from .utils import get_objects_with_matching_filters
 
 
 @api_view(['POST'])
-def summary(request):
+def stats(request):
     objects = get_objects_with_matching_filters(request)
     uplink = objects.aggregate(
         Sum('bytes_sent')).get('bytes_sent__sum', None)
@@ -31,3 +31,42 @@ def summary(request):
 @api_view(['POST'])
 def rules(request):
     pass
+
+
+@api_view(['POST'])
+def filters(request):
+    firewall_rule = [
+        l[0] for l in list(
+            Log.objects.all().values_list('firewall_rule').distinct()
+        )
+    ]
+    application = [
+        l[0] for l in list(
+            Log.objects.all().values_list('application').distinct()
+        )
+    ]
+    protocol = [
+        l[0] for l in list(
+            Log.objects.all().values_list('protocol').distinct()
+        )
+    ]
+    source_zone = [
+        l[0] for l in list(
+            Log.objects.all().values_list('source_zone').distinct()
+        )
+    ]
+    destination_zone = [
+        l[0] for l in list(
+            Log.objects.all().values_list('destination_zone').distinct()
+        )
+    ]
+
+    response = {
+        "firewall_rule": firewall_rule,
+        "application": application,
+        "protocol": protocol,
+        "source_zone": source_zone,
+        "destination_zone": destination_zone
+    }
+
+    return Response(response)
