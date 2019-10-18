@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'users',
+    'core',
+    'dashboard_api',
 ]
 
 MIDDLEWARE = [
@@ -135,6 +137,6 @@ REST_FRAMEWORK = {
     )
 }
 
-TOKEN_EXPIRED_AFTER_SECONDS = 100
+TOKEN_EXPIRED_AFTER_SECONDS = 86400
 
 AUTH_USER_MODEL = 'users.FoxhoundUser'  # new

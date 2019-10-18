@@ -34,9 +34,7 @@ def login(request):
     # The implementation will be described further
     is_expired, token = token_expire_handler(token)
     user_serialized = UserSerializer(user)
-    # print(user)
-    # print(user_serialized)
-    # print('*'*80, 'okayyy')
+
     return Response({
         'user': user_serialized.data,
         'expires_in': expires_in(token),
