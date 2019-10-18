@@ -1,21 +1,22 @@
-from django.db.models import Sum
+from django.db.models import Sum, Count
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from core.models import Log
+from core.models import TrafficLogDetail
+from troubleticket.models import TroubleTicket
 
 from .utils import get_objects_with_matching_filters
 
 
 @api_view(['POST'])
 def stats(request):
-    objects = get_objects_with_matching_filters(request)
-    uplink = objects.aggregate(
+    uplink_downlink = get_objects_with_matching_filters(request)
+    uplink = uplink_downlink.aggregate(
         Sum('bytes_sent')).get('bytes_sent__sum', None)
-    downlink = objects.aggregate(
+    downlink = uplink_downlink.aggregate(
         Sum('bytes_received')).get('bytes_received__sum', None)
-    opened_tt = None
+    opened_tt = TroubleTicket.objects.filter(is_closed=False).count()
     new_rules = None
 
     return Response(
@@ -37,27 +38,27 @@ def rules(request):
 def filters(request):
     firewall_rule = [
         l[0] for l in list(
-            Log.objects.all().values_list('firewall_rule').distinct()
+            TrafficLogDetail.objects.all().values_list('firewall_rule').distinct()
         )
     ]
     application = [
         l[0] for l in list(
-            Log.objects.all().values_list('application').distinct()
+            TrafficLogDetail.objects.all().values_list('application').distinct()
         )
     ]
     protocol = [
         l[0] for l in list(
-            Log.objects.all().values_list('protocol').distinct()
+            TrafficLogDetail.objects.all().values_list('protocol').distinct()
         )
     ]
     source_zone = [
         l[0] for l in list(
-            Log.objects.all().values_list('source_zone').distinct()
+            TrafficLogDetail.objects.all().values_list('source_zone').distinct()
         )
     ]
     destination_zone = [
         l[0] for l in list(
-            Log.objects.all().values_list('destination_zone').distinct()
+            TrafficLogDetail.objects.all().values_list('destination_zone').distinct()
         )
     ]
 

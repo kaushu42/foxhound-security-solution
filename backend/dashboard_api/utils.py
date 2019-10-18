@@ -1,6 +1,6 @@
 import datetime
 
-from core.models import Log
+from core.models import TrafficLogDetail
 
 
 def str_to_date(string):
@@ -24,6 +24,7 @@ def get_filters(request):
     end_date = str_to_date(end_date)
 
     application = request.POST.get('application', None)
+    protocol = request.POST.get('protocol', None)
     source_zone = request.POST.get('source_zone', None)
     destination_zone = request.POST.get('destination_zone', None)
 
@@ -31,6 +32,7 @@ def get_filters(request):
         "start_date": start_date,
         "end_date": end_date,
         "application": application,
+        "protocol": protocol,
         "source_zone": source_zone,
         "destination_zone": destination_zone,
     }
@@ -43,14 +45,28 @@ def get_objects_with_matching_filters(request):
     start_date = filters['start_date']
     end_date = filters['end_date']
     application = filters['application']
-    # source_zone = filters['source_zone']
-    # destination_zone = filters['destination_zone']
+    protocol = filters['protocol']
+    source_zone = filters['source_zone']
+    destination_zone = filters['destination_zone']
 
-    objects = Log.objects.all()
+    objects = TrafficLogDetail.objects.all()
+    query = {}
     if start_date:
-        objects = objects.filter(date__gte=start_date)
+        query['traffic_log__log_date__gte'] = start_date
+
     if end_date:
-        objects = objects.filter(date__lte=end_date)
+        query['traffic_log__log_date__lte'] = end_date
+
     if application:
-        objects = objects.filter(application=application)
-    return objects
+        query['application'] = application
+
+    if protocol:
+        query['protocol'] = protocol
+
+    if source_zone:
+        query['source_zone'] = source_zone
+
+    if destination_zone:
+        query['destination_zone'] = destination_zone
+
+    return TrafficLogDetail.objects.filter(**query)

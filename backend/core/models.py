@@ -39,9 +39,25 @@ class RuleDictionary(models.Model):
         return self.__repr__()
 
 
-class Log(models.Model):
+class TrafficLog(models.Model):
     virtual_system = models.ForeignKey(
         VirtualSystem,
+        on_delete=models.CASCADE,
+    )
+    processed_datetime = models.DateField(auto_now_add=True)
+    log_date = models.DateField(auto_now_add=True)
+    log_name = models.CharField(max_length=200)
+
+    def __repr__(self):
+        return self.log_name
+
+    def __str__(self):
+        return self.__repr__()
+
+
+class TrafficLogDetail(models.Model):
+    traffic_log = models.ForeignKey(
+        TrafficLog,
         on_delete=models.CASCADE,
     )
     source_ip = models.CharField(max_length=50)
@@ -59,10 +75,9 @@ class Log(models.Model):
     source_zone = models.CharField(max_length=50)
     destination_zone = models.CharField(max_length=50)
     firewall_rule = models.CharField(max_length=50)
-    date = models.DateField(auto_now_add=True)
 
     def __repr__(self):
-        return f'Log-{self.virtual_system.code}-{self.date}'
+        return f'Log-{self.date}'
 
     def __str__(self):
         return self.__repr__()
