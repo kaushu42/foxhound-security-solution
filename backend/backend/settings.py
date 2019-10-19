@@ -25,8 +25,10 @@ SECRET_KEY = 'o)zq5nu7@n8o62ll8%p@(*rx9wec+uyt39-0u6q^i+cqk7hwn8'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 # Application definition
 
@@ -37,22 +39,26 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
     'users',
     'core',
     'troubleticket',
     'dashboard_api',
+    'profile_api',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -138,6 +144,6 @@ REST_FRAMEWORK = {
     )
 }
 
-TOKEN_EXPIRED_AFTER_SECONDS = 86400
+TOKEN_EXPIRED_AFTER_SECONDS = 1000000
 
 AUTH_USER_MODEL = 'users.FoxhoundUser'  # new
