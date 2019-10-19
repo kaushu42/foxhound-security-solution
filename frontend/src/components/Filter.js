@@ -24,58 +24,27 @@ class Filter extends Component{
     }
 
     componentDidUpdate() {
-        this.handleFetchFirewallRuleSelectData();
     }
 
     handleFetchFirewallRuleSelectData(){
-        // let url = 'http://192.168.100.10:8000/api/v1/dashboard/filters/';
-        // let options = {
-        //     method: 'POST',
-        //     url: url,
-        //     headers: {
-        //         'Authorization': 'Token 67e9965410297c949312bbcf17447a94cb19e242',
-        //         'Accept': 'application/json',
-        //         'Content-Type': 'application/json;charset=UTF-8'
-        //     },
-        //     data: {
-        //     }
-        // };
-        // const response = await axios(options);
-        // let responseOK = response && response.status === 200 && response.statusText === 'OK';
-        // if (responseOK) {
-        //
-        // }
-        //
+        let headers = new Headers({
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: "Token ab89a41b0bd3948c5a2bafbae569ab698d22f347"
+        });
 
-        fetch('http://192.168.100.10:8000/api/v1/users/login/',{
-            method : 'POST',
-            headers:{
-                'Content-Type' : 'multipart/form-data'
-            },
-            formData : {
-                "username": "kaush",
-                "password": "Admin123#"
-            }
-
-        }).then(res => console.log(res));
-
-        // fetch('http://192.168.100.10:8000/api/v1/dashboard/filters/', {
-        //     method: 'POST',
-        //     mode: 'no-cors',
-        //     headers: {
-        //         // 'Access-Control-Allow-Credentials':true,
-        //         'Access-Control-Allow-Origin':'*',
-        //         'Authorization': 'Token 67e9965410297c949312bbcf17447a94cb19e242',
-        //         'Content-Type': 'application/json',
-        //         'Accept': 'application/json'
-        //     },
-        // })
-        //     .then(res => console.log(res));
+        fetch("http://127.0.0.1:8000/api/v1/dashboard/filters/", {
+            method: "POST",
+            headers: headers
+        })
+            .then(res => res.json())
+            .then(data => console.log(data));
     }
 
 
-    handleOnChangeApplicationFilter = (value) => {
-        this.props.dispatchApplicationFilterUpdate(value);
+    handleFilterChange = (id,value) => {
+        // console.log(id,value);
+        // this.props.dispatchApplicationFilterUpdate(value);
     }
 
     render(){
@@ -91,7 +60,7 @@ class Filter extends Component{
                         <Select mode="multiple" style={{ width: "100%" }} placeholder="Firewall Rule" />
                     </Col>
                     <Col span={4}>
-                        <Select mode="multiple" style={{ width: "100%" }} placeholder="Application" onChange={(value)=>{this.handleOnChangeApplicationFilter(value)}} >
+                        <Select mode="multiple" style={{ width: "100%" }} id="Application" placeholder="Application" onChange={(id,value)=>{console.log(id,value);this.handleFilterChange(id,value)}} >
                             <Option value="google-base">google-base</Option>
                             <Option value="microsoft-azure-base">microsoft-azure-base</Option>
                         </Select>
@@ -121,6 +90,7 @@ const mapStateToProps = state => {
         destination_zone: state.filter.destination_zone
     }
 }
+
 
 const mapDispatchToProps = dispatch => {
     return {
