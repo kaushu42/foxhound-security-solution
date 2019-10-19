@@ -77,7 +77,7 @@ class TrafficLogDetail(models.Model):
     firewall_rule = models.CharField(max_length=50)
 
     def __repr__(self):
-        return f'Log-{self.date}'
+        return f'Log-{self.traffic_log.id}'
 
     def __str__(self):
         return self.__repr__()
