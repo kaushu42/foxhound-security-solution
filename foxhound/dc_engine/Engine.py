@@ -17,12 +17,14 @@ class Engine(ABC):
             )
         self._check_data_dirs_valid()
         self._DATA_FIELDS = (
-            'virtual_system',
+            'virtual_system_id',
             'source_ip', 'source_port',
             'destination_ip', 'destination_port',
             'bytes_sent', 'bytes_received', 'repeat_count',
             'application', 'packets_received', 'packets_sent',
-            'ip_protocol', 'time_elapsed'
+            'protocol', 'time_elapsed',
+            'source_zone', 'destination_zone',
+            'firewall_rule',
         )
 
         self._INPUT_TO_OUTPUT_MAP = {}
@@ -59,7 +61,7 @@ class Engine(ABC):
     def _get_csv_paths(self, path: str):
         files = os.listdir(path)
         csvs = [os.path.join(path, f) for f in files if f.endswith('.csv')]
-        return csvs
+        return sorted(csvs)
 
     def _read_csv(self, csv_path: str):
         return pd.read_csv(csv_path)

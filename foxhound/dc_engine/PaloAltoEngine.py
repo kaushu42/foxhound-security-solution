@@ -12,7 +12,9 @@ class PaloAltoEngine(Engine):
             'Destination address', 'Destination Port',
             'Bytes Sent', 'Bytes Received', 'Repeat Count',
             'Application', 'Packets Sent', 'Packets Received',
-            'IP Protocol', 'Elapsed Time (sec)'
+            'IP Protocol', 'Elapsed Time (sec)',
+            'Source Zone', 'Destination Zone',
+            'Rule',
         ]
 
         self._INPUT_TO_OUTPUT_MAP = {
@@ -25,7 +27,7 @@ class PaloAltoEngine(Engine):
     def _process(self, data: pd.DataFrame):
         data = data[self._COLUMNS_TO_KEEP]
         data.columns = [self._INPUT_TO_OUTPUT_MAP[c] for c in data.columns]
-        data.loc[:, 'virtual_system'] = data['virtual_system'].map(
+        data.loc[:, 'virtual_system_id'] = data['virtual_system_id'].map(
             self._get_number_from_string)
         return data
 
