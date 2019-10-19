@@ -47,15 +47,9 @@ class Engine(ABC):
                 directory_type + ' directory does not exist: ' + data_dir)
 
     def get_input_csv_paths(self):
-        # files = os.listdir(self._INPUT_PATH)
-        # csvs = [os.path.join(self._INPUT_PATH, f) for f in files]
-        # return csvs
         return self._get_csv_paths(self._INPUT_PATH)
 
     def get_output_csv_paths(self):
-        # files = os.listdir(self._OUTPUT_PATH)
-        # csvs = [os.path.join(self._OUTPUT_PATH, f) for f in files]
-        # return csvs
         return self._get_csv_paths(self._OUTPUT_PATH)
 
     def _get_csv_paths(self, path: str):
@@ -68,8 +62,16 @@ class Engine(ABC):
 
     def _dump(self, input_filename: str, processed_data: pd.DataFrame):
         filename = input_filename.split('/')[-1]
-        output_filename = self._OUTPUT_PATH + '/OUTPUT_' + filename
-        processed_data.to_csv(output_filename, index=False)
+
+        # Get all unique vsys ids
+        vsys_list = processed_data['virtual_system_id'].unique()
+
+        for vsys in vsys_list:
+            f = filename.split('.')[0]
+            output_filename = self._OUTPUT_PATH + f'/{f}_{vsys}.csv'
+            data = processed_data[processed_data['virtual_system_id'] == vsys]
+            data.to_csv(output_filename, index=False)
+            print(f'\tWritten to {output_filename}')
 
     def _run_one(self, csv_path: str):
         data = self._read_csv(csv_path)
@@ -77,10 +79,6 @@ class Engine(ABC):
         self._dump(csv_path, data)
 
     def run(self, verbose=False):
-        # for csv in self._input_csvs:
-        #     if verbose:
-        #         print('Processing:', csv)
-        #     self._run_one(csv)
         self._run(self._run_one, self._input_csvs, verbose=verbose)
 
     def _delete_one(self, csv_path: str):
