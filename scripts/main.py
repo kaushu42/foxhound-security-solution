@@ -8,6 +8,7 @@ pa = fh.dc_engine.PaloAltoEngine(
 pa.run(verbose=True)
 
 db_name = os.environ.get('FH_DB_NAME', '')
+
 db_user = os.environ.get('FH_DB_USER', '')
 db_password = os.environ.get('FH_DB_PASSWORD', '')
 db_engine = create_engine(
