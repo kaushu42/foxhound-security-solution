@@ -1,4 +1,8 @@
-import {DATE_RANGE_FILTER_UPDATED,FIREWALL_RULE_FILTER_UPDATED} from "../actionTypes/filterActionTypes";
+import {
+    APPLICATION_FILTER_UPDATED,
+    DATE_RANGE_FILTER_UPDATED,
+    FIREWALL_RULE_FILTER_UPDATED
+} from "../actionTypes/filterActionTypes";
 
 const initialState = {
     date_range : [],
@@ -10,7 +14,7 @@ const initialState = {
 }
 
 const filterReducer = (state=initialState,action) => {
-    switch(action.Type){
+    switch(action.type){
         case DATE_RANGE_FILTER_UPDATED :
             return {
              ...state,
@@ -21,6 +25,12 @@ const filterReducer = (state=initialState,action) => {
                 ...state,
                 firewall_rule: action.payload.firewall_rule
             }
+        case APPLICATION_FILTER_UPDATED:
+            return {
+                ...state,
+                application: action.payload.application
+            }
+
         default:
             return state;
     }
