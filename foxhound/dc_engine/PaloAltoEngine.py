@@ -27,9 +27,4 @@ class PaloAltoEngine(Engine):
     def _process(self, data: pd.DataFrame):
         data = data[self._COLUMNS_TO_KEEP]
         data.columns = [self._INPUT_TO_OUTPUT_MAP[c] for c in data.columns]
-        data.loc[:, 'virtual_system_id'] = data['virtual_system_id'].map(
-            self._get_number_from_string)
         return data
-
-    def _get_number_from_string(self, string: str):
-        return int(''.join(x for x in string if x.isdigit()))
