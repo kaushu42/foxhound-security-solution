@@ -6,9 +6,15 @@ import {createStore, combineReducers} from 'redux';
 import {Provider} from 'react-redux';
 import filterReducer from './reducers/filterReducer';
 
+// "token": "67e9965410297c949312bbcf17447a94cb19e242"
 
 
-const store = createStore(filterReducer);
+const rootReducer = combineReducers({
+    filter: filterReducer
+})
+
+const store = createStore(rootReducer);
+
 
 
 ReactDOM.render(
