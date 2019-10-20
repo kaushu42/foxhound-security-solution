@@ -82,6 +82,7 @@ class TrafficLogDetail(Base):
     source_zone = Column(String)
     destination_zone = Column(String)
     firewall_rule = Column(String)
+    logged_datetime = Column(DateTime)
 
     def __repr__(self):
         return f'Log-{self.date}'

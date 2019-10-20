@@ -75,6 +75,7 @@ class TrafficLogDetail(models.Model):
     source_zone = models.CharField(max_length=50)
     destination_zone = models.CharField(max_length=50)
     firewall_rule = models.CharField(max_length=50)
+    logged_datetime = models.DateTimeField()
 
     def __repr__(self):
         return f'Log-{self.traffic_log.id}'

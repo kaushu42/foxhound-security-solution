@@ -14,7 +14,7 @@ class PaloAltoEngine(Engine):
             'Application', 'Packets Sent', 'Packets Received',
             'IP Protocol', 'Elapsed Time (sec)',
             'Source Zone', 'Destination Zone',
-            'Rule',
+            'Rule', 'Time Logged'
         ]
 
         self._INPUT_TO_OUTPUT_MAP = {

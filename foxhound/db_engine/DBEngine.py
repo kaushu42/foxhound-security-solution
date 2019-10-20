@@ -67,7 +67,7 @@ class DBEngine(object):
             index=False
         )
 
-    def _write_to_db(self, csv: str, *, table_name: str):
+    def _write_to_db(self, csv: str):
         data = self._read_csv(csv)
 
         session = self._session()
@@ -98,11 +98,11 @@ class DBEngine(object):
         csvs = [os.path.join(path, f) for f in files if f.endswith('.csv')]
         return sorted(csvs)
 
-    def run(self, verbose=False, *, table_name: str):
+    def run(self, verbose=False):
         for csv in self._csvs:
             if verbose:
                 print('Writing to db: ', csv)
-            self._write_to_db(csv, table_name=table_name)
+            self._write_to_db(csv)
 
     def _check_data_dir_valid(self, data_dir: str):
         if not os.path.isdir(data_dir):
