@@ -36,29 +36,30 @@ def rules(request):
 
 @api_view(['POST'])
 def filters(request):
+    objects = TrafficLogDetail.objects.all()
     firewall_rule = [
         l[0] for l in list(
-            TrafficLogDetail.objects.all().values_list('firewall_rule').distinct()
+            objects.values_list('firewall_rule').distinct()
         )
     ]
     application = [
         l[0] for l in list(
-            TrafficLogDetail.objects.all().values_list('application').distinct()
+            objects.values_list('application').distinct()
         )
     ]
     protocol = [
         l[0] for l in list(
-            TrafficLogDetail.objects.all().values_list('protocol').distinct()
+            objects.values_list('protocol').distinct()
         )
     ]
     source_zone = [
         l[0] for l in list(
-            TrafficLogDetail.objects.all().values_list('source_zone').distinct()
+            objects.values_list('source_zone').distinct()
         )
     ]
     destination_zone = [
         l[0] for l in list(
-            TrafficLogDetail.objects.all().values_list('destination_zone').distinct()
+            objects.values_list('destination_zone').distinct()
         )
     ]
 
