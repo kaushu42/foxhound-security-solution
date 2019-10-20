@@ -20,8 +20,7 @@ const FILTER_DATA_API = "http://127.0.0.1:8000/api/v1/dashboard/filters/";
 const STATS_DATA_API = "http://127.0.0.1:8000/api/v1/dashboard/stats/";
 
 class Filter extends Component{
-
-    constructor(props){
+   constructor(props){
         super(props);
         this.state = {
             firewall_rule_select_data : [],
@@ -37,29 +36,6 @@ class Filter extends Component{
         }
         this.handleFetchFilterSelectData();
     }
-
-    // componentDidUpdate() {
-    //     const headers = {
-    //         'Content-Type': 'application/json',
-    //         'Authorization': 'Token ab89a41b0bd3948c5a2bafbae569ab698d22f347'
-    //     }
-    //     var bodyFormData = new FormData();
-    //     bodyFormData.set('start_date', this.props.date_range[0]);
-    //     bodyFormData.set('end_date', this.props.date_range[1]);
-    //     bodyFormData.set('firewall_rule', this.props.firewall_rule[0]);
-    //     bodyFormData.set('application', this.props.application[0]);
-    //     bodyFormData.set('protocol', this.props.protocol[0]);
-    //     bodyFormData.set('source_zone', this.props.source_zone[0]);
-    //     bodyFormData.set('destination_zone', this.props.destination_zone[0]);
-    //
-    //
-    //     axios.post(STATS_DATA_API,bodyFormData,{
-    //         headers: headers
-    //     })
-    //         .then((response) => response)
-    //         .catch((error) => console.log(error))
-    //
-    // }
 
     handleFetchFilterSelectData = () => {
         let headers = {
@@ -197,13 +173,6 @@ class Filter extends Component{
                         </Select>
                     </Col>
                 </Row>
-                {this.props.date_range}
-                {this.props.firewall_rule}
-                {this.props.application}
-                {this.props.protocol}
-                {this.props.source_zone}
-                {this.props.destination_zone}
-
             </Fragment>
         )
     }
