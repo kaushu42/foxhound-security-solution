@@ -186,3 +186,6 @@ sketch
 # End of https://www.gitignore.io/api/react,python,django
 
 *.csv
+.vscode/
+.ipynb*
+*.ipynb
