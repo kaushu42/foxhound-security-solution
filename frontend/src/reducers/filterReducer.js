@@ -1,7 +1,10 @@
 import {
+    DATE_RANGE_PICKER_FILTER_UPDATED,
+    FIREWALL_RULE_FILTER_UPDATED,
     APPLICATION_FILTER_UPDATED,
-    DATE_RANGE_FILTER_UPDATED,
-    FIREWALL_RULE_FILTER_UPDATED
+    PROTOCOL_FILTER_UPDATED,
+    SOURCE_ZONE_FILTER_UPDATED,
+    DESTINATION_ZONE_FILTER_UPDATED
 } from "../actionTypes/filterActionTypes";
 
 const initialState = {
@@ -15,7 +18,7 @@ const initialState = {
 
 const filterReducer = (state=initialState,action) => {
     switch(action.type){
-        case DATE_RANGE_FILTER_UPDATED :
+        case DATE_RANGE_PICKER_FILTER_UPDATED :
             return {
              ...state,
                 date_range: action.payload.date_range
@@ -29,6 +32,21 @@ const filterReducer = (state=initialState,action) => {
             return {
                 ...state,
                 application: action.payload.application
+            }
+        case PROTOCOL_FILTER_UPDATED:
+            return {
+                ...state,
+                protocol: action.payload.protocol
+            }
+        case SOURCE_ZONE_FILTER_UPDATED:
+            return {
+                ...state,
+                source_zone: action.payload.source_zone
+            }
+        case DESTINATION_ZONE_FILTER_UPDATED:
+            return {
+                ...state,
+                destination_zone: action.payload.destination_zone
             }
 
         default:
