@@ -11,12 +11,6 @@ class Dashboard extends Component{
                 <h1>Dashboard Page </h1>
                 <Filter />
                 <DashboardStats/>
-                {this.props.date_range}
-                {this.props.firewall_rule}
-                {this.props.application}
-                {this.props.protocol}
-                {this.props.source_zone}
-                {this.props.destination_zone}
             </div>
         )
     }

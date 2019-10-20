@@ -1,4 +1,4 @@
-import React from "react";
+import React, {Component} from "react";
 
 class IpProfile extends Component{
     render(){
