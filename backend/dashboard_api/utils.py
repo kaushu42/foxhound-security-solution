@@ -13,6 +13,10 @@ def str_to_date(string):
     except Exception:
         return None
 
+def undefined_to_none(string):
+    if string=='undefined':
+        return None
+    return string
 
 def get_filters(request):
     """
@@ -27,14 +31,14 @@ def get_filters(request):
     protocol = request.POST.get('protocol', None)
     source_zone = request.POST.get('source_zone', None)
     destination_zone = request.POST.get('destination_zone', None)
-
+    
     response = {
-        "start_date": start_date,
-        "end_date": end_date,
-        "application": application,
-        "protocol": protocol,
-        "source_zone": source_zone,
-        "destination_zone": destination_zone,
+        "start_date": undefined_to_none(start_date),
+        "end_date": undefined_to_none(end_date),
+        "application": undefined_to_none(application),
+        "protocol": undefined_to_none(protocol),
+        "source_zone": undefined_to_none(source_zone),
+        "destination_zone": undefined_to_none(destination_zone),
     }
 
     return response
