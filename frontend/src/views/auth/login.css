@@ -1,0 +1,34 @@
+.login-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: auto;
+    background: #f0f2f5;
+    background-image: url("https://gw.alipayobjects.com/zos/rmsportal/TVYTbAXWheQpRcWDaDMu.svg")
+}
+
+.login-title{
+    margin-left: 45%;
+    margin-top: 10%;
+    position: relative;
+    top: 2px;
+    color: rgba(0,0,0,.85);
+    font-weight: 600;
+    font-size: 33px;
+    font-family: Avenir,Helvetica Neue,Arial,Helvetica,sans-serif;
+}
+.login-form {
+    width: 400px;
+    position: absolute;
+    margin-left: 40%;
+    margin-top: 15%;
+    position: absolute;
+}
+
+.login-form-forgot {
+    float: right;
+}
+
+.login-form-button {
+    width: 100%;
+}
