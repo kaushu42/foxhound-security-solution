@@ -41,17 +41,29 @@ def groupby_date(queryset, input_field, timeinterval, output_fields):
 
 
 def get_activity(queryset):
-    activity_bytes_sent = []
-    activity_bytes_received = []
+    activity_bytes_sent = {}
+    activity_bytes_received = {}
 
     for obj in queryset:
         bytes_sent = obj['bytes_sent']
         bytes_received = obj['bytes_received']
         month, day = get_month_day_index(obj['date'])
-        activity_bytes_sent.append([month, day, bytes_sent])
-        activity_bytes_received.append([month, day, bytes_received])
+        index = f'{month},{day}'
+        activity_bytes_sent[index] = activity_bytes_sent.get(
+            index, 0) + bytes_sent
+        activity_bytes_received[index] = activity_bytes_received.get(
+            index, 0) + bytes_received
 
-    return activity_bytes_sent, activity_bytes_received
+    sent = []
+    received = []
+
+    for (key1, value1), (key2, value2) in zip(activity_bytes_sent.items(), activity_bytes_received.items()):
+        sent_value = [int(i) for i in key1.split(',') + [value1]]
+        received_value = [int(i) for i in key2.split(',') + [value2]]
+        sent.append(sent_value)
+        received.append(received_value)
+
+    return sent, received
 
 
 def get_usage(queryset):

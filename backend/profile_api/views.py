@@ -11,7 +11,7 @@ from rest_framework.status import (
 )
 
 from core.models import TrafficLog, TrafficLogDetail
-from globalutils.utils import (
+from globalutils import (
     get_month_day_index,
     groupby_date,
     get_activity,

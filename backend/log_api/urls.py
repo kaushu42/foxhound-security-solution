@@ -3,5 +3,6 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.LogApiView.as_view()),
+    path('', views.TrafficLogApiView.as_view()),
+    path('<int:id>', views.TrafficLogDetailApiView.as_view()),
 ]

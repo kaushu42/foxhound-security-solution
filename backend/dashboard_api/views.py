@@ -14,7 +14,7 @@ from rest_framework.status import (
 
 from core.models import TrafficLog, TrafficLogDetail
 from troubleticket.models import TroubleTicket
-from globalutils.utils import (
+from globalutils import (
     get_month_day_index,
     groupby_date,
     get_activity,
@@ -52,32 +52,36 @@ def rules(request):
     pass
 
 
-class FilterApiView(APIView):
+class FiltersApiView(APIView):
     def get(self, request, format=None):
         objects = TrafficLogDetail.objects.all()
         firewall_rule = [
             l[0] for l in list(
-                objects.values_list('firewall_rule').distinct()
+                objects.values_list(
+                    'firewall_rule').distinct().order_by('firewall_rule')
             )
         ]
         application = [
             l[0] for l in list(
-                objects.values_list('application').distinct()
+                objects.values_list(
+                    'application').distinct().order_by('application')
             )
         ]
         protocol = [
             l[0] for l in list(
-                objects.values_list('protocol').distinct()
+                objects.values_list('protocol').distinct().order_by('protocol')
             )
         ]
         source_zone = [
             l[0] for l in list(
-                objects.values_list('source_zone').distinct()
+                objects.values_list(
+                    'source_zone').distinct().order_by('source_zone')
             )
         ]
         destination_zone = [
             l[0] for l in list(
-                objects.values_list('destination_zone').distinct()
+                objects.values_list('destination_zone').distinct().order_by(
+                    'destination_zone')
             )
         ]
 
@@ -121,7 +125,7 @@ class UsageApiView(APIView):
 
 
 class ActivityApiView(APIView):
-    def get(request):
+    def get(self, request):
         objects = groupby_date(
             TrafficLogDetail.objects,
             'logged_datetime',

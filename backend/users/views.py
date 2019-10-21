@@ -8,7 +8,7 @@ from rest_framework.status import (
     HTTP_200_OK,
 )
 from rest_framework.response import Response
-from .serializers import UserSerializer, UserLoginSerializer
+from serializers.serializers import UserSerializer, UserLoginSerializer
 from .auth import token_expire_handler, expires_in
 
 
