@@ -10,7 +10,11 @@ def _is_ip_valid(ip):
 
 
 def get_ip_from_request(request):
-    ip = request.POST.get('ip', '')
+    if request.method == 'POST':
+        ip = request.POST.get('ip', '')
+    elif request.method == 'GET':
+        ip = request.GET.get('ip', '')
+
     if not _is_ip_valid(ip):
         return None
     return ip
