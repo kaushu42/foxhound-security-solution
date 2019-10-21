@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'troubleticket',
     'dashboard_api',
     'profile_api',
+    'log_api',
 ]
 
 MIDDLEWARE = [
@@ -142,7 +143,10 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
-    )
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 50
+
 }
 
 TOKEN_EXPIRED_AFTER_SECONDS = 1000000
