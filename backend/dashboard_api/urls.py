@@ -7,4 +7,5 @@ urlpatterns = [
     path('filters/', views.filters),
     path('rules/', views.rules),
     path('usage/', views.usage),
+    path('activity/', views.activity),
 ]

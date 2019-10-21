@@ -9,9 +9,15 @@ from rest_framework.status import (
     HTTP_200_OK,
 )
 
-from .utils import get_ip_from_request, get_month_day_index
+from core.models import TrafficLog, TrafficLogDetail
+from globalutils.utils import (
+    get_month_day_index,
+    groupby_date,
+    get_activity,
+    get_usage
+)
 
-from core.models import TrafficLogDetail
+from .utils import get_ip_from_request
 
 
 @api_view(['POST'])
@@ -28,30 +34,43 @@ def stats(request):
 
 
 @api_view(['POST'])
+def usage(request):
+    ip = get_ip_from_request(request)
+    latest_date = TrafficLog.objects.latest('log_date')
+    objects = groupby_date(
+        TrafficLogDetail.objects.filter(
+            traffic_log=latest_date, source_ip=ip
+        ),
+        'logged_datetime',
+        'minute',
+        ['bytes_sent', 'bytes_received']
+    )
+
+    time, bytes_sent, bytes_received = get_usage(objects)
+
+    return Response({
+        "n_items": len(time),
+        "time": time,
+        "bytes_sent": bytes_sent,
+        "bytes_received": bytes_received,
+    }, status=HTTP_200_OK)
+
+
+@api_view(['POST'])
 def activity(request):
     ip = get_ip_from_request(request)
-    objects = TrafficLogDetail.objects.filter(source_ip=ip).annotate(
-        day=TruncDay(
-            'logged_datetime'
-        )
-    ).values(
-        'day'
-    ).annotate(
-        bytes_sent=Sum('bytes_sent'),
-        bytes_received=Sum('bytes_received'),
-    ).values('day', 'bytes_sent', 'bytes_received')
+    objects = groupby_date(
+        TrafficLogDetail.objects.filter(source_ip=ip),
+        'logged_datetime',
+        'day',
+        ['bytes_sent', 'bytes_received']
+    )
 
-    activity_bytes_sent = []
-    activity_bytes_received = []
-    for obj in objects:
-        bytes_sent = obj['bytes_sent']
-        bytes_received = obj['bytes_received']
+    activity_bytes_sent, activity_bytes_received = get_activity(objects)
 
-        month, day = get_month_day_index(obj['day'])
-        activity_bytes_sent.append([month, day, bytes_sent])
-        activity_bytes_received.append([month, day, bytes_received])
     return Response({
+        "n_items": len(activity_bytes_sent),
         "activity_bytes_sent": activity_bytes_sent,
         "activity_bytes_received": activity_bytes_received,
-        "n_items": len(activity_bytes_sent)
-    })
+
+    }, status=HTTP_200_OK)
