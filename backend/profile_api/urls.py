@@ -6,4 +6,5 @@ urlpatterns = [
     path('stats/', views.StatsApiView.as_view()),
     path('usage/', views.UsageApiView.as_view()),
     path('activity/', views.ActivityApiView.as_view()),
+    path('shankey/', views.ShankeyApiView.as_view()),
 ]

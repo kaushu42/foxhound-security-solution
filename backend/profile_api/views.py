@@ -56,11 +56,10 @@ class UsageApiView(APIView):
             ['bytes_sent', 'bytes_received']
         )
 
-        time, bytes_sent, bytes_received = get_usage(objects)
+        bytes_sent, bytes_received = get_usage(objects)
 
         return {
-            "n_items": len(time),
-            "time": time,
+            "n_items": len(bytes_sent),
             "bytes_sent": bytes_sent,
             "bytes_received": bytes_received,
         }
@@ -94,6 +93,41 @@ class ActivityApiView(APIView):
     def post(self, request, format=None):
         ip = get_ip_from_request(request)
         response = self._get_activity(ip)
+        return Response(response, status=HTTP_200_OK)
+
+    def get(self, request, format=None):
+        return self.post(request, format=format)
+
+
+class ShankeyApiView(APIView):
+    def _get_shankey(self, ip):
+        ip_as_source = TrafficLogDetail.objects.filter(
+            source_ip=ip
+        ).values('destination_ip').annotate(
+            sent=Sum('bytes_sent')
+        )
+        ip_as_destination = TrafficLogDetail.objects.filter(
+            destination_ip=ip
+        ).values('source_ip').annotate(
+            received=Sum('bytes_received')
+        )
+
+        destination_ips = [i['destination_ip'] for i in ip_as_source]
+        destination_bytes = [i['sent'] for i in ip_as_source]
+        source_ips = [i['source_ip'] for i in ip_as_destination]
+        source_bytes = [i['received'] for i in ip_as_destination]
+
+        return {
+            "ip": ip,
+            "destination_ips": destination_ips,
+            "destination_bytes": destination_bytes,
+            "source_ips": source_ips,
+            "source_bytes": destination_ips,
+        }
+
+    def post(self, request, format=None):
+        ip = get_ip_from_request(request)
+        response = self._get_shankey(ip)
         return Response(response, status=HTTP_200_OK)
 
     def get(self, request, format=None):
