@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'users',
     'core',
+    'apiv1',
     'troubleticket',
     'dashboard_api',
     'profile_api',
