@@ -9,7 +9,7 @@ class Test extends  Component {
     render() {
         return (
             <Fragment>
-                <ProcessedLogsTable />
+                <IpUsageActivityChart />
             </Fragment>
         )
     }
