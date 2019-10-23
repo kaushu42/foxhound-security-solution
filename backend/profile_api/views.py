@@ -100,6 +100,40 @@ class ActivityApiView(APIView):
 
 
 class ShankeyApiView(APIView):
+    def _get_shankey_data(self, ip):
+        return {
+            'nodes': [
+                {
+                    "id": ip,
+                }
+            ],
+            'links': [
+
+            ]
+        }
+
+    def _get_destination_data(self, ip, ip_as_destination):
+        destination_data = self._get_shankey_data(ip)
+        for i in ip_as_destination:
+            destination_data['nodes'].append({"id": i['source_ip']})
+            destination_data['links'].append({
+                "source": i['source_ip'],
+                "target": ip,
+                "value": i['received']
+            })
+        return destination_data
+
+    def _get_source_data(self, ip, ip_as_source):
+        source_data = self._get_shankey_data(ip)
+        for i in ip_as_source:
+            source_data['nodes'].append({"id": i['destination_ip']})
+            source_data['links'].append({
+                "source": ip,
+                "target": i['destination_ip'],
+                "value": i['sent']
+            })
+        return source_data
+
     def _get_shankey(self, ip):
         ip_as_source = TrafficLogDetail.objects.filter(
             source_ip=ip
@@ -111,18 +145,11 @@ class ShankeyApiView(APIView):
         ).values('source_ip').annotate(
             received=Sum('bytes_received')
         )
-
-        destination_ips = [i['destination_ip'] for i in ip_as_source]
-        destination_bytes = [i['sent'] for i in ip_as_source]
-        source_ips = [i['source_ip'] for i in ip_as_destination]
-        source_bytes = [i['received'] for i in ip_as_destination]
-
+        destination_data = self._get_destination_data(ip, ip_as_destination)
+        source_data = self._get_source_data(ip, ip_as_source)
         return {
-            "ip": ip,
-            "destination_ips": destination_ips,
-            "destination_bytes": destination_bytes,
-            "source_ips": source_ips,
-            "source_bytes": source_bytes,
+            "destination_data": destination_data,
+            "source_data": source_data,
         }
 
     def post(self, request, format=None):
