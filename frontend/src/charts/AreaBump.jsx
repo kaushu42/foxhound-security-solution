@@ -1,12 +1,10 @@
 import React from "react";
 import { ResponsiveAreaBump } from "@nivo/bump";
 
-const AreaBump = (
-  {
-    data,
-    margin = { top: 40, right: 100, bottom: 40, left: 100 },
-    spacing = 8
-  },
+const AreaBump = ({
+  data,
+  margin = { top: 40, right: 100, bottom: 40, left: 100 },
+  spacing = 8,
   colors = { scheme: "nivo" },
   blendMode = "multiply",
   startLabel = "id",
@@ -26,7 +24,7 @@ const AreaBump = (
     legendPosition: "middle",
     legendOffset: 32
   }
-) => (
+}) => (
   <ResponsiveAreaBump
     data={data}
     margin={margin}

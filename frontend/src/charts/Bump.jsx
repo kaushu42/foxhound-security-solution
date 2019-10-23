@@ -1,24 +1,22 @@
 import React from "react";
 import { ResponsiveBump } from "@nivo/bump";
 
-const Bump = (
-  { 
-    data,
-    margin={ top: 40, right: 100, bottom: 40, left: 60 }
-  },
-  colors={ scheme: "spectral" },
-  lineWidth=3,
-  activeLineWidth=6,
-  inactiveLineWidth=3,
-  inactiveOpacity=0.15,
-  pointSize=10,
-  activePointSize=16,
-  inactivePointSize=0,
-  pointColor={ theme: "background" },
-  pointBorderWidth=3,
-  activePointBorderWidth=3,
-  pointBorderColor={ from: "serie.color" },
-  axisTop={
+const Bump = ({
+  data,
+  margin = { top: 40, right: 100, bottom: 40, left: 60 },
+  colors = { scheme: "spectral" },
+  lineWidth = 3,
+  activeLineWidth = 6,
+  inactiveLineWidth = 3,
+  inactiveOpacity = 0.15,
+  pointSize = 10,
+  activePointSize = 16,
+  inactivePointSize = 0,
+  pointColor = { theme: "background" },
+  pointBorderWidth = 3,
+  activePointBorderWidth = 3,
+  pointBorderColor = { from: "serie.color" },
+  axisTop = {
     tickSize: 5,
     tickPadding: 5,
     tickRotation: 0,
@@ -26,8 +24,8 @@ const Bump = (
     legendPosition: "middle",
     legendOffset: -36
   },
-  axisRight=null,
-  axisBottom={
+  axisRight = null,
+  axisBottom = {
     tickSize: 5,
     tickPadding: 5,
     tickRotation: 0,
@@ -35,7 +33,7 @@ const Bump = (
     legendPosition: "middle",
     legendOffset: 32
   },
-  axisLeft={
+  axisLeft = {
     tickSize: 5,
     tickPadding: 5,
     tickRotation: 0,
@@ -43,7 +41,7 @@ const Bump = (
     legendPosition: "middle",
     legendOffset: -40
   }
-) => (
+}) => (
   <ResponsiveBump
     data={data}
     margin={margin}
@@ -57,7 +55,7 @@ const Bump = (
     inactivePointSize={inactivePointSize}
     pointColor={pointColor}
     pointBorderWidth={pointBorderWidth}
-    activePointBorderWidth={pointBorderWidth}
+    activePointBorderWidth={activePointBorderWidth}
     pointBorderColor={pointBorderColor}
     axisTop={axisTop}
     axisRight={axisRight}

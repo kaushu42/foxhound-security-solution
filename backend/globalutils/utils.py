@@ -64,7 +64,7 @@ def get_usage(queryset):
 
     for obj in queryset:
         time = obj['date'].time()
-        bytes_sent.append({'time': time, 'value': obj['bytes_sent']})
-        bytes_received.append({'time': time, 'value': obj['bytes_received']})
+        bytes_sent.append({'x': time, 'y': obj['bytes_sent']})
+        bytes_received.append({'x': time, 'y': obj['bytes_received']})
 
     return bytes_sent, bytes_received

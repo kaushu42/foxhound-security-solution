@@ -1,14 +1,12 @@
 import React from "react";
 import { ResponsiveBar } from "@nivo/bar";
 
-const Bar = (
-  {
-    data,
-    keys = ["hot dog", "burger", "sandwich", "kebab", "fries", "donut"],
-    indexBy= "country",
-    margin={ top: 50, right: 130, bottom: 50, left: 60 },
-    padding=0.3
-  },
+const Bar = ({
+  data,
+  keys = ["hot dog", "burger", "sandwich", "kebab", "fries", "donut"],
+  indexBy = "country",
+  margin = { top: 50, right: 130, bottom: 50, left: 60 },
+  padding = 0.3,
   colors = { scheme: "nivo" },
   defs = [
     {
@@ -91,9 +89,9 @@ const Bar = (
     }
   ],
   animate = true,
-  motionStiffness= 90,
-  motionDamping= 15
-) => (
+  motionStiffness = 90,
+  motionDamping = 15
+}) => (
   <ResponsiveBar
     data={data}
     keys={keys}

@@ -5,23 +5,21 @@ import { ResponsiveScatterPlot } from "@nivo/scatterplot";
 // no chart will be rendered.
 // website examples showcase many properties,
 // you'll often use just a few of them.
-const Scatter = (
-  { 
-    data
-  },
-  margin={ top: 60, right: 140, bottom: 70, left: 90 },
-  xScale={ type: "linear", min: 0, max: "auto" },
-  xFormat=function(e) {
+const Scatter = ({
+  data,
+  margin = { top: 60, right: 140, bottom: 70, left: 90 },
+  xScale = { type: "linear", min: 0, max: "auto" },
+  xFormat = function(e) {
     return e + " kg";
   },
-  yScale={ type: "linear", min: 0, max: "auto" },
-  yFormat=function(e) {
+  yScale = { type: "linear", min: 0, max: "auto" },
+  yFormat = function(e) {
     return e + " cm";
   },
-  blendMode="multiply",
-  axisTop=null,
-  axisRight=null,
-  axisBottom={
+  blendMode = "multiply",
+  axisTop = null,
+  axisRight = null,
+  axisBottom = {
     orient: "bottom",
     tickSize: 5,
     tickPadding: 5,
@@ -30,7 +28,7 @@ const Scatter = (
     legendPosition: "middle",
     legendOffset: 46
   },
-  axisLeft={
+  axisLeft = {
     orient: "left",
     tickSize: 5,
     tickPadding: 5,
@@ -39,7 +37,7 @@ const Scatter = (
     legendPosition: "middle",
     legendOffset: -60
   },
-  legends=[
+  legends = [
     {
       anchor: "bottom-right",
       direction: "column",
@@ -62,7 +60,7 @@ const Scatter = (
       ]
     }
   ]
-) => (
+}) => (
   <ResponsiveScatterPlot
     data={data}
     margin={margin}

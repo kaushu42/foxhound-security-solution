@@ -50,7 +50,7 @@ class UsageApiView(APIView):
         objects = groupby_date(
             TrafficLogDetail.objects.filter(
                 traffic_log=latest_date, source_ip=ip
-            ),
+            ).order_by('logged_datetime'),
             'logged_datetime',
             'minute',
             ['bytes_sent', 'bytes_received']
@@ -60,6 +60,7 @@ class UsageApiView(APIView):
 
         return {
             "n_items": len(bytes_sent),
+            "id": ip,
             "bytes_sent": bytes_sent,
             "bytes_received": bytes_received,
         }

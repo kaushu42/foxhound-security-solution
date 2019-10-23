@@ -5,16 +5,25 @@ import { ResponsiveHeatMap } from "@nivo/heatmap";
 // no chart will be rendered.
 // website examples showcase many properties,
 // you'll often use just a few of them.
-const HeatMap = (
-  { 
-    data,
-    keys=["hot dog","burger","sandwich","kebab","fries","donut","junk","sushi","ramen","curry","udon"
-    ],
-    indexBy="country",
-    margin={ top: 100, right: 60, bottom: 60, left: 60 }
-  },
-  forceSquare=true,
-  axisTop={
+const HeatMap = ({
+  data,
+  keys = [
+    "hot dog",
+    "burger",
+    "sandwich",
+    "kebab",
+    "fries",
+    "donut",
+    "junk",
+    "sushi",
+    "ramen",
+    "curry",
+    "udon"
+  ],
+  indexBy = "country",
+  margin = { top: 100, right: 60, bottom: 60, left: 60 },
+  forceSquare = true,
+  axisTop = {
     orient: "top",
     tickSize: 5,
     tickPadding: 5,
@@ -22,9 +31,9 @@ const HeatMap = (
     legend: "",
     legendOffset: 36
   },
-  axisRight=null,
-  axisBottom=null,
-  axisLeft={
+  axisRight = null,
+  axisBottom = null,
+  axisLeft = {
     orient: "left",
     tickSize: 5,
     tickPadding: 5,
@@ -33,10 +42,10 @@ const HeatMap = (
     legendPosition: "middle",
     legendOffset: -40
   },
-  cellOpacity=1,
-  cellBorderColor={ from: "color", modifiers: [["darker", 0.4]] },
-  labelTextColor={ from: "color", modifiers: [["darker", 1.8]] },
-  defs=[
+  cellOpacity = 1,
+  cellBorderColor = { from: "color", modifiers: [["darker", 0.4]] },
+  labelTextColor = { from: "color", modifiers: [["darker", 1.8]] },
+  defs = [
     {
       id: "lines",
       type: "patternLines",
@@ -47,13 +56,13 @@ const HeatMap = (
       spacing: 7
     }
   ],
-  fill=[{ id: "lines" }],
-  animate=true,
-  motionStiffness=80,
-  motionDamping=9,
-  hoverTarget="cell",
-  cellHoverOthersOpacity=0.25
-) => (
+  fill = [{ id: "lines" }],
+  animate = true,
+  motionStiffness = 80,
+  motionDamping = 9,
+  hoverTarget = "cell",
+  cellHoverOthersOpacity = 0.25
+}) => (
   <ResponsiveHeatMap
     data={data}
     keys={keys}
