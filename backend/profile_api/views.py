@@ -122,7 +122,7 @@ class ShankeyApiView(APIView):
             "destination_ips": destination_ips,
             "destination_bytes": destination_bytes,
             "source_ips": source_ips,
-            "source_bytes": destination_ips,
+            "source_bytes": source_bytes,
         }
 
     def post(self, request, format=None):
