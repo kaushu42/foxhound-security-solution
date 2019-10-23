@@ -1,7 +1,8 @@
 import React from "react";
 import { ResponsiveCalendar } from "@nivo/calendar";
 
-const Calendar = ({
+const Calendar = (
+  {
   data,
   from = "2016-01-01",
   to = "2016-12-31",

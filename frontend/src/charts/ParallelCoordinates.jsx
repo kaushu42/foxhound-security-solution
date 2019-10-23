@@ -5,10 +5,10 @@ import { ResponsiveParallelCoordinates } from "@nivo/parallel-coordinates";
 // no chart will be rendered.
 // website examples showcase many properties,
 // you'll often use just a few of them.
-const ParallelCoordinates = ({ data /* see data tab */ }) => (
-  <ResponsiveParallelCoordinates
-    data={data}
-    variables={[
+const ParallelCoordinates = (
+  { 
+    data,
+    variables = [
       {
         key: "temp",
         type: "linear",
@@ -56,11 +56,20 @@ const ParallelCoordinates = ({ data /* see data tab */ }) => (
         legendPosition: "start",
         legendOffset: -20
       }
-    ]}
-    margin={{ top: 50, right: 60, bottom: 50, left: 60 }}
-    animate={true}
-    motionStiffness={90}
-    motionDamping={12}
+    ]
+  },
+  margin={ top: 50, right: 60, bottom: 50, left: 60 },
+  animate=true,
+  motionStiffness=90,
+  motionDamping=12
+) => (
+  <ResponsiveParallelCoordinates
+    data={data}
+    variables={variables}
+    margin={margin}
+    animate={animate}
+    motionStiffness={motionStiffness}
+    motionDamping={motionDamping}
   />
 );
 export default ParallelCoordinates;
