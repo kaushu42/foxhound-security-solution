@@ -1,10 +1,5 @@
 import React, {Component, Fragment} from "react";
 import {PageHeader, Button, Descriptions, Card, Row, Col} from 'antd';
-import { Skeleton, Switch, Icon, Avatar } from 'antd';
-import IpUsageChart from "../components/IpUsageActivityChart";
-import IpUsageAsSourceSankeyChart from "../components/IpUsageAsSourceSankeyChart";
-import IpUsageAsDestinationSankeyChart from "../components/IpUsageAsDestinationSankeyChart";
-import IpUsageDayAverageLineChart from "../components/IpUsageDayAverageLineChart";
 const { Meta } = Card;
 
 const routes = [
@@ -41,10 +36,6 @@ class IpProfile extends Component{
                     title="IP Profile"
                     subTitle="usage of an ip address">
                 </PageHeader>
-                <IpUsageChart />
-                <IpUsageAsSourceSankeyChart />
-                <IpUsageAsDestinationSankeyChart />
-                <IpUsageDayAverageLineChart />
             </Fragment>
         )
     }

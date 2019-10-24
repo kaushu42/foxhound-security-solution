@@ -6,13 +6,15 @@ import {createStore, combineReducers} from 'redux';
 import {Provider} from 'react-redux';
 import filterReducer from './reducers/filterReducer';
 import authReducer from "./reducers/authReducer";
+import ipSearchReducer from "./reducers/ipSearchReducer";
 
 // "token": "67e9965410297c949312bbcf17447a94cb19e242"
 
 
 const rootReducer = combineReducers({
     filter: filterReducer,
-    auth : authReducer
+    auth : authReducer,
+    ipSearch : ipSearchReducer
 })
 
 const store = createStore(rootReducer);

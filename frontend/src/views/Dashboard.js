@@ -26,7 +26,7 @@ const mapStateToProps = (state) => {
         source_zone : state.filter.source_zone,
         destination_zone : state.filter.destination_zone,
 
-        token : state.auth.auth_token
+        auth_token : state.auth.auth_token
     }
 }
 
