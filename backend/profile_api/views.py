@@ -1,3 +1,4 @@
+import json
 from django.db.models.functions import TruncDay, TruncMonth
 from django.db.models import Sum, Count
 
@@ -8,6 +9,7 @@ from rest_framework.status import (
     HTTP_400_BAD_REQUEST,
     HTTP_404_NOT_FOUND,
     HTTP_200_OK,
+    HTTP_422_UNPROCESSABLE_ENTITY
 )
 
 from core.models import TrafficLog, TrafficLogDetail
@@ -155,6 +157,9 @@ class ShankeyApiView(APIView):
 
     def post(self, request, format=None):
         ip = get_ip_from_request(request)
+        if ip is None:
+            return Response({"error": "Invalid IP"},
+                            status=HTTP_422_UNPROCESSABLE_ENTITY)
         response = self._get_shankey(ip)
         return Response(response, status=HTTP_200_OK)
 

@@ -141,4 +141,4 @@ class ActivityApiView(APIView):
         }, status=HTTP_200_OK)
 
     def post(self, request, format=None):
-        return self.get(request, format=format)
+        return self.get(request)
