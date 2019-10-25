@@ -6,8 +6,9 @@ import request from 'request';
 
 import axios from "axios";
 import {sessionLogIn} from "../../actions/authAction";
+import {ROOT_URL} from "../../utils";
 
-const  LOGIN_API = "http://127.0.0.1:8000/api/v1/users/login/";
+const  LOGIN_API = `${ROOT_URL}users/login/`;
 
 
 class Login extends Component {

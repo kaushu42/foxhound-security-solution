@@ -4,11 +4,11 @@ import { ResponsiveCalendar } from "@nivo/calendar";
 const Calendar = (
   {
   data,
-  from = "2016-01-01",
-  to = "2016-12-31",
+  from = "2019-01-01",
+  to = "2019-12-31",
   emptyColor = "#eeeeee",
   colors = ["#61cdbb", "#97e3d5", "#e8c1a0", "#f47560"],
-  margin = { top: 40, right: 40, bottom: 40, left: 40 },
+  margin = { top:20, right: 10, bottom: 40, left: 10 },
   yearSpacing = 40,
   monthBorderColor = "#ffffff",
   dayBorderWidth = 2,
@@ -18,7 +18,7 @@ const Calendar = (
       anchor: "bottom-right",
       direction: "row",
       translateY: 36,
-      itemCount: 4,
+      itemCount: 5,
       itemWidth: 42,
       itemHeight: 36,
       itemsSpacing: 14,

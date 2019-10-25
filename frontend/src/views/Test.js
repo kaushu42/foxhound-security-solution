@@ -1,18 +1,26 @@
 import React, {Component, Fragment} from 'react';
 import IpUsageActivityChart from "../components/IpUsageActivityChart";
-import IpUsageAsSourceSankeyChart from "../components/IpUsageAsSourceSankeyChart";
-import IpUsageAsDestinationSankeyChart from "../components/IpUsageAsDestinationSankeyChart";
-import IpUsageDayAverageLineChart from "../components/IpUsageDayAverageLineChart";
-import ProcessedLogsTable from "../components/ProcessedLogsTable";
+import IpConnectionWiseUsageShankeyChart from "../components/IpConnectionWiseUsageShankeyChart";
+import IpSearchBar from "../components/IpSearchBar";
+import {connect} from "react-redux";
 
 class Test extends  Component {
     render() {
         return (
             <Fragment>
-                <IpUsageActivityChart />
+                <IpSearchBar />
+                <h1>{this.props.ip_address}</h1>
+                <IpConnectionWiseUsageShankeyChart search_address={this.props.ip_address}/>
             </Fragment>
         )
     }
 }
 
-export default Test;
+const mapStateToProps = state => {
+    return {
+        ip_address : state.ipSearchBar.ip_address_value
+
+    }
+}
+
+export default connect(mapStateToProps,null)(Test);
