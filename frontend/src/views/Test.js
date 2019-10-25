@@ -9,9 +9,8 @@ class Test extends  Component {
         return (
             <Fragment>
                 <IpSearchBar />
-                <h1>{this.props.ip_search}</h1>
-                {/*<IpUsageActivityChart search_address={this.props.ip_search}/>*/}
-                <IpConnectionWiseUsageShankeyChart search_address={this.props.ip_search}/>
+                <h1>{this.props.ip_address}</h1>
+                <IpConnectionWiseUsageShankeyChart search_address={this.props.ip_address}/>
             </Fragment>
         )
     }
@@ -19,7 +18,7 @@ class Test extends  Component {
 
 const mapStateToProps = state => {
     return {
-        ip_search : state.ipSearch.ip_address
+        ip_address : state.ipSearchBar.ip_address_value
 
     }
 }

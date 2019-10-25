@@ -1,6 +1,6 @@
 import React, {Component,Fragment} from 'react';
 import {connect} from 'react-redux';
-import {Card, Skeleton} from 'antd';
+import {Card, Col, Row, Skeleton} from 'antd';
 import {
     IpActivityCalendarChartServiceAsync,
 } from "../services/IpActivityCalendarChartService";
@@ -11,41 +11,52 @@ class IpUsageActivityChart extends Component {
     constructor(props){
         super(props);
         this.state = {
-            loading : true,
+            loadingBytesSentChart : true,
+            loadingBytesReceivedChart : true,
             bytes_received : [],
             bytes_sent : []
         }
     }
 
     componentDidMount() {
-        IpActivityCalendarChartServiceAsync(this.props.search_address ,this.props.auth_token)
+        IpActivityCalendarChartServiceAsync(this.props.ip_address ,this.props.auth_token)
             .then(res => {
                 const data = res.data;
                 this.setState({
                     bytes_received:data.activity_bytes_received,
                     bytes_sent : data.activity_bytes_sent,
-                    loading:false
                 });
+                if(this.state.bytes_sent.length != 0){
+                    this.setState({loadingBytesSentChart:false})
+                }
+                if(this.state.bytes_received.length != 0){
+                    this.setState({loadingBytesReceivedChart:false})
+                }
             });
     }
 
     render() {
-        const {loading,bytes_sent,bytes_received} = this.state;
-        console.log(bytes_received);
+        const {loadingBytesSentChart,loadingBytesReceivedChart,bytes_sent,bytes_received} = this.state;
        return (
             <Fragment>
-                <Card title="IP ACTIVITY CALENDAR ON BYTES RECEIVED">
-                    <Skeleton loading={loading}></Skeleton>
-                    <div style={{height:'300px'}}>
-                        {!loading?<Calendar data={bytes_received} />:null}
-                    </div>
-                </Card>
-                <Card title="IP ACTIVITY CALENDAR ON BYTES SENT">
-                    <Skeleton loading={loading}></Skeleton>
-                    <div style={{height:'300px'}}>
-                        {!loading?<Calendar data={bytes_sent} />:null}
-                    </div>
-                </Card>
+                <Row>
+                    <Col span={12}>
+                        <Card title="IP ACTIVITY CALENDAR ON BYTES RECEIVED">
+                            <Skeleton loading={loadingBytesReceivedChart}></Skeleton>
+                            <div style={{height:'300px'}}>
+                                {!loadingBytesReceivedChart?<Calendar data={bytes_received} />:null}
+                            </div>
+                        </Card>
+                    </Col>
+                    <Col span={12}>
+                        <Card title="IP ACTIVITY CALENDAR ON BYTES SENT">
+                            <Skeleton loading={loadingBytesSentChart}></Skeleton>
+                            <div style={{height:'300px'}}>
+                                {!loadingBytesSentChart?<Calendar data={bytes_sent} />:null}
+                            </div>
+                        </Card>
+                    </Col>
+                </Row>
             </Fragment>
        )
     }
@@ -53,7 +64,7 @@ class IpUsageActivityChart extends Component {
 
 const mapStateToProps = state => {
     return {
-        ip_search : state.ipSearch.ip_address,
+        ip_address : state.ipSearchBar.ip_address_value,
         auth_token : state.auth.auth_token
 
     }

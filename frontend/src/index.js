@@ -14,7 +14,7 @@ import ipSearchReducer from "./reducers/ipSearchReducer";
 const rootReducer = combineReducers({
     filter: filterReducer,
     auth : authReducer,
-    ipSearch : ipSearchReducer
+    ipSearchBar : ipSearchReducer
 })
 
 const store = createStore(rootReducer);

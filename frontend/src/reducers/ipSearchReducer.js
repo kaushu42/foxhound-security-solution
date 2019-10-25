@@ -1,14 +1,14 @@
 const initialState = {
-    ip_address : "192.168.114.4"
+    ip_address_value : "192.168.114.4"
 }
 
 
-const ipSearchReducer = (state=initialState,action) => {
+const ipSearchBarReducer = (state=initialState,action) => {
     switch (action.type) {
         case "SEARCHING":
             return {
                 ...state,
-                ip_address: action.payload.ip_address
+                ip_address_value: action.payload.ip_address_value
             }
         default:
             return state;
@@ -16,5 +16,5 @@ const ipSearchReducer = (state=initialState,action) => {
 }
 
 
-export default ipSearchReducer;
+export default ipSearchBarReducer;
 

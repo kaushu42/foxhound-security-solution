@@ -10,29 +10,28 @@ class IpSearchBar extends Component {
     constructor(props){
         super(props);
         this.state = {
-            search : this.props.ip_search
+            ip_address : this.props.ip_address
         }
     }
 
     render() {
-        return(
+        return (
             <Fragment>
                 <Search
                     placeholder="input IP address"
                     enterButton="Search"
-                    size="large"
+                    size='default'
                     onSearch={value => this.props.dispatchIpSearchValueUpdate(value)}
                 />
             </Fragment>
-
-            )
+        )
     }
 }
 
 
 const mapStateToProps = state => {
     return {
-        ip_search : state.ipSearch.ip_address,
+        ip_address : state.ipSearchBar.ip_address,
         auth_token : state.auth.auth_token
 
     }
