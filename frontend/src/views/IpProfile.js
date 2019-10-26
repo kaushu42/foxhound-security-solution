@@ -6,42 +6,22 @@ import IpUsageActivityChart from "../components/IpUsageActivityChart";
 import IpConnectionWiseUsageShankeyChart from "../components/IpConnectionWiseUsageShankeyChart";
 import {LayoutStyle} from "../utils";
 import Filter from "../components/Filter";
-const { Meta } = Card;
+import Master from "./Master";
 
-const routes = [
-    {
-        path: 'index',
-        breadcrumbName: 'First-level Menu',
-    },
-    {
-        path: 'first',
-        breadcrumbName: 'Second-level Menu',
-    },
-    {
-        path: 'second',
-        breadcrumbName: 'Third-level Menu',
-    },
-];
+const contentLayout = {
+    paddingLeft:24,paddingRight:24,paddingBottom:24
+}
 
 class IpProfile extends Component{
-
-    state = {
-        loading: true,
-    };
-
-
-
     render(){
-        const { loading } = this.state;
         return(
             <Fragment>
-                <PageHeader
-                    breadcrumb={{routes}}
-                    onBack={() => window.history.back()}
-                    title="IP Profile"
-                    subTitle="IP address profile in depth">
-
-                    <Row type="flex">
+                <Master>
+                    <PageHeader
+                        style={{background: '#efefef',border: '1px solid rgb(235, 237, 240)'}}
+                        title={"IP Address Profile"}
+                        onBack={() => window.history.back()} />
+                    <Row type="flex" style={{paddingTop:24}}>
                         <Statistic
                             title="Static IP Address"
                             value="192.168.10.10"
@@ -73,19 +53,14 @@ class IpProfile extends Component{
                                 margin: '0 20px',
                             }}
                         />
-                        <IpSearchBar ip_address={this.props.ip_address}/>
-
                     </Row>
-                </PageHeader>
-                <Layout style={LayoutStyle}>
-                <Filter />
-                </Layout>
-                <Row>
-                    <Col span={8}>
-                    </Col>
-                </Row>
-                <IpUsageActivityChart />
-                <IpConnectionWiseUsageShankeyChart />
+                    <Row style={contentLayout}>
+                        <IpSearchBar />
+                    </Row>
+                    <Row style={contentLayout}>
+                        <Filter />
+                    </Row>
+                </Master>
             </Fragment>
         )
     }
