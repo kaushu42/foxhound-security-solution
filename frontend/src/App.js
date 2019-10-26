@@ -6,13 +6,14 @@ import "antd/dist/antd.css";
 import ProcessedLog from "./views/ProcessedLog";
 import Login from "./views/auth/Login";
 import Test from "./views/Test";
+import Master from "./views/Master";
 
 class App extends Component {
   render() {
     return (
       <BrowserRouter>
         <Switch>
-          <Route exact path="/" component={Test} />
+          <Route exact path="/" component={Master} />
           <Route exact path="/home" component={Dashboard} />
 
           <Route path="/auth/login" component={Login} />

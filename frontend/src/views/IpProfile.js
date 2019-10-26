@@ -1,8 +1,11 @@
 import React, {Component, Fragment} from "react";
-import {PageHeader, Button, Descriptions, Card, Row, Col} from 'antd';
+import {PageHeader, Statistic,Button, Descriptions, Card, Row, Col, Layout} from 'antd';
 import IpSearchBar from "../components/IpSearchBar";
 import {connect} from "react-redux";
 import IpUsageActivityChart from "../components/IpUsageActivityChart";
+import IpConnectionWiseUsageShankeyChart from "../components/IpConnectionWiseUsageShankeyChart";
+import {LayoutStyle} from "../utils";
+import Filter from "../components/Filter";
 const { Meta } = Card;
 
 const routes = [
@@ -33,18 +36,56 @@ class IpProfile extends Component{
         return(
             <Fragment>
                 <PageHeader
-                    ghost={false}
                     breadcrumb={{routes}}
                     onBack={() => window.history.back()}
                     title="IP Profile"
-                    subTitle="usage of an ip address">
+                    subTitle="IP address profile in depth">
+
+                    <Row type="flex">
+                        <Statistic
+                            title="Static IP Address"
+                            value="192.168.10.10"
+                            style={{
+                                margin: '0 20px',
+                            }}
+
+                        />
+                        <Statistic
+                            title="Alias Name"
+                            value="core-db-server"
+                            style={{
+                                margin: '0 20px',
+                            }}
+                        />
+                        <Statistic
+                            title="Total Uplink"
+                            suffix="MB"
+                            value={1234}
+                            style={{
+                                margin: '0 20px',
+                            }}
+                        />
+                        <Statistic
+                            title="Total Downlink"
+                            value={456}
+                            suffix="MB"
+                            style={{
+                                margin: '0 20px',
+                            }}
+                        />
+                        <IpSearchBar ip_address={this.props.ip_address}/>
+
+                    </Row>
                 </PageHeader>
+                <Layout style={LayoutStyle}>
+                <Filter />
+                </Layout>
                 <Row>
                     <Col span={8}>
-                        <IpSearchBar ip_address={this.props.ip_address}/>
                     </Col>
                 </Row>
                 <IpUsageActivityChart />
+                <IpConnectionWiseUsageShankeyChart />
             </Fragment>
         )
     }
@@ -52,7 +93,8 @@ class IpProfile extends Component{
 
 const mapStateToProps = state => {
         return {
-            ip_address : state.ipSearchBar.ip_address_value
+            ip_address : state.ipSearchBar.ip_address_value,
+            auth_token : state.auth.auth_token
         }
 }
 const mapDispatchToProps = dispatch => {
