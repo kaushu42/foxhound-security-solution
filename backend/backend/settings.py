@@ -90,9 +90,9 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ.get('FH_DB_NAME', ''),
-        'USER': os.environ.get('FH_DB_USER', ''),
-        'PASSWORD': os.environ.get('FH_DB_PASSWORD', ''),
+        'NAME': os.environ.get('FH_DB_NAME', 'fhdb'),
+        'USER': os.environ.get('FH_DB_USER', 'foxhounduser'),
+        'PASSWORD': os.environ.get('FH_DB_PASSWORD', 'foxhound123'),
         'HOST': 'localhost',
         'PORT': '5432'
     }
@@ -136,6 +136,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
