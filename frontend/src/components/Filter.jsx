@@ -1,8 +1,6 @@
 import React, {Component, Fragment} from 'react';
 import {Row,Col,Select,DatePicker} from 'antd';
 import {connect} from 'react-redux';
-import axios from 'axios';
-
 import {
     updateDateRangePickerFilter,
     updateFirewallRuleFilter,
@@ -10,15 +8,11 @@ import {
     updateProtocolFilter,
     updateSourceZoneFilter,
     updateDestinationZoneFilter
-
 } from "../actions/filterAction";
-
+import {filterSelectDataServiceAsync} from "../services/filterSelectDataService";
 
 const {RangePicker} = DatePicker;
 const { Option } = Select;
-const FILTER_DATA_API = "http://127.0.0.1:8000/api/v1/dashboard/filters/";
-const STATS_DATA_API = "http://127.0.0.1:8000/api/v1/dashboard/stats/";
-
 class Filter extends Component{
    constructor(props){
         super(props);
@@ -34,21 +28,13 @@ class Filter extends Component{
             loading_source_zone_select: true,
             loading_destination_zone_select: true
         }
-        this.handleFetchFilterSelectData();
-    }
+   }
 
-    handleFetchFilterSelectData = () => {
-        let headers = {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            Authorization: "Token ab89a41b0bd3948c5a2bafbae569ab698d22f347"
-        };
-
-        axios.post(FILTER_DATA_API, {},{
-            headers: headers
-        })
+    componentDidMount() {
+        filterSelectDataServiceAsync(this.props.auth_token)
             .then(response => {
                 const data = response.data;
+                console.log(data);
                 this.setState({
                     firewall_rule_select_data : data.firewall_rule,
                     application_select_data : data.application,
@@ -101,12 +87,12 @@ class Filter extends Component{
         return(
             <Fragment>
                 <Row>
-                    <Col span={4}>
+                    <Col xs={24} sm={24} md={8} lg={4} xl={4}>
                         <RangePicker id="RangePicker" onChange={(e,v)=>this.handleRangePickerChange(e,v)}/>
                     </Col>
-                    <Col span={4}>
+                    <Col xs={24} sm={24} md={8} lg={4} xl={4}>
                         <Select
-                                id = "FirewallRule"
+                                id="FirewallRule"
                                 mode="multiple"
                                 loading={this.state.loading_firewall_rule_select}
                                 allowClear={true}
@@ -118,7 +104,7 @@ class Filter extends Component{
                             }
                         </Select>
                     </Col>
-                    <Col span={4}>
+                    <Col xs={24} sm={24} md={8} lg={4} xl={4}>
                         <Select
                                 id="Application"
                                 mode="multiple"
@@ -132,7 +118,7 @@ class Filter extends Component{
                             }
                         </Select>
                     </Col>
-                    <Col span={4}>
+                    <Col xs={24} sm={24} md={8} lg={4} xl={4}>
                         <Select
                             id="Protocol"
                             mode="multiple"
@@ -146,7 +132,7 @@ class Filter extends Component{
                             }
                         </Select>
                     </Col>
-                    <Col span={4}>
+                    <Col xs={24} sm={24} md={8} lg={4} xl={4}>
                         <Select id="SourceZone"
                                 mode="multiple"
                                 loading={this.state.loading_source_zone_select}
@@ -159,7 +145,7 @@ class Filter extends Component{
                             }
                         </Select>
                     </Col>
-                    <Col span={4}>
+                    <Col xs={24} sm={24} md={8} lg={4} xl={4}>
                         <Select id="DestinationZone"
                                 mode="multiple"
                                 loading={this.state.loading_destination_zone_select}
@@ -180,12 +166,13 @@ class Filter extends Component{
 
 const mapStateToProps = state => {
     return {
+        auth_token : state.auth.auth_token,
         date_range : state.filter.date_range,
         firewall_rule : state.filter.firewall_rule,
         application : state.filter.application,
         protocol : state.filter.protocol,
         source_zone : state.filter.source_zone,
-        destination_zone: state.filter.destination_zone
+        destination_zone : state.filter.destination_zone
     }
 }
 
