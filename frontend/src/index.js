@@ -6,9 +6,11 @@ import {createStore, combineReducers} from 'redux';
 import {Provider} from 'react-redux';
 import layoutReducer from "./reducers/layoutReducer";
 import filterReducer from "./reducers/filterReducer";
+import authReducer from "./reducers/authReducer";
 
 
 const rootReducer = combineReducers({
+    auth : authReducer,
     filter : filterReducer,
     layout : layoutReducer
 })
