@@ -7,12 +7,14 @@ import {Provider} from 'react-redux';
 import layoutReducer from "./reducers/layoutReducer";
 import filterReducer from "./reducers/filterReducer";
 import authReducer from "./reducers/authReducer";
+import ipSearchBarReducer from "./reducers/ipSearchReducer";
 
 
 const rootReducer = combineReducers({
     auth : authReducer,
     filter : filterReducer,
-    layout : layoutReducer
+    layout : layoutReducer,
+    ipSearchBar : ipSearchBarReducer
 })
 
 const store = createStore(rootReducer);

@@ -3,6 +3,9 @@ import {connect} from "react-redux";
 import {Col, PageHeader, Row, Statistic} from "antd";
 import MasterLayout from "./layout/MasterLayout";
 import Filter from "../components/Filter";
+import IpSearchBar from "../components/IpSearchBar";
+import IpUsageAverageDailyTrendChart from "../components/IpUsageDayAverageLineChart";
+import IpUsageTimeSeriesChart from "../components/IpUsageTimeSeriesChart";
 const contentLayout = {
     paddingLeft:24,
     paddingRight:24,
@@ -53,11 +56,19 @@ class IpAddressProfile extends Component{
                     </Row>
                     <Row style={contentLayout}>
                         <Col xs={24} sm={24} md={8} lg={8} xl={8}>
-                            {/*<IpSearchBar />*/}
+                            <IpSearchBar />
                         </Col>
                     </Row>
                     <Row style={contentLayout}>
                         <Filter />
+                    </Row>
+                    <Row style={contentLayout}>
+                        <Col xs={24} sm={24} md={24} lg={12} xl={12}>
+                            <IpUsageAverageDailyTrendChart/>
+                        </Col>
+                        <Col xs={24} sm={24} md={24} lg={12} xl={12}>
+                            <IpUsageTimeSeriesChart />
+                        </Col>
                     </Row>
                 </MasterLayout>
             </Fragment>
