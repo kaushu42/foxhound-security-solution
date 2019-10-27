@@ -5,9 +5,11 @@ import './index.css';
 import {createStore, combineReducers} from 'redux';
 import {Provider} from 'react-redux';
 import layoutReducer from "./reducers/layoutReducer";
+import filterReducer from "./reducers/filterReducer";
 
 
 const rootReducer = combineReducers({
+    filter : filterReducer,
     layout : layoutReducer
 })
 

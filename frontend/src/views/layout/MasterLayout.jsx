@@ -2,11 +2,11 @@ import React,{Component,} from 'react';
 import {Layout} from 'antd';
 const {Content} = Layout;
 import {connect} from "react-redux";
-import {toggleSideBar} from "../actions/layoutAction";
 import './master.css';
 import SideBar from "./SideBar";
 import NavBar from "./NavBar";
 import FootBar from "./FootBar";
+import {toggleSideBar} from "../../actions/layoutAction";
 
 
 const LayoutStyle = {

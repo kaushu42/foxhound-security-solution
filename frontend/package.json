@@ -9,7 +9,8 @@
     "antd": "latest",
     "react-redux": "latest",
     "react-router-dom": "latest",
-    "redux": "latest"
+    "redux": "latest",
+    "axios": "latest"
   },
   "devDependencies": {},
   "scripts": {
