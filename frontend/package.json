@@ -5,7 +5,11 @@
   "dependencies": {
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
-    "react-scripts": "0.9.5"
+    "react-scripts": "0.9.5",
+    "antd": "latest",
+    "react-redux": "latest",
+    "react-router-dom": "latest",
+    "redux": "latest"
   },
   "devDependencies": {},
   "scripts": {
