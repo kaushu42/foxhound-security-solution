@@ -5,12 +5,12 @@ import pandas as pd
 import csv
 import pickle
 
-from .variables import ip_profile_path, ip_model_path, daily_csv_file_path, csv_to_parse_path, features_list
+from .variables import features_list
 from .model import pca
 
 
 class MLEngine():
-    def __init__(self, ip_profile_dir, ip_model_dir):
+    def __init__(self, ip_profile_dir, ip_model_dir, daily_csv_path):
         if isinstance(ip_profile_dir, str) is not True:
             raise TypeError('IP profile dir must be a string')
 
@@ -20,8 +20,7 @@ class MLEngine():
         self._IP_PROFILE_DIR = ip_profile_dir
         self._IP_MODEL_DIR = ip_model_dir
         self._FEATURES = features_list
-        self._csv_to_parse_dir = csv_to_parse_path
-        self._daily_csv_file_path = daily_csv_file_path
+        self._DAILY_CSV_DIR = daily_csv_path
 
 
     def _preprocess(self, df):
@@ -104,7 +103,7 @@ class MLEngine():
         else:
             print(f'{csv_to_parse_dir} doesnt exist')
 
-    def create_models(self):
+    def _create_models(self):
         if os.path.exists(self._IP_MODEL_DIR) is not True:
             os.makedirs(self._IP_MODEL_DIR)
 
@@ -133,7 +132,7 @@ class MLEngine():
 
 
 
-    def get_anomalous_df(self, input_csv, save_data_for_ip_profile=False):
+    def get_anomalies(self, input_csv, save_data_for_ip_profile=False):
         df = pd.read_csv(input_csv)
         truncated_df = df[self._FEATURES]
         anomalous_df = df.head(0)
@@ -160,17 +159,29 @@ class MLEngine():
 
                 if save_data_for_ip_profile is True:
                     self._save_to_csv(ip_df, ip, ip_csv_path)
-                    print(f'Saved data for ip {ip}')
+                    #print(f'Saved data for ip {ip}')
 
         anomalous_df['log_name'] = input_csv.split('/'  )[-1]
-        print(f'{anomalous_without_model_count}/{len(anomalous_df.index)} Anomalous without model')
+        print(f'{anomalous_without_model_count}/{len(anomalous_df.index)} : Anomalous without model')
         return anomalous_df
 
+    def _predict_anomalies(self):
+        if os.path.exists(self._DAILY_CSV_DIR) is True:
+            anomalous_df = []
+            for csv in os.listdir(self._DAILY_CSV_DIR):
+                print(f'**********Processing {csv} **********')
+                csv_file_path = os.path.join(self._DAILY_CSV_DIR, csv)
+                anomalous_df.append(self.get_anomalies(csv_file_path, save_data_for_ip_profile=True))
 
-    def run(self, initialize_data=False, create_model=False, predict=False):
+            anomalous_df = pd.concat(anomalous_df)
+            return anomalous_df
+
+        else:
+            print("Daily csv directory does not exist")
+
+
+    def run(self, create_model=False, predict=False):
         if predict:
-            self.get_anomalous_df(self._daily_csv_file_path)
+            return self._predict_anomalies()
         elif create_model:
-            self.create_models()
-        elif initialize_data:
-            self.parse_all_csv(self._csv_to_parse_dir)
+            self._create_models()
