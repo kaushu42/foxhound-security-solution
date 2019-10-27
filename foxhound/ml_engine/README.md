@@ -1,3 +1,7 @@
+**How to use MLEngine**
+*Steps*
+1. Initialize boject for MLEngine with params, either from variable from
+
 Tasks:
 1. delete functions (unnecessary)
 2. Model creation
