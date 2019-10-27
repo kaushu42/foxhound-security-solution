@@ -5,8 +5,8 @@ import pandas as pd
 import csv
 import pickle
 
-from variables import features_list
-from model import pca
+from .variables import features_list
+from .model import pca
 
 
 class MLEngine():
@@ -159,10 +159,10 @@ class MLEngine():
 
                 if save_data_for_ip_profile is True:
                     self._save_to_csv(ip_df, ip, ip_csv_path)
-                    print(f'Saved data for ip {ip}')
+                    #print(f'Saved data for ip {ip}')
 
         anomalous_df['log_name'] = input_csv.split('/'  )[-1]
-        print(f'{anomalous_without_model_count}/{len(anomalous_df.index)} Anomalous without model')
+        print(f'{anomalous_without_model_count}/{len(anomalous_df.index)} : Anomalous without model')
         return anomalous_df
 
     def _predict_anomalies(self):
@@ -182,6 +182,6 @@ class MLEngine():
 
     def run(self, create_model=False, predict=False):
         if predict:
-            return self._predict_anomalies()()
+            return self._predict_anomalies()
         elif create_model:
             self._create_models()
