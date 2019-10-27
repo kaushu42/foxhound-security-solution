@@ -171,7 +171,7 @@ class MLEngine():
             for csv in os.listdir(self._DAILY_CSV_DIR):
                 print(f'**********Processing {csv} **********')
                 csv_file_path = os.path.join(self._DAILY_CSV_DIR, csv)
-                anomalous_df.append(self.get_anomalous_df(csv_file_path, save_data_for_ip_profile=True))
+                anomalous_df.append(self.get_anomalies(csv_file_path, save_data_for_ip_profile=True))
 
             anomalous_df = pd.concat(anomalous_df)
             return anomalous_df
