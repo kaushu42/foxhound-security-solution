@@ -46,7 +46,7 @@ class TrafficLog(models.Model):
     )
     processed_datetime = models.DateField(auto_now_add=True)
     log_date = models.DateField()
-    log_name = models.CharField(max_length=200, unique=True)
+    log_name = models.CharField(max_length=200)
 
     def __repr__(self):
         return self.log_name
