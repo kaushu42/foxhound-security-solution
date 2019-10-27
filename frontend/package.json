@@ -11,7 +11,9 @@
     "react-redux": "latest",
     "react-router-dom": "latest",
     "react-scripts": "0.9.5",
-    "redux": "latest"
+    "redux": "latest",
+    "prop-types": "latest",
+    "lodash": "latest"
   },
   "devDependencies": {},
   "scripts": {

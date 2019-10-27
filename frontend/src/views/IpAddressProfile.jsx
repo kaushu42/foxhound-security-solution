@@ -12,6 +12,25 @@ const contentLayout = {
     paddingTop:12,
 }
 
+const data = [
+    {
+        groupName: "today's lunch items",
+        data: [{
+            label: "apples",
+            value: 1
+        },
+            {
+                label: "nuts",
+                value: 50
+            },
+            {
+                label: "cups of coffee",
+                value: 99
+            }
+        ]},
+];
+
+
 class IpAddressProfile extends Component{
     render(){
         return(
@@ -69,6 +88,8 @@ class IpAddressProfile extends Component{
                         <Col xs={24} sm={24} md={24} lg={12} xl={12}>
                             <IpUsageTimeSeriesChart />
                         </Col>
+                    </Row>
+                    <Row style={contentLayout}>
                     </Row>
                 </MasterLayout>
             </Fragment>
