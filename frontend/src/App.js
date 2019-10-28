@@ -12,7 +12,7 @@ class App extends Component {
             <BrowserRouter>
                 <Switch>
                     <Route path="/auth/login" component={Login} />
-                    <PrivateRoute auth_token={this.props.auth_token} path='/ipaddressprofile' component={IpAddressProfile} />
+                    <PrivateRoute auth_token={this.props.auth_token} path='/' component={IpAddressProfile} />
                 </Switch>
             </BrowserRouter>
         );

@@ -46,7 +46,7 @@ class Login extends Component {
                 const auth_response = response.data;
                 this.setState({auth_response : auth_response});
                 this.props.dispatchSessionLogin(auth_response);
-                this.props.history.push("/ipaddressprofile");
+                this.props.history.push("/");
                 })
             .catch((error) => console.log(error));
     }
