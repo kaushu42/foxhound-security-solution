@@ -12,30 +12,12 @@ const contentLayout = {
     paddingTop:12,
 }
 
-const data = [
-    {
-        groupName: "today's lunch items",
-        data: [{
-            label: "apples",
-            value: 1
-        },
-            {
-                label: "nuts",
-                value: 50
-            },
-            {
-                label: "cups of coffee",
-                value: 99
-            }
-        ]},
-];
-
-
 class IpAddressProfile extends Component{
     render(){
         return(
             <Fragment>
                 <MasterLayout>
+                    {this.props.auth_token}
                     <PageHeader
                         style={{background: '#efefef',border: '1px solid rgb(235, 237, 240)'}}
                         title={"IP Address Profile"}
@@ -99,6 +81,7 @@ class IpAddressProfile extends Component{
 
 const mapStateToProps = state => {
     return {
+        auth_token : state.auth.auth_token
     }
 }
 const mapDispatchToProps = dispatch => {

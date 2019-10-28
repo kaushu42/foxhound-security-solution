@@ -9,15 +9,21 @@ class IpUsageAverageDailyTrendChart extends Component {
         this.state = {
             options: {
                 chart: {
-                    stacked: false,
-                    zoom: {
-                        type: 'x',
-                        enabled: true,
-                        autoScaleYaxis: true
-                    },
                     toolbar: {
+                        show: true,
+                        tools: {
+                            download: true,
+                            selection: true,
+                            zoom: true,
+                            zoomin: true,
+                            zoomout: true,
+                            pan: true,
+                            reset: true | '<img src="/static/icons/reset.png" width="20">',
+                            customIcons: []
+                        },
                         autoSelected: 'zoom'
-                    }
+                    },
+
                 },
                 plotOptions: {
                     line: {
