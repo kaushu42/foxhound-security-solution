@@ -8,6 +8,7 @@ import IpAddressProfile from "./views/IpAddressProfile";
 import Logout from "./views/auth/Logout";
 import Dashboard from "./views/Dashboard";
 import Test from "./views/Test";
+import './App.css'
 
 class App extends Component {
     render() {
