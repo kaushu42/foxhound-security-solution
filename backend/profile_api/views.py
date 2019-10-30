@@ -17,10 +17,12 @@ from globalutils import (
     get_month_day_index,
     groupby_date,
     get_activity,
-    get_usage
+    get_usage,
+    get_query_from_request,
+    get_objects_from_query
 )
 
-from .utils import get_ip_from_request
+from .utils import get_ip_from_request, get_filters
 
 
 class StatsApiView(APIView):
@@ -139,6 +141,9 @@ class sankeyApiView(APIView):
 
     def post(self, request, format=None):
         ip = get_ip_from_request(request)
+        query = get_query_from_request(request)
+        objects = get_object_from_query(query)
+        print(objects)
         if ip is None:
             return Response({"error": "Invalid IP"},
                             status=HTTP_422_UNPROCESSABLE_ENTITY)
