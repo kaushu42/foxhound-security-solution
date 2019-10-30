@@ -18,15 +18,16 @@ from globalutils import (
     get_month_day_index,
     groupby_date,
     get_activity,
-    get_usage
+    get_usage,
+    get_query_from_request,
+    get_objects_from_query
 )
-
-from .utils import get_objects_with_matching_filters
 
 
 class StatsApiView(APIView):
     def get(self, request, format=None):
-        uplink_downlink = get_objects_with_matching_filters(request)
+        query = get_query_from_request(request)
+        uplink_downlink = get_objects_from_query(query)
         uplink = uplink_downlink.aggregate(
             Sum('bytes_sent')).get('bytes_sent__sum', None)
         downlink = uplink_downlink.aggregate(
