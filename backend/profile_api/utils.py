@@ -25,3 +25,7 @@ def get_ip_from_request(request):
     if not _is_ip_valid(ip):
         return None
     return ip
+
+
+def get_filters(request):
+    print(request.body)

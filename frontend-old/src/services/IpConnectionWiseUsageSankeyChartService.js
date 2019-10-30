@@ -1,22 +1,23 @@
-import {ROOT_URL} from "../utils";
+import { ROOT_URL } from "../utils";
 import axios from "axios";
 
-const FETCH_URL = `${ROOT_URL}profile/shankey/`
+const FETCH_URL = `${ROOT_URL}profile/sankey/`;
 
-export const IpConnectionWiseUsageSankeyChartServiceAsync = (ip_address,auth_token) => {
+export const IpConnectionWiseUsageSankeyChartServiceAsync = (
+  ip_address,
+  auth_token
+) => {
+  const authorization = `Token ${auth_token}`;
 
-    const authorization = `Token ${auth_token}`;
+  let headers = {
+    authorization: authorization
+  };
 
-    let headers = {
-        "authorization": authorization
-    };
+  let data = {
+    ip: ip_address
+  };
 
-    let data = {
-        ip: ip_address
-    }
-
-    return  axios.post(FETCH_URL, data,{
-        headers: headers,
-    });
-
-}
+  return axios.post(FETCH_URL, data, {
+    headers: headers
+  });
+};

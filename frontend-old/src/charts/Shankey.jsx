@@ -5,7 +5,7 @@
 // // no chart will be rendered.
 // // website examples showcase many properties,
 // // you'll often use just a few of them.
-// const Shankey = ({
+// const sankey = ({
 //   data,
 //   margin = { top: 40, right: 160, bottom: 40, left: 50 },
 //   align = "justify",
@@ -72,4 +72,4 @@
 //     legends={legends}
 //   />
 // );
-// export default Shankey;
+// export default sankey;
