@@ -17,7 +17,7 @@ const accountDropdownMenu = (
             <a href="/profile">Manage Profile</a>
         </Menu.Item>
         <Menu.Item>
-            <a rel="noopener noreferrer" href="/logout">
+            <a rel="noopener noreferrer" href="/auth/logout">
                 Logout
             </a>
         </Menu.Item>

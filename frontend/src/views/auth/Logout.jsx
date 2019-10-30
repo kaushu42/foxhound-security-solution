@@ -7,6 +7,9 @@ class Logout extends Component {
     constructor(props){
         super(props);
         this.props.dispatchSessionLogOut();
+
+        console.log("auth logout");
+
         this.props.history.push("/auth/login");
 
     }
