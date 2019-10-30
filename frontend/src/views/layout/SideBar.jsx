@@ -2,7 +2,6 @@ import React, {Fragment, Component} from 'react';
 import {Icon, Menu,Layout } from "antd";
 import {connect} from "react-redux";
 import {toggleSideBar} from "../../actions/layoutAction";
-import {Redirect} from "react-router-dom";
 const { Sider } = Layout;
 
 class SideBar extends Component {
