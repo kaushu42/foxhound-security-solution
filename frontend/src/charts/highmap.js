@@ -16,7 +16,8 @@ const mapOptions = {
   },
   colorAxis: {
     min: 0,
-    stops: [[0.1, "#cccccc"],[1, "#000000"]]
+    stops: [[0.1, "#cccccc"],[1, "#000000"]] // change color according to value
+    
   },
 
   series: [
