@@ -3,21 +3,21 @@ import {toggleSideBar} from "../../actions/layoutAction";
 import {Layout, Dropdown, Icon, Menu} from "antd";
 import {connect} from "react-redux";
 const {Header} = Layout;
+import { Anchor } from 'antd';
+const { Link } = Anchor;
 
 const accountDropdownMenu = (
     <Menu>
         <Menu.Item>
-            <a target="" rel="noopener noreferrer" href="/">
-                Change Account Settings
-            </a>
+            <Anchor>
+                <Link href={"/settings"} title={"Change Account Settings"} />
+            </Anchor>
         </Menu.Item>
         <Menu.Item>
-            <a target="" rel="noopener noreferrer" href="/">
-                Manage Profile
-            </a>
+            <a href="/profile">Manage Profile</a>
         </Menu.Item>
         <Menu.Item>
-            <a target="" rel="noopener noreferrer" href="/">
+            <a rel="noopener noreferrer" href="/logout">
                 Logout
             </a>
         </Menu.Item>
