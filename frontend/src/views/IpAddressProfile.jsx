@@ -9,6 +9,7 @@ import IpUsageTimeSeriesChart from "../components/IpUsageTimeSeriesChart";
 import SankeyChart from "../charts/SankeyChart";
 import CalendarChart from "../charts/CalendarChart";
 import CustomHighMap from "../charts/Map";
+import DashboardStats from "../components/DashboardStats";
 const contentLayout = {
     paddingLeft:24,
     paddingRight:24,
@@ -90,7 +91,7 @@ class IpAddressProfile extends Component{
                         </Col>
                     </Row>
                     <Row style={contentLayout}>
-                        {/*<CustomHighMap />*/}
+                        <DashboardStats />
                     </Row>
                 </MasterLayout>
             </Fragment>
