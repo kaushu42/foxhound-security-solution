@@ -90,7 +90,7 @@ class IpAddressProfile extends Component{
                         </Col>
                     </Row>
                     <Row style={contentLayout}>
-                        <CustomHighMap />
+                        {/*<CustomHighMap />*/}
                     </Row>
                 </MasterLayout>
             </Fragment>
