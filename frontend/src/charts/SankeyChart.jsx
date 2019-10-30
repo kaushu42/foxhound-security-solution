@@ -51,7 +51,7 @@ class SankeyChart extends Component {
             (String(prevProps.source_zone) !== String(this.props.source_zone)) ||
             (String(prevProps.destination_zone) !== String(this.props.destination_zone))
         ){
-            this.fetchDashboardStats();
+            this.handleFetchdata();
         }
     }
 
