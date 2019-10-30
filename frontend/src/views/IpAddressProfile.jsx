@@ -6,6 +6,9 @@ import Filter from "../components/Filter";
 import IpSearchBar from "../components/IpSearchBar";
 import IpUsageAverageDailyTrendChart from "../components/IpUsageDayAverageLineChart";
 import IpUsageTimeSeriesChart from "../components/IpUsageTimeSeriesChart";
+import SankeyChart from "../charts/SankeyChart";
+import CalendarChart from "../charts/CalendarChart";
+import CustomHighMap from "../charts/Map";
 const contentLayout = {
     paddingLeft:24,
     paddingRight:24,
@@ -17,7 +20,6 @@ class IpAddressProfile extends Component{
         return(
             <Fragment>
                 <MasterLayout>
-                    {this.props.auth_token}
                     <PageHeader
                         style={{background: '#efefef',border: '1px solid rgb(235, 237, 240)'}}
                         title={"IP Address Profile"}
@@ -72,6 +74,23 @@ class IpAddressProfile extends Component{
                         </Col>
                     </Row>
                     <Row style={contentLayout}>
+                        <Col xs={24} sm={24} md={24} lg={12} xl={12}>
+                            <SankeyChart/>
+                        </Col>
+                        <Col xs={24} sm={24} md={24} lg={12} xl={12}>
+                            <SankeyChart />
+                        </Col>
+                    </Row>
+                    <Row style={contentLayout}>
+                        <Col xs={24} sm={24} md={24} lg={24} xl={24}>
+                            <CalendarChart />
+                        </Col>
+                        <Col xs={24} sm={24} md={24} lg={24} xl={24}>
+                            <CalendarChart />
+                        </Col>
+                    </Row>
+                    <Row style={contentLayout}>
+                        <CustomHighMap />
                     </Row>
                 </MasterLayout>
             </Fragment>
