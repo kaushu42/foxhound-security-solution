@@ -121,13 +121,13 @@ class sankeyApiView(APIView):
             ip_data.append([ip, source, weights])
         return ip_data
 
-    def _get_sankey(self, ip):
-        ip_as_source = TrafficLogDetail.objects.filter(
+    def _get_sankey(self, ip, objects):
+        ip_as_source = objects.filter(
             source_ip=ip
         ).values('destination_ip').annotate(
             sent=Sum('bytes_sent')
         )
-        ip_as_destination = TrafficLogDetail.objects.filter(
+        ip_as_destination = objects.filter(
             destination_ip=ip
         ).values('source_ip').annotate(
             received=Sum('bytes_received')
@@ -142,12 +142,11 @@ class sankeyApiView(APIView):
     def post(self, request, format=None):
         ip = get_ip_from_request(request)
         query = get_query_from_request(request)
-        objects = get_object_from_query(query)
-        print(objects)
+        objects = get_objects_from_query(query)
         if ip is None:
             return Response({"error": "Invalid IP"},
                             status=HTTP_422_UNPROCESSABLE_ENTITY)
-        response = self._get_sankey(ip)
+        response = self._get_sankey(ip, objects)
         return Response(response, status=HTTP_200_OK)
 
     def get(self, request, format=None):
