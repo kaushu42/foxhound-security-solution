@@ -102,7 +102,7 @@ class ActivityApiView(APIView):
         return self.post(request, format=format)
 
 
-class ShankeyApiView(APIView):
+class sankeyApiView(APIView):
     def _get_destination_data(self, ip, ip_as_destination):
         ip_data = []
         for i in ip_as_destination:
@@ -119,7 +119,7 @@ class ShankeyApiView(APIView):
             ip_data.append([ip, source, weights])
         return ip_data
 
-    def _get_shankey(self, ip):
+    def _get_sankey(self, ip):
         ip_as_source = TrafficLogDetail.objects.filter(
             source_ip=ip
         ).values('destination_ip').annotate(
@@ -142,7 +142,7 @@ class ShankeyApiView(APIView):
         if ip is None:
             return Response({"error": "Invalid IP"},
                             status=HTTP_422_UNPROCESSABLE_ENTITY)
-        response = self._get_shankey(ip)
+        response = self._get_sankey(ip)
         return Response(response, status=HTTP_200_OK)
 
     def get(self, request, format=None):

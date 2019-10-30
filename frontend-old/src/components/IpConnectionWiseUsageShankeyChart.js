@@ -4,11 +4,11 @@
 // import {
 //     IpConnectionWiseUsageSankeyChartServiceAsync,
 // } from "../services/IpConnectionWiseUsageSankeyChartService";
-// import Shankey from "../charts/Shankey";
+// import sankey from "../charts/sankey";
 // import Calendar from "../charts/Calendar";
 //
 //
-// class IpConnectionWiseUsageShankeyChart extends Component {
+// class IpConnectionWiseUsagesankeyChart extends Component {
 //
 //     constructor(props){
 //         super(props);
@@ -71,7 +71,7 @@
 //                         <Card title="IP CONNECTION AS SOURCE">
 //                             <Skeleton loading={loadingSankeyAsSource}></Skeleton>
 //                             <div style={{height:'500px'}}>
-//                                 {!loadingSankeyAsSource?<Shankey data={ip_as_source_data} />:null}
+//                                 {!loadingSankeyAsSource?<sankey data={ip_as_source_data} />:null}
 //                             </div>
 //                         </Card>
 //                     </Col>
@@ -79,7 +79,7 @@
 //                         <Card title="IP CONNECTION AS DESTINATION">
 //                             <Skeleton loading={loadingSankeyAsDestination}></Skeleton>
 //                             <div style={{height:'500px'}}>
-//                                 {!loadingSankeyAsDestination?<Shankey data={ip_as_destination_data} />:null}
+//                                 {!loadingSankeyAsDestination?<sankey data={ip_as_destination_data} />:null}
 //                             </div>
 //                         </Card>
 //                     </Col>
@@ -104,4 +104,4 @@
 // }
 //
 //
-// export default connect(mapStateToProps,mapDispatchToProps)(IpConnectionWiseUsageShankeyChart);
+// export default connect(mapStateToProps,mapDispatchToProps)(IpConnectionWiseUsagesankeyChart);
