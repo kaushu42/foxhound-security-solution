@@ -6,6 +6,7 @@ import PrivateRoute from "./providers/AuthenticatedRouter";
 import {connect} from "react-redux";
 import IpAddressProfile from "./views/IpAddressProfile";
 import Logout from "./views/auth/Logout";
+import Dashboard from "./views/Dashboard";
 
 class App extends Component {
     render() {
@@ -14,7 +15,8 @@ class App extends Component {
                 <Switch>
                     <Route path="/auth/login" component={Login} />
                     <Route path="/auth/logout" component={Logout} />
-                    <PrivateRoute auth_token={this.props.auth_token} path='/' component={IpAddressProfile} />
+                    <PrivateRoute auth_token={this.props.auth_token} path='/' component={Dashboard} />
+                    <PrivateRoute auth_token={this.props.auth_token} path='/ip' component={IpAddressProfile} />
                 </Switch>
             </BrowserRouter>
         );

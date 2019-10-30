@@ -10,12 +10,8 @@ import SankeyChart from "../charts/SankeyChart";
 import CalendarChart from "../charts/CalendarChart";
 import CustomHighMap from "../charts/Map";
 import DashboardStats from "../components/DashboardStats";
-const contentLayout = {
-    paddingLeft:24,
-    paddingRight:24,
-    paddingTop:12,
-}
-
+import HighMap from "../charts/highmap";
+import {contentLayout} from "../utils";
 class IpAddressProfile extends Component{
     render(){
         return(
@@ -93,6 +89,10 @@ class IpAddressProfile extends Component{
                     <Row style={contentLayout}>
                         <DashboardStats />
                     </Row>
+                    <Row style={contentLayout}>
+                        <HighMap />
+                    </Row>
+
                 </MasterLayout>
             </Fragment>
         )
