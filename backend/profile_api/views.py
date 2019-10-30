@@ -103,39 +103,21 @@ class ActivityApiView(APIView):
 
 
 class ShankeyApiView(APIView):
-    def _get_shankey_data(self, ip):
-        return {
-            'nodes': [
-                {
-                    "id": ip,
-                }
-            ],
-            'links': [
-
-            ]
-        }
-
     def _get_destination_data(self, ip, ip_as_destination):
-        destination_data = self._get_shankey_data(ip)
+        ip_data = []
         for i in ip_as_destination:
-            destination_data['nodes'].append({"id": i['source_ip']})
-            destination_data['links'].append({
-                "source": i['source_ip'],
-                "target": ip,
-                "value": i['received']
-            })
-        return destination_data
+            source = i['source_ip']
+            weights = i['received']
+            ip_data.append([source, ip, weights])
+        return ip_data
 
     def _get_source_data(self, ip, ip_as_source):
-        source_data = self._get_shankey_data(ip)
+        ip_data = []
         for i in ip_as_source:
-            source_data['nodes'].append({"id": i['destination_ip']})
-            source_data['links'].append({
-                "source": ip,
-                "target": i['destination_ip'],
-                "value": i['sent']
-            })
-        return source_data
+            source = i['destination_ip']
+            weights = i['sent']
+            ip_data.append([ip, source, weights])
+        return ip_data
 
     def _get_shankey(self, ip):
         ip_as_source = TrafficLogDetail.objects.filter(
@@ -151,8 +133,8 @@ class ShankeyApiView(APIView):
         destination_data = self._get_destination_data(ip, ip_as_destination)
         source_data = self._get_source_data(ip, ip_as_source)
         return {
-            "destination_data": destination_data,
-            "source_data": source_data,
+            "ip_as_destination": destination_data,
+            "ip_as_source": source_data,
         }
 
     def post(self, request, format=None):
