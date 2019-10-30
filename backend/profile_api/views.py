@@ -26,9 +26,8 @@ from .utils import get_ip_from_request, get_filters
 
 
 class StatsApiView(APIView):
-    def _get_stats(self, ip):
-        objects = TrafficLogDetail.objects.filter(source_ip=ip)
-
+    def _get_stats(self, ip, object):
+        objects = objects.filter(source_ip=ip)
         uplink = objects.aggregate(Sum('bytes_sent')).get(
             'bytes_sent__sum', None)
         downlink = objects.aggregate(Sum('bytes_received')).get(
@@ -41,7 +40,9 @@ class StatsApiView(APIView):
 
     def post(self, request, format=None):
         ip = get_ip_from_request(request)
-        response = self._get_stats(ip)
+        query = get_query_from_request(request)
+        objects = get_objects_from_query(query)
+        response = self._get_stats(ip, objects)
         return Response(response, status=HTTP_200_OK)
 
     def get(self, request, format=None):
@@ -49,29 +50,30 @@ class StatsApiView(APIView):
 
 
 class UsageApiView(APIView):
-    def _get_usage(self, ip):
+    def _get_usage(self, ip, objects):
         latest_date = TrafficLog.objects.latest('log_date')
         objects = groupby_date(
-            TrafficLogDetail.objects.filter(
+            objects.filter(
                 traffic_log=latest_date, source_ip=ip
-            ).order_by('logged_datetime'),
+            ),
             'logged_datetime',
             'minute',
             ['bytes_sent', 'bytes_received']
         )
-
-        bytes_sent, bytes_received = get_usage(objects)
+        time, bytes_sent, bytes_received = get_usage(objects)
 
         return {
             "n_items": len(bytes_sent),
-            "id": ip,
+            "x_axis": time,
             "bytes_sent": bytes_sent,
             "bytes_received": bytes_received,
         }
 
     def post(self, request, format=None):
         ip = get_ip_from_request(request)
-        response = self._get_usage(ip)
+        query = get_query_from_request(request)
+        objects = get_objects_from_query(query)
+        response = self._get_usage(ip, objects)
         return Response(response, status=HTTP_200_OK)
 
     def get(self, request, format=None):
@@ -79,15 +81,15 @@ class UsageApiView(APIView):
 
 
 class ActivityApiView(APIView):
-    def _get_activity(self, ip):
-        objects = groupby_date(
-            TrafficLogDetail.objects.filter(source_ip=ip),
+    def _get_activity(self, ip, objects):
+        objs = groupby_date(
+            objects.filter(source_ip=ip),
             'logged_datetime',
             'day',
             ['bytes_sent', 'bytes_received']
         )
 
-        activity_bytes_sent, activity_bytes_received = get_activity(objects)
+        activity_bytes_sent, activity_bytes_received = get_activity(objs)
 
         return {
             "n_items": len(activity_bytes_sent),
@@ -97,14 +99,16 @@ class ActivityApiView(APIView):
 
     def post(self, request, format=None):
         ip = get_ip_from_request(request)
-        response = self._get_activity(ip)
+        query = get_query_from_request(request)
+        objects = get_objects_from_query(query)
+        response = self._get_activity(ip, objects)
         return Response(response, status=HTTP_200_OK)
 
     def get(self, request, format=None):
         return self.post(request, format=format)
 
 
-class sankeyApiView(APIView):
+class SankeyApiView(APIView):
     def _get_destination_data(self, ip, ip_as_destination):
         ip_data = []
         for i in ip_as_destination:

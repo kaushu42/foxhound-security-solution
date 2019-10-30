@@ -112,10 +112,11 @@ class UsageApiView(APIView):
             ['bytes_sent', 'bytes_received']
         )
 
-        bytes_sent, bytes_received = get_usage(objects)
+        time, bytes_sent, bytes_received = get_usage(objects)
 
         return Response({
             "n_items": len(bytes_sent),
+            "x_axis": time,
             "bytes_sent": bytes_sent,
             "bytes_received": bytes_received,
         }, status=HTTP_200_OK)
