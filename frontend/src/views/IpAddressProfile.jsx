@@ -86,13 +86,6 @@ class IpAddressProfile extends Component{
                             <CalendarChart />
                         </Col>
                     </Row>
-                    <Row style={contentLayout}>
-                        <DashboardStats />
-                    </Row>
-                    <Row style={contentLayout}>
-                        <HighMap />
-                    </Row>
-
                 </MasterLayout>
             </Fragment>
         )

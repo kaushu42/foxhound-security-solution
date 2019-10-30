@@ -2,6 +2,7 @@ import React, {Fragment, Component} from 'react';
 import {Icon, Menu,Layout } from "antd";
 import {connect} from "react-redux";
 import {toggleSideBar} from "../../actions/layoutAction";
+import {Redirect} from "react-router-dom";
 const { Sider } = Layout;
 
 class SideBar extends Component {
@@ -18,8 +19,10 @@ class SideBar extends Component {
                             <span>Dashboard</span>
                         </Menu.Item>
                         <Menu.Item key="2">
-                            <Icon type="link" />
-                            <span>IP Address Profile</span>
+                            <a href={"/ip"}>
+                                <Icon type="link" />
+                                <span>IP Address Profile</span>
+                            </a>
                         </Menu.Item>
                     </Menu>
                 </Sider>

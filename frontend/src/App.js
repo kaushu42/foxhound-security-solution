@@ -17,7 +17,7 @@ class App extends Component {
                     <Route path="/auth/login" component={Login} />
                     <Route path="/auth/logout" component={Logout} />
                     <Route path="/test" component={Test} />
-                    <PrivateRoute auth_token={this.props.auth_token} path='/' component={Dashboard} />
+                    <PrivateRoute auth_token={this.props.auth_token} exact path='/' component={Dashboard} />
                     <PrivateRoute auth_token={this.props.auth_token} path='/ip' component={IpAddressProfile} />
                 </Switch>
             </BrowserRouter>
