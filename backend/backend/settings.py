@@ -11,8 +11,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-CORS_ORIGIN_ALLOW_ALL = True
-
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -137,3 +135,5 @@ REST_FRAMEWORK = {
 TOKEN_EXPIRED_AFTER_SECONDS = 10000000
 
 AUTH_USER_MODEL = 'users.FoxhoundUser'
+
+CORS_ORIGIN_ALLOW_ALL = True
