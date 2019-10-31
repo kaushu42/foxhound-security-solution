@@ -11,8 +11,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-CORS_ORIGIN_ALLOW_ALL = True
-
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -34,7 +32,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'backend.cors.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -137,3 +135,6 @@ REST_FRAMEWORK = {
 TOKEN_EXPIRED_AFTER_SECONDS = 10000000
 
 AUTH_USER_MODEL = 'users.FoxhoundUser'
+
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True

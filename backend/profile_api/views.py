@@ -26,7 +26,7 @@ from .utils import get_ip_from_request, get_filters
 
 
 class StatsApiView(APIView):
-    def _get_stats(self, ip, object):
+    def _get_stats(self, ip, objects):
         objects = objects.filter(source_ip=ip)
         uplink = objects.aggregate(Sum('bytes_sent')).get(
             'bytes_sent__sum', None)
