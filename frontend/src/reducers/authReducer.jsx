@@ -30,6 +30,11 @@ const authReducer = (state = initialState,action) => {
             }
 
         case SESSION_LOG_OUT:{
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('current_session_user_id');
+            localStorage.removeItem('current_session_user_name');
+            localStorage.removeItem('tenant_id');
+            localStorage.removeItem('expires_in');
             return {
                 ...state,
                 is_authenticated: false,

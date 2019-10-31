@@ -8,7 +8,8 @@ import layoutReducer from "./reducers/layoutReducer";
 import filterReducer from "./reducers/filterReducer";
 import authReducer from "./reducers/authReducer";
 import ipSearchBarReducer from "./reducers/ipSearchReducer";
-
+import 'pace-js'
+import 'pace-js/themes/blue/pace-theme-minimal.css'
 
 const rootReducer = combineReducers({
     auth : authReducer,

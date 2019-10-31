@@ -13,17 +13,17 @@ class SideBar extends Component {
                 <Sider trigger={null} collapsible collapsed={sideBarCollapsed} collapsedWidth={0}>
                     <img src="assets/fox-white.png" alt="foxhound-logo" style={{height:64,width:64,marginLeft:50,marginTop:5}}/>
                     <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']}>
-                        <Menu.Item key="1">
-                            <Icon type="user" />
-                            <span>Dashboard</span>
+                        <Menu.Item key="dashboard">
+                            <a href={"/"}>
+                                <Icon type="dashboard" />
+                                <span>Dashboard</span>
+                            </a>
                         </Menu.Item>
                         <Menu.Item key="2">
-                            <Icon type="video-camera" />
-                            <span>IP Profile</span>
-                        </Menu.Item>
-                        <Menu.Item key="3">
-                            <Icon type="upload" />
-                            <span>Processed Logs</span>
+                            <a href={"/ip"}>
+                                <Icon type="link" />
+                                <span>IP Address Profile</span>
+                            </a>
                         </Menu.Item>
                     </Menu>
                 </Sider>

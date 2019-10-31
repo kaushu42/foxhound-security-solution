@@ -9,9 +9,7 @@ const { Link } = Anchor;
 const accountDropdownMenu = (
     <Menu>
         <Menu.Item>
-            <Anchor>
-                <Link href={"/settings"} title={"Change Account Settings"} />
-            </Anchor>
+            <a href="/settings">Account Settings</a>
         </Menu.Item>
         <Menu.Item>
             <a href="/profile">Manage Profile</a>
@@ -23,6 +21,7 @@ const accountDropdownMenu = (
         </Menu.Item>
     </Menu>
 );
+
 
 const notificationsDropdownMenu = (
     <Menu>
