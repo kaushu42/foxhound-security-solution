@@ -6,6 +6,7 @@ from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from foxhound.db_engine.core_models import VirtualSystem
+from foxhound.ml_engine.Initialize import Initialize
 
 
 db_name = os.environ.get('FH_DB_NAME', '')
@@ -54,3 +55,6 @@ pa.run(verbose=True)
 
 db = fh.db_engine.DBEngine('../outputs/traffic_logs', db_engine=db_engine)
 db.run(verbose=True)
+
+init = Initialize("../inputs/history_logs", "../outputs/ip_profile")
+init.parse_all_csv()
