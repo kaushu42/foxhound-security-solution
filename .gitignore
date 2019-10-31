@@ -189,3 +189,4 @@ sketch
 .vscode/
 .ipynb*
 *.ipynb
+env/*
