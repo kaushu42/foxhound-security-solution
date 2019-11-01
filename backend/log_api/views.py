@@ -22,7 +22,7 @@ class TrafficLogApiView(PaginatedView):
 
 
 class TrafficLogDetailApiView(PaginatedView):
-    queryset = TrafficLogDetail.objects.all()
+    queryset = TrafficLogDetail.objects.all().order_by('-id')
     serializer_class = TrafficLogDetailSerializer
 
     def get(self, request, id):
