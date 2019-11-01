@@ -51,6 +51,7 @@ class Initialize():
             if os.path.exists(vsys_csv_path) is not True:
                 os.makedirs(vsys_csv_path)
             vsys_df = df[df['Virtual System'] == vsys]
+            ips = vsys_df['Source address'].unique()
 
             for ip in ips:  # create csv file for individual ips
                 ip_csv_path = os.path.join(vsys_csv_path, (ip+'.csv'))
@@ -61,7 +62,6 @@ class Initialize():
 
     def parse_all_csv(self):
         if os.path.exists(self._ip_profile_dir) is not True:
-            print("hello world")
             os.makedirs(self._ip_profile_dir)
             print(
                 f'**********Directory {self._ip_profile_dir} created **********')

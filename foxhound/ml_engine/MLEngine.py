@@ -90,15 +90,14 @@ class MLEngine():
                     ip_model_path = os.path.join(
                         vsys_model_dir, (ip_csv_file[:-3] + 'pkl'))
                     ip_df = pd.read_csv(ip_csv_path)
+
                     if len(ip_df.index) > 100:
-                        print(f'Creating model for {ip_csv_file}')
                         model_with_params = pca(ip_df, ip_model_path)
                         self._save_model_params(
                             model_with_params, ip_model_path)
-                        print(f'Model created for {ip_csv_file}')
                     else:
                         print(
-                            f'Not suffiecient data to create model for {ip_csv_file}')
+                            f'Not sufficient data to create model for {ip_csv_file}')
         else:
             print(f'IP profile path {self._IP_PROFILE_DIR} doesnot exist')
 
@@ -155,6 +154,8 @@ class MLEngine():
 
     def run(self, create_model=False, predict=False):
         if predict:
+            print("entering predict")
             self._predict_anomalies()
         if create_model:
+            print("entering create model")
             self._create_models()
