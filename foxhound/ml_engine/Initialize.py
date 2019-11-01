@@ -18,8 +18,8 @@ class Initialize():
         temp = df.copy()
         temp['Receive Time'] = temp['Receive Time'].apply(lambda x: x[-8:])
         rows = temp.values
-        rows = [[sum(bytearray(cell, encoding='utf8')) if isinstance(
-            cell, str) else cell for cell in row] for row in rows]
+        rows = [[sum([(weight+1)*char for weight, char in enumerate(list(bytearray(cell, encoding='utf8'))[::-1])])
+                 if isinstance(cell, str) else cell for cell in row] for row in rows]
         return pd.DataFrame(rows, index=df.index, columns=temp.columns)
 
     def _save_to_csv(self, df, ip, dest_file_path):
