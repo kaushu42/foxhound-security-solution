@@ -190,3 +190,5 @@ sketch
 .ipynb*
 *.ipynb
 env/*
+outputs/*
+test_ml.py

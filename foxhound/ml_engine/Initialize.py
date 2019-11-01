@@ -4,7 +4,7 @@ import pandas as pd
 
 import csv
 
-from variables import features_list
+from .variables import features_list
 
 
 class Initialize():
@@ -59,12 +59,12 @@ class Initialize():
                 ip_df = self._preprocess(ip_df)
                 self._save_to_csv(ip_df, ip, ip_csv_path)
 
-
     def parse_all_csv(self):
         if os.path.exists(self._ip_profile_dir) is not True:
             print("hello world")
             os.makedirs(self._ip_profile_dir)
-            print(f'**********Directory {self._ip_profile_dir} created **********')
+            print(
+                f'**********Directory {self._ip_profile_dir} created **********')
 
         if os.path.exists(self._dir_to_parse):
             files = os.listdir(self._dir_to_parse)
@@ -74,7 +74,8 @@ class Initialize():
                 csv_file_path = os.path.join(self._dir_to_parse, csv)
                 print(
                     f'[{count}/{total}]**********Processing {csv_file_path} file **********')
-                self._create_ip_profile(csv_file_path, self._ip_profile_dir, self._features)
+                self._create_ip_profile(
+                    csv_file_path, self._ip_profile_dir, self._features)
                 count = count+1
         else:
             print(f'{self._dir_to_parse} doesnt exist')
