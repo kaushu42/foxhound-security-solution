@@ -5,7 +5,8 @@ from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import sessionmaker
 
 import foxhound as fh
-from foxhound.db_engine.core_models import VirtualSystem
+from foxhound.db_engine.core_models import (
+    VirtualSystem, TrafficLogDetail, IPCountry)
 from foxhound.ml_engine.Initialize import Initialize
 from foxhound.ml_engine.MLEngine import MLEngine
 
@@ -38,7 +39,7 @@ db_engine = create_engine(
 Session = sessionmaker(bind=db_engine)
 session = Session()
 
-# Seed the database
+Seed the database
 if session.query(VirtualSystem).count() == 0:
     vsys1 = VirtualSystem(
         code='vsys1',
@@ -74,6 +75,39 @@ pa.run(verbose=True)
 db = fh.db_engine.DBEngine(config.TRAFFIC_LOGS_OUTPUT_DIR, db_engine=db_engine)
 db.run(verbose=True)
 
+if session.query(IPCountry).count() == 0:
+    ips = set()
+    data = session.query(TrafficLogDetail.source_ip).distinct()
+    [ips.add(i.source_ip) for i in data]
+    data = session.query(TrafficLogDetail.destination_ip).distinct()
+    [ips.add(i.destination_ip) for i in data]
+
+    for ip in ips:
+        if session.query(IPCountry).filter_by(ip=ip).scalar():
+            continue
+        ip_country = IPCountry(ip=ip)
+        country_name = ''
+        country_iso_code = ''
+        try:
+            if self._is_ip_private(ip) is not True:
+                country = self._reader.city(ip).country
+                country_iso_code = country.iso_code
+                country_name = country.name
+                if country_iso_code is None:
+                    country_name = 'Unknown'
+                    country_iso_code = '---'
+            else:
+                country_iso_code = "np"
+                country_name = "Nepal"
+        except geoip2.errors.AddressNotFoundError:
+            country_name = 'Unknown'
+            country_iso_code = '---'
+
+        ip_country.country_name = country_name
+        ip_country.country_iso_code = country_iso_code.lower()
+        session.add(ip_country)
+    session.flush()
+    session.commit()
 
 init = Initialize(config.TRAFFIC_LOGS_INPUT_DIR, config.IP_PROFILE_OUTPUT_DIR)
 init.parse_all_csv()
