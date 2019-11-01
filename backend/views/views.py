@@ -3,7 +3,10 @@ from rest_framework import pagination
 
 
 class PaginatedView(APIView):
-    pagination_class = pagination.LimitOffsetPagination
+    pagination_class = pagination.PageNumberPagination
+
+    class Meta:
+        ordering = ['-id']
 
     @property
     def paginator(self):

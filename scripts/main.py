@@ -11,6 +11,24 @@ from foxhound.ml_engine.MLEngine import MLEngine
 
 import config
 
+if not os.path.exists('./GeoLite2-City.mmdb'):
+    import wget
+    import tarfile
+    import shutil
+
+    print('Downloading IP database....')
+
+    wget.download(config.DATABASE_URL)
+    tar = tarfile.open('GeoLite2-City_20191029.tar.gz')
+    tar.extractall()
+    os.rename(
+        'GeoLite2-City_20191029/GeoLite2-City.mmdb',
+        './GeoLite2-City.mmdb'
+    )
+    shutil.rmtree('GeoLite2-City_20191029/')
+    os.remove('GeoLite2-City_20191029.tar.gz')
+
+    print('\nDone')
 db_name = os.environ.get(config.FH_DB_NAME, '')
 db_user = os.environ.get(config.FH_DB_USER, '')
 db_password = os.environ.get(config.FH_DB_PASSWORD, '')
@@ -49,12 +67,12 @@ if session.query(VirtualSystem).count() == 0:
     session.commit()
     session.close()
 
-# pa = fh.dc_engine.PaloAltoEngine(
-#     config.TRAFFIC_LOGS_INPUT_DIR, config.TRAFFIC_LOGS_OUTPUT_DIR)
-# pa.run(verbose=True)
+pa = fh.dc_engine.PaloAltoEngine(
+    config.TRAFFIC_LOGS_INPUT_DIR, config.TRAFFIC_LOGS_OUTPUT_DIR)
+pa.run(verbose=True)
 
-# db = fh.db_engine.DBEngine(config.TRAFFIC_LOGS_OUTPUT_DIR, db_engine=db_engine)
-# db.run(verbose=True)
+db = fh.db_engine.DBEngine(config.TRAFFIC_LOGS_OUTPUT_DIR, db_engine=db_engine)
+db.run(verbose=True)
 
 
 init = Initialize(config.TRAFFIC_LOGS_INPUT_DIR, config.IP_PROFILE_OUTPUT_DIR)

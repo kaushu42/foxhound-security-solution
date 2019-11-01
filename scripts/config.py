@@ -1,3 +1,5 @@
+DATABASE_URL = 'https://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz'
+
 FH_DB_NAME = "FH_DB_NAME"
 FH_DB_USER = "FH_DB_USER"
 FH_DB_PASSWORD = "FH_DB_PASSWORD"
