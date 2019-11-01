@@ -82,3 +82,15 @@ class TrafficLogDetail(models.Model):
 
     def __str__(self):
         return self.__repr__()
+
+
+class IPCountry(models.Model):
+    ip = models.CharField(max_length=50, unique=True)
+    country_name = models.CharField(max_length=50)
+    country_iso_code = models.CharField(max_length=5)
+
+    def __repr__(self):
+        return f'{self.ip}-{self.country_iso_code}'
+
+    def __str__(self):
+        return self.__repr__()

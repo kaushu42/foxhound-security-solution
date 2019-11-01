@@ -7,8 +7,11 @@ from sqlalchemy.orm import sessionmaker
 
 import pandas as pd
 
+import geoip2.database
 
-from .core_models import VirtualSystem, TrafficLog, TrafficLogDetail
+
+from .core_models import (VirtualSystem, TrafficLog,
+                          TrafficLogDetail, IPCountry)
 
 
 class DBEngine(object):
@@ -24,6 +27,7 @@ class DBEngine(object):
         self._check_data_dir_valid(self._INPUT_DIR)
         self._csvs = self._get_csv_paths(self._INPUT_DIR)
         self._session = sessionmaker(bind=db_engine)
+        self._reader = geoip2.database.Reader('./GeoLite2-City.mmdb')
 
     def _read_csv(self, csv: str):
         df = pd.read_csv(csv)
@@ -67,15 +71,61 @@ class DBEngine(object):
             index=False
         )
 
+    def _is_ip_private(self, ip):
+        if (
+            ip.startswith('192.168.') or
+            ip.startswith('10.') or
+            ip.startswith('172.16') or
+            ip.startswith('172.17') or
+            ip.startswith('172.18') or
+            ip.startswith('172.19') or
+            ip.startswith('172.2') or
+            ip.startswith('172.30.') or
+            ip.startswith('172.31.')
+        ):
+            return True
+        return False
+
+    def _write_country(self, data, session):
+        ips = set()
+        [ips.add(i) for i in data['source_ip'].unique()]
+        [ips.add(i) for i in data['destination_ip'].unique()]
+
+        for ip in ips:
+            if session.query(IPCountry).filter_by(ip=ip).scalar():
+                continue
+            ip_country = IPCountry(ip=ip)
+            country_name = ''
+            country_iso_code = ''
+            if self._is_ip_private(ip) is not True:
+                country = self._reader.city(ip).country
+                country_iso_code = country.iso_code
+                country_name = country.name
+                if country_iso_code is None:
+                    country_name = 'Unknown'
+                    country_iso_code = '---'
+            else:
+                country_iso_code = "np"
+                country_name = "Nepal"
+            ip_country.country_name = country_name
+            ip_country.country_iso_code = country_iso_code.lower()
+            session.add(ip_country)
+        session.flush()
+        session.commit()
+
     def _write_to_db(self, csv: str):
         data = self._read_csv(csv)
 
         session = self._session()
 
+        self._write_country(data, session)
+
         # Get the virtual system id from database
         vsys = self._get_virtual_system(data, session)
+
         # Use the key to write the data into the core_trafficlog table
         traffic_log = self._get_traffic_log(csv, vsys, session)
+
         # Write to the core_trafficlogdetail using the obtained traffic_log id
         self._write_to_traffic_log_detail(data, traffic_log)
 

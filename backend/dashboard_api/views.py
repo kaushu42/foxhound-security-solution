@@ -1,7 +1,7 @@
 import itertools
 import datetime
 
-from django.db.models import Sum
+from django.db.models import Sum, Count
 
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
@@ -12,7 +12,7 @@ from rest_framework.status import (
     HTTP_200_OK,
 )
 
-from core.models import TrafficLog, TrafficLogDetail
+from core.models import TrafficLog, TrafficLogDetail, IPCountry
 from troubleticket.models import TroubleTicket
 from globalutils import (
     get_month_day_index,
@@ -93,10 +93,7 @@ class FiltersApiView(APIView):
             "source_zone": source_zone,
             "destination_zone": destination_zone
         }
-        response["Access-Control-Allow-Origin"] = "*"
-        response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
-        response["Access-Control-Max-Age"] = "1000"
-        response["Access-Control-Allow-Headers"] = "X-Requested-With, Content-Type"
+
         return Response(response, status=HTTP_200_OK)
 
     def post(self, request, format=None):
@@ -143,6 +140,23 @@ class ActivityApiView(APIView):
             "n_items": len(activity_bytes_sent),
             "activity_bytes_sent": activity_bytes_sent,
             "activity_bytes_received": activity_bytes_received,
+        }, status=HTTP_200_OK)
+
+    def post(self, request, format=None):
+        return self.get(request)
+
+
+class WorldMapApiView(APIView):
+    def get(self, request):
+        objects = IPCountry.objects.values('country_iso_code').annotate(
+            country_count=Count('country_iso_code'))
+        data = []
+        for obj in objects:
+            iso_code = obj['country_iso_code'].lower()
+            count = obj['country_count']
+            data.append([iso_code, count])
+        return Response({
+            'data': data
         }, status=HTTP_200_OK)
 
     def post(self, request, format=None):

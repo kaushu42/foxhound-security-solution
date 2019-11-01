@@ -1,4 +1,6 @@
 import os
+import datetime as dt
+
 import numpy as np
 import pandas as pd
 
@@ -10,17 +12,27 @@ from .model import pca
 
 
 class MLEngine():
-    def __init__(self, ip_profile_dir, ip_model_dir, daily_csv_path):
+    def __init__(self, ip_profile_dir, ip_model_dir, daily_csv_path, anomalies_csv_output_path):
         if isinstance(ip_profile_dir, str) is not True:
-            raise TypeError('IP profile dir must be a string')
+            raise TypeError('IP profile dir must parameter be a string')
 
         if isinstance(ip_model_dir, str) is not True:
-            raise TypeError("IP model dir must be a string")
+            raise TypeError("IP model dir parameter must be a string")
+
+        if isinstance(anomalies_csv_output_path, str) is not True:
+            raise TypeError("Anomalies csv dir parameter must be a string")
+
+        assert os.path.exists(
+            ip_profile_dir) is True, "Initialize the system first."
+
+        if os.path.exists(anomalies_csv_output_path) is not True:
+            os.makedirs(anomalies_csv_output_path)
 
         self._IP_PROFILE_DIR = ip_profile_dir
         self._IP_MODEL_DIR = ip_model_dir
         self._FEATURES = features_list
         self._DAILY_CSV_DIR = daily_csv_path
+        self._ANOMALIES_CSV_OUTPUT_DIR = anomalies_csv_output_path
 
     def _preprocess(self, df):
         temp = df.copy()
@@ -135,13 +147,14 @@ class MLEngine():
                     csv_file_path, save_data_for_ip_profile=True))
 
             anomalous_df = pd.concat(anomalous_df)
-            return anomalous_df
+            anomalous_df.to_csv(os.path.join(
+                self._ANOMALIES_CSV_OUTPUT_DIR, str(dt.datetime.now().date())+'.csv'))
 
         else:
             print("Daily csv directory does not exist")
 
     def run(self, create_model=False, predict=False):
         if predict:
-            return self._predict_anomalies()
-        elif create_model:
+            self._predict_anomalies()
+        if create_model:
             self._create_models()
