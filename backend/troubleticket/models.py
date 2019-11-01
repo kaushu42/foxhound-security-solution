@@ -56,7 +56,10 @@ class TroubleTicketAnomaly(models.Model):
     is_closed = models.BooleanField(default=False)
     log = models.ForeignKey(TrafficLog, on_delete=models.CASCADE)
     log_record_number = models.IntegerField()
-    ip_address = models.CharField(max_length=15)
+    source_ip = models.CharField(max_length=15)
+    destination_ip = models.CharField(max_length=15)
+    source_port = models.IntegerField()
+    destination_port = models.IntegerField()
 
     def __str__(self):
         return f'{self.log}-{self.log_record_number}-{self.created_datetime}'
