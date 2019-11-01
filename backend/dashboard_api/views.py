@@ -93,10 +93,7 @@ class FiltersApiView(APIView):
             "source_zone": source_zone,
             "destination_zone": destination_zone
         }
-        response["Access-Control-Allow-Origin"] = "*"
-        response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
-        response["Access-Control-Max-Age"] = "1000"
-        response["Access-Control-Allow-Headers"] = "X-Requested-With, Content-Type"
+
         return Response(response, status=HTTP_200_OK)
 
     def post(self, request, format=None):
