@@ -38,8 +38,8 @@ class MLEngine():
         temp = df.copy()
         temp['Receive Time'] = temp['Receive Time'].apply(lambda x: x[-8:])
         rows = temp.values
-        rows = [[sum(bytearray(cell, encoding='utf8')) if isinstance(
-            cell, str) else cell for cell in row] for row in rows]
+        rows = [[sum([(weight+1)*char for weight, char in enumerate(list(bytearray(cell, encoding='utf8'))[::-1])])
+                 if isinstance(cell, str) else cell for cell in row] for row in rows]
         return pd.DataFrame(rows, index=df.index, columns=temp.columns)
 
     def _save_to_csv(self, df, ip, dest_file_path):
@@ -77,14 +77,14 @@ class MLEngine():
             os.makedirs(self._IP_MODEL_DIR)
 
         if os.path.exists(self._IP_PROFILE_DIR) is True:
-            for vsys in os.listdir(self._IP_PROFILE_DIR):
+            for vsys in sorted(os.listdir(self._IP_PROFILE_DIR)):
                 vsys_profile_dir = os.path.join(self._IP_PROFILE_DIR, vsys)
                 vsys_model_dir = os.path.join(self._IP_MODEL_DIR, vsys)
 
                 if os.path.exists(vsys_model_dir) is not True:
                     os.makedirs(vsys_model_dir)
 
-                for ip_csv_file in os.listdir(vsys_profile_dir):
+                for ip_csv_file in sorted(os.listdir(vsys_profile_dir)):
                     ip_csv_path = os.path.join(
                         self._IP_PROFILE_DIR, vsys, ip_csv_file)
                     ip_model_path = os.path.join(
@@ -140,7 +140,7 @@ class MLEngine():
     def _predict_anomalies(self):
         if os.path.exists(self._DAILY_CSV_DIR) is True:
             anomalous_df = []
-            for csv in os.listdir(self._DAILY_CSV_DIR):
+            for csv in sorted(os.listdir(self._DAILY_CSV_DIR)):
                 print(f'**********Processing {csv} **********')
                 csv_file_path = os.path.join(self._DAILY_CSV_DIR, csv)
                 anomalous_df.append(self.get_anomalies(
@@ -155,6 +155,8 @@ class MLEngine():
 
     def run(self, create_model=False, predict=False):
         if create_model:
+            print("Creating models")
             self._create_models()
+            print("Model created")
         if predict:
             self._predict_anomalies()
