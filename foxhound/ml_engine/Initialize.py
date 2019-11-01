@@ -69,7 +69,7 @@ class Initialize():
         if os.path.exists(self._dir_to_parse):
             files = os.listdir(self._dir_to_parse)
             total = len(files)
-            count = 0
+            count = 1
             for csv in os.listdir(self._dir_to_parse):
                 csv_file_path = os.path.join(self._dir_to_parse, csv)
                 print(
