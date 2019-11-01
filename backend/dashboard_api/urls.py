@@ -8,4 +8,5 @@ urlpatterns = [
     path('rules/', views.rules),
     path('usage/', views.UsageApiView.as_view()),
     path('activity/', views.ActivityApiView.as_view()),
+    path('map/', views.WorldMapApiView.as_view()),
 ]

@@ -85,7 +85,7 @@ class TrafficLogDetail(Base):
     logged_datetime = Column(DateTime)
 
     def __repr__(self):
-        return f'Log-{self.date}'
+        return f'Log-{self.logged_datetime}'
 
     def __str__(self):
         return self.__repr__()
@@ -109,11 +109,25 @@ class RuleDictionary(Base):
     application = Column(String)
     rule_description = Column(String)
     is_verified_rule = Column(Boolean)
-
     verified_date_time = Column(DateTime)
 
     def __repr__(self):
         return self.rule_name
+
+    def __str__(self):
+        return self.__repr__()
+
+
+class IPCountry(Base):
+    __tablename__ = 'core_ipcountry'
+
+    id = Column(Integer, primary_key=True)
+    ip = Column(String)
+    country_name = Column(String)
+    country_iso_code = Column(String)
+
+    def __repr__(self):
+        return f'{self.ip}-{self.country_iso_code}'
 
     def __str__(self):
         return self.__repr__()

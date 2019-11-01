@@ -1,105 +1,134 @@
-import React, {Component} from 'react';
+import React, { Component } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import mapdata from "./mapdata";
 
-
 require("highcharts/modules/map")(Highcharts);
 
-
-
 const data = [
-    ["ae", 37],
-    ["af", 44],
-    ["am", 20],
-    ["az", 19],
-    ["bd", 9],
-    ["bh", 12],
-    ["bn", 43],
-    ["bt", 26],
-    ["cn", 70],
-    ["cnm", 33],
-    ["cy", 48],
-    ["ge", 27],
-    ["id", 65],
-    ["il", 29],
-    ["in", 65],
-    ["iq", 36],
-    ["ir", 70],
-    ["jk", 40],
-    ["jo", 31],
-    ["jp", 100],
-    ["kg", 52],
-    ["kh", 25],
-    ["kp", 45],
-    ["kr", 70],
-    ["kw", 35],
-    ["kz", 28],
-    ["la", 38],
-    ["lb", 46],
-    ["lk", 51],
-    ["mm", 13],
-    ["mn", 34],
-    ["my", 18],
-    ["nc", 47],
-    ["np", 50],
-    ["om", 5],
-    ["ph", 1],
-    ["pk", 39],
-    ["qa", 41],
-    ["ru", 70],
-    ["sa", 2],
-    ["sg", 65],
-    ["sh", 17],
-    ["sp", 10],
-    ["sy", 30],
-    ["th", 4],
-    ["tj", 22],
-    ["tl", 24],
-    ["tm", 32],
-    ["tr", 65],
-    ["tw", 49],
-    ["uz", 23],
-    ["vn", 21],
-    ["ye", 6]
+  ["ru", 40],
+  ["pe", 4],
+  ["dk", 10],
+  ["si", 5],
+  ["cz", 10],
+  ["sg", 18],
+  ["us", 428],
+  ["ke", 2],
+  ["kr", 26],
+  ["jp", 21],
+  ["nz", 2],
+  ["kz", 3],
+  ["ve", 2],
+  ["hn", 1],
+  ["iq", 1],
+  ["au", 7],
+  ["ir", 13],
+  ["cl", 4],
+  ["qa", 1],
+  ["nl", 57],
+  ["in", 27],
+  ["cn", 86],
+  ["at", 31],
+  ["vn", 18],
+  ["ar", 4],
+  ["zm", 1],
+  ["br", 95],
+  ["pl", 14],
+  ["my", 3],
+  ["hk", 43],
+  ["np", 92],
+  ["mq", 1],
+  ["eg", 2],
+  ["se", 12],
+  ["kn", 1],
+  ["ch", 17],
+  ["sc", 1],
+  ["pk", 1],
+  ["de", 118],
+  ["lu", 3],
+  ["tw", 29],
+  ["ca", 22],
+  ["sk", 28],
+  ["lt", 2],
+  ["fr", 37],
+  ["lv", 1],
+  ["---", 9],
+  ["mx", 4],
+  ["ro", 6],
+  ["hu", 5],
+  ["ph", 1],
+  ["fi", 2],
+  ["rs", 7],
+  ["ec", 2],
+  ["ie", 10],
+  ["id", 5],
+  ["mn", 2],
+  ["am", 1],
+  ["bd", 9],
+  ["pa", 1],
+  ["lb", 3],
+  ["za", 4],
+  ["ua", 7],
+  ["pt", 2],
+  ["es", 6],
+  ["ng", 1],
+  ["no", 10],
+  ["th", 7],
+  ["bg", 7],
+  ["gb", 27],
+  ["tn", 2],
+  ["it", 29],
+  ["tr", 11],
+  ["ps", 2],
+  ["cr", 1],
+  ["ma", 2],
+  ["al", 2],
+  ["gr", 2],
+  ["kh", 3],
+  ["be", 1],
+  ["co", 3],
+  ["np", 251]
 ];
 
-
-
 class RequestOriginChart extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      mapOptions: {
+        title: {
+          text: ""
+        },
+        colorAxis: {
+          min: 0,
+          stops: [
+            [0.0, "#0000ff"],
+            // [0.5, "#00ff00"],
+            // [0.4, "#00bfff"],
+            // [0.6, "#00ffbf"],
+            // [0.8, "#bfff00"],
+            [1.0, "#ff0000"]
+          ] // change color according to value
+        },
+        series: [
+          {
+            mapData: mapdata,
+            name: "World",
+            data: data
+          }
+        ]
+      }
+    };
+  }
 
-    constructor(props){
-        super(props)
-        this.state = {
-            mapOptions: {
-                title: {
-                    text: ""
-                },
-                colorAxis: {
-                    min: 0,
-                    stops: [[0.1, "#cccccc"], [1, "#000000"]] // change color according to value
-
-                },
-                series: [
-                    {
-                        mapData: mapdata,
-                        name: "World",
-                        data: data
-                    }
-                ]
-            }
-        }
-
-    }
-
-    render() {
-        return (
-            <HighchartsReact
-                options={this.state.mapOptions}
-                constructorType={"mapChart"}
-                highcharts={Highcharts}
-            />)
-    }
+  render() {
+    return (
+      <HighchartsReact
+        options={this.state.mapOptions}
+        constructorType={"mapChart"}
+        highcharts={Highcharts}
+      />
+    );
+  }
 }
 
 export default RequestOriginChart;
