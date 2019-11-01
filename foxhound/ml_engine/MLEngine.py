@@ -156,5 +156,5 @@ class MLEngine():
     def run(self, create_model=False, predict=False):
         if predict:
             self._predict_anomalies()
-        elif create_model:
+        if create_model:
             self._create_models()
