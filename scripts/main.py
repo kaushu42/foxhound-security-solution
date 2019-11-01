@@ -1,19 +1,21 @@
-import foxhound as fh
 import time
 import os
 
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import sessionmaker
 
+import foxhound as fh
 from foxhound.db_engine.core_models import VirtualSystem
 from foxhound.ml_engine.Initialize import Initialize
+from foxhound.ml_engine.MLEngine import MLEngine
 
+import config
 
-db_name = os.environ.get('FH_DB_NAME', '')
-db_user = os.environ.get('FH_DB_USER', '')
-db_password = os.environ.get('FH_DB_PASSWORD', '')
+db_name = os.environ.get(config.FH_DB_NAME, '')
+db_user = os.environ.get(config.FH_DB_USER, '')
+db_password = os.environ.get(config.FH_DB_PASSWORD, '')
 db_engine = create_engine(
-    f'postgresql://{db_user}:{db_password}@localhost:5432/{db_name}'
+    f'postgresql://{db_user}:{db_password}@{config.HOST}:{config.PORT}/{db_name}'
 )
 Session = sessionmaker(bind=db_engine)
 session = Session()
@@ -49,12 +51,16 @@ if session.query(VirtualSystem).count() == 0:
 
 
 pa = fh.dc_engine.PaloAltoEngine(
-    '../inputs/traffic_logs', '../outputs/traffic_logs')
+    config.TRAFFIC_LOGS_INPUT_DIR, config.TRAFFIC_LOGS_OUTPUT_DIR)
 pa.run(verbose=True)
 
-
-db = fh.db_engine.DBEngine('../outputs/traffic_logs', db_engine=db_engine)
+db = fh.db_engine.DBEngine(config.TRAFFIC_LOGS_OUTPUT_DIR, db_engine=db_engine)
 db.run(verbose=True)
 
-init = Initialize("../inputs/history_logs", "../outputs/ip_profile")
+
+init = Initialize(config.TRAFFIC_LOGS_INPUT_DIR, config.IP_PROFILE_OUTPUT_DIR)
 init.parse_all_csv()
+
+mle = MLEngine(config.IP_PROFILE_OUTPUT_DIR, config.IP_MODEL_OUTPUT_DIR,
+               config.TRAFFIC_LOGS_INPUT_DIR, config.ANOMALY_LOGS_OUTPUT_DIR)
+mle.run(create_model=True, predict=True)
