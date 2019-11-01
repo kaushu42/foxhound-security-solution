@@ -77,14 +77,14 @@ class MLEngine():
             os.makedirs(self._IP_MODEL_DIR)
 
         if os.path.exists(self._IP_PROFILE_DIR) is True:
-            for vsys in os.listdir(self._IP_PROFILE_DIR):
+            for vsys in sorted(os.listdir(self._IP_PROFILE_DIR)):
                 vsys_profile_dir = os.path.join(self._IP_PROFILE_DIR, vsys)
                 vsys_model_dir = os.path.join(self._IP_MODEL_DIR, vsys)
 
                 if os.path.exists(vsys_model_dir) is not True:
                     os.makedirs(vsys_model_dir)
 
-                for ip_csv_file in os.listdir(vsys_profile_dir):
+                for ip_csv_file in sorted(os.listdir(vsys_profile_dir)):
                     ip_csv_path = os.path.join(
                         self._IP_PROFILE_DIR, vsys, ip_csv_file)
                     ip_model_path = os.path.join(
@@ -140,7 +140,7 @@ class MLEngine():
     def _predict_anomalies(self):
         if os.path.exists(self._DAILY_CSV_DIR) is True:
             anomalous_df = []
-            for csv in os.listdir(self._DAILY_CSV_DIR):
+            for csv in sorted(os.listdir(self._DAILY_CSV_DIR)):
                 print(f'**********Processing {csv} **********')
                 csv_file_path = os.path.join(self._DAILY_CSV_DIR, csv)
                 anomalous_df.append(self.get_anomalies(
