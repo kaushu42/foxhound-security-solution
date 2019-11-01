@@ -96,8 +96,9 @@ class MLEngine():
                         self._save_model_params(
                             model_with_params, ip_model_path)
                     else:
-                        print(
-                            f'Not sufficient data to create model for {ip_csv_file}')
+                        pass
+                        # print(
+                        #    f'Not sufficient data to create model for {ip_csv_file}')
         else:
             print(f'IP profile path {self._IP_PROFILE_DIR} doesnot exist')
 
@@ -109,7 +110,7 @@ class MLEngine():
         for vsys in df['Virtual System'].unique():
             vsys_df = truncated_df[truncated_df['Virtual System'] == vsys]
 
-            for ip in df['Source address'].unique():
+            for ip in vsys_df['Source address'].unique():
                 ip_csv_path = os.path.join(
                     self._IP_PROFILE_DIR, vsys, f'{ip}.csv')
                 model_path = os.path.join(
@@ -154,8 +155,6 @@ class MLEngine():
 
     def run(self, create_model=False, predict=False):
         if predict:
-            print("entering predict")
             self._predict_anomalies()
         if create_model:
-            print("entering create model")
             self._create_models()
