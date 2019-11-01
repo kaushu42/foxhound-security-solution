@@ -154,7 +154,7 @@ class MLEngine():
             print("Daily csv directory does not exist")
 
     def run(self, create_model=False, predict=False):
-        if predict:
-            self._predict_anomalies()
         if create_model:
             self._create_models()
+        if predict:
+            self._predict_anomalies()
