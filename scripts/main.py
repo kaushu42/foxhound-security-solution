@@ -39,7 +39,7 @@ db_engine = create_engine(
 Session = sessionmaker(bind=db_engine)
 session = Session()
 
-Seed the database
+# Seed the database
 if session.query(VirtualSystem).count() == 0:
     vsys1 = VirtualSystem(
         code='vsys1',
