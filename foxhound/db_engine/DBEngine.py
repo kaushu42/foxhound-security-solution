@@ -8,7 +8,7 @@ from sqlalchemy.orm import sessionmaker
 import pandas as pd
 
 import geoip2.database
-
+import geoip2.errors
 
 from .core_models import (VirtualSystem, TrafficLog,
                           TrafficLogDetail, IPCountry)
@@ -97,16 +97,21 @@ class DBEngine(object):
             ip_country = IPCountry(ip=ip)
             country_name = ''
             country_iso_code = ''
-            if self._is_ip_private(ip) is not True:
-                country = self._reader.city(ip).country
-                country_iso_code = country.iso_code
-                country_name = country.name
-                if country_iso_code is None:
-                    country_name = 'Unknown'
-                    country_iso_code = '---'
-            else:
-                country_iso_code = "np"
-                country_name = "Nepal"
+            try:
+                if self._is_ip_private(ip) is not True:
+                    country = self._reader.city(ip).country
+                    country_iso_code = country.iso_code
+                    country_name = country.name
+                    if country_iso_code is None:
+                        country_name = 'Unknown'
+                        country_iso_code = '---'
+                else:
+                    country_iso_code = "np"
+                    country_name = "Nepal"
+            except geoip2.errors.AddressNotFoundError:
+                country_name = 'Unknown'
+                country_iso_code = '---'
+
             ip_country.country_name = country_name
             ip_country.country_iso_code = country_iso_code.lower()
             session.add(ip_country)
