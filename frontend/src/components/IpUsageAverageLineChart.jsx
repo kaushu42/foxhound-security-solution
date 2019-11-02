@@ -4,6 +4,7 @@ import {ipUsageAverageTrendDataService} from "../services/ipUsageAverageTrendSer
 import {connect} from "react-redux";
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
+import moment from "moment";
 
 class IpUsageAverageDailyTrendChart extends Component {
 
@@ -13,16 +14,17 @@ class IpUsageAverageDailyTrendChart extends Component {
             data : [],
             options: {
                 chart: {
+                    "zoomType": 'x'
                 },
                 xAxis: {
-                    type: 'datetime'
+                    type: 'string'
                 },
                 title: {
-                    text: 'Average Daily Trend'
+                    text: `Average Daily Trend of ${this.props.ip_address}`
                 },
                 series: [
                     {
-                        type: 'spline',
+                        type: 'line',
                         data: []
                     }
                 ]
@@ -45,31 +47,26 @@ class IpUsageAverageDailyTrendChart extends Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        const {auth_token,ip_address} = this.props;
         if(prevState.data != this.state.data){
-            const d = this.state.data.bytes_received;
-            console.log('average data',d);
+            let data = this.state.data.bytes_received;
+            data.sort(function(a, b) {
+                return a[0] > b[0] ? 1 : -1;
+            });
             this.chart.update({
                 xAxis: {
-                    type: 'datetime',
-                    labels: {
-                        enabled: true,
-                        formatter: function() { return d[this.value][0];},
-                    }
+
+                    type:"string",
+                    categories : data.map(d=> d[0])
                 },
                 series: [
                     {
-                        type: 'spline',
-                        data: d
+                        name : 'Bytes Received',
+                        type : 'spline',
+                        data : data.map(d=> d[1])
                     }
                 ]
             })
         }
-    }
-
-
-    handleFetchData = () => {
-
     }
 
     render() {
