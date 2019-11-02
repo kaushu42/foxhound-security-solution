@@ -151,7 +151,9 @@ class ActivityApiView(APIView):
 
 class WorldMapApiView(APIView):
     def get(self, request):
-        objects = TrafficLogDetail.objects.values(
+        query = get_query_from_request(request)
+        objects = get_objects_from_query(query)
+        objects = objects.values(
             'source_ip'
         ).annotate(
             ip_count=Count('source_ip')
