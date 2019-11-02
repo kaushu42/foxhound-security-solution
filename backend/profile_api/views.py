@@ -1,5 +1,5 @@
 import json
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 from django.db.models.functions import TruncDay, TruncMonth, TruncHour
 from django.db.models import Sum, Count, Avg
@@ -69,6 +69,10 @@ class AverageDailyApiView(APIView):
             time = str(obj['date'].time())
             bytes_sent[time] += obj['bytes_sent']
             bytes_received[time] += obj['bytes_received']
+
+        bytes_sent = OrderedDict(bytes_sent.items())
+        bytes_received = OrderedDict(bytes_received.items())
+
         bytes_sent_data = []
         bytes_received_data = []
         assert len(bytes_sent) == len(bytes_received)
