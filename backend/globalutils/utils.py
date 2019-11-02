@@ -108,7 +108,6 @@ def str_to_date(string):
     try:
         return datetime.datetime.strptime(string, '%Y-%m-%d')
     except Exception as e:
-        print(e)
         return None
 
 
@@ -131,57 +130,26 @@ def _get_date_queries(start_date, end_date, model_name, datetime_field_name):
             f'{model_name}__{datetime_field_name}__lte': end_date
         }
     }
-    start_date_query = Q()
-    end_date_query = Q()
+
+    queries = []
 
     if start_date:
         start_date_query = Q(**date_queries['start_date'])
+        queries.append(start_date_query)
 
     if end_date:
         end_date_query = Q(**date_queries['end_date'])
+        queries.append(end_date_query)
+    return queries
 
-    return start_date_query, end_date_query
 
-
-def get_query_from_request(
-    request,
-    model_name='traffic_log',
-    datetime_field_name='log_date'
-):
-    filters = get_filters(request)
-    start_date = filters['start_date']
-    end_date = filters['end_date']
+def _get_queries_except_date(filters):
     firewall_rule = filters['firewall_rule']
     application = filters['application']
     protocol = filters['protocol']
     source_zone = filters['source_zone']
     destination_zone = filters['destination_zone']
     queries = []
-
-    # date_queries = {
-    #     'start_date': {
-    #         f'{model_name}__{datetime_field_name}__gte': start_date
-    #     },
-    #     'end_date': {
-    #         f'{model_name}__{datetime_field_name}__lte': end_date
-    #     }
-    # }
-
-    # if start_date:
-    #     start_date_query = Q(**date_queries['start_date'])
-    #     queries.append(start_date_query)
-
-    # if end_date:
-    #     end_date_query = Q(**date_queries['end_date'])
-    #     queries.append(end_date_query)
-    start_date_query, end_date_query = _get_date_queries(
-        start_date,
-        end_date,
-        model_name,
-        datetime_field_name
-    )
-    queries.append(start_date_query)
-    queries.append(end_date_query)
 
     if firewall_rule:
         firewall_rule_query = _get_query('firewall_rule', firewall_rule)
@@ -204,6 +172,36 @@ def get_query_from_request(
             'destination_zone', destination_zone)
         queries.append(destination_zone_query)
     return queries
+
+
+def _get_all_queries(filters, model_name, datetime_field_name):
+    start_date = filters['start_date']
+    end_date = filters['end_date']
+    queries = []
+
+    queries += _get_date_queries(
+        start_date,
+        end_date,
+        model_name,
+        datetime_field_name
+    )
+    queries += _get_queries_except_date(filters)
+
+    return queries
+
+
+def get_query_from_request(
+    request,
+    model_name='traffic_log',
+    datetime_field_name='log_date'
+):
+    filters = get_filters(request)
+    query = _get_all_queries(
+        filters,
+        model_name,
+        datetime_field_name
+    )
+    return query
 
 
 def get_objects_from_query(queries, model=TrafficLogDetail):
