@@ -9,8 +9,6 @@ export const filterSelectDataServiceAsync = auth_token => {
   let headers = {
     Accept: "application/json",
     "Content-Type": "application/json",
-    "Access-Control-Allow-Headers": "*",
-    "Access-Control-Allow-Origin": "*",
     Authorization: authorization
   };
   return axios.post(

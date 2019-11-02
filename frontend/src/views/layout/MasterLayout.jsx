@@ -16,7 +16,7 @@ const LayoutStyle = {
 class Master extends Component {
     render(){
         return (
-            <Layout class="Fade">
+            <Layout className="Fade">
                 <SideBar />
                 <Layout>
                     <NavBar />

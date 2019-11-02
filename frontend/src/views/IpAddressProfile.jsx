@@ -4,13 +4,10 @@ import {Col, PageHeader, Row, Statistic} from "antd";
 import MasterLayout from "./layout/MasterLayout";
 import Filter from "../components/Filter";
 import IpSearchBar from "../components/IpSearchBar";
-import IpUsageAverageDailyTrendChart from "../components/IpUsageDayAverageLineChart";
+import IpUsageAverageDailyTrendChart from "../components/IpUsageAverageLineChart";
 import IpUsageTimeSeriesChart from "../components/IpUsageTimeSeriesChart";
 import SankeyChart from "../charts/SankeyChart";
 import CalendarChart from "../charts/CalendarChart";
-import CustomHighMap from "../charts/Map";
-import DashboardStats from "../components/DashboardStats";
-import HighMap from "../charts/highmap";
 import {contentLayout} from "../utils";
 class IpAddressProfile extends Component{
     render(){

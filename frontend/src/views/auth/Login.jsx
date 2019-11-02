@@ -31,9 +31,7 @@ class Login extends Component {
     authenticateUser(username,password){
         let headers = {
             Accept: "application/json",
-            "Content-Type": "application/json",
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods' : 'GET,PUT,POST,DELETE,PATCH,OPTIONS',
+            "Content-Type": "application/json"
         };
 
         const data  =  {
@@ -50,7 +48,9 @@ class Login extends Component {
                 this.props.dispatchSessionLogin(auth_response);
                 this.props.history.push("/");
                 })
-            .catch((error) => console.log(error));
+            .catch((error) => {
+                console.log("authentication error",error);
+            });
     }
 
     render(){
