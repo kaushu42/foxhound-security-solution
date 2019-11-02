@@ -1,6 +1,6 @@
 import json
-from django.db.models.functions import TruncDay, TruncMonth
-from django.db.models import Sum, Count
+from django.db.models.functions import TruncDay, TruncMonth, TruncHour
+from django.db.models import Sum, Count, Avg
 
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
@@ -49,7 +49,7 @@ class StatsApiView(APIView):
         return self.post(request, format=format)
 
 
-class UsageApiView(APIView):
+class AverageDailyApiView(APIView):
     def _get_usage(self, ip, objects):
         latest_date = TrafficLog.objects.latest('log_date')
         objects = groupby_date(
@@ -58,7 +58,8 @@ class UsageApiView(APIView):
             ),
             'logged_datetime',
             'minute',
-            ['bytes_sent', 'bytes_received']
+            ['bytes_sent', 'bytes_received'],
+            Avg
         )
         time, bytes_sent, bytes_received = get_usage(objects)
 

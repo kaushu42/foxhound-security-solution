@@ -27,11 +27,11 @@ _TRUNC_TIME = {
 }
 
 
-def groupby_date(queryset, input_field, timeinterval, output_fields):
+def groupby_date(queryset, input_field, timeinterval, output_fields, group_by_func=Sum):
     trunc_func = _TRUNC_TIME[timeinterval.lower()]
     query = {}
     for field in output_fields:
-        query[field] = Sum(field)
+        query[field] = group_by_func(field)
 
     return queryset.annotate(
         date=trunc_func(
