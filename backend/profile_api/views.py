@@ -1,4 +1,6 @@
 import json
+from collections import defaultdict
+
 from django.db.models.functions import TruncDay, TruncMonth, TruncHour
 from django.db.models import Sum, Count, Avg
 
@@ -51,23 +53,32 @@ class StatsApiView(APIView):
 
 class AverageDailyApiView(APIView):
     def _get_usage(self, ip, objects):
-        latest_date = TrafficLog.objects.latest('log_date')
+        # latest_date = TrafficLog.objects.latest('log_date')
         objects = groupby_date(
             objects.filter(
-                traffic_log=latest_date, source_ip=ip
+                source_ip=ip
             ),
             'logged_datetime',
             'minute',
             ['bytes_sent', 'bytes_received'],
             Avg
         )
-        time, bytes_sent, bytes_received = get_usage(objects)
-
+        bytes_sent = defaultdict(int)
+        bytes_received = defaultdict(int)
+        for obj in objects:
+            time = str(obj['date'].time())
+            bytes_sent[time] += obj['bytes_sent']
+            bytes_received[time] += obj['bytes_received']
+        bytes_sent_data = []
+        bytes_received_data = []
+        assert len(bytes_sent) == len(bytes_received)
+        for i, j in zip(bytes_sent, bytes_received):
+            bytes_sent_data.append([i, bytes_sent[i]])
+            bytes_received_data.append([j, bytes_received[j]])
         return {
             "n_items": len(bytes_sent),
-            "x_axis": time,
-            "bytes_sent": bytes_sent,
-            "bytes_received": bytes_received,
+            "bytes_sent": bytes_sent_data,
+            "bytes_received": bytes_received_data,
         }
 
     def post(self, request, format=None):
