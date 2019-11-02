@@ -151,7 +151,7 @@ for f in os.listdir(config.ANOMALY_LOGS_OUTPUT_DIR):
         vsys_id = session.query(VirtualSystem).filter_by(code=vsys_name)[0].id
         traffic_log = session.query(TrafficLog).filter_by(
             log_name=log_name, virtual_system_id=vsys_id)
-        if traffic_log.count() != 1:
+        if traffic_log.count() > 1:
             raise Exception("Multiple Objects Returned")
         traffic_log = traffic_log[0]
         now = datetime.datetime.now()
