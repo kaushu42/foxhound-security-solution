@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
+import ipaddress
 
 import csv
 
@@ -45,6 +46,8 @@ class Initialize():
             lambda x: x[-8:])  # remove date information from dataframe
         ips = df['Source address'].unique()  # get a list of unique ips
         print(f'{len(ips)} ips found')
+        private_ips = ips[[ipaddress.ip_address(ip).is_private for ip in ips]]
+        print(f'{len(private_ips)} private ips found')
 
         for vsys in df['Virtual System'].unique():
             vsys_csv_path = os.path.join(dest_path, vsys)
@@ -52,8 +55,10 @@ class Initialize():
                 os.makedirs(vsys_csv_path)
             vsys_df = df[df['Virtual System'] == vsys]
             ips = vsys_df['Source address'].unique()
+            private_ips = ips[[ipaddress.ip_address(
+                ip).is_private for ip in ips]]
 
-            for ip in ips:  # create csv file for individual ips
+            for ip in private_ips:  # create csv file for individual ips
                 ip_csv_path = os.path.join(vsys_csv_path, (ip+'.csv'))
                 ip_df = vsys_df[vsys_df['Source address'] == ip]
                 # call method to write to csv file

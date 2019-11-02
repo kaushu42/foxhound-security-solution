@@ -1,5 +1,6 @@
 import os
 import datetime as dt
+import ipaddress
 
 import numpy as np
 import pandas as pd
@@ -110,7 +111,11 @@ class MLEngine():
         for vsys in df['Virtual System'].unique():
             vsys_df = truncated_df[truncated_df['Virtual System'] == vsys]
 
-            for ip in vsys_df['Source address'].unique():
+            ips = vsys_df['Source address'].unique()
+            private_ips = ips[[ipaddress.ip_address(
+                ip).is_private for ip in ips]]
+
+            for ip in private_ips:
                 ip_csv_path = os.path.join(
                     self._IP_PROFILE_DIR, vsys, f'{ip}.csv')
                 model_path = os.path.join(
