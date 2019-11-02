@@ -5,4 +5,5 @@ urlpatterns = [
     path('dashboard/', include('dashboard_api.urls')),
     path('profile/', include('profile_api.urls')),
     path('log/', include('log_api.urls')),
+    path('tt/', include('troubleticket.urls')),
 ]

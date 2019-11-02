@@ -6,6 +6,7 @@ from rest_framework.status import (
     HTTP_400_BAD_REQUEST,
     HTTP_404_NOT_FOUND,
     HTTP_200_OK,
+    HTTP_401_UNAUTHORIZED
 )
 from rest_framework.response import Response
 from serializers.serializers import UserSerializer, UserLoginSerializer
@@ -25,7 +26,10 @@ def login(request):
         tenant_id=0  # Get tenant_id from url
     )
     if not user:
-        return Response({'detail': 'Invalid Credentials or activate account'}, status=HTTP_404_NOT_FOUND)
+        return Response(
+            {'detail': 'Invalid Credentials or activate account'},
+            status=HTTP_401_UNAUTHORIZED
+        )
 
     # TOKEN STUFF
     token, _ = Token.objects.get_or_create(user=user)
