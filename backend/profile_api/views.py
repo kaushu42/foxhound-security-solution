@@ -70,8 +70,8 @@ class AverageDailyApiView(APIView):
             bytes_sent[time] += obj['bytes_sent']
             bytes_received[time] += obj['bytes_received']
 
-        bytes_sent = OrderedDict(bytes_sent.items())
-        bytes_received = OrderedDict(bytes_received.items())
+        bytes_sent = OrderedDict(sorted(bytes_sent.items()))
+        bytes_received = OrderedDict(sorted(bytes_received.items()))
 
         bytes_sent_data = []
         bytes_received_data = []
