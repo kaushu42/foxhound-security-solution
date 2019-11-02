@@ -1,3 +1,5 @@
+import datetime
+
 from django.db.models.functions import (
     TruncDay, TruncMinute, TruncMonth, TruncHour)
 from django.db.models import Sum
@@ -105,7 +107,8 @@ def str_to_date(string):
     """
     try:
         return datetime.datetime.strptime(string, '%Y-%m-%d')
-    except Exception:
+    except Exception as e:
+        print(e)
         return None
 
 
@@ -128,7 +131,6 @@ def get_query_from_request(request):
     protocol = filters['protocol']
     source_zone = filters['source_zone']
     destination_zone = filters['destination_zone']
-
     queries = []
     if start_date:
         start_date_query = Q(traffic_log__log_date__gte=start_date)
