@@ -1,5 +1,7 @@
 import itertools
 import datetime
+from collections import defaultdict
+import json
 
 from django.db.models import Sum, Count
 
@@ -10,6 +12,7 @@ from rest_framework.status import (
     HTTP_400_BAD_REQUEST,
     HTTP_404_NOT_FOUND,
     HTTP_200_OK,
+    HTTP_500_INTERNAL_SERVER_ERROR
 )
 
 from core.models import TrafficLog, TrafficLogDetail, IPCountry
@@ -148,13 +151,29 @@ class ActivityApiView(APIView):
 
 class WorldMapApiView(APIView):
     def get(self, request):
-        objects = IPCountry.objects.values('country_iso_code').annotate(
-            country_count=Count('country_iso_code'))
-        data = []
+        objects = TrafficLogDetail.objects.values(
+            'source_ip'
+        ).annotate(
+            ip_count=Count('source_ip')
+        )
+
+        country_data = defaultdict(int)
+
         for obj in objects:
-            iso_code = obj['country_iso_code'].lower()
-            count = obj['country_count']
-            data.append([iso_code, count])
+            ip = obj['source_ip']
+            count = obj['ip_count']
+            try:
+                country = IPCountry.objects.get(ip=ip).country_iso_code
+            except Exception:
+                return Response({
+                    "error": "Database Error"
+                }, status=HTTP_500_INTERNAL_SERVER_ERROR)
+            country_data[country] += count
+        # Delete nepal data for now, because it overshadows all other countries
+        del country_data['np']
+        data = []
+        for key, value in country_data.items():
+            data.append([key, value])
         return Response({
             'data': data
         }, status=HTTP_200_OK)
