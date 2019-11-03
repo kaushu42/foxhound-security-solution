@@ -15,10 +15,13 @@ from .model import pca
 class MLEngine():
     def __init__(self, ip_profile_dir, ip_model_dir, daily_csv_path, anomalies_csv_output_path):
         if isinstance(ip_profile_dir, str) is not True:
-            raise TypeError('IP profile dir must parameter be a string')
+            raise TypeError('IP profile dir parameter must be a string')
 
         if isinstance(ip_model_dir, str) is not True:
             raise TypeError("IP model dir parameter must be a string")
+
+        if isinstance(daily_csv_path, str) is not True:
+            raise TypeError("Daily csv dir parameter must be a string")
 
         if isinstance(anomalies_csv_output_path, str) is not True:
             raise TypeError("Anomalies csv dir parameter must be a string")
