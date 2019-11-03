@@ -85,7 +85,7 @@ class Initialize():
             Location of input csv file to read
         dest_path : str
             Location of ip profile directory to save ip's profile to
-        features_list : list
+        features_list : list of strings
             List of features to consider for analysis
         """
         df = pd.read_csv(src_file_path)

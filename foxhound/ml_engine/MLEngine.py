@@ -186,7 +186,7 @@ class MLEngine():
 
         Returns
         -------
-        List of int
+        list of int
             List of indices that are anomalous
         """
         params = self._load_model_params(model_path)
