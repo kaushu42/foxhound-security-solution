@@ -38,6 +38,8 @@ class StatsApiView(APIView):
         return {
             "uplink": uplink,
             "downlink": downlink,
+            "ip_address": ip,
+            "alias_name": ip,
         }
 
     def post(self, request, format=None):
@@ -160,6 +162,8 @@ class SankeyApiView(APIView):
 
     def post(self, request, format=None):
         ip = get_ip_from_request(request)
+        query = get_query_from_request(request)
+        objects = get_objects_from_query(query)
         if ip is None:
             return Response({"error": "Invalid IP"},
                             status=HTTP_422_UNPROCESSABLE_ENTITY)
@@ -174,7 +178,6 @@ class TimeSeriesApiView(APIView):
     def get(self, request, format=None):
         ip = get_ip_from_request(request)
         query = get_query_from_request(request)
-        objects = get_objects_from_query(query)
 
         if not query:
             latest_date = TrafficLog.objects.latest('log_date')
@@ -189,7 +192,7 @@ class TimeSeriesApiView(APIView):
         else:
             objects = get_objects_from_query(query)
             objects = groupby_date(
-                objects,
+                objects.filter(source_ip=ip),
                 'logged_datetime',
                 'minute',
                 ['bytes_sent', 'bytes_received']
