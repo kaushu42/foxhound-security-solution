@@ -6,7 +6,7 @@ import {ROOT_URL} from "../utils";
 import {connect} from "react-redux";
 import axios from 'axios';
 import '../charts/chart.css';
-import {Spin} from "antd";
+import {Row, Spin} from "antd";
 
 require("highcharts/modules/map")(Highcharts);
 
@@ -28,7 +28,7 @@ let options = {
     min: 0,
     stops: [
       [0.0, "#fff"],
-      [1.0, "#f00"]
+      [1.0, "#00f"]
     ] // change color according to value
   },
   series: [
@@ -156,16 +156,15 @@ class RequestOriginChart extends Component {
   render(){
     return (
         <Spin tip="Loading..." spinning={this.state.loading}>
-        <div id={"container"}>
-        <HighchartsReact
-            constructorType={"mapChart"}
-            allowChartUpdate={false}
-            highcharts={Highcharts}
-            ref = {'chart'}
-            options = {options}
-        />
-
-      </div>
+          <Row>
+            <HighchartsReact
+                constructorType={"mapChart"}
+                allowChartUpdate={false}
+                highcharts={Highcharts}
+                ref = {'chart'}
+                options = {options}
+            />
+          </Row>
         </Spin>
     );
   }
