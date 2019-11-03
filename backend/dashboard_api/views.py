@@ -105,21 +105,29 @@ class FiltersApiView(APIView):
 
 class UsageApiView(APIView):
     def get(self, request, format=None):
-        latest_date = TrafficLog.objects.latest('log_date')
-        objects = groupby_date(
-            TrafficLogDetail.objects.filter(
-                traffic_log=latest_date
-            ),
-            'logged_datetime',
-            'minute',
-            ['bytes_sent', 'bytes_received']
-        )
-
-        time, bytes_sent, bytes_received = get_usage(objects)
+        query = get_query_from_request(request)
+        if not query:
+            latest_date = TrafficLog.objects.latest('log_date')
+            objects = groupby_date(
+                TrafficLogDetail.objects.filter(
+                    traffic_log__id=latest_date.id
+                ),
+                'logged_datetime',
+                'minute',
+                ['bytes_sent', 'bytes_received']
+            )
+        else:
+            objects = get_objects_from_query(query)
+            objects = groupby_date(
+                objects,
+                'logged_datetime',
+                'minute',
+                ['bytes_sent', 'bytes_received']
+            )
+        bytes_sent, bytes_received = get_usage(objects)
 
         return Response({
             "n_items": len(bytes_sent),
-            "x_axis": time,
             "bytes_sent": bytes_sent,
             "bytes_received": bytes_received,
         }, status=HTTP_200_OK)
