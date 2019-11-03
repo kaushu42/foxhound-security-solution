@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import Highcharts from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
-import {Row, Spin} from "antd";
+import {Card, Row, Spin} from "antd";
 import {connect} from "react-redux";
 import axios from "axios";
 import {ROOT_URL} from "../utils";
@@ -20,10 +20,22 @@ class BandwidthUsageChart extends Component{
                 title: {
                     text: 'Bandwidth Usage View | Bytes Received'
                 },
+                chart :{
+                    zoomType : 'x',
+                    events :{
+                        click: function(e) {
+                            console.log(
+                                Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', e.xAxis[0].value),
+                                e.yAxis[0].value
+                            )
+                        },
+
+                    }
+                },
                 yAxis:{
                     labels :{
                         formatter: function () {
-                            return this.value + ' Bytes';
+                            return this.value + ' MB';
                         }
                     }
                 },
@@ -133,7 +145,7 @@ class BandwidthUsageChart extends Component{
     updateChart = () => {
         let data = this.state.data.bytes_received;
 
-        data = data.map(e => [new Date(e[0]),e[1]]);
+        data = data.map(e => [new Date(e[0]),e[1]/1024/1024]);
         data.sort(function(a, b) {
             return a[0] > b[0] ? 1 : -1;
         });
@@ -147,7 +159,7 @@ class BandwidthUsageChart extends Component{
                 {
                     id: 'bytes',
                     type: 'spline',
-                    name : 'Bytes Received',
+                    name : 'Bytes Received(MB)',
                     data: data
                 }
             ]
@@ -163,11 +175,13 @@ class BandwidthUsageChart extends Component{
         return (
             <Spin tip={"loading..."} spinning={this.state.loading}>
                 <Row>
+                    <Card>
                         <HighchartsReact
                             highcharts={Highcharts}
                             options={this.state.options}
                             ref={'chart'}
                         />
+                    </Card>
                 </Row>
             </Spin>
         )
