@@ -11,11 +11,32 @@ from .variables import features_list
 class Initialize():
 
     def __init__(self, dir_to_parse, ip_profile_dir):
+        """Constructor for Initialize class
+
+        Parameters
+        ----------
+        dir_to_parse : str
+            Provide the location of csv create individual ip profile
+        ip_profile_dir : str
+            Provide the location where individual ip profile needs to be stored
+        """
         self._dir_to_parse = dir_to_parse
         self._ip_profile_dir = ip_profile_dir
         self._features = features_list
 
     def _preprocess(self, df):
+        """Function to preprocess dataframe
+
+        Parameters
+        ----------
+        df : Pandas Dataframe
+            Input the dataframe of csv file
+
+        Returns
+        -------
+        Pandas Dataframe
+            Dataframe after removing unnecessary features and numeric representation
+        """
         temp = df.copy()
         temp['Receive Time'] = temp['Receive Time'].apply(lambda x: x[-8:])
         rows = temp.values
@@ -23,7 +44,16 @@ class Initialize():
                  if isinstance(cell, str) else cell for cell in row] for row in rows]
         return pd.DataFrame(rows, index=df.index, columns=temp.columns)
 
-    def _save_to_csv(self, df, ip, dest_file_path):
+    def _save_to_csv(self, df, dest_file_path):
+        """Function to save dataframe to respective ip's csv if available, else create one
+
+        Parameters
+        ----------
+        df : Pandas Dataframe
+            Contains individual ip's data i.e ip profile
+        dest_file_path : str
+            Provide the location of ip's csv file in ip profile directory to search/use tosave data
+        """
         if os.path.isfile(dest_file_path):
             with open(dest_file_path, 'a') as outfile:
                 c = csv.writer(outfile)
@@ -63,7 +93,7 @@ class Initialize():
                 ip_df = vsys_df[vsys_df['Source address'] == ip]
                 # call method to write to csv file
                 ip_df = self._preprocess(ip_df)
-                self._save_to_csv(ip_df, ip, ip_csv_path)
+                self._save_to_csv(ip_df, ip_csv_path)
 
     def parse_all_csv(self):
         if os.path.exists(self._ip_profile_dir) is not True:

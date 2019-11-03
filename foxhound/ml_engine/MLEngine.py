@@ -43,7 +43,7 @@ class MLEngine():
                  if isinstance(cell, str) else cell for cell in row] for row in rows]
         return pd.DataFrame(rows, index=df.index, columns=temp.columns)
 
-    def _save_to_csv(self, df, ip, dest_file_path):
+    def _save_to_csv(self, df, dest_file_path):
         if os.path.isfile(dest_file_path):
             with open(dest_file_path, 'a') as outfile:
                 c = csv.writer(outfile)
@@ -134,7 +134,7 @@ class MLEngine():
                         [anomalous_df, df.iloc[ip_df.index]], axis=0)
 
                 if save_data_for_ip_profile is True:
-                    self._save_to_csv(ip_df, ip, ip_csv_path)
+                    self._save_to_csv(ip_df, ip_csv_path)
                     #print(f'Saved data for ip {ip}')
 
         anomalous_df['log_name'] = input_csv.split('/')[-1]
