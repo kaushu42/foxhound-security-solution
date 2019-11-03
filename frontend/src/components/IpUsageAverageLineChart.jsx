@@ -1,82 +1,160 @@
 import React, {Component, Fragment} from "react";
-import Chart from "react-apexcharts";
 import {ipUsageAverageTrendDataService} from "../services/ipUsageAverageTrendService";
 import {connect} from "react-redux";
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
-import moment from "moment";
+import '../charts/chart.css';
+import {Spin} from "antd";
 
 class IpUsageAverageDailyTrendChart extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
+            loading : true,
             data : [],
             options: {
                 chart: {
-                    "zoomType": 'x'
+                    zoomType: 'x'
                 },
                 xAxis: {
                     type: 'string'
                 },
                 title: {
-                    text: `Average Daily Trend of ${this.props.ip_address}`
+                    text: `Average Daily Trend for Bytes Received of ${this.props.ip_address}`
                 },
                 series: [
                     {
                         type: 'line',
                         data: []
                     }
-                ]
+                ],
             }
         }
     }
 
 
     componentDidMount() {
-        const {auth_token,ip_address} = this.props;
+        this.handleFetchData();
         this.chart = this.refs.chart.chart;
+        if (document.addEventListener) {
+            document.addEventListener('webkitfullscreenchange', this.exitHandler, false);
+            document.addEventListener('mozfullscreenchange', this.exitHandler, false);
+            document.addEventListener('fullscreenchange', this.exitHandler, false);
+            document.addEventListener('MSFullscreenChange', this.exitHandler, false);
+        }
+    }
+
+    handleFetchData = () => {
+        this.setState({
+            loading : true
+        });
+
+        const {auth_token,ip_address} = this.props;
         ipUsageAverageTrendDataService(auth_token,ip_address).then(res => {
+            console.log('fetching data for ip',ip_address)
             const data = res.data;
             this.setState({
                 data : data
             });
-            console.log('average data',data);
-
+            console.log('fetched data ',data);
         })
+
     }
 
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        if(prevState.data != this.state.data){
-            let data = this.state.data.bytes_received;
-            data.sort(function(a, b) {
-                return a[0] > b[0] ? 1 : -1;
-            });
-            this.chart.update({
-                xAxis: {
 
-                    type:"string",
-                    categories : data.map(d=> d[0])
-                },
-                series: [
-                    {
-                        name : 'Bytes Received',
-                        type : 'spline',
-                        data : data.map(d=> d[1])
-                    }
-                ]
+    exitHandler = () => {
+        if (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement) {
+            console.log('Inside fullscreen. Doing chart stuff.');
+            this.chart = this.refs.chart.chart;
+            this.chart.update({
+                chart:{
+                    height: null
+                }
+            })
+        }
+
+        if (!document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
+            console.log('Exiting fullscreen. Doing chart stuff.');
+            this.chart = this.refs.chart.chart;
+            this.chart.update({
+                chart:{
+                    height:'400px'
+                }
             })
         }
     }
 
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (
+            (String(prevProps.ip_address)!==String(this.props.ip_address)) ||
+            (String(prevProps.date_range[0])!==String(this.props.date_range[0])) ||
+            (String(prevProps.date_range[1])!==String(this.props.date_range[1])) ||
+            (String(prevProps.firewall_rule)!==String(this.props.firewall_rule)) ||
+            (String(prevProps.application)!==String(this.props.application)) ||
+            (String(prevProps.protocol)!==String(this.props.protocol)) ||
+            (String(prevProps.source_zone)!==String(this.props.source_zone)) ||
+            (String(prevProps.destination_zone)!==String(this.props.destination_zone))
+        ){
+            this.handleFetchData();
+        }
+        if(prevState.data!==this.state.data){
+            this.updateChart();
+        }
+    }
+    updateChart = () => {
+        let bytesReceived = this.state.data.bytes_received;
+        let bytesSent = this.state.data.bytes_sent;
+
+        bytesReceived.sort(function(a, b) {
+            return a[0] > b[0] ? 1 : -1;
+        });
+
+        bytesSent.sort(function(a, b) {
+            return a[0] > b[0] ? 1 : -1;
+        });
+        this.chart.update({
+            title : {
+              text : `Average Daily Trend for Bytes Received of ${this.props.ip_address}`
+            },
+            xAxis: {
+
+                type:"string",
+                categories : bytesReceived.map(d=> d[0])
+            },
+            series: [
+                {
+                    name : 'Bytes Received',
+                    type : 'spline',
+                    data : bytesReceived.map(d=> d[1])
+                },
+                {
+                    name : 'Bytes Sent',
+                    type : 'spline',
+                    data : bytesSent.map(d=> d[1])
+                }
+
+            ]
+        })
+        this.setState({
+            loading : false
+        });
+
+    }
+
     render() {
+        console.log("loading",this.state.loading);
         return (
             <Fragment>
-                <HighchartsReact
-                    highcharts={Highcharts}
-                    options={this.state.options}
-                    ref = {'chart'}
-                />
+                <Spin tip="Loading..." spinning={this.state.loading}>
+                    <div id={"container"}>
+                        <HighchartsReact
+                            highcharts={Highcharts}
+                            options={this.state.options}
+                            ref={'chart'}
+                        />
+                    </div>
+                </Spin>
             </Fragment>
         );
     }
@@ -85,7 +163,15 @@ class IpUsageAverageDailyTrendChart extends Component {
 const mapStateToProps = state => {
     return {
         auth_token : state.auth.auth_token,
-        ip_address : state.ipSearchBar.ip_address
+
+        ip_address : state.ipSearchBar.ip_address,
+
+        date_range : state.filter.date_range,
+        firewall_rule : state.filter.firewall_rule,
+        application : state.filter.application,
+        protocol : state.filter.protocol,
+        source_zone : state.filter.source_zone,
+        destination_zone : state.filter.destination_zone
     }
 }
 

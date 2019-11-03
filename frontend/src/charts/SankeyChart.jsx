@@ -31,7 +31,7 @@ const chartOptions = {
 };
 
 
-const FETCH_API = `http://192.168.1.107:8000/api/v1/profile/sankey/`
+const FETCH_API = `${ROOT_URL}profile/sankey/`
 
 class SankeyChart extends Component {
 

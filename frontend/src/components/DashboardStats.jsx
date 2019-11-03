@@ -5,7 +5,7 @@ import axios from "axios";
 import {ROOT_URL} from "../utils";
 const gridStyle = {
     width: "25%",
-    textAlign: "center"
+    textAlign: "cente r"
 };
 
 const FETCH_API = `${ROOT_URL}dashboard/stats/`;

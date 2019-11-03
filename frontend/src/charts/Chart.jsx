@@ -13,7 +13,9 @@ class Chart extends React.Component {
         this.chart = this.refs.chart.chart;
     }
 
+
     render() {
+
         return (
             <div>
                 <HighchartsReact
@@ -22,6 +24,7 @@ class Chart extends React.Component {
                     options={this.props.options}
                     ref={"chart"}
                 />
+
                 {/*<button onClick={this.exportChart}>Export</button>*/}
             </div>
         );

@@ -1,9 +1,10 @@
 import React, {Component,Fragment} from 'react';
 import {toggleSideBar} from "../../actions/layoutAction";
-import {Layout, Dropdown, Icon, Menu} from "antd";
+import {Layout, Dropdown, Icon, Menu, PageHeader} from "antd";
 import {connect} from "react-redux";
 const {Header} = Layout;
 import { Anchor } from 'antd';
+import MasterLayout from "./MasterLayout";
 const { Link } = Anchor;
 
 const accountDropdownMenu = (
@@ -38,19 +39,18 @@ class NavBar extends Component {
             <Fragment>
                 <Header style={{ background: '#fff', paddingLeft: '20px'   }}>
                     <Icon
-                        style={{fontSize:30,float:"left",marginTop:15,paddingLeft:10,paddingRight:10, paddingTop:1}}
+                        style={{fontSize:20,float:"left",marginTop:20,paddingLeft:10,paddingRight:10, paddingTop:1}}
                         type={sideBarCollapsed ? 'menu-unfold' : 'menu-fold'}
                         onClick={()=>{this.props.dispatchToggleSideBar()}}
                     />
                     <Dropdown overlay={accountDropdownMenu} placement={"bottomCenter"}>
                         <a style={{fontSize:20, float:"right",paddingLeft:10,paddingRight:10}}>
-                            <Icon type="user"style={{fontSize:30}}/>
-                            Hello, Keshav !
+                            <Icon type="user"style={{fontSize:20}}/>
                         </a>
                     </Dropdown>
                     <Dropdown overlay={notificationsDropdownMenu} placement={"bottomCenter"}>
                         <a style={{fontSize:20, float:"right",paddingLeft:10,paddingRight:10,paddingTop:1}}>
-                            <Icon type="notification" style={{fontSize:30}} />
+                            <Icon type="notification" style={{fontSize:20}} />
                         </a>
 
                     </Dropdown>

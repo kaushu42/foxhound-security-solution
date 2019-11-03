@@ -15,7 +15,7 @@ class Dashboard extends Component{
             <Fragment>
                 <MasterLayout>
                     <PageHeader
-                        style={{background: '#efefef',border: '1px solid rgb(235, 237, 240)'}}
+                        style={{background: '#fff'}}
                         title={"Dashboard"}
                         onBack={() => window.history.back()} />
                     <Row style={contentLayout}>
@@ -25,7 +25,7 @@ class Dashboard extends Component{
                         <DashboardStats />
                     </Row>
                     <Row style={contentLayout}>
-                        <Card title={"Request Origin"}>
+                        <Card>
                             <RequestOriginChart />
                         </Card>
                     </Row>
