@@ -23,7 +23,16 @@ let options = {
       verticalAlign: 'bottom'
     }
   },
-
+  annotations:[{
+    labelOptions:{
+      text:"Request Origin"
+    }
+  }],
+  legend: {
+    layout: "vertical",
+    align: "right",
+    verticalAlign: "middle"
+  },
   colorAxis: {
     min: 0,
     stops: [
@@ -34,7 +43,7 @@ let options = {
   series: [
     {
       mapData: mapdata,
-      name: "World",
+      name: "",
       data: null
     }
   ]
@@ -142,7 +151,7 @@ class RequestOriginChart extends Component {
       series: [
         {
           mapData: mapdata,
-          name: "World",
+          name: "",
           data: this.state.data.data
         }
       ]
