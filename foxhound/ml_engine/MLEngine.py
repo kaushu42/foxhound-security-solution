@@ -13,7 +13,39 @@ from .model import pca
 
 
 class MLEngine():
+    """MLEngine class
+
+    Returns
+    -------
+    Object
+        MLEngine class object to create model for ip profile and predict anomaly
+    """
+
     def __init__(self, ip_profile_dir, ip_model_dir, daily_csv_path, anomalies_csv_output_path):
+        """Constructor for MLEngine class
+
+        Parameters
+        ----------
+        ip_profile_dir : str
+            Location of csv files where individual ip's profile is stored
+        ip_model_dir : str
+            Location of model files where individual ip's model is stored
+        daily_csv_path : str
+            Location of csv files where daily transactions is stored
+        anomalies_csv_output_path : str
+            Location of files where anomaly csv file is to be stored
+
+        Raises
+        ------
+        TypeError
+            if ip_profile_dir parameter is not a string
+        TypeError
+            if ip_model_dir parameter is not a string
+        TypeError
+            if daily_csv_path parameter is not a string
+        TypeError
+            if anomalies_csv_output_path is not a string
+        """
         if isinstance(ip_profile_dir, str) is not True:
             raise TypeError('IP profile dir parameter must be a string')
 
@@ -39,6 +71,18 @@ class MLEngine():
         self._ANOMALIES_CSV_OUTPUT_DIR = anomalies_csv_output_path
 
     def _preprocess(self, df):
+        """Method to preprocess dataframe
+
+        Parameters
+        ----------
+        df : Pandas Dataframe
+            Input the dataframe of csv file
+
+        Returns
+        -------
+        Pandas Dataframe
+            Dataframe after removing unnecessary features and numeric representation
+        """
         temp = df.copy()
         temp['Receive Time'] = temp['Receive Time'].apply(lambda x: x[-8:])
         rows = temp.values
@@ -47,6 +91,15 @@ class MLEngine():
         return pd.DataFrame(rows, index=df.index, columns=temp.columns)
 
     def _save_to_csv(self, df, dest_file_path):
+        """Method to save dataframe to respective ip's csv if available, else create one
+
+        Parameters
+        ----------
+        df : Pandas Dataframe
+            Contains individual ip's data i.e ip profile
+        dest_file_path : str
+            Provide the location of ip's csv file in ip profile directory to search/use tosave data
+        """
         if os.path.isfile(dest_file_path):
             with open(dest_file_path, 'a') as outfile:
                 c = csv.writer(outfile)
@@ -63,20 +116,35 @@ class MLEngine():
                     c.writerow(row.values)
 
     def _save_model_params(self, params_dict, model_path):
+        """Method to save parameters of ml model
+
+        Parameters
+        ----------
+        params_dict : dictionary
+            Contains model's parameters to save
+        model_path : str
+            Location to save model's parameters to
+        """
         pickle.dump(params_dict, open(model_path, 'wb'))
 
     def _load_model_params(self, model_path):
+        """Method to load ml model's parameters
+
+        Parameters
+        ----------
+        model_path : str
+            Location of model to load from
+
+        Returns
+        -------
+        dictionary
+            Contains model's parameters
+        """
         return pickle.load(open(model_path, 'rb'))
 
-    def _predict(self, ip, df, model_path):
-        params = self._load_model_params(model_path)
-        x = params['standarizer'].transform(df)
-        out = params['model'].transform(x)
-        #plt.plot(out, 'ro')
-        indices = np.where(np.abs(out) > params['std']*3)[0]
-        return indices
-
     def _create_models(self):
+        """Method to create models for ips in ip profile directory
+        """
         if os.path.exists(self._IP_MODEL_DIR) is not True:
             os.makedirs(self._IP_MODEL_DIR)
 
@@ -106,6 +174,14 @@ class MLEngine():
         else:
             print(f'IP profile path {self._IP_PROFILE_DIR} doesnot exist')
 
+    def _predict(self, df, model_path):
+        params = self._load_model_params(model_path)
+        x = params['standarizer'].transform(df)
+        out = params['model'].transform(x)
+        #plt.plot(out, 'ro')
+        indices = np.where(np.abs(out) > params['std']*3)[0]
+        return indices
+
     def get_anomalies(self, input_csv, save_data_for_ip_profile=False):
         df = pd.read_csv(input_csv)
         truncated_df = df[self._FEATURES]
@@ -128,7 +204,7 @@ class MLEngine():
                 ip_df = self._preprocess(ip_df)
 
                 if os.path.exists(model_path) is True:
-                    indices = self._predict(ip, ip_df, model_path)
+                    indices = self._predict(ip_df, model_path)
                     anomalous_df = pd.concat(
                         [anomalous_df, df.iloc[ip_df.index[indices]]], axis=0)
                 else:
