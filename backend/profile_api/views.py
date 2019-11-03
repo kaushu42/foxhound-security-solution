@@ -53,7 +53,6 @@ class StatsApiView(APIView):
 
 class AverageDailyApiView(APIView):
     def _get_usage(self, ip, objects):
-        # latest_date = TrafficLog.objects.latest('log_date')
         objects = groupby_date(
             objects.filter(
                 source_ip=ip
@@ -161,8 +160,6 @@ class SankeyApiView(APIView):
 
     def post(self, request, format=None):
         ip = get_ip_from_request(request)
-        query = get_query_from_request(request)
-        objects = get_objects_from_query(query)
         if ip is None:
             return Response({"error": "Invalid IP"},
                             status=HTTP_422_UNPROCESSABLE_ENTITY)
@@ -171,3 +168,39 @@ class SankeyApiView(APIView):
 
     def get(self, request, format=None):
         return self.post(request, format=format)
+
+
+class TimeSeriesApiView(APIView):
+    def get(self, request, format=None):
+        ip = get_ip_from_request(request)
+        query = get_query_from_request(request)
+        objects = get_objects_from_query(query)
+
+        if not query:
+            latest_date = TrafficLog.objects.latest('log_date')
+            objects = groupby_date(
+                TrafficLogDetail.objects.filter(
+                    traffic_log__id=latest_date.id, source_ip=ip
+                ),
+                'logged_datetime',
+                'minute',
+                ['bytes_sent', 'bytes_received']
+            )
+        else:
+            objects = get_objects_from_query(query)
+            objects = groupby_date(
+                objects,
+                'logged_datetime',
+                'minute',
+                ['bytes_sent', 'bytes_received']
+            )
+        bytes_sent, bytes_received = get_usage(objects)
+
+        return Response({
+            "n_items": len(bytes_sent),
+            "bytes_sent": bytes_sent,
+            "bytes_received": bytes_received,
+        }, status=HTTP_200_OK)
+
+    def post(self, request, format=None):
+        return self.get(request, format=format)

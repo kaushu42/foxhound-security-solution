@@ -155,22 +155,24 @@ for f in os.listdir(config.ANOMALY_LOGS_OUTPUT_DIR):
             raise Exception("Multiple Objects Returned")
         traffic_log = traffic_log[0]
         now = datetime.datetime.now()
-        tt_log = TroubleTicketAnomaly(created_datetime=now,
-                                      is_closed=False,
-                                      log_id=traffic_log.id,
-                                      source_ip=source_ip,
-                                      destination_ip=destination_ip,
-                                      log_record_number=log_record_number,
-                                      source_port=source_port,
-                                      destination_port=destination_port
-                                      )
+        tt_log = TroubleTicketAnomaly(
+            created_datetime=now,
+            is_closed=False,
+            log_id=traffic_log.id,
+            source_ip=source_ip,
+            destination_ip=destination_ip,
+            log_record_number=log_record_number,
+            source_port=source_port,
+            destination_port=destination_port
+        )
         session.add(tt_log)
         session.flush()
-        tt_log_followup = TroubleTicketFollowUpAnomaly(trouble_ticket_id=tt_log.id,
-                                                       follow_up_datetime=now,
-                                                       assigned_by_id=1,
-                                                       assigned_to_id=1,
-                                                       description='This is a TT'
-                                                       )
+        tt_log_followup = TroubleTicketFollowUpAnomaly(
+            trouble_ticket_id=tt_log.id,
+            follow_up_datetime=now,
+            assigned_by_id=1,
+            assigned_to_id=1,
+            description='This is a TT'
+        )
         session.add(tt_log_followup)
     session.commit()

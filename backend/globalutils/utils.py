@@ -39,7 +39,6 @@ def groupby_date(
     query = {}
     for field in output_fields:
         query[field] = group_by_func(field)
-
     return queryset.annotate(
         date=trunc_func(
             input_field
@@ -69,14 +68,12 @@ def get_activity(queryset):
 def get_usage(queryset):
     bytes_sent = []
     bytes_received = []
-    times = []
     for obj in queryset:
         time = obj['date']
-        times.append(time)
-        bytes_sent.append(obj['bytes_sent'])
-        bytes_received.append(obj['bytes_received'])
+        bytes_sent.append([time, obj['bytes_sent']])
+        bytes_received.append([time, obj['bytes_received']])
 
-    return times, bytes_sent, bytes_received
+    return bytes_sent, bytes_received
 
 
 def get_filters(request):
