@@ -175,6 +175,20 @@ class MLEngine():
             print(f'IP profile path {self._IP_PROFILE_DIR} doesnot exist')
 
     def _predict(self, df, model_path):
+        """Method to predict anomaly from ip's dataframe using respective model
+
+        Parameters
+        ----------
+        df : Pandas Dataframe
+            Dataframe of ip to find whether each transaction is an anomaly or not
+        model_path : str
+            Location of ip's model
+
+        Returns
+        -------
+        List of int
+            List of indices that are anomalous
+        """
         params = self._load_model_params(model_path)
         x = params['standarizer'].transform(df)
         out = params['model'].transform(x)
@@ -183,6 +197,20 @@ class MLEngine():
         return indices
 
     def get_anomalies(self, input_csv, save_data_for_ip_profile=False):
+        """Method to get anomaly from input csv
+
+        Parameters
+        ----------
+        input_csv : str
+            Location of input csv to find anomaly from
+        save_data_for_ip_profile : bool, optional
+            Set it to True in order to save this new data for ip profile, by default False
+
+        Returns
+        -------
+        Pandas Dataframe
+            Dataframe containing anomalous entries from the input csv
+        """
         df = pd.read_csv(input_csv)
         truncated_df = df[self._FEATURES]
         anomalous_df = df.head(0)
@@ -222,6 +250,8 @@ class MLEngine():
         return anomalous_df
 
     def _predict_anomalies(self):
+        """Method to predict anomalies from csvs' from input directory
+        """
         if os.path.exists(self._DAILY_CSV_DIR) is True:
             anomalous_df = []
             for csv in sorted(os.listdir(self._DAILY_CSV_DIR)):
@@ -238,6 +268,15 @@ class MLEngine():
             print("Daily csv directory does not exist")
 
     def run(self, create_model=False, predict=False):
+        """Method to perform create_model and predict operation using MLEngine object
+
+        Parameters
+        ----------
+        create_model : bool, optional
+            Set it True to perform model creation, by default False
+        predict : bool, optional
+            Set it True to perform anomaly prediction, by default False
+        """
         if create_model:
             print("Creating models")
             self._create_models()
