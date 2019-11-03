@@ -179,8 +179,13 @@ class WorldMapApiView(APIView):
                     "error": "Database Error"
                 }, status=HTTP_500_INTERNAL_SERVER_ERROR)
             country_data[country] += count
+
         # Delete nepal data for now, because it overshadows all other countries
-        del country_data['np']
+        try:
+            del country_data['np']
+        except Exception:
+            pass
+
         data = []
         for key, value in country_data.items():
             data.append([key, value])

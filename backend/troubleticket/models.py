@@ -83,7 +83,7 @@ class TroubleTicketFollowUpAnomaly(models.Model):
     description = models.CharField(max_length=1000)
 
     def __str__(self):
-        return f'{self.trouble_ticket}-{self.created_datetime}-followup'
+        return f'{self.trouble_ticket}-followup'
 
     def __repr__(self):
         return self.__str__()
