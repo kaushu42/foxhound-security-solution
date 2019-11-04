@@ -12,11 +12,10 @@ from foxhound.db_engine.core_models import (
     VirtualSystem, TrafficLogDetail, IPCountry,
     TrafficLog
 )
-from foxhound.db_engine.troubleticket_models import (
-    TroubleTicketAnomaly, TroubleTicketFollowUpAnomaly
-)
+
 from foxhound.ml_engine.Initialize import Initialize
 from foxhound.ml_engine.MLEngine import MLEngine
+from foxhound.tt_engine.TTAnomaly import TTAnomaly
 
 import config
 
@@ -50,7 +49,7 @@ db_engine = create_engine(
 Session = sessionmaker(bind=db_engine)
 session = Session()
 
-# Seed the database
+Seed the database
 if session.query(VirtualSystem).count() == 0:
     vsys1 = VirtualSystem(
         code='vsys1',
@@ -127,52 +126,5 @@ mle = MLEngine(config.IP_PROFILE_OUTPUT_DIR, config.IP_MODEL_OUTPUT_DIR,
                config.TRAFFIC_LOGS_INPUT_DIR, config.ANOMALY_LOGS_OUTPUT_DIR)
 mle.run(create_model=True, predict=True)
 
-if not os.path.exists(config.ANOMALY_LOGS_OUTPUT_DIR):
-    raise Exception('Generate anomaly logs first')
-
-for f in os.listdir(config.ANOMALY_LOGS_OUTPUT_DIR):
-    if not f.endswith('csv'):
-        continue
-
-    data = pd.read_csv(
-        os.path.join(config.ANOMALY_LOGS_OUTPUT_DIR, f)
-    )
-    data.columns = ['row_number'] + [i for i in data.columns[1:]]
-    data.set_index('row_number', inplace=True)
-    for i, j in tqdm(data.iterrows()):
-        log_name = j.log_name
-        vsys_name = j['Virtual System']
-        source_ip = j['Source address']
-        destination_ip = j['Destination address']
-        log_record_number = i
-        source_port = j['Source Port']
-        destination_port = j['Destination Port']
-
-        vsys_id = session.query(VirtualSystem).filter_by(code=vsys_name)[0].id
-        traffic_log = session.query(TrafficLog).filter_by(
-            log_name=log_name, virtual_system_id=vsys_id)
-        if traffic_log.count() > 1:
-            raise Exception("Multiple Objects Returned")
-        traffic_log = traffic_log[0]
-        now = datetime.datetime.now()
-        tt_log = TroubleTicketAnomaly(
-            created_datetime=now,
-            is_closed=False,
-            log_id=traffic_log.id,
-            source_ip=source_ip,
-            destination_ip=destination_ip,
-            log_record_number=log_record_number,
-            source_port=source_port,
-            destination_port=destination_port
-        )
-        session.add(tt_log)
-        session.flush()
-        tt_log_followup = TroubleTicketFollowUpAnomaly(
-            trouble_ticket_id=tt_log.id,
-            follow_up_datetime=now,
-            assigned_by_id=1,
-            assigned_to_id=1,
-            description='This is a TT'
-        )
-        session.add(tt_log_followup)
-    session.commit()
+tt_anomaly = TTAnomaly(config.ANOMALY_LOGS_OUTPUT_DIR, db_engine)
+tt_anomaly.run()
