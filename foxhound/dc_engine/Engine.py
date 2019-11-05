@@ -70,7 +70,8 @@ class Engine(ABC):
             f = filename.split('.')[0]
             output_filename = self._OUTPUT_PATH + f'/{f}_{vsys}.csv'
             data = processed_data[processed_data['virtual_system_id'] == vsys]
-            data.to_csv(output_filename, index=False)
+            data.index.name = 'row_number'
+            data.to_csv(output_filename, index=True)
             print(f'\tWritten to {output_filename}')
 
     def _run_one(self, csv_path: str):

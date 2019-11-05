@@ -10,8 +10,11 @@ import pandas as pd
 import geoip2.database
 import geoip2.errors
 
-from .core_models import (VirtualSystem, TrafficLog,
-                          TrafficLogDetail, IPCountry)
+from .core_models import (
+    VirtualSystem, TrafficLog,
+    TrafficLogDetail, Country,
+    IPAddress
+)
 
 
 class DBEngine(object):
@@ -30,7 +33,7 @@ class DBEngine(object):
         self._reader = geoip2.database.Reader('./GeoLite2-City.mmdb')
 
     def _read_csv(self, csv: str):
-        df = pd.read_csv(csv)
+        df = pd.read_csv(csv, index_col='row_number')
         return df
 
     def _get_virtual_system(self, data, session):
@@ -87,14 +90,16 @@ class DBEngine(object):
         return False
 
     def _write_country(self, data, session):
-        ips = set()
-        [ips.add(i) for i in data['source_ip'].unique()]
-        [ips.add(i) for i in data['destination_ip'].unique()]
+        ip_addresses = set()
+        [ip_addresses.add(i) for i in data['source_ip'].unique()]
+        [ip_addresses.add(i) for i in data['destination_ip'].unique()]
 
-        for ip in ips:
-            if session.query(IPCountry).filter_by(ip=ip).scalar():
+        for ip in ip_addresses:
+            if session.query(IPAddress).filter_by(address=ip):
+
+            if session.query(Country).filter_by(ip_address=ip).scalar():
                 continue
-            ip_country = IPCountry(ip=ip)
+            ip_country = Country(ip_address_id=ip_address.id)
             country_name = ''
             country_iso_code = ''
             try:

@@ -49,8 +49,8 @@ class FirewallRule(models.Model):
 
 
 class TrafficLog(models.Model):
-    virtual_system = models.ForeignKey(
-        VirtualSystem,
+    tenant = models.ForeignKey(
+        Tenant,
         on_delete=models.CASCADE,
     )
     processed_datetime = models.DateField(auto_now_add=True)
@@ -95,16 +95,11 @@ class Protocol(models.Model):
 
 
 class Zone(models.Model):
-    TYPE_CHOICES = (
-        ('src', 'Source'),
-        ('dst', 'Destination')
-    )
     tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
-    type = models.CharField(max_length=3, choices=TYPE_CHOICES)
 
     def __str__(self):
-        return f'{self.name}-{self.type}'
+        return f'{self.name}'
 
     def __repr__(self):
         return self.__str__()
@@ -161,7 +156,7 @@ class TrafficLogDetail(models.Model):
         return self.__repr__()
 
 
-class IPCountry(models.Model):
+class Country(models.Model):
     ip_address = models.ForeignKey(IPAddress, on_delete=models.CASCADE)
     country_name = models.CharField(max_length=50)
     country_iso_code = models.CharField(max_length=5)

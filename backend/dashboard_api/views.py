@@ -15,7 +15,7 @@ from rest_framework.status import (
     HTTP_500_INTERNAL_SERVER_ERROR
 )
 
-from core.models import TrafficLog, TrafficLogDetail, IPCountry
+from core.models import TrafficLog, TrafficLogDetail, Country
 from troubleticket.models import TroubleTicket
 from globalutils import (
     get_month_day_index,
@@ -173,7 +173,7 @@ class WorldMapApiView(APIView):
             ip = obj['source_ip']
             count = obj['ip_count']
             try:
-                country = IPCountry.objects.get(ip=ip).country_iso_code
+                country = Country.objects.get(ip=ip).country_iso_code
             except Exception:
                 return Response({
                     "error": "Database Error"

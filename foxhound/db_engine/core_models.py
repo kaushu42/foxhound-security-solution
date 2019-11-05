@@ -1,4 +1,6 @@
-from sqlalchemy import Column, Integer, String, BigInteger, Boolean
+import enum
+
+from sqlalchemy import Column, Integer, String, BigInteger, Boolean, Enum
 from sqlalchemy import Date, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
@@ -12,15 +14,49 @@ class VirtualSystem(Base):
     id = Column(Integer, primary_key=True)
     code = Column(String)
     name = Column(String)
-    domain_code = Column(String)
-    tenant_name = Column(String)
-    domain_url = Column(String)
 
     def __repr__(self):
         return self.name
 
 
-class User(Base):
+class Domain(Base):
+    __tablename__ = 'core_domain'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    url = Column(String)
+
+    def __repr__(self):
+        return self.name
+
+
+class Tenant(Base):
+    __tablename__ = 'core_tenant'
+
+    id = Column(Integer, primary_key=True)
+    virtual_system_id = Column(ForeignKey(
+        VirtualSystem.id, ondelete='CASCADE'))
+    domain_id = Column(ForeignKey(
+        Domain.id, ondelete='SET NULL'))
+    name = Column(String)
+    code = Column(String)
+
+    def __repr__(self):
+        return self.name
+
+
+class FirewallRule(Base):
+    __tablename__ = 'core_firewallrule'
+
+    id = Column(Integer, primary_key=True)
+    tenant_id = Column(ForeignKey(Tenant.id, ondelete='CASCADE'))
+    name = Column(String)
+
+    def __repr__(self):
+        return self.name
+
+
+class FoxhoundUser(Base):
     __tablename__ = 'users_foxhounduser'
     __table_args__ = (UniqueConstraint('username', name='_username_uc'),)
 
@@ -48,9 +84,9 @@ class TrafficLog(Base):
     __tablename__ = 'core_trafficlog'
 
     id = Column(Integer, primary_key=True)
-    virtual_system_id = Column(
+    tenant_id = Column(
         ForeignKey(
-            VirtualSystem.id,
+            Tenant.id,
             ondelete='CASCADE'
         )
     )
@@ -62,72 +98,92 @@ class TrafficLog(Base):
         return self.log_name
 
 
+class IPAddress(Base):
+    __tablename__ = 'core_ipaddress'
+
+    id = Column(Integer, primary_key=True)
+    address = Column(String)
+
+    def __repr__(self):
+        return self.address
+
+
+class Application(Base):
+    __tablename__ = 'core_application'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+
+    def __repr__(self):
+        return self.name
+
+
+class Protocol(Base):
+    __tablename__ = 'core_protocol'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+
+    def __repr__(self):
+        return self.name
+
+
+class ZoneTypeEnum(enum.Enum):
+    src = 'Source'
+    dst = 'Destination'
+
+
+class Zone(Base):
+    __tablename__ = 'core_zone'
+
+    id = Column(Integer, primary_key=True)
+    tenant_id = Column(ForeignKey(Tenant.id, ondelete='CASCADE'))
+    name = Column(String)
+
+    def __repr__(self):
+        return f"{self.name}"
+
+
 class TrafficLogDetail(Base):
     __tablename__ = 'core_trafficlogdetail'
 
     id = Column(Integer, primary_key=True)
     traffic_log_id = Column(ForeignKey(TrafficLog.id, ondelete='CASCADE'))
-    source_ip = Column(String)
+    source_ip_id = Column(ForeignKey(IPAddress.id, ondelete='CASCADE'))
+    destination_ip_id = Column(ForeignKey(IPAddress.id, ondelete='CASCADE'))
+    application_id = Column(ForeignKey(Application.id, ondelete='CASCADE'))
+    protocol_id = Column(ForeignKey(Protocol.id, ondelete='CASCADE'))
+    source_zone_id = Column(ForeignKey(Zone.id, ondelete='CASCADE'))
+    destination_zone_id = Column(ForeignKey(Zone.id, ondelete='CASCADE'))
+    firewall_rule = Column(ForeignKey(FirewallRule.id, ondelete='CASCADE'))
+    row_number = Column(BigInteger)
     source_port = Column(Integer)
-    destination_ip = Column(String)
     destination_port = Column(Integer)
     bytes_sent = Column(BigInteger)
     bytes_received = Column(BigInteger)
     repeat_count = Column(Integer)
-    application = Column(String)
     packets_received = Column(BigInteger)
     packets_sent = Column(BigInteger)
-    protocol = Column(String)
     time_elapsed = Column(BigInteger)
-    source_zone = Column(String)
-    destination_zone = Column(String)
-    firewall_rule = Column(String)
     logged_datetime = Column(DateTime)
 
     def __repr__(self):
-        return f'Log-{self.logged_datetime}'
+        return f'Log-{self.traffic_log_id}:{self.row_number}'
 
     def __str__(self):
         return self.__repr__()
 
 
-class RuleDictionary(Base):
-    __tablename__ = 'core_ruledictionary'
+class Country(Base):
+    __tablename__ = 'core_country'
 
     id = Column(Integer, primary_key=True)
-    virtual_system_id = Column(
-        ForeignKey(
-            VirtualSystem.id,
-            ondelete='CASCADE'
-        )
-    )
-    verified_by_user_id = Column(ForeignKey(User.id, ondelete='CASCADE'))
-    created_date_time = Column(DateTime)
-    rule_name = Column(String)
-    source_ip = Column(String)
-    destination_ip = Column(String)
-    application = Column(String)
-    rule_description = Column(String)
-    is_verified_rule = Column(Boolean)
-    verified_date_time = Column(DateTime)
-
-    def __repr__(self):
-        return self.rule_name
-
-    def __str__(self):
-        return self.__repr__()
-
-
-class IPCountry(Base):
-    __tablename__ = 'core_ipcountry'
-
-    id = Column(Integer, primary_key=True)
-    ip = Column(String)
+    ip_address = Column(ForeignKey(IPAddress.id, ondelete='CASCADE'))
     country_name = Column(String)
     country_iso_code = Column(String)
 
     def __repr__(self):
-        return f'{self.ip}-{self.country_iso_code}'
+        return f'{self.ip_address}-{self.country_iso_code}'
 
     def __str__(self):
         return self.__repr__()
