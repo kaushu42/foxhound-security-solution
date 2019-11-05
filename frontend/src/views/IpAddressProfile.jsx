@@ -10,6 +10,8 @@ import SankeyChart from "../charts/SankeyChart";
 import CalendarChart from "../charts/CalendarChart";
 import {contentLayout} from "../utils";
 import IpProfileStats from "../components/IpProfileStats";
+//https://react-google-charts.com/
+
 class IpAddressProfile extends Component{
     render(){
         return(
@@ -40,14 +42,8 @@ class IpAddressProfile extends Component{
                         <Col xs={24} sm={24} md={24} lg={12} xl={12}>
                             <SankeyChart/>
                         </Col>
-                        <Col xs={24} sm={24} md={24} lg={12} xl={12}>
-                            <SankeyChart />
-                        </Col>
                     </Row>
                     <Row style={contentLayout}>
-                        <Col xs={24} sm={24} md={24} lg={24} xl={24}>
-                            <CalendarChart />
-                        </Col>
                         <Col xs={24} sm={24} md={24} lg={24} xl={24}>
                             <CalendarChart />
                         </Col>

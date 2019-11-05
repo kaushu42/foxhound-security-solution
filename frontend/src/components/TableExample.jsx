@@ -16,7 +16,11 @@ const columns = [
     title: "Log Date",
     dataIndex: "logged_datetime",
     width: "20%"
+  },
+  {
+    title : "log Data"
   }
+
 ];
 
 class TableExample extends React.Component {
@@ -62,6 +66,7 @@ class TableExample extends React.Component {
       type: "json"
     }).then(data => {
       const { pagination } = this.state;
+      console.log('pagination', pagination);
       pagination.total = data.count;
       this.setState({
         loading: false,

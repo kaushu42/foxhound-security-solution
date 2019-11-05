@@ -22,6 +22,7 @@ class IpProfileStats extends Component {
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (
+            (String(prevProps.ip_address) !== String(this.props.ip_address)) ||
             (String(prevProps.date_range[0]) !== String(this.props.date_range[0])) ||
             (String(prevProps.date_range[1]) !== String(this.props.date_range[1])) ||
             (String(prevProps.firewall_rule) !== String(this.props.firewall_rule)) ||

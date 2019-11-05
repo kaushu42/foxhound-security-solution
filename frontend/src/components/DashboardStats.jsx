@@ -17,7 +17,7 @@ class DashboardStats extends Component {
         this.state = {
             uplink : 0,
             downlink : 0,
-            new_tt : 0,
+            opened_tt : 0,
             new_rules : 0
         }
     }
@@ -65,7 +65,7 @@ class DashboardStats extends Component {
                 this.setState({
                     uplink :  parseInt((data.uplink /(1024*1024))),
                     downlink : parseInt(data.downlink /(1024*1024)),
-                    new_tt : data.new_tt
+                    opened_tt : data.opened_tt
                 })
             })
             .catch((error) => console.log(error))
@@ -85,7 +85,7 @@ class DashboardStats extends Component {
                         <Statistic title="Downlink" value={downlink} />
                     </Card.Grid>
                     <Card.Grid style={gridStyle}>
-                        <Statistic title="Opened TT" value={this.state.new_tt} />
+                        <Statistic title="Opened TT" value={this.state.opened_tt} />
                     </Card.Grid>
                     <Card.Grid style={gridStyle}>
                         <Statistic title="New Rules" value={this.state.new_rules} />

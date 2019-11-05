@@ -169,6 +169,7 @@ class RequestOriginChart extends Component {
     );
   }
 }
+
 const mapStateToProps = state => {
   return {
     auth_token : state.auth.auth_token,
