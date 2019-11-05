@@ -8,6 +8,8 @@ import {ROOT_URL} from "../utils";
 require("highcharts/modules/exporting")(Highcharts);
 import './chart.css';
 const FETCH_API = `${ROOT_URL}dashboard/usage/`;
+import moment from "moment";
+
 
 class BandwidthUsageChart extends Component{
 
@@ -149,18 +151,18 @@ class BandwidthUsageChart extends Component{
         data.sort(function(a, b) {
             return a[0] > b[0] ? 1 : -1;
         });
-        console.log('final data',data[1]);
+        console.log('final data',data);
         this.chart.update({
             xAxis : {
                 type:'datetime',
-
+                categories : data.map(e => moment(new Date(e[0])).format("MM/DD/YYYY hh:mm"))
             },
             series: [
                 {
                     id: 'bytes',
                     type: 'spline',
                     name : 'Bytes Received(MB)',
-                    data: data
+                    data: data.map(e => e[1])
                 }
             ]
         });
