@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+from core.models import Tenant
+
 
 class FoxhoundUser(AbstractUser):
-    tenant_id = models.PositiveIntegerField(default=0)
+    tenant = models.ForeignKey(Tenant, on_delete=models.SET_NULL)
