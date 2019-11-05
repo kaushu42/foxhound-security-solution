@@ -9,6 +9,13 @@ from .variables import features_list
 
 
 class Initialize():
+    """Initialize Class
+
+    Returns
+    -------
+    Object
+        Object to parse all history data to create ip profile
+    """
 
     def __init__(self, dir_to_parse, ip_profile_dir):
         """Constructor for Initialize class
@@ -25,7 +32,7 @@ class Initialize():
         self._features = features_list
 
     def _preprocess(self, df):
-        """Function to preprocess dataframe
+        """Method to preprocess dataframe
 
         Parameters
         ----------
@@ -45,7 +52,7 @@ class Initialize():
         return pd.DataFrame(rows, index=df.index, columns=temp.columns)
 
     def _save_to_csv(self, df, dest_file_path):
-        """Function to save dataframe to respective ip's csv if available, else create one
+        """Method to save dataframe to respective ip's csv if available, else create one
 
         Parameters
         ----------
@@ -70,6 +77,17 @@ class Initialize():
                     c.writerow(row.values)
 
     def _create_ip_profile(self, src_file_path, dest_path, features_list):
+        """Method to create ip profile from daily csv file
+
+        Parameters
+        ----------
+        src_file_path : str
+            Location of input csv file to read
+        dest_path : str
+            Location of ip profile directory to save ip's profile to
+        features_list : list of strings
+            List of features to consider for analysis
+        """
         df = pd.read_csv(src_file_path)
         df = df[features_list]  # feature selection
         df['Receive Time'] = df['Receive Time'].apply(
@@ -96,6 +114,8 @@ class Initialize():
                 self._save_to_csv(ip_df, ip_csv_path)
 
     def parse_all_csv(self):
+        """Method to parse all history csv to create ip profile
+        """
         if os.path.exists(self._ip_profile_dir) is not True:
             os.makedirs(self._ip_profile_dir)
             print(

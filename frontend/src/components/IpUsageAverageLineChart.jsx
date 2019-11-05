@@ -104,13 +104,7 @@ class IpUsageAverageDailyTrendChart extends Component {
     }
     updateChart = () => {
         let bytesReceived = this.state.data.bytes_received;
-        let bytesSent = this.state.data.bytes_sent;
-
         bytesReceived.sort(function(a, b) {
-            return a[0] > b[0] ? 1 : -1;
-        });
-
-        bytesSent.sort(function(a, b) {
             return a[0] > b[0] ? 1 : -1;
         });
         this.chart.update({
@@ -127,13 +121,7 @@ class IpUsageAverageDailyTrendChart extends Component {
                     name : 'Bytes Received',
                     type : 'spline',
                     data : bytesReceived.map(d=> d[1])
-                },
-                {
-                    name : 'Bytes Sent',
-                    type : 'spline',
-                    data : bytesSent.map(d=> d[1])
                 }
-
             ]
         })
         this.setState({

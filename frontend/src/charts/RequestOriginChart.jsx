@@ -34,7 +34,7 @@ let options = {
   series: [
     {
       mapData: mapdata,
-      name: "World",
+      name: "",
       data: null
     }
   ]
@@ -142,7 +142,7 @@ class RequestOriginChart extends Component {
       series: [
         {
           mapData: mapdata,
-          name: "World",
+          name: "",
           data: this.state.data.data
         }
       ]
@@ -169,6 +169,7 @@ class RequestOriginChart extends Component {
     );
   }
 }
+
 const mapStateToProps = state => {
   return {
     auth_token : state.auth.auth_token,

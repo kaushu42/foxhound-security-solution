@@ -11,6 +11,9 @@ import ipSearchBarReducer from "./reducers/ipSearchReducer";
 import 'pace-js'
 import 'pace-js/themes/blue/pace-theme-minimal.css'
 
+
+
+
 const rootReducer = combineReducers({
     auth : authReducer,
     filter : filterReducer,

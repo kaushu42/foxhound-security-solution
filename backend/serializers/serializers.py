@@ -1,7 +1,10 @@
 from rest_framework import serializers
 
 from core.models import TrafficLog, TrafficLogDetail
-from troubleticket.models import TroubleTicketAnomaly, TroubleTicketFollowUpAnomaly
+from troubleticket.models import (
+    TroubleTicketAnomaly,
+    TroubleTicketFollowUpAnomaly
+)
 from users.models import FoxhoundUser
 
 
@@ -23,6 +26,12 @@ class TrafficLogSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class TrafficLogNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TrafficLog
+        fields = ('id', 'log_name')
+
+
 class TrafficLogDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = TrafficLogDetail
@@ -30,12 +39,23 @@ class TrafficLogDetailSerializer(serializers.ModelSerializer):
 
 
 class TroubleTicketAnomalySerializer(serializers.ModelSerializer):
+    log = TrafficLogNameSerializer()
+
     class Meta:
         model = TroubleTicketAnomaly
-        fields = '__all__'
+        fields = (
+            'id',
+            'source_ip',
+            'destination_ip',
+            'log'
+        )
 
 
 class TroubleTicketFollowUpAnomalySerializer(serializers.ModelSerializer):
+    trouble_ticket = TroubleTicketAnomalySerializer()
+    assigned_by = UserSerializer()
+    assigned_to = UserSerializer()
+
     class Meta:
         model = TroubleTicketFollowUpAnomaly
         fields = '__all__'

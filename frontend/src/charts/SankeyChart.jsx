@@ -6,64 +6,61 @@ require('highcharts/modules/sankey')(Highcharts);
 require("highcharts/modules/exporting")(Highcharts);
 import axios from 'axios';
 import {connect} from "react-redux";
+import mapdata from "./mapdata";
+import {Row, Spin} from "antd";
+import HighchartsReact from "highcharts-react-official";
 
-const chartOptions = {
-
-    chart : {
-        margin : 50,
-
-    },
-    title: {
-        text: "IP ADDRESS AS SOURCE"
-    },
-    series: [
-        {
-            keys: ['from', 'to', 'weight'],
-            data: [
-                ['192.168.10.10', '192.168.10.100', 94],
-                ['192.168.10.10', '192.168.10.110', 194],
-                ['192.168.10.10', '192.168.10.120', 294],
-                ['192.168.10.10', '192.168.10.130', 394]
-            ],
-            type: "sankey"
-        }
-    ]
-};
-
-
-const FETCH_API = `${ROOT_URL}profile/sankey/`
+const FETCH_API = `${ROOT_URL}profile/sankey/`;
 
 class SankeyChart extends Component {
+    constructor(props){
+        super(props);
+        this.state = {
+            data : [],
+            loading : true,
+            options : {
+                chart : {
+                    margin : 50,
 
+                },
+                title: {
+                    text: "IP ADDRESS AS SOURCE"
+                },
+                series: [
+                    {
+                        keys: ['from', 'to', 'weight'],
+                        data: [],
+                        type: "sankey",
+                        connectNulls : true,
+                    }
+                ]
+            }
 
+        }
+    }
     componentDidMount = () => {
-        this.handleFetchdata();
-    }
-
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        if (
-            (String(prevProps.ip_address) !== String(this.props.ip_address)) ||
-            (String(prevProps.date_range[0]) !== String(this.props.date_range[0])) ||
-            (String(prevProps.date_range[1]) !== String(this.props.date_range[1])) ||
-            (String(prevProps.firewall_rule) !== String(this.props.firewall_rule)) ||
-            (String(prevProps.application) !== String(this.props.application)) ||
-            (String(prevProps.protocol) !== String(this.props.protocol)) ||
-            (String(prevProps.source_zone) !== String(this.props.source_zone)) ||
-            (String(prevProps.destination_zone) !== String(this.props.destination_zone))
-        ){
-            this.handleFetchdata();
+        this.handleFetchData();
+        this.chart = this.refs.chart.chart;
+        if (document.addEventListener) {
+            document.addEventListener('webkitfullscreenchange', this.exitHandler, false);
+            document.addEventListener('mozfullscreenchange', this.exitHandler, false);
+            document.addEventListener('fullscreenchange', this.exitHandler, false);
+            document.addEventListener('MSFullscreenChange', this.exitHandler, false);
         }
     }
+    handleFetchData = () => {
+
+        this.setState({
+            loading : true
+        });
 
 
-    handleFetchdata = () => {
-
-        const authorization = `Token ${this.props.auth_token}`;
-
-        const headers = {
-            'Content-Type': 'application/json',
-            'Authorization': authorization
-        }
+        const token = `Token ${this.props.auth_token}`;
+        let headers = {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Authorization" : token
+        };
 
         var bodyFormData = new FormData();
         bodyFormData.set('ip', this.props.ip_address);
@@ -75,27 +72,108 @@ class SankeyChart extends Component {
         bodyFormData.set('source_zone', this.props.source_zone);
         bodyFormData.set('destination_zone', this.props.destination_zone);
 
-        axios.post(FETCH_API,bodyFormData,{
-            headers: headers
-        })
-            .then((response) => {
-                const data = response.data;
-                console.log(data);
+        axios.post(FETCH_API,bodyFormData,{headers}).
+        then(res => {
+            const response = res.data;
+            console.log('api data',response);
+            this.setState({
+                data : response
             })
-            .catch((error) => console.log(error))
+
+        });
+
     }
+    exitHandler = () => {
+        if (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement) {
+            console.log('Inside fullscreen. Doing chart stuff.');
+            this.chart = this.refs.chart.chart;
+            this.chart.update({
+                chart:{
+                    height: null
+                }
+            })
+        }
+
+        if (!document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
+            console.log('Exiting fullscreen. Doing chart stuff.');
+            this.chart = this.refs.chart.chart;
+            this.chart.update({
+                chart:{
+                    height:'400px'
+                }
+            })
+        }
+    }
+
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (
+            (String(prevProps.ip_address)!==String(this.props.ip_address)) ||
+            (String(prevProps.date_range[0])!==String(this.props.date_range[0])) ||
+            (String(prevProps.date_range[1])!==String(this.props.date_range[1])) ||
+            (String(prevProps.firewall_rule)!==String(this.props.firewall_rule)) ||
+            (String(prevProps.application)!==String(this.props.application)) ||
+            (String(prevProps.protocol)!==String(this.props.protocol)) ||
+            (String(prevProps.source_zone)!==String(this.props.source_zone)) ||
+            (String(prevProps.destination_zone)!==String(this.props.destination_zone))
+        ){
+            this.handleFetchData();
+        }
+        if(prevState.data!==this.state.data){
+            this.updateChart();
+        }
+    }
+
+
+    updateChart = () => {
+        const data = this.state.data.ip_as_source;
+        data.sort(function(a, b) {
+            return a[2] < b[2] ? 1 : -1;
+        });
+        let d = [];
+        for(var i=0;i<10;i++){
+            d.push(data[i]);
+        }
+
+        this.chart.update({
+            series: [
+                {
+                    keys: ['from', 'to', 'weight'],
+                    type: "sankey",
+                    data: d
+                }
+            ]
+        });
+        this.setState({
+            loading : false
+        });
+
+    }
+
 
     render() {
         return (
-            <Chart options={chartOptions} highcharts={Highcharts} />
+            <Spin tip="Loading..." spinning={this.state.loading}>
+                <Row>
+                    <HighchartsReact
+                        allowChartUpdate={false}
+                        highcharts={Highcharts}
+                        ref = {'chart'}
+                        options = {this.state.options}
+                    />
+                </Row>
+            </Spin>
         )
     }
 }
 
+
 const mapStateToProps = state => {
     return {
         auth_token : state.auth.auth_token,
+
         ip_address : state.ipSearchBar.ip_address,
+
         date_range : state.filter.date_range,
         firewall_rule : state.filter.firewall_rule,
         application : state.filter.application,
@@ -105,9 +183,6 @@ const mapStateToProps = state => {
     }
 }
 
-const mapDispatchToProps = dispatch => {
-    return {
+export default connect(mapStateToProps,null)(SankeyChart);
 
-    }
-}
-export default connect(mapStateToProps,mapDispatchToProps)(SankeyChart);
+
