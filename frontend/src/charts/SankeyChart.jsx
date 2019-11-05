@@ -140,7 +140,8 @@ class SankeyChart extends Component {
                 {
                     keys: ['from', 'to', 'weight'],
                     type: "sankey",
-                    data: d
+                    data: d,
+                    name: "Source ==> Destination"
                 }
             ]
         });
