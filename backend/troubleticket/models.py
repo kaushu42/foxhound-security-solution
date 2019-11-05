@@ -60,6 +60,9 @@ class TroubleTicketAnomaly(models.Model):
     destination_ip = models.CharField(max_length=15)
     source_port = models.IntegerField()
     destination_port = models.IntegerField()
+    bytes_sent = models.BigIntegerField()
+    bytes_received = models.BigIntegerField()
+    application = models.CharField(max_length=50)
 
     def __str__(self):
         return f'{self.log}-{self.log_record_number}-{self.created_datetime}'
