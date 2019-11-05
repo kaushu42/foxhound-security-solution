@@ -1,4 +1,3 @@
-from users.models import FoxhoundUser as User
 from django.db import models
 from rest_framework import serializers
 
@@ -27,7 +26,7 @@ class Domain(models.Model):
 
 class Tenant(models.Model):
     virtual_system = models.ForeignKey(VirtualSystem, on_delete=models.CASCADE)
-    domain = models.ForeignKey(Domain, on_delete=models.SET_NULL)
+    domain = models.ForeignKey(Domain, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=50)
     code = models.CharField(max_length=50)
 
@@ -65,7 +64,7 @@ class TrafficLog(models.Model):
         return self.__repr__()
 
 
-class IPAddress(model.Model):
+class IPAddress(models.Model):
     address = models.CharField(max_length=15)
 
     def __str__(self):
@@ -85,7 +84,7 @@ class Application(models.Model):
         return self.name
 
 
-class Protocol(models.model):
+class Protocol(models.Model):
     name = models.CharField(max_length=50)
 
     def __str__(self):

@@ -3,7 +3,7 @@ import json
 
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_406_NOT_ACCEPTABLE
-from core.models import User
+from users.models import FoxhoundUser
 
 from troubleticket.models import (
     TroubleTicketAnomaly,
@@ -62,8 +62,8 @@ class TroubleTicketFollowUpAnomalyApiView(PaginatedView):
                 }
             }, status=HTTP_406_NOT_ACCEPTABLE)
 
-        assigned_by = User.objects.get(id=assigned_by_user_id)
-        assigned_to = User.objects.get(id=assigned_to_user_id)
+        assigned_by = FoxhoundUser.objects.get(id=assigned_by_user_id)
+        assigned_to = FoxhoundUser.objects.get(id=assigned_to_user_id)
         tt_follow_up_anomaly = TroubleTicketFollowUpAnomaly(
             trouble_ticket=tt_anomaly,
             follow_up_datetime=datetime.datetime.now(),

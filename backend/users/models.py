@@ -5,4 +5,4 @@ from core.models import Tenant
 
 
 class FoxhoundUser(AbstractUser):
-    tenant = models.ForeignKey(Tenant, on_delete=models.SET_NULL)
+    tenant = models.ForeignKey(Tenant, on_delete=models.SET_NULL, null=True)

@@ -6,7 +6,7 @@ from core.models import TrafficLog
 
 class TroubleTicket(models.Model):
     class Meta:
-        abstact = True
+        abstract = True
 
     created_datetime = models.DateTimeField(auto_now_add=True)
     is_closed = models.BooleanField(default=False)
