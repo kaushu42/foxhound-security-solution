@@ -45,7 +45,10 @@ def login(request):
     return Response({
         'user': user_serialized.data,
         'expires_in': expires_in(token),
-        'token': token.key
+        'token': token.key,
+        'full_name': f'{user.first_name} {user.last_name}',
+        'id': user.id,
+        'tenant_name': vsys.tenant_name
     }, status=HTTP_200_OK)
 
 
