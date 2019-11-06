@@ -20,6 +20,17 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('username', 'tenant_id', 'id')
 
 
+class UserNameSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField()
+
+    def get_full_name(self, obj):
+        return '{} {}'.format(obj.first_name, obj.last_name)
+
+    class Meta:
+        model = FoxhoundUser
+        fields = ('full_name', 'id')
+
+
 class UserLoginSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
     password = serializers.CharField(required=True)
