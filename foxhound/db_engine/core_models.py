@@ -19,38 +19,26 @@ class VirtualSystem(Base):
         return self.name
 
 
-class Domain(Base):
-    __tablename__ = 'core_domain'
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
-    url = Column(String)
-
-    def __repr__(self):
-        return self.name
-
-
 class Tenant(Base):
     __tablename__ = 'core_tenant'
 
     id = Column(Integer, primary_key=True)
     virtual_system_id = Column(ForeignKey(
         VirtualSystem.id, ondelete='CASCADE'))
-    domain_id = Column(ForeignKey(
-        Domain.id, ondelete='SET NULL'))
     name = Column(String)
-    code = Column(String)
 
     def __repr__(self):
         return self.name
 
 
-class FirewallRule(Base):
-    __tablename__ = 'core_firewallrule'
+class Domain(Base):
+    __tablename__ = 'core_domain'
 
     id = Column(Integer, primary_key=True)
-    tenant_id = Column(ForeignKey(Tenant.id, ondelete='CASCADE'))
     name = Column(String)
+    url = Column(String)
+    tenant_id = Column(ForeignKey(
+        Tenant.id, ondelete='CASCADE'))
 
     def __repr__(self):
         return self.name
@@ -103,6 +91,7 @@ class IPAddress(Base):
 
     id = Column(Integer, primary_key=True)
     address = Column(String)
+    type = Column(Boolean)
 
     def __repr__(self):
         return self.address
@@ -128,20 +117,42 @@ class Protocol(Base):
         return self.name
 
 
-class ZoneTypeEnum(enum.Enum):
-    src = 'Source'
-    dst = 'Destination'
+class FirewallRule(Base):
+    __tablename__ = 'core_firewallrule'
+
+    id = Column(Integer, primary_key=True)
+    tenant_id = Column(ForeignKey(
+        Tenant.id, ondelete='CASCADE'))
+    name = Column(String)
+
+    def __repr__(self):
+        return self.name
 
 
 class Zone(Base):
     __tablename__ = 'core_zone'
 
     id = Column(Integer, primary_key=True)
-    tenant_id = Column(ForeignKey(Tenant.id, ondelete='CASCADE'))
     name = Column(String)
+    type = Column(Boolean)
 
     def __repr__(self):
         return f"{self.name}"
+
+
+class FirewallRuleZone(Base):
+    __tablename__ = 'core_firewallrulezone'
+
+    id = Column(Integer, primary_key=True)
+    firewall_rule_id = Column(ForeignKey(FirewallRule.id, ondelete='CASCADE'))
+    source_zone_id = Column(ForeignKey(Zone.id, ondelete='CASCADE'))
+    destination_zone_id = Column(ForeignKey(Zone.id, ondelete='CASCADE'))
+
+    def __str__(self):
+        return f'{self.firewall_rule_id}:{self.source_zone_id}-{self.destination_zone_id}'
+
+    def __repr__(self):
+        return self.__str__()
 
 
 class TrafficLogDetail(Base):
@@ -155,7 +166,7 @@ class TrafficLogDetail(Base):
     protocol_id = Column(ForeignKey(Protocol.id, ondelete='CASCADE'))
     source_zone_id = Column(ForeignKey(Zone.id, ondelete='CASCADE'))
     destination_zone_id = Column(ForeignKey(Zone.id, ondelete='CASCADE'))
-    firewall_rule = Column(ForeignKey(FirewallRule.id, ondelete='CASCADE'))
+    firewall_rule_id = Column(ForeignKey(FirewallRule.id, ondelete='CASCADE'))
     row_number = Column(BigInteger)
     source_port = Column(Integer)
     destination_port = Column(Integer)

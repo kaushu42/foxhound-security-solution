@@ -56,8 +56,8 @@ seedutils.seed(session)
 #     config.TRAFFIC_LOGS_INPUT_DIR, config.TRAFFIC_LOGS_OUTPUT_DIR)
 # pa.run(verbose=True)
 
-db = fh.db_engine.DBEngine(config.TRAFFIC_LOGS_OUTPUT_DIR, db_engine=db_engine)
-db.run(verbose=True)
+# db = fh.db_engine.DBEngine(config.TRAFFIC_LOGS_OUTPUT_DIR, db_engine=db_engine)
+# db.run(verbose=True)
 
 # if session.query(Country).count() == 0:
 #     ips = set()

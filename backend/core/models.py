@@ -13,22 +13,9 @@ class VirtualSystem(models.Model):
         return self.name
 
 
-class Domain(models.Model):
-    name = models.CharField(max_length=50)
-    url = models.CharField(max_length=250)
-
-    def __str__(self):
-        return self.name
-
-    def __repr__(self):
-        return self.name
-
-
 class Tenant(models.Model):
     virtual_system = models.ForeignKey(VirtualSystem, on_delete=models.CASCADE)
-    domain = models.ForeignKey(Domain, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=50)
-    code = models.CharField(max_length=50)
 
     def __str__(self):
         return self.name
@@ -38,8 +25,21 @@ class Tenant(models.Model):
 
 
 class FirewallRule(models.Model):
-    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
+    tenant = models.ForeignKey(
+        Tenant, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return self.name
+
+
+class Domain(models.Model):
+    name = models.CharField(max_length=50)
+    url = models.CharField(max_length=250)
+    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
@@ -66,6 +66,7 @@ class TrafficLog(models.Model):
 
 class IPAddress(models.Model):
     address = models.CharField(max_length=15)
+    type = models.BooleanField()
 
     def __str__(self):
         return self.address
@@ -95,11 +96,25 @@ class Protocol(models.Model):
 
 
 class Zone(models.Model):
-    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
+    type = models.BooleanField()
 
     def __str__(self):
         return f'{self.name}'
+
+    def __repr__(self):
+        return self.__str__()
+
+
+class FirewallRuleZone(models.Model):
+    firewall_rule = models.ForeignKey(FirewallRule, on_delete=models.CASCADE)
+    source_zone = models.ForeignKey(
+        Zone, on_delete=models.CASCADE, related_name='firewall_source_zone')
+    destination_zone = models.ForeignKey(
+        Zone, on_delete=models.CASCADE, related_name='firewall_destination_zone')
+
+    def __str__(self):
+        return f'{self.firewall_rule}:{self.source_zone}-{self.destination_zone}'
 
     def __repr__(self):
         return self.__str__()
