@@ -11,6 +11,7 @@ from rest_framework.status import (
 from rest_framework.response import Response
 from serializers.serializers import UserSerializer, UserLoginSerializer
 from .auth import token_expire_handler, expires_in
+from core.models import VirtualSystem
 
 
 @api_view(["POST"])
@@ -19,13 +20,15 @@ def login(request):
     login_serializer = UserLoginSerializer(data=request.data)
     if not login_serializer.is_valid():
         return Response(login_serializer.errors, status=HTTP_400_BAD_REQUEST)
-
+    domain_url = request.data.get('domain_name')
+    domain_code = domain_url.split('//')[1].split('.')[0]
+    vsys = VirtualSystem.objects.get(domain_code=domain_code)
     user = authenticate(
         username=login_serializer.data['username'],
         password=login_serializer.data['password'],
-        tenant_id=0  # Get tenant_id from url
     )
-    if not user:
+
+    if not user or (user.id != vsys.id):
         return Response(
             {'detail': 'Invalid Credentials or activate account'},
             status=HTTP_401_UNAUTHORIZED

@@ -1,10 +1,16 @@
 from rest_framework import serializers
 
-from core.models import TrafficLog, TrafficLogDetail
+from core.models import (
+    TrafficLog,
+    TrafficLogDetail,
+    VirtualSystem
+)
+
 from troubleticket.models import (
     TroubleTicketAnomaly,
     TroubleTicketFollowUpAnomaly
 )
+
 from users.models import FoxhoundUser
 
 
@@ -64,3 +70,9 @@ class TroubleTicketFollowUpAnomalySerializer(serializers.ModelSerializer):
     class Meta:
         model = TroubleTicketFollowUpAnomaly
         fields = '__all__'
+
+
+class VirtualSystemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VirtualSystem
+        fields = ['tenant_name']
