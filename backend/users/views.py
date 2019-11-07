@@ -29,7 +29,7 @@ def login(request):
     if not login_serializer.is_valid():
         return Response(login_serializer.errors, status=HTTP_400_BAD_REQUEST)
 
-    domain_url = request.data.get('domain_url')
+    domain_url = login_serializer.data['domain_url']
     try:
         domain_name = urlparse(domain_url).hostname.split('.')[0]
         tenant_id = Domain.objects.get(name=domain_name).tenant.id
