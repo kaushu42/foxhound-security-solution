@@ -1,8 +1,11 @@
 import datetime
 import json
 
+from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK, HTTP_406_NOT_ACCEPTABLE
+from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
+from rest_framework.authtoken.models import Token
+
 from core.models import User
 
 from troubleticket.models import (
@@ -13,7 +16,8 @@ from views.views import PaginatedView
 
 from serializers.serializers import (
     TroubleTicketAnomalySerializer,
-    TroubleTicketFollowUpAnomalySerializer
+    TroubleTicketFollowUpAnomalySerializer,
+    UserNameSerializer
 )
 
 
@@ -46,9 +50,9 @@ class TroubleTicketFollowUpAnomalyApiView(PaginatedView):
 
     def post(self, request, id):
         tt_anomaly = TroubleTicketAnomaly.objects.get(id=id)
-        assigned_by_user_id = request.POST.get('assigned_by_user_id')
-        assigned_to_user_id = request.POST.get('assigned_to_user_id')
-        description = request.POST.get('description')
+        assigned_by_user_id = request.data.get('assigned_by_user_id')
+        assigned_to_user_id = request.data.get('assigned_to_user_id')
+        description = request.data.get('description')
         if (
             (assigned_by_user_id is None) or
             (assigned_to_user_id is None) or
@@ -60,7 +64,7 @@ class TroubleTicketFollowUpAnomalyApiView(PaginatedView):
                     "assigned_to_user_id": "This field is required",
                     "description": "This field is required",
                 }
-            }, status=HTTP_406_NOT_ACCEPTABLE)
+            }, status=HTTP_400_BAD_REQUEST)
 
         assigned_by = User.objects.get(id=assigned_by_user_id)
         assigned_to = User.objects.get(id=assigned_to_user_id)
@@ -72,6 +76,19 @@ class TroubleTicketFollowUpAnomalyApiView(PaginatedView):
             description=description
         )
         tt_follow_up_anomaly.save()
-        return Response({
-            "success": "Trouble Ticket follow up created"
-        }, status=HTTP_200_OK)
+        response = TroubleTicketFollowUpAnomalySerializer(
+            TroubleTicketFollowUpAnomaly.objects.filter(
+                trouble_ticket=tt_anomaly),
+            many=True
+        ).data
+        return Response(response, status=HTTP_200_OK)
+
+
+class TroubleTicketUsersApiView(APIView):
+    def post(self, request):
+        token = request.META.get('HTTP_AUTHORIZATION').split()[1]
+        tenant_id = Token.objects.get(key=token).user.tenant_id
+
+        response = UserNameSerializer(User.objects.filter(
+            tenant_id=tenant_id), many=True).data
+        return Response(response)
