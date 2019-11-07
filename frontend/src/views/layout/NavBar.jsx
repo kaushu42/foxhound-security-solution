@@ -3,18 +3,9 @@ import {toggleSideBar} from "../../actions/layoutAction";
 import {Layout, Dropdown, Icon, Menu, PageHeader, Avatar} from "antd";
 import {connect} from "react-redux";
 const {Header} = Layout;
-import { Anchor } from 'antd';
-import MasterLayout from "./MasterLayout";
-const { Link } = Anchor;
 
 const accountDropdownMenu = (
     <Menu>
-        <Menu.Item>
-            <a href="/settings">Account Settings</a>
-        </Menu.Item>
-        <Menu.Item>
-            <a href="/profile">Manage Profile</a>
-        </Menu.Item>
         <Menu.Item>
             <a rel="noopener noreferrer" href="/auth/logout">
                 Logout
@@ -33,18 +24,19 @@ const notificationsDropdownMenu = (
 )
 
 class NavBar extends Component {
+
     render() {
         const { sideBarCollapsed } = this.props;
         return (
             <Fragment>
                 <Header style={{ background: '#fff', paddingLeft: '20px'   }}>
-                    <b>Foxhound Security Solution | NIC Bank Ltd</b>
+                    <b>Foxhound Security Solution | {this.props.current_session_tenant_name}</b>
                     <Icon
                         style={{fontSize:20,float:"left",marginTop:20,paddingLeft:10,paddingRight:10, paddingTop:1}}
                         type={sideBarCollapsed ? 'menu-unfold' : 'menu-fold'}
                         onClick={()=>{this.props.dispatchToggleSideBar()}}
                     />
-                    <span style={{float:'right'}}><b>Keshav Chaurasia</b></span>
+                    <span style={{float:'right'}}><b>{this.props.current_session_user_full_name}</b></span>
                     <Dropdown overlay={accountDropdownMenu} placement={"bottomCenter"}>
                         <a style={{fontSize:20, float:"right",paddingLeft:10,paddingRight:10}}>
                             <Icon type="user"style={{fontSize:20}}/>
@@ -64,7 +56,10 @@ class NavBar extends Component {
 
 const mapStateToProps = state => {
     return {
-        sideBarCollapsed: state.layout.sideBarCollapsed
+        sideBarCollapsed: state.layout.sideBarCollapsed,
+        auth_token : state.auth.auth_token,
+        current_session_user_full_name : state.auth.current_session_user_full_name,
+        current_session_tenant_name : state.auth.current_session_tenant_name
     }
 }
 

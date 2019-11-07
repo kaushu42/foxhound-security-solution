@@ -1,6 +1,7 @@
-//export const ROOT_URL = "http://202.51.3.65:8000/api/v1/"
+//export const ROOT_URL = "http://202.51.3.65/api/v1/"
 //export const ROOT_URL = "http://127.0.0.1:8000/api/v1/"
-export const ROOT_URL = "http://192.168.1.107:8000/api/v1/"
+//export const ROOT_URL = "http://192.168.1.107:8000/api/v1/"
+export const ROOT_URL = "http://192.168.0.101:8000/api/v1/"
 
 
 export const contentLayout = {

@@ -6,7 +6,6 @@ import {connect} from "react-redux";
 import { Drawer} from 'antd';
 import { Card, Col, Row } from 'antd';
 import axios from 'axios';
-// log Data | Session Duration | Source IP | Destination IP | Source Port | Destination Port | Application | Assigned To User | Comments
 import { Input } from 'antd';
 const { Option } = Select;
 const { TextArea } = Input;
@@ -19,6 +18,9 @@ const drawerInfoStyle = {
     border: '1px solid rgb(235, 237, 240)'
 }
 
+const USER_LIST_API = `${ROOT_URL}tt/users/`;
+
+
 class AnomalyBasedTroubleTicketTable extends Component {
 
 
@@ -27,6 +29,8 @@ class AnomalyBasedTroubleTicketTable extends Component {
         this.state = {
             loadingFollowUp : true,
             record : null,
+            recordFollowUpComment : null,
+            recordFollowUpAssignedTo : this.props.current_session_user_id,
             recordFollowUpData : [],
             followUpDrawerVisible : false,
             columns : [
@@ -84,7 +88,9 @@ class AnomalyBasedTroubleTicketTable extends Component {
             ],
             data : [],
             pagination:{},
-            loading:false
+            loading:false,
+            user_list : [],
+            error_message : ""
         }
     }
 
@@ -104,6 +110,7 @@ class AnomalyBasedTroubleTicketTable extends Component {
     onClose = () => {
         this.setState({
             followUpDrawerVisible: false,
+            error_message : ""
         });
 
     };
@@ -116,7 +123,7 @@ class AnomalyBasedTroubleTicketTable extends Component {
             "Content-Type": "application/json",
             Authorization: authorization
         };
-        axios.get(`${ROOT_URL}tt/anomaly/${record.id}`,{headers})
+        axios.get(`${ROOT_URL}tt/anomaly/${record.id}/`,{headers})
             .then(res=>{
                 console.log('follow up record',res.data.results);
                 this.setState({
@@ -126,14 +133,68 @@ class AnomalyBasedTroubleTicketTable extends Component {
 
     }
 
+    handlePostAnomalyFollowUp = (e) => {
+        e.preventDefault();
+        const comment = this.state.recordFollowUpComment;
+        if(comment == null  || comment == ""){
+            this.setState({error_message:"Please Enter Description to follow up"});
+            return
+        }
+        const assignedTo = this.state.recordFollowUpAssignedTo;
+        const authorization = `Token ${this.props.auth_token}`;
 
-    handlePostAnomalyFollowUp = () => {
+        let headers = {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: authorization
+        };
+        let data = {
+            assigned_by_user_id: parseInt(this.props.current_session_user_id),
+            assigned_to_user_id: assignedTo,
+            description:comment
+        };
 
+        axios.post(`${ROOT_URL}tt/anomaly/${this.state.record.id}/`,data,{headers})
+            .then(res=>{
+                console.log('follow up record',res.data.results);
+                this.setState({
+                    recordFollowUpData : res.data.results,
+                    recordFollowUpComment : "",
+                    recordFollowUpAssignedTo : this.props.current_session_user_id,
+                    error_message : ""
+                }, ()=>{this.handleFetchAnomalyRecord(this.state.record)})
+            })
+            .catch(e => {
+                console.log("error",e);
+                this.setState({
+                    error_message : "something went wrong!!"
+                })
+            });
 
     }
 
     componentDidMount() {
         this.fetch();
+        this.fetchSelectUserList();
+    }
+
+    fetchSelectUserList = () =>{
+        let headers = {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Authorization" : `Token ${this.props.auth_token}`
+        };
+
+
+        axios.post(USER_LIST_API,null,{headers})
+            .then(res => {
+                const data = res.data;
+                this.setState({
+                    user_list : data
+                });
+                console.log("user list",this.state.user_list);
+            });
+
     }
 
 
@@ -160,7 +221,7 @@ class AnomalyBasedTroubleTicketTable extends Component {
         console.log("data loading");
         this.setState({ loading: true });
         reqwest({
-            url: `${ROOT_URL}tt/anomaly`,
+            url: `${ROOT_URL}tt/anomaly/`,
             method: "get",
             headers: {
                 Authorization: `Token ${this.props.auth_token}`
@@ -254,20 +315,21 @@ class AnomalyBasedTroubleTicketTable extends Component {
                                             <p>No Follows ups</p>
                                         )}
                                         <br />
-                                        <Form>
+                                        <Form >
+                                            <p style={{color:'red'}}>{this.state.error_message}</p>
                                         <Row type="flex" gutter={16} style={{paddingTop: 10,paddingBottom: 10}}>
                                             <Col xs={24} sm={12} md={24} lg={24} xl={24}>
-                                                <TextArea rows={3}/>
+                                                <TextArea rows={3} value={this.state.recordFollowUpComment} onChange={(e)=>this.setState({recordFollowUpComment : e.target.value})}/>
                                             </Col>
                                             <Col xs={24} sm={12} md={16} lg={16} xl={16} style={{paddingTop: 10,paddingBottom: 10}}>
-                                                <Select style={{width:'100%'}} value={"jack"}>
-                                                    <Option value="jack">Keshav Chaurasia</Option>
-                                                    <Option value="lucy">Niroj Raut</Option>
-                                                    <Option value="tom">Kaushal Raj Mishra</Option>
+                                                <Select style={{width:'100%'}} defaultValue={parseInt(this.props.current_session_user_id)}  onChange={(value)=>this.setState({recordFollowUpAssignedTo : value})}>
+                                                    {this.state.user_list.map(user =>
+                                                        <Option key={user.id} value={user.id}>{user.full_name}</Option>
+                                                    )}
                                                 </Select>
                                             </Col>
                                             <Col xs={24} sm={12} md={8} lg={8} xl={8} style={{paddingTop: 10,paddingBottom: 10}}>
-                                                <Button type="primary" style={{width:'100%'}}>Follow Up</Button>
+                                                <Button type="primary" style={{width:'100%'}} htmlType="submit" className="login-form-button" onClick={e =>this.handlePostAnomalyFollowUp(e)}>Follow Up</Button>
                                             </Col>
                                         </Row>
                                         </Form>
@@ -288,7 +350,8 @@ class AnomalyBasedTroubleTicketTable extends Component {
 
 const mapStateToProps = state => {
     return {
-        auth_token : state.auth.auth_token
+        auth_token : state.auth.auth_token,
+        current_session_user_id : state.auth.current_session_user_id
     }
 }
 
