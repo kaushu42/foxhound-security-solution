@@ -23,6 +23,9 @@ class TroubleTicketAnomaly(Base):
     destination_ip = Column(String)
     source_port = Column(String)
     destination_port = Column(String)
+    bytes_sent = Column(Integer)
+    bytes_received = Column(Integer)
+    application = Column(String)
 
     def __str__(self):
         return f'{self.log_id}-{self.log_record_number}-{self.created_datetime}'

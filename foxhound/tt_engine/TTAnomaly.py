@@ -62,7 +62,10 @@ class TTAnomaly:
             'log_record_number': index,
             'source_port': row_data['Source Port'],
             'destination_port': row_data['Destination Port'],
-            'now': datetime.datetime.now()
+            'now': datetime.datetime.now(),
+            'bytes_sent': row_data['Bytes Sent'],
+            'bytes_received': row_data['Bytes Received'],
+            'application': row_data['Application']
         }
 
     def _get_virtual_system(self, params):
@@ -91,7 +94,10 @@ class TTAnomaly:
             destination_ip=params['destination_ip'],
             log_record_number=params['log_record_number'],
             source_port=params['source_port'],
-            destination_port=params['destination_port']
+            destination_port=params['destination_port'],
+            bytes_sent=params['bytes_sent'],
+            bytes_received=params['bytes_received'],
+            application=params['application']
         )
         return tt
 
@@ -116,7 +122,6 @@ class TTAnomaly:
                 vsys = self._get_virtual_system(params)
                 traffic_log = self._get_traffic_log(vsys, params)
                 tt = self._get_trouble_ticket(traffic_log, params)
-                print(tt)
                 self._SESSION.add(tt)
                 self._SESSION.flush()
                 tt_follow_up = self._get_trouble_ticket_follow_up(tt, params)

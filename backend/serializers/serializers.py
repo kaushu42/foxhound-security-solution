@@ -47,7 +47,12 @@ class TroubleTicketAnomalySerializer(serializers.ModelSerializer):
             'id',
             'source_ip',
             'destination_ip',
-            'log'
+            'log',
+            'source_port',
+            'destination_port',
+            'application',
+            'bytes_sent',
+            'bytes_received'
         )
 
 
