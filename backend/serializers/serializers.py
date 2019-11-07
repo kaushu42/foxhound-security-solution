@@ -11,6 +11,16 @@ from troubleticket.models import (
 from users.models import FoxhoundUser
 
 
+class FilterSerializer(serializers.Serializer):
+    start_date = serializers.DateField(required=False)
+    end_date = serializers.DateField(required=False)
+    firewall_rule = serializers.IntegerField(required=False)
+    application = serializers.IntegerField(required=False)
+    protocol = serializers.IntegerField(required=False)
+    source_zone = serializers.IntegerField(required=False)
+    destination_zone = serializers.IntegerField(required=False)
+
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = FoxhoundUser

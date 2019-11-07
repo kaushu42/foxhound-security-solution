@@ -127,6 +127,16 @@ class DBEngine(object):
             'destination_zone': destination_zone,
         }
 
+    def _get_country(self, ip_address):
+        if self._is_ip_private(ip_address):
+            return 'Nepal', 'np'
+        try:
+            info = self._reader.city(ip_address).country
+        except geoip2.errors.AddressNotFoundError:
+            print('Not in database')
+            return 'Unknown', '---'
+        return info.name, info.iso_code
+
     def _write_new_items_to_db(self, params):
         for v in params['vsys']:
             print(f'Created {v}')
@@ -139,6 +149,11 @@ class DBEngine(object):
             next_id = self._get_next_id('core_ipaddress')
             self._db_engine.execute(
                 f"INSERT INTO core_ipaddress VALUES({next_id}, '{i}', false);")
+            country_next_id = self._get_next_id('core_country')
+            name, iso_code = self._get_country(i)
+            self._db_engine.execute(
+                f"INSERT INTO core_country VALUES({country_next_id}, '{name}', '{iso_code}', {next_id});"
+            )
 
         for i in params['destination_ip']:
             print(f'Created Destination_IP: {i}')

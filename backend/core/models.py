@@ -169,11 +169,11 @@ class TrafficLogDetail(models.Model):
 
 class Country(models.Model):
     ip_address = models.ForeignKey(IPAddress, on_delete=models.CASCADE)
-    country_name = models.CharField(max_length=50)
-    country_iso_code = models.CharField(max_length=5)
+    name = models.CharField(max_length=50)
+    iso_code = models.CharField(max_length=5)
 
     def __repr__(self):
-        return f'{self.ip_address}-{self.country_iso_code}'
+        return f'{self.ip_address}-{self.iso_code}'
 
     def __str__(self):
         return self.__repr__()

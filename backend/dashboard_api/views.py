@@ -16,7 +16,7 @@ from rest_framework.status import (
 )
 
 from core.models import TrafficLog, TrafficLogDetail, Country
-from troubleticket.models import TroubleTicket
+from troubleticket.models import TroubleTicketAnomaly
 from globalutils import (
     get_month_day_index,
     groupby_date,
@@ -25,6 +25,7 @@ from globalutils import (
     get_query_from_request,
     get_objects_from_query
 )
+from serializers.serializers import FilterSerializer
 
 
 class StatsApiView(APIView):
@@ -35,7 +36,8 @@ class StatsApiView(APIView):
             Sum('bytes_sent')).get('bytes_sent__sum', None)
         downlink = uplink_downlink.aggregate(
             Sum('bytes_received')).get('bytes_received__sum', None)
-        opened_tt = TroubleTicket.objects.filter(is_closed=False).count()
+        opened_tt = TroubleTicketAnomaly.objects.filter(
+            is_closed=False).count()
         new_rules = None
 
         return Response(
@@ -59,35 +61,37 @@ def rules(request):
 class FiltersApiView(APIView):
     def get(self, request, format=None):
         objects = TrafficLogDetail.objects.all()
-        firewall_rule = [
-            l[0] for l in list(
-                objects.values_list(
-                    'firewall_rule').distinct().order_by('firewall_rule')
-            )
-        ]
-        application = [
-            l[0] for l in list(
-                objects.values_list(
-                    'application').distinct().order_by('application')
-            )
-        ]
-        protocol = [
-            l[0] for l in list(
-                objects.values_list('protocol').distinct().order_by('protocol')
-            )
-        ]
-        source_zone = [
-            l[0] for l in list(
-                objects.values_list(
-                    'source_zone').distinct().order_by('source_zone')
-            )
-        ]
-        destination_zone = [
-            l[0] for l in list(
-                objects.values_list('destination_zone').distinct().order_by(
-                    'destination_zone')
-            )
-        ]
+        import operator
+        firewall_rule = sorted(list(
+            objects.values_list(
+                'firewall_rule',
+                'firewall_rule__name'
+            ).distinct()
+        ), key=operator.itemgetter(1))
+        application = sorted(list(
+            objects.values_list(
+                'application',
+                'application__name'
+            ).distinct()
+        ), key=operator.itemgetter(1))
+        protocol = sorted(list(
+            objects.values_list(
+                'protocol',
+                'protocol__name'
+            ).distinct()
+        ), key=operator.itemgetter(1))
+        source_zone = sorted(list(
+            objects.values_list(
+                'source_zone',
+                'source_zone__name'
+            ).distinct()
+        ), key=operator.itemgetter(1))
+        destination_zone = sorted(list(
+            objects.values_list(
+                'destination_zone',
+                'destination_zone__name'
+            ).distinct()
+        ), key=operator.itemgetter(1))
 
         response = {
             "firewall_rule": firewall_rule,
@@ -106,6 +110,10 @@ class FiltersApiView(APIView):
 class UsageApiView(APIView):
     def get(self, request, format=None):
         query = get_query_from_request(request)
+        filter_serializer = FilterSerializer(data=request.data)
+        if not filter_serializer.is_valid():
+            return Response({"error": "filter error"})
+        print(filter_serializer.data)
         if not query:
             latest_date = TrafficLog.objects.latest('log_date')
             objects = groupby_date(
@@ -113,7 +121,7 @@ class UsageApiView(APIView):
                     traffic_log__id=latest_date.id
                 ),
                 'logged_datetime',
-                'minute',
+                'hour',
                 ['bytes_sent', 'bytes_received']
             )
         else:
@@ -121,7 +129,7 @@ class UsageApiView(APIView):
             objects = groupby_date(
                 objects,
                 'logged_datetime',
-                'minute',
+                'hour',
                 ['bytes_sent', 'bytes_received']
             )
         bytes_sent, bytes_received = get_usage(objects)
@@ -166,25 +174,19 @@ class WorldMapApiView(APIView):
         ).annotate(
             ip_count=Count('source_ip')
         )
-
         country_data = defaultdict(int)
-
         for obj in objects:
             ip = obj['source_ip']
             count = obj['ip_count']
             try:
-                country = Country.objects.get(ip=ip).country_iso_code
-            except Exception:
+                country = Country.objects.get(
+                    ip_address__id=ip).iso_code
+            except Exception as e:
+                print(e)
                 return Response({
                     "error": "Database Error"
                 }, status=HTTP_500_INTERNAL_SERVER_ERROR)
             country_data[country] += count
-
-        # Delete nepal data for now, because it overshadows all other countries
-        try:
-            del country_data['np']
-        except Exception:
-            pass
 
         data = []
         for key, value in country_data.items():
