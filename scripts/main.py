@@ -1,6 +1,7 @@
 import time
 import os
 import datetime
+import re
 
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -55,10 +56,10 @@ seedutils.seed(session)
 # pa = fh.dc_engine.PaloAltoEngine(
 #     config.TRAFFIC_LOGS_INPUT_DIR, config.TRAFFIC_LOGS_OUTPUT_DIR)
 # pa.run(verbose=True)
-
-# db = fh.db_engine.DBEngine(config.TRAFFIC_LOGS_OUTPUT_DIR, db_engine=db_engine)
-# db.run(verbose=True)
-
+start = time.time()
+db = fh.db_engine.DBEngine(config.TRAFFIC_LOGS_OUTPUT_DIR, db_engine=db_engine)
+db.run(verbose=True)
+print(time.time() - start)
 # if session.query(Country).count() == 0:
 #     ips = set()
 #     data = session.query(TrafficLogDetail.source_ip).distinct()

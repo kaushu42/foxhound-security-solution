@@ -49,10 +49,6 @@ class Domain(models.Model):
 
 
 class TrafficLog(models.Model):
-    tenant = models.ForeignKey(
-        Tenant,
-        on_delete=models.CASCADE,
-    )
     processed_datetime = models.DateField(auto_now_add=True)
     log_date = models.DateField()
     log_name = models.CharField(max_length=200)

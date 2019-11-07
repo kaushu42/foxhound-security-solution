@@ -37,25 +37,30 @@ class DBEngine(object):
         self._csvs = self._get_csv_paths(self._INPUT_DIR)
         self._session = sessionmaker(bind=db_engine, autoflush=False)()
         self._reader = geoip2.database.Reader('./GeoLite2-City.mmdb')
+        self._cols = [
+            'core_virtualsystem',
+            'core_tenant',
+            'core_firewallrule',
+            'core_domain',
+            'core_ipaddress',
+            'core_application',
+            'core_protocol',
+            'core_zone',
+            'core_firewallrulezone'
+        ]
 
     def _read_csv(self, csv: str):
         df = pd.read_csv(csv, index_col='row_number')
         return df
 
-    def _write_to_traffic_log_detail(self, data, traffic_log):
-        data.rename(
-            columns={
-                'virtual_system_id': 'traffic_log_id'
-            },
-            inplace=True
-        )
-        data['traffic_log_id'] = traffic_log.id
-        data.to_sql(
-            TrafficLogDetail.__tablename__,
-            self._db_engine,
-            if_exists='append',
-            index=False
-        )
+    def _get_table(self, table_name):
+        table = pd.read_sql_table(table_name, self._db_engine, index_col='id')
+        return table
+
+    def _get_next_id(self, col_name):
+        return self._session.execute(
+            f"select nextval('{col_name}_id_seq');"
+        ).fetchone()[0]
 
     def _is_ip_private(self, ip):
         if (
@@ -72,230 +77,155 @@ class DBEngine(object):
             return True
         return False
 
-    def _write_country(self, data, session):
-        ip_addresses = set()
-        [ip_addresses.add(i) for i in data['source_ip'].unique()]
-        [ip_addresses.add(i) for i in data['destination_ip'].unique()]
+    def _read_tables_from_db(self):
+        dfs = {}
+        for col in self._cols:
+            dfs[col] = self._get_table(col)
+        return dfs
 
-        for ip in ip_addresses:
-            ip_exists_in_db = session.query(IPAddress).filter_by(
-                address=ip).scalar() is not None
-            if not ip_exists_in_db:
-                print(ip)
-                ip_address = IPAddress(address=ip)
-                print('ip not in db')
-                # session.add(ip_address)
-                # session.flush()
-            else:
-                print('Item in db')
-            exit(1)
-            if session.query(Country).filter_by(ip_address=ip).scalar():
-                continue
-            ip_country = Country(ip_address_id=ip_address.id)
-            country_name = ''
-            country_iso_code = ''
-            try:
-                if self._is_ip_private(ip) is not True:
-                    country = self._reader.city(ip).country
-                    country_iso_code = country.iso_code
-                    country_name = country.name
-                    if country_iso_code is None:
-                        country_name = 'Unknown'
-                        country_iso_code = '---'
-                else:
-                    country_iso_code = "np"
-                    country_name = "Nepal"
-            except geoip2.errors.AddressNotFoundError:
-                country_name = 'Unknown'
-                country_iso_code = '---'
-
-            ip_country.country_name = country_name
-            ip_country.country_iso_code = country_iso_code.lower()
-            session.add(ip_country)
-        session.flush()
-        session.commit()
-
-    def _get_traffic_log(self, csv, tenant_id):
-        query = {
-            'tenant_id': tenant_id,
-            'processed_datetime': datetime.datetime.now(),
-            'log_date': self._get_date(csv),
-            'log_name': self._get_filename(csv)
+    def _get_unique(self, data, dfs):
+        vsys = [
+            i for i in data['virtual_system_id'].unique(
+            ) if i not in dfs['core_virtualsystem'].code.values
+        ]
+        firewall_rule = [
+            i for i in data['firewall_rule_id'].unique(
+            ) if i not in dfs['core_firewallrule'].name.values
+        ]
+        source_ip = [
+            i for i in data['source_ip_id'].unique(
+            ) if i not in dfs['core_ipaddress'][dfs['core_ipaddress'].type == False].address.values
+        ]
+        destination_ip = [
+            i for i in data['destination_ip_id'].unique(
+            ) if i not in dfs['core_ipaddress'][dfs['core_ipaddress'].type == True].address.values
+        ]
+        application = [
+            i for i in data['application_id'].unique(
+            ) if i not in dfs['core_application'].name.values
+        ]
+        protocol = [
+            i for i in data['protocol_id'].unique(
+            ) if i not in dfs['core_protocol'].name.values
+        ]
+        source_zone = [
+            i for i in data['source_zone_id'].unique(
+            ) if i not in dfs['core_zone'][dfs['core_zone'].type == False].name.values
+        ]
+        destination_zone = [
+            i for i in data['destination_zone_id'].unique(
+            ) if i not in dfs['core_zone'][dfs['core_zone'].type == True].name.values
+        ]
+        return {
+            'vsys': vsys,
+            'firewall_rule': firewall_rule,
+            'source_ip': source_ip,
+            'destination_ip': destination_ip,
+            'application': application,
+            'protocol': protocol,
+            'source_zone': source_zone,
+            'destination_zone': destination_zone,
         }
-        traffic_log = TrafficLog(**query)
+
+    def _write_new_items_to_db(self, params):
+        for v in params['vsys']:
+            print(f'Created {v}')
+            next_id = self._get_next_id('core_virtualsystem')
+            self._db_engine.execute(
+                f"INSERT INTO core_virtualsystem VALUES({next_id}, '{v}', '{v}');")
+
+        for i in params['source_ip']:
+            print(f'Created Source_IP: {i}')
+            next_id = self._get_next_id('core_ipaddress')
+            self._db_engine.execute(
+                f"INSERT INTO core_ipaddress VALUES({next_id}, '{i}', false);")
+
+        for i in params['destination_ip']:
+            print(f'Created Destination_IP: {i}')
+            next_id = self._get_next_id('core_ipaddress')
+            self._db_engine.execute(
+                f"INSERT INTO core_ipaddress VALUES({next_id}, '{i}', true);")
+
+        for i in params['protocol']:
+            print(f'Created {i}')
+            next_id = self._get_next_id('core_protocol')
+            self._db_engine.execute(
+                f"INSERT INTO core_protocol VALUES({next_id}, '{i}');")
+
+        for i in params['application']:
+            print(f'Created {i}')
+            next_id = self._get_next_id('core_application')
+            self._db_engine.execute(
+                f"INSERT INTO core_application VALUES({next_id}, '{i}');")
+
+        for i in params['source_zone']:
+            print(f'Created {i}')
+            next_id = self._get_next_id('core_zone')
+            self._db_engine.execute(
+                f"INSERT INTO core_zone VALUES({next_id}, '{i}', false);")
+
+        for i in params['destination_zone']:
+            print(f'Created {i}')
+            next_id = self._get_next_id('core_zone')
+            self._db_engine.execute(
+                f"INSERT INTO core_zone VALUES({next_id}, '{i}', true);")
+
+        for i in params['firewall_rule']:
+            print(f'Created {i}')
+            next_id = self._get_next_id('core_firewallrule')
+            self._db_engine.execute(
+                f"INSERT INTO core_firewallrule VALUES({next_id}, '{i}', {TENANT_ID_DEFAULT});")
+
+    def _map_to_foreign_key(self, data, dfs):
+        data.virtual_system_id = data.virtual_system_id.map(
+            dfs['core_virtualsystem'].reset_index().set_index('code').id)
+        data.source_ip_id = data.source_ip_id.map(
+            dfs['core_ipaddress'][dfs['core_ipaddress'].type == False].reset_index().set_index('address').id)
+        data.destination_ip_id = data.destination_ip_id.map(
+            dfs['core_ipaddress'][dfs['core_ipaddress'].type == True].reset_index().set_index('address').id)
+        data.source_zone_id = data.source_zone_id.map(
+            dfs['core_zone'][dfs['core_zone'].type == False].reset_index().set_index('name').id)
+        data.destination_zone_id = data.destination_zone_id.map(
+            dfs['core_zone'][dfs['core_zone'].type == True].reset_index().set_index('name').id)
+        data.application_id = data.application_id.map(
+            dfs['core_application'].reset_index().set_index('name').id)
+        data.protocol_id = data.protocol_id.map(
+            dfs['core_protocol'].reset_index().set_index('name').id)
+        data.firewall_rule_id = data.firewall_rule_id.map(
+            dfs['core_firewallrule'].reset_index().set_index('name').id)
+
+    def _get_filename_from_full_path(self, path):
+        return path.split('/')[-1]
+
+    def _write_traffic_log(self, filename):
+        filename = self._get_filename_from_full_path(filename)
+        log_date = self._get_date_from_filename(filename)
+        traffic_log = TrafficLog(log_name=filename, log_date=log_date,
+                                 processed_datetime=datetime.datetime.now())
         self._session.add(traffic_log)
         self._session.flush()
-        return traffic_log
+        self._session.commit()
+        return traffic_log.id
 
-    def _get_virtual_system(self, index, data):
-        vsys_code = data.at[index, 'virtual_system_id']
-        vsys = self._session.query(VirtualSystem).filter_by(code=vsys_code)
-        if vsys.count() == 0:
-            vsys = VirtualSystem(code=vsys_code, name=vsys_code)
-            self._session.add(vsys)
-            # self._session.flush()
-        else:
-            assert(vsys.count() == 1)
-            vsys = vsys[0]
-        return vsys
-
-    def _get_firewall_rule(self, index, data):
-        firewall_rule_name = data.at[index, 'firewall_rule']
-        firewall_rule = self._session.query(
-            FirewallRule).filter_by(name=firewall_rule_name)
-        if firewall_rule.count() == 0:
-            firewall_rule = FirewallRule(
-                name=firewall_rule_name, tenant_id=TENANT_ID_DEFAULT)
-            self._session.add(firewall_rule)
-            # self._session.flush()
-        else:
-            assert(firewall_rule.count() == 1)
-            firewall_rule = firewall_rule[0]
-
-        return firewall_rule
-
-    def _get_ip(self, index, data, type):
-        if type == 0:
-            col_name = 'source_ip'
-        else:
-            col_name = 'destination_ip'
-        ip_name = data.at[index, col_name]
-        ip = self._session.query(
-            IPAddress).filter_by(address=ip_name, type=bool(type))
-        if ip.count() == 0:
-            ip = IPAddress(address=ip_name, type=type)
-            self._session.add(ip)
-            # self._session.flush()
-        else:
-            assert(ip.count() == 1)
-            ip = ip[0]
-
-        return ip
-
-    def _get_application(self, index, data):
-        application_name = data.at[index, 'application']
-        application = self._session.query(
-            Application).filter_by(name=application_name)
-        if application.count() == 0:
-            application = Application(name=application_name)
-            self._session.add(application)
-            # self._session.flush()
-        else:
-            assert(application.count() == 1)
-            application = application[0]
-        return application
-
-    def _get_protocol(self, index, data):
-        protocol_name = data.at[index, 'protocol']
-        protocol = self._session.query(
-            Protocol).filter_by(name=protocol_name)
-        if protocol.count() == 0:
-            protocol = Protocol(name=protocol_name)
-            self._session.add(protocol)
-            # self._session.flush()
-        else:
-            assert(protocol.count() == 1)
-            protocol = protocol[0]
-        return protocol
-
-    def _get_zone(self, index, data, type, firewall_rule):
-        if type == 0:
-            zone_name = data.at[index, 'source_zone']
-        else:
-            zone_name = data.at[index, 'destination_zone']
-
-        zone = self._session.query(
-            Zone).filter_by(name=zone_name, type=bool(type))
-        if zone.count() == 0:
-            zone = Zone(name=zone_name,
-                        firewall_rule_id=firewall_rule.id, type=type)
-            self._session.add(zone)
-            # self._session.flush()
-        else:
-            assert(zone.count() == 1)
-            zone = zone[0]
-
-        return zone
-
-    def _get_params(self, index, data):
-        return {
-            'source_port': int(data.at[index, 'source_port']),
-            'destination_port': int(data.at[index, 'destination_port']),
-            'bytes_sent': int(data.at[index, 'bytes_sent']),
-            'bytes_received': int(data.at[index, 'bytes_received']),
-            'packets_sent': int(data.at[index, 'packets_sent']),
-            'packets_received': int(data.at[index, 'packets_received']),
-            'time_elapsed': int(data.at[index, 'time_elapsed']),
-            'repeat_count': int(data.at[index, 'repeat_count']),
-            'logged_datetime': data.at[index, 'logged_datetime']
-        }
+    def _write_traffic_log_detail(self, data, traffic_log_id):
+        data['traffic_log_id'] = traffic_log_id
+        data.drop(['virtual_system_id'], axis=1).to_sql(
+            'core_trafficlogdetail', self._db_engine, if_exists='append', index=True)
 
     def _write_to_db(self, csv: str):
         data = self._read_csv(csv)
+        dfs = self._read_tables_from_db()
+        params = self._get_unique(data, dfs)
+        self._write_new_items_to_db(params)
+        dfs = self._read_tables_from_db()
+        self._map_to_foreign_key(data, dfs)
+        traffic_log_id = self._write_traffic_log(csv)
+        self._write_traffic_log_detail(data, traffic_log_id)
 
-        # Get the tenant id using firewall rule
-        # We need to write the data into the database rowwise
-        traffic_log_created = False
-        for index in tqdm(data.index):
-            # for index, row in tqdm(data.iterrows(), total=len(data.index)):
-            params = self._get_params(index, data)
-            virtual_system = self._get_virtual_system(index, data)
-            firewall_rule = self._get_firewall_rule(index, data)
-            source_ip = self._get_ip(index, data, 0)
-            destination_ip = self._get_ip(index, data, 1)
-            application = self._get_application(index, data)
-            protocol = self._get_protocol(index, data)
-            self._session.flush()
-            source_zone = self._get_zone(index, data, 0, firewall_rule)
-            destination_zone = self._get_zone(index, data, 1, firewall_rule)
-            self._session.flush()
-            if not traffic_log_created:
-                traffic_log = self._get_traffic_log(
-                    csv, firewall_rule.tenant_id)
-                traffic_log_created = True
-
-            traffic_log_detail = TrafficLogDetail(
-                traffic_log_id=traffic_log.id,
-                firewall_rule_id=firewall_rule.id,
-                source_ip_id=source_ip.id,
-                destination_ip_id=destination_ip.id,
-                application_id=application.id,
-                protocol_id=protocol.id,
-                source_zone_id=source_zone.id,
-                destination_zone_id=destination_zone.id,
-                row_number=index,
-                **params
-            )
-            self._session.add(traffic_log_detail)
-            # Now we have the new firewall_rule id
-        self._session.commit()
-        # Create a TrafficLog object
-        # Create a TrafficLogDetail object
-        # Write the country data as well
-
-        # self._write_country(data, session)
-
-        # Get the virtual system id from database
-        # vsys = self._get_virtual_system(data, session)
-
-        # Use the key to write the data into the core_trafficlog table
-        # traffic_log = self._get_traffic_log(csv, vsys, session)
-
-        # Write to the core_trafficlogdetail using the obtained traffic_log id
-
-    def _get_filename(self, string):
-        processed_filename = string.split('/')[-1]
-        filename = processed_filename.split('_vsys')[0] + '.csv'
-        return filename
-
-    def _get_date(self, string):
+    def _get_date_from_filename(self, string):
         date = re.findall(r'[0-9]{4}_[0-9]{2}_[0-9]{2}',
                           string)[0].replace('_', '-')
         return date
-
-    def _add_date_column(self, data, csv):
-
-        data['date'] = pd.to_datetime(date)
 
     def _get_csv_paths(self, path: str):
         files = os.listdir(path)

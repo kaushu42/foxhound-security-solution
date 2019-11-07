@@ -18,13 +18,13 @@ class Engine(ABC):
         self._check_data_dirs_valid()
         self._DATA_FIELDS = (
             'virtual_system_id',
-            'source_ip', 'source_port',
-            'destination_ip', 'destination_port',
+            'source_ip_id', 'source_port',
+            'destination_ip_id', 'destination_port',
             'bytes_sent', 'bytes_received', 'repeat_count',
-            'application', 'packets_received', 'packets_sent',
-            'protocol', 'time_elapsed',
-            'source_zone', 'destination_zone',
-            'firewall_rule', 'logged_datetime'
+            'application_id', 'packets_received', 'packets_sent',
+            'protocol_id', 'time_elapsed',
+            'source_zone_id', 'destination_zone_id',
+            'firewall_rule_id', 'logged_datetime'
         )
 
         self._INPUT_TO_OUTPUT_MAP = {}
@@ -60,19 +60,12 @@ class Engine(ABC):
     def _read_csv(self, csv_path: str):
         return pd.read_csv(csv_path)
 
-    def _dump(self, input_filename: str, processed_data: pd.DataFrame):
+    def _dump(self, input_filename: str, data: pd.DataFrame):
         filename = input_filename.split('/')[-1]
-
-        # Get all unique vsys ids
-        vsys_list = processed_data['virtual_system_id'].unique()
-
-        for vsys in vsys_list:
-            f = filename.split('.')[0]
-            output_filename = self._OUTPUT_PATH + f'/{f}_{vsys}.csv'
-            data = processed_data[processed_data['virtual_system_id'] == vsys]
-            data.index.name = 'row_number'
-            data.to_csv(output_filename, index=True)
-            print(f'\tWritten to {output_filename}')
+        output_filename = os.path.join(self._OUTPUT_PATH, filename)
+        data.index.name = 'row_number'
+        data.to_csv(output_filename, index=True)
+        print(f'\tWritten to {output_filename}')
 
     def _run_one(self, csv_path: str):
         data = self._read_csv(csv_path)
