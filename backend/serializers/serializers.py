@@ -2,7 +2,8 @@ from rest_framework import serializers
 
 from core.models import (
     TrafficLog, TrafficLogDetail,
-    Tenant, Domain
+    Tenant, Domain,
+    VirtualSystem
 )
 from troubleticket.models import (
     TroubleTicketAnomaly,

@@ -14,7 +14,10 @@ class VirtualSystem(models.Model):
 
 
 class Tenant(models.Model):
-    virtual_system = models.ForeignKey(VirtualSystem, on_delete=models.CASCADE)
+    virtual_system = models.ForeignKey(
+        VirtualSystem, on_delete=models.CASCADE,
+        null=True
+    )
     name = models.CharField(max_length=50)
 
     def __str__(self):
@@ -27,7 +30,7 @@ class Tenant(models.Model):
 class FirewallRule(models.Model):
     name = models.CharField(max_length=50)
     tenant = models.ForeignKey(
-        Tenant, on_delete=models.CASCADE)
+        Tenant, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.name
@@ -37,9 +40,12 @@ class FirewallRule(models.Model):
 
 
 class Domain(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50
+                            )
     url = models.CharField(max_length=250)
-    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE)
+    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE,
+                               null=True
+                               )
 
     def __str__(self):
         return self.name
@@ -103,11 +109,17 @@ class Zone(models.Model):
 
 
 class FirewallRuleZone(models.Model):
-    firewall_rule = models.ForeignKey(FirewallRule, on_delete=models.CASCADE)
+    firewall_rule = models.ForeignKey(
+        FirewallRule, on_delete=models.CASCADE, null=True
+    )
     source_zone = models.ForeignKey(
-        Zone, on_delete=models.CASCADE, related_name='firewall_source_zone')
+        Zone, on_delete=models.CASCADE,
+        related_name='firewall_source_zone', null=True
+    )
     destination_zone = models.ForeignKey(
-        Zone, on_delete=models.CASCADE, related_name='firewall_destination_zone')
+        Zone, on_delete=models.CASCADE,
+        related_name='firewall_destination_zone', null=True
+    )
 
     def __str__(self):
         return f'{self.firewall_rule}:{self.source_zone}-{self.destination_zone}'
@@ -119,34 +131,34 @@ class FirewallRuleZone(models.Model):
 class TrafficLogDetail(models.Model):
     traffic_log = models.ForeignKey(
         TrafficLog,
-        on_delete=models.CASCADE,
+        on_delete=models.CASCADE, null=True
     )
     source_ip = models.ForeignKey(
-        IPAddress, on_delete=models.CASCADE,
+        IPAddress, on_delete=models.CASCADE, null=True,
         related_name='source_ip'
     )
     destination_ip = models.ForeignKey(
-        IPAddress, on_delete=models.CASCADE,
+        IPAddress, on_delete=models.CASCADE, null=True,
         related_name='destination_ip'
     )
     application = models.ForeignKey(
-        Application, on_delete=models.CASCADE,
+        Application, on_delete=models.CASCADE, null=True,
         related_name='application'
     )
     protocol = models.ForeignKey(
-        Protocol, on_delete=models.CASCADE,
+        Protocol, on_delete=models.CASCADE, null=True,
         related_name='protocol'
     )
     source_zone = models.ForeignKey(
-        Zone, on_delete=models.CASCADE,
+        Zone, on_delete=models.CASCADE, null=True,
         related_name='source_zone'
     )
     destination_zone = models.ForeignKey(
-        Zone, on_delete=models.CASCADE,
+        Zone, on_delete=models.CASCADE, null=True,
         related_name='destination_zone'
     )
     firewall_rule = models.ForeignKey(
-        FirewallRule, on_delete=models.CASCADE,
+        FirewallRule, on_delete=models.CASCADE, null=True,
         related_name='firewall_rule'
     )
     row_number = models.BigIntegerField()
@@ -168,7 +180,10 @@ class TrafficLogDetail(models.Model):
 
 
 class Country(models.Model):
-    ip_address = models.ForeignKey(IPAddress, on_delete=models.CASCADE)
+    ip_address = models.ForeignKey(
+        IPAddress, on_delete=models.CASCADE,
+        null=True
+    )
     name = models.CharField(max_length=50)
     iso_code = models.CharField(max_length=5)
 

@@ -19,11 +19,11 @@ class TroubleTicketFollowUp(models.Model):
     follow_up_datetime = models.DateTimeField(auto_now_add=True)
     assigned_by = models.ForeignKey(
         FoxhoundUser, on_delete=models.CASCADE,
-        related_name='assigned_by'
+        related_name='assigned_by', null=True
     )
     assigned_to = models.ForeignKey(
         FoxhoundUser, on_delete=models.CASCADE,
-        related_name='assigned_to'
+        related_name='assigned_to', null=True
     )
     description = models.CharField(max_length=1000)
 
@@ -35,7 +35,9 @@ class TroubleTicketFollowUp(models.Model):
 
 
 class TroubleTicketAnomaly(TroubleTicket):
-    log = models.ForeignKey(TrafficLog, on_delete=models.CASCADE)
+    log = models.ForeignKey(
+        TrafficLog, on_delete=models.CASCADE, null=True
+    )
     row_number = models.IntegerField()
 
     def __str__(self):
@@ -47,7 +49,7 @@ class TroubleTicketAnomaly(TroubleTicket):
 
 class TroubleTicketFollowUpAnomaly(TroubleTicketFollowUp):
     trouble_ticket = models.ForeignKey(
-        TroubleTicketAnomaly, on_delete=models.CASCADE)
+        TroubleTicketAnomaly, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return f'Anomaly-{self.trouble_ticket}-followup-{self.id}'
