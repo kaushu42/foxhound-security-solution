@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'dashboard_api',
     'profile_api',
     'log_api',
+    'session',
 ]
 
 MIDDLEWARE = [
