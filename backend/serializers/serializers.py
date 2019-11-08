@@ -1,10 +1,16 @@
 from rest_framework import serializers
 
-from core.models import TrafficLog, TrafficLogDetail
+from core.models import (
+    TrafficLog,
+    TrafficLogDetail,
+    VirtualSystem
+)
+
 from troubleticket.models import (
     TroubleTicketAnomaly,
     TroubleTicketFollowUpAnomaly
 )
+
 from users.models import FoxhoundUser
 
 
@@ -12,6 +18,17 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = FoxhoundUser
         fields = ('username', 'tenant_id', 'id')
+
+
+class UserNameSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField()
+
+    def get_full_name(self, obj):
+        return '{} {}'.format(obj.first_name, obj.last_name)
+
+    class Meta:
+        model = FoxhoundUser
+        fields = ('full_name', 'id')
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -64,3 +81,9 @@ class TroubleTicketFollowUpAnomalySerializer(serializers.ModelSerializer):
     class Meta:
         model = TroubleTicketFollowUpAnomaly
         fields = '__all__'
+
+
+class VirtualSystemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VirtualSystem
+        fields = ['tenant_name']

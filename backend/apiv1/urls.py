@@ -6,4 +6,5 @@ urlpatterns = [
     path('profile/', include('profile_api.urls')),
     path('log/', include('log_api.urls')),
     path('tt/', include('troubleticket.urls')),
+    path('session/', include('session.urls')),
 ]
