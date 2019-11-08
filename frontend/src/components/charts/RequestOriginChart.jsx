@@ -1,45 +1,16 @@
 import React, {Component, Fragment} from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import mapdata from "./mapdata";
-import {ROOT_URL} from "../utils";
 import {connect} from "react-redux";
 import axios from 'axios';
-import '../charts/chart.css';
-import {Row, Spin} from "antd";
+import '../../charts/chart.css';
+import {Drawer, Row, Spin} from "antd";
+import mapdata from "../../charts/mapdata";
+import {ROOT_URL} from "../../utils";
 
 require("highcharts/modules/map")(Highcharts);
 
 const FETCH_API = `${ROOT_URL}dashboard/map/`;
-
-
-let options = {
-  title: {
-    text: "Request Origin"
-  },
-  mapNavigation: {
-    enabled: true,
-    buttonOptions: {
-      verticalAlign: 'bottom'
-    }
-  },
-
-  colorAxis: {
-    min: 0,
-    stops: [
-      [0.0, "#fff"],
-      [1.0, "#00f"]
-    ] // change color according to value
-  },
-  series: [
-    {
-      mapData: mapdata,
-      name: "",
-      data: null
-    }
-  ]
-}
-
 
 class RequestOriginChart extends Component {
   constructor(props) {
@@ -47,13 +18,16 @@ class RequestOriginChart extends Component {
     this.state = {
       loading : true,
       data: [],
+      mapDrawerVisible : false,
+      selectedCountryEvent: null
     }
   }
 
 
-  componentDidMount = () => {
+  componentDidMount = async () => {
     this.handleFetchData();
     this.chart = this.refs.chart.chart;
+    this.chart.component = this;
     if (document.addEventListener) {
       document.addEventListener('webkitfullscreenchange', this.exitHandler, false);
       document.addEventListener('mozfullscreenchange', this.exitHandler, false);
@@ -153,7 +127,73 @@ class RequestOriginChart extends Component {
 
   }
 
+  onClose = () => {
+    this.setState({
+      mapDrawerVisible:false
+    })
+
+  }
+
+  handleClickEvent = (e)=> {
+    this.setState({
+      mapDrawerVisible:true
+    })
+    this.setState({
+      selectedCountryEvent : e
+    })
+  }
+
+
   render(){
+    const options = {
+      title: {
+        text: "Request Origin"
+      },
+      mapNavigation: {
+        enabled: true,
+        buttonOptions: {
+          verticalAlign: 'middle'
+        }
+      },
+
+      colorAxis: {
+        min: 0,
+        stops: [
+          [0.0, "#fff"],
+          [1.0, "#00f"]
+        ] // change color according to value
+      },
+      series: [
+        {
+          mapData: mapdata,
+          name: "Request Origin",
+          events: {
+            click: function (e) {
+              const self = this.chart.component;
+              self.handleClickEvent(e);
+              console.log(self);
+
+              let text = this.name +
+                  '<br>Request Count: ' + e.point.name + ' '+ e.point.value + ' Requests';
+              if (!this.chart.clickLabel) {
+                this.chart.clickLabel = this.chart.renderer.label(text, 10, 10)
+                    .css({
+                      width: '200px',
+                      height: '50px'
+
+                    })
+                    .add();
+              } else {
+                this.chart.clickLabel.attr({
+                  text: text
+                });
+              }
+            }
+          }
+        }
+      ]
+   }
+
     return (
         <Spin tip="Loading..." spinning={this.state.loading}>
           <Row>
@@ -164,6 +204,17 @@ class RequestOriginChart extends Component {
                 ref = {'chart'}
                 options = {options}
             />
+            {this.state.selectedCountryEvent ?
+
+            <Drawer title={`Request originating from ${this.state.selectedCountryEvent.point.name}`}
+                              width={600}
+                              placement="bottom"
+                              closable={true}
+                              onClose={this.onClose}
+                              visible={this.state.mapDrawerVisible}
+                      ></Drawer>
+                : null
+            }
           </Row>
         </Spin>
     );

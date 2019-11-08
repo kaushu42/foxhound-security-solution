@@ -1,11 +1,11 @@
 import React, {Component, Fragment} from 'react';
 import {connect} from "react-redux";
 import MasterLayout from "./layout/MasterLayout";
-import {Card, PageHeader, Row} from "antd";
+import {Card, Col, PageHeader, Row} from "antd";
 import Filter from "../components/Filter";
 import {contentLayout} from "../utils";
 import DashboardStats from "../components/DashboardStats";
-import RequestOriginChart from "../charts/RequestOriginChart";
+import RequestOriginChart from "../components/charts/RequestOriginChart";
 import BandwidthUsageChart from "../charts/BandwidthUsageChart";
 import AnomalyBasedTroubleTicketTable from "../components/AnomalyBasedTroubleTicketTable";
 
@@ -25,12 +25,19 @@ class Dashboard extends Component{
                         <DashboardStats />
                     </Row>
                     <Row style={contentLayout}>
-                        <Card>
-                            <RequestOriginChart />
-                        </Card>
+                        <Col xs={24} sm={24} md={24} lg={24} xl={12}>
+                            <Card>
+                                <RequestOriginChart />
+                            </Card>
+                        </Col>
+                        <Col xs={24} sm={24} md={24} lg={24} xl={12}>
+                            <Card>
+                                <BandwidthUsageChart />
+
+                            </Card>
+                        </Col>
                     </Row>
                     <Row style={contentLayout}>
-                        <BandwidthUsageChart />
                     </Row>
                     <Row style={contentLayout}>
                         <AnomalyBasedTroubleTicketTable />

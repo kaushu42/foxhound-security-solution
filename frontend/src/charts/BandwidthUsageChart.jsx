@@ -27,12 +27,21 @@ class BandwidthUsageChart extends Component{
                     events :{
                         click: function(e) {
                             console.log(
-                                Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', e.xAxis[0].value),
+                                Highcharts.dateFormat('%Y-%m-%d %H:%M', e.xAxis[0].value),
                                 e.yAxis[0].value
-                            )
+                            );
                         },
 
                     }
+                },
+                xAxis:{
+                    tickInterval : 5,
+                    labels :{
+                        formatter: function () {
+                            return this.value;
+                        }
+                    }
+
                 },
                 yAxis:{
                     labels :{
@@ -176,15 +185,11 @@ class BandwidthUsageChart extends Component{
     render() {
         return (
             <Spin tip={"loading..."} spinning={this.state.loading}>
-                <Row>
-                    <Card>
                         <HighchartsReact
                             highcharts={Highcharts}
                             options={this.state.options}
                             ref={'chart'}
                         />
-                    </Card>
-                </Row>
             </Spin>
         )
     }
