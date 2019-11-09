@@ -16,7 +16,6 @@ class BandwidthUsageChart extends Component{
     constructor(props){
         super(props);
         this.state = {
-            domain_url : window.location.href,
             loading : true,
             data : [],
             options : {
@@ -91,7 +90,6 @@ class BandwidthUsageChart extends Component{
         };
 
         let bodyFormData = new FormData();
-        bodyFormData.set('domain_url', this.state.domain_url);
         bodyFormData.set('start_date', this.props.date_range[0]);
         bodyFormData.set('end_date', this.props.date_range[1]);
         bodyFormData.set('firewall_rule', this.props.firewall_rule);
