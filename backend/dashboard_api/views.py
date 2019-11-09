@@ -1,3 +1,4 @@
+from urllib.parse import urlparse
 import itertools
 import datetime
 from collections import defaultdict
@@ -15,7 +16,10 @@ from rest_framework.status import (
     HTTP_500_INTERNAL_SERVER_ERROR
 )
 
-from core.models import TrafficLog, TrafficLogDetail, Country
+from core.models import (
+    TrafficLog, TrafficLogDetail,
+    Country, Domain
+)
 from troubleticket.models import TroubleTicketAnomaly
 from globalutils import (
     get_month_day_index,
@@ -25,7 +29,10 @@ from globalutils import (
     get_query_from_request,
     get_objects_from_query
 )
-from serializers.serializers import FilterSerializer
+from serializers.serializers import (
+    FilterSerializer,
+    DomainURLSerializer
+)
 
 
 class StatsApiView(APIView):
@@ -60,7 +67,22 @@ def rules(request):
 
 class FiltersApiView(APIView):
     def get(self, request, format=None):
-        objects = TrafficLogDetail.objects.all()
+        domain_serializer = DomainURLSerializer(data=request.data)
+        if not domain_serializer.is_valid():
+            return Response(
+                domain_serializer.errors,
+                status=HTTP_400_BAD_REQUEST
+            )
+        domain_url = domain_serializer.data['domain_url']
+        try:
+            domain_name = urlparse(domain_url).hostname.split('.')[0]
+            tenant_id = Domain.objects.get(name=domain_name).tenant.id
+        except Domain.DoesNotExist as e:
+            return Response({
+                "error": "Domain does not exist"
+            })
+        objects = TrafficLogDetail.objects.filter(
+            firewall_rule__tenant__id=tenant_id)
         import operator
         firewall_rule = sorted(list(
             objects.values_list(
@@ -113,7 +135,6 @@ class UsageApiView(APIView):
         filter_serializer = FilterSerializer(data=request.data)
         if not filter_serializer.is_valid():
             return Response({"error": "filter error"})
-        print(filter_serializer.data)
         if not query:
             latest_date = TrafficLog.objects.latest('log_date')
             objects = groupby_date(
