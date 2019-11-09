@@ -9,6 +9,7 @@ from django.db.models import Sum, Count
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.authtoken.models import Token
 from rest_framework.status import (
     HTTP_400_BAD_REQUEST,
     HTTP_404_NOT_FOUND,
@@ -67,20 +68,8 @@ def rules(request):
 
 class FiltersApiView(APIView):
     def get(self, request, format=None):
-        domain_serializer = DomainURLSerializer(data=request.data)
-        if not domain_serializer.is_valid():
-            return Response(
-                domain_serializer.errors,
-                status=HTTP_400_BAD_REQUEST
-            )
-        domain_url = domain_serializer.data['domain_url']
-        try:
-            domain_name = urlparse(domain_url).hostname.split('.')[0]
-            tenant_id = Domain.objects.get(name=domain_name).tenant.id
-        except Domain.DoesNotExist as e:
-            return Response({
-                "error": "Domain does not exist"
-            })
+        token = request.META.get('HTTP_AUTHORIZATION').split()[1]
+        tenant_id = Token.objects.get(key=token).user.tenant.id
         objects = TrafficLogDetail.objects.filter(
             firewall_rule__tenant__id=tenant_id)
         import operator
