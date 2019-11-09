@@ -14,14 +14,18 @@ from rest_framework.status import (
     HTTP_422_UNPROCESSABLE_ENTITY
 )
 
-from core.models import TrafficLog, TrafficLogDetail
+from core.models import (
+    TrafficLog, TrafficLogDetail,
+    IPAddress
+)
 from globalutils import (
     get_month_day_index,
     groupby_date,
     get_activity,
     get_usage,
     get_query_from_request,
-    get_objects_from_query
+    get_objects_from_query,
+    get_tenant_id_from_token
 )
 
 from .utils import get_ip_from_request, get_filters
@@ -29,9 +33,16 @@ from .utils import get_ip_from_request, get_filters
 
 class StatsApiView(APIView):
     def _get_stats(self, ip, objects):
-        objects = objects.filter(source_ip=ip)
-        uplink = objects.aggregate(Sum('bytes_sent')).get(
+        uplink = objects.filter(
+            source_ip__address=ip,
+            source_ip__type=False
+        )
+        uplink = uplink.aggregate(Sum('bytes_sent')).get(
             'bytes_sent__sum', None)
+        downlink = objects.filter(
+            source_ip__address=ip,
+            source_ip__type=True
+        )
         downlink = objects.aggregate(Sum('bytes_received')).get(
             'bytes_received__sum', None)
 
@@ -43,9 +54,12 @@ class StatsApiView(APIView):
         }
 
     def post(self, request, format=None):
+        tenant_id = get_tenant_id_from_token(request)
         ip = get_ip_from_request(request)
         query = get_query_from_request(request)
-        objects = get_objects_from_query(query)
+        objects = get_objects_from_query(query).filter(
+            firewall_rule__tenant__id=tenant_id
+        )
         response = self._get_stats(ip, objects)
         return Response(response, status=HTTP_200_OK)
 
@@ -55,21 +69,33 @@ class StatsApiView(APIView):
 
 class AverageDailyApiView(APIView):
     def _get_usage(self, ip, objects):
-        objects = groupby_date(
+        as_source = groupby_date(
             objects.filter(
-                source_ip=ip
+                source_ip__address=ip,
+                source_ip__type=False,
             ),
             'logged_datetime',
-            'minute',
-            ['bytes_sent', 'bytes_received'],
+            'hour',
+            ['bytes_sent'],
+            Avg
+        )
+        as_destination = groupby_date(
+            objects.filter(
+                destination_ip__address=ip,
+                destination_ip__type=True,
+            ),
+            'logged_datetime',
+            'hour',
+            ['bytes_received'],
             Avg
         )
         bytes_sent = defaultdict(int)
         bytes_received = defaultdict(int)
-        for obj in objects:
-            time = str(obj['date'].time())
-            bytes_sent[time] += obj['bytes_sent']
-            bytes_received[time] += obj['bytes_received']
+        for sent, received in zip(as_source, as_destination):
+            source_time = str(sent['date'].time())
+            dest_time = str(sent['date'].time())
+            bytes_sent[source_time] += sent['bytes_sent']
+            bytes_received[dest_time] += received['bytes_received']
 
         bytes_sent = OrderedDict(sorted(bytes_sent.items()))
         bytes_received = OrderedDict(sorted(bytes_received.items()))
@@ -81,15 +107,17 @@ class AverageDailyApiView(APIView):
             bytes_sent_data.append([i, bytes_sent[i]])
             bytes_received_data.append([j, bytes_received[j]])
         return {
-            "n_items": len(bytes_sent),
             "bytes_sent": bytes_sent_data,
             "bytes_received": bytes_received_data,
         }
 
     def post(self, request, format=None):
+        tenant_id = get_tenant_id_from_token(request)
         ip = get_ip_from_request(request)
         query = get_query_from_request(request)
-        objects = get_objects_from_query(query)
+        objects = get_objects_from_query(query).filter(
+            firewall_rule__tenant__id=tenant_id
+        )
         response = self._get_usage(ip, objects)
         return Response(response, status=HTTP_200_OK)
 
@@ -100,7 +128,7 @@ class AverageDailyApiView(APIView):
 class ActivityApiView(APIView):
     def _get_activity(self, ip, objects):
         objs = groupby_date(
-            objects.filter(source_ip=ip),
+            objects.filter(source_ip__address=ip),
             'logged_datetime',
             'day',
             ['bytes_sent', 'bytes_received']
@@ -109,15 +137,17 @@ class ActivityApiView(APIView):
         activity_bytes_sent, activity_bytes_received = get_activity(objs)
 
         return {
-            "n_items": len(activity_bytes_sent),
             "activity_bytes_sent": activity_bytes_sent,
             "activity_bytes_received": activity_bytes_received,
         }
 
     def post(self, request, format=None):
+        tenant_id = get_tenant_id_from_token(request)
         ip = get_ip_from_request(request)
         query = get_query_from_request(request)
-        objects = get_objects_from_query(query)
+        objects = get_objects_from_query(query).filter(
+            firewall_rule__tenant__id=tenant_id
+        )
         response = self._get_activity(ip, objects)
         return Response(response, status=HTTP_200_OK)
 
@@ -144,12 +174,14 @@ class SankeyApiView(APIView):
 
     def _get_sankey(self, ip, objects):
         ip_as_source = objects.filter(
-            source_ip=ip
+            source_ip__address=ip,
+            source_ip__type=False
         ).values('destination_ip').annotate(
             sent=Sum('bytes_sent')
         )
         ip_as_destination = objects.filter(
-            destination_ip=ip
+            destination_ip__address=ip,
+            destination_ip__type=False
         ).values('source_ip').annotate(
             received=Sum('bytes_received')
         )
@@ -161,9 +193,12 @@ class SankeyApiView(APIView):
         }
 
     def post(self, request, format=None):
+        tenant_id = get_tenant_id_from_token(request)
         ip = get_ip_from_request(request)
         query = get_query_from_request(request)
-        objects = get_objects_from_query(query)
+        objects = get_objects_from_query(query).filter(
+            firewall_rule__tenant__id=tenant_id
+        )
         if ip is None:
             return Response({"error": "Invalid IP"},
                             status=HTTP_422_UNPROCESSABLE_ENTITY)
@@ -175,7 +210,8 @@ class SankeyApiView(APIView):
 
 
 class TimeSeriesApiView(APIView):
-    def get(self, request, format=None):
+    def post(self, request, format=None):
+        tenant_id = get_tenant_id_from_token(request)
         ip = get_ip_from_request(request)
         query = get_query_from_request(request)
 
@@ -183,27 +219,28 @@ class TimeSeriesApiView(APIView):
             latest_date = TrafficLog.objects.latest('log_date')
             objects = groupby_date(
                 TrafficLogDetail.objects.filter(
-                    traffic_log__id=latest_date.id, source_ip=ip
+                    traffic_log__id=latest_date.id, source_ip__address=ip, firewall_rule__tenant__id=tenant_id
                 ),
                 'logged_datetime',
-                'minute',
+                'hour',
                 ['bytes_sent', 'bytes_received']
             )
         else:
-            objects = get_objects_from_query(query)
+            objects = get_objects_from_query(query).filter(
+                firewall_rule__tenant__id=tenant_id
+            )
             objects = groupby_date(
                 objects.filter(source_ip=ip),
                 'logged_datetime',
-                'minute',
+                'hour',
                 ['bytes_sent', 'bytes_received']
             )
         bytes_sent, bytes_received = get_usage(objects)
 
         return Response({
-            "n_items": len(bytes_sent),
             "bytes_sent": bytes_sent,
             "bytes_received": bytes_received,
         }, status=HTTP_200_OK)
 
-    def post(self, request, format=None):
+    def get(self, request, format=None):
         return self.get(request, format=format)
