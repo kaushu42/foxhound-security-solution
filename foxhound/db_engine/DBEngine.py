@@ -135,7 +135,7 @@ class DBEngine(object):
         except geoip2.errors.AddressNotFoundError:
             print('Not in database')
             return 'Unknown', '---'
-        return info.name, info.iso_code
+        return info.name.lower(), info.iso_code.lower()
 
     def _write_new_items_to_db(self, params):
         for v in params['vsys']:
