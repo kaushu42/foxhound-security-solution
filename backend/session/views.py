@@ -35,10 +35,15 @@ class TenantInfoApiView(APIView):
         try:
             domain_name = urlparse(domain_url).hostname.split('.')[0]
             domain = Domain.objects.get(name=domain_name)
+            name = domain.tenant.name
         except Domain.DoesNotExist as e:
-            return _ERROR_MESSAGE
-        data = DomainSerializer(domain).data
-        return Response(data)
+            return Response({
+                "error": "Domain does not exist"
+            })
+        return Response({
+            "name": name,
+            "id": domain.tenant.id
+        })
 
 
 class InfoApiView(APIView):
