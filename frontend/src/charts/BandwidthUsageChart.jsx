@@ -16,6 +16,7 @@ class BandwidthUsageChart extends Component{
     constructor(props){
         super(props);
         this.state = {
+            domain_url : window.location.href,
             loading : true,
             data : [],
             options : {
@@ -86,10 +87,11 @@ class BandwidthUsageChart extends Component{
         let headers = {
             Accept: "application/json",
             "Content-Type": "application/json",
-            Authorization: authorization
+            Authorization: authorization,
         };
 
         let bodyFormData = new FormData();
+        bodyFormData.set('domain_url', this.state.domain_url);
         bodyFormData.set('start_date', this.props.date_range[0]);
         bodyFormData.set('end_date', this.props.date_range[1]);
         bodyFormData.set('firewall_rule', this.props.firewall_rule);
@@ -155,8 +157,8 @@ class BandwidthUsageChart extends Component{
 
     updateChart = () => {
         let data = this.state.data.bytes_received;
-        console.log(data);
-        if (data!==undefined || data!==null || data!==""){
+        console.log(typeof(data));
+        if (data!=undefined){
             data = data.map(e => [new Date(e[0]),e[1]/1024/1024]);
             data.sort(function(a, b) {
                 return a[0] > b[0] ? 1 : -1;
