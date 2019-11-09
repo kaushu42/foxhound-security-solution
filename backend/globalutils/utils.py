@@ -1,5 +1,7 @@
 import datetime
 
+from rest_framework.authtoken.models import Token
+
 from django.db.models.functions import (
     TruncDay, TruncMinute, TruncMonth, TruncHour)
 from django.db.models import Sum
@@ -214,3 +216,9 @@ def get_objects_from_query(queries, model=TrafficLogDetail):
         return model.objects.filter(result)
 
     return model.objects.filter()
+
+
+def get_tenant_id_from_token(request):
+    token = request.META.get('HTTP_AUTHORIZATION').split()[1]
+    tenant_id = Token.objects.get(key=token).user.tenant.id
+    return tenant_id

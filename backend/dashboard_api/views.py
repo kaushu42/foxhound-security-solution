@@ -9,7 +9,6 @@ from django.db.models import Sum, Count
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.authtoken.models import Token
 from rest_framework.status import (
     HTTP_400_BAD_REQUEST,
     HTTP_404_NOT_FOUND,
@@ -28,7 +27,8 @@ from globalutils import (
     get_activity,
     get_usage,
     get_query_from_request,
-    get_objects_from_query
+    get_objects_from_query,
+    get_tenant_id_from_token
 )
 from serializers.serializers import (
     FilterSerializer,
@@ -38,8 +38,10 @@ from serializers.serializers import (
 
 class StatsApiView(APIView):
     def get(self, request, format=None):
+        tenant_id = get_tenant_id_from_token(request)
         query = get_query_from_request(request)
-        uplink_downlink = get_objects_from_query(query)
+        uplink_downlink = get_objects_from_query(query).filter(
+            firewall_rule__tenant__id=tenant_id)
         uplink = uplink_downlink.aggregate(
             Sum('bytes_sent')).get('bytes_sent__sum', None)
         downlink = uplink_downlink.aggregate(
@@ -68,8 +70,7 @@ def rules(request):
 
 class FiltersApiView(APIView):
     def get(self, request, format=None):
-        token = request.META.get('HTTP_AUTHORIZATION').split()[1]
-        tenant_id = Token.objects.get(key=token).user.tenant.id
+        tenant_id = get_tenant_id_from_token(request)
         objects = TrafficLogDetail.objects.filter(
             firewall_rule__tenant__id=tenant_id)
         import operator
@@ -120,6 +121,7 @@ class FiltersApiView(APIView):
 
 class UsageApiView(APIView):
     def get(self, request, format=None):
+        tenant_id = get_tenant_id_from_token(request)
         query = get_query_from_request(request)
         filter_serializer = FilterSerializer(data=request.data)
         if not filter_serializer.is_valid():
@@ -128,14 +130,16 @@ class UsageApiView(APIView):
             latest_date = TrafficLog.objects.latest('log_date')
             objects = groupby_date(
                 TrafficLogDetail.objects.filter(
-                    traffic_log__id=latest_date.id
+                    traffic_log__id=latest_date.id,
+                    firewall_rule__tenant__id=tenant_id
                 ),
                 'logged_datetime',
                 'hour',
                 ['bytes_sent', 'bytes_received']
             )
         else:
-            objects = get_objects_from_query(query)
+            objects = get_objects_from_query(query).filter(
+                firewall_rule__tenant__id=tenant_id)
             objects = groupby_date(
                 objects,
                 'logged_datetime',
@@ -156,8 +160,10 @@ class UsageApiView(APIView):
 
 class ActivityApiView(APIView):
     def get(self, request):
+        tenant_id = get_tenant_id_from_token(request)
         objects = groupby_date(
-            TrafficLogDetail.objects,
+            TrafficLogDetail.objects.filter(
+                firewall_rule__tenant__id=tenant_id),
             'logged_datetime',
             'day',
             ['bytes_sent', 'bytes_received']
@@ -177,8 +183,10 @@ class ActivityApiView(APIView):
 
 class WorldMapApiView(APIView):
     def get(self, request):
+        tenant_id = get_tenant_id_from_token(request)
         query = get_query_from_request(request)
-        objects = get_objects_from_query(query)
+        objects = get_objects_from_query(query).filter(
+            firewall_rule__tenant__id=tenant_id)
         objects = objects.values(
             'source_ip'
         ).annotate(
