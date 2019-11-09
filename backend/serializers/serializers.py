@@ -1,11 +1,10 @@
 from rest_framework import serializers
 
 from core.models import (
-    TrafficLog,
-    TrafficLogDetail,
+    TrafficLog, TrafficLogDetail,
+    Tenant, Domain,
     VirtualSystem
 )
-
 from troubleticket.models import (
     TroubleTicketAnomaly,
     TroubleTicketFollowUpAnomaly
@@ -14,10 +13,20 @@ from troubleticket.models import (
 from users.models import FoxhoundUser
 
 
+class FilterSerializer(serializers.Serializer):
+    start_date = serializers.DateField(required=False)
+    end_date = serializers.DateField(required=False)
+    firewall_rule = serializers.IntegerField(required=False)
+    application = serializers.IntegerField(required=False)
+    protocol = serializers.IntegerField(required=False)
+    source_zone = serializers.IntegerField(required=False)
+    destination_zone = serializers.IntegerField(required=False)
+
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = FoxhoundUser
-        fields = ('username', 'tenant_id', 'id')
+        fields = ('username', 'id')
 
 
 class UserNameSerializer(serializers.ModelSerializer):
@@ -34,7 +43,23 @@ class UserNameSerializer(serializers.ModelSerializer):
 class UserLoginSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
     password = serializers.CharField(required=True)
-    tenant_id = serializers.IntegerField(required=False)
+    domain_url = serializers.CharField(required=True)
+
+
+class DomainURLSerializer(serializers.Serializer):
+    domain_url = serializers.CharField(required=True)
+
+
+class DomainSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Domain
+        fields = ('id', 'name')
+
+
+class TenantSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tenant
+        fields = '__all__'
 
 
 class TrafficLogSerializer(serializers.ModelSerializer):

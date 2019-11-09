@@ -8,7 +8,7 @@ import pandas as pd
 
 import foxhound as fh
 from foxhound.db_engine.core_models import (
-    VirtualSystem, TrafficLogDetail, IPCountry
+    VirtualSystem, TrafficLogDetail
 )
 from foxhound.db_engine.troubleticket_models import (
     TroubleTicketAnomaly, TroubleTicketFollowUpAnomaly

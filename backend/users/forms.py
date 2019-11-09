@@ -14,4 +14,4 @@ class FoxhoundUserChangeForm(UserChangeForm):
 
     class Meta:
         model = FoxhoundUser
-        fields = ('username', 'email')
+        fields = ('tenant',)

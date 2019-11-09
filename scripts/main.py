@@ -1,15 +1,18 @@
 import time
 import os
 import datetime
+import re
 
 from sqlalchemy.engine import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from tqdm import tqdm
 
+import pandas as pd
+
 import foxhound as fh
 from foxhound.db_engine.core_models import (
-    VirtualSystem, TrafficLogDetail, IPCountry,
+    VirtualSystem, TrafficLogDetail, Country,
     TrafficLog
 )
 
@@ -18,8 +21,7 @@ from foxhound.ml_engine.MLEngine import MLEngine
 from foxhound.tt_engine.TTAnomaly import TTAnomaly
 
 import config
-
-import pandas as pd
+import seedutils
 
 if not os.path.exists('./GeoLite2-City.mmdb'):
     import wget
@@ -49,34 +51,7 @@ db_engine = create_engine(
 Session = sessionmaker(bind=db_engine)
 session = Session()
 
-# Seed the database
-if session.query(VirtualSystem).count() == 0:
-    vsys1 = VirtualSystem(
-        code='vsys1',
-        name='Virtual System 1',
-        domain_code='localhost1',
-        tenant_name='tenant1',
-        domain_url='localhost1'
-    )
-    vsys2 = VirtualSystem(
-        code='vsys2',
-        name='Virtual System 2',
-        domain_code='localhost2',
-        tenant_name='tenant2',
-        domain_url='localhost2'
-    )
-    vsys3 = VirtualSystem(
-        code='vsys3',
-        name='Virtual System 3',
-        domain_code='localhost3',
-        tenant_name='tenant3',
-        domain_url='localhost3'
-    )
-    session.add(vsys1)
-    session.add(vsys2)
-    session.add(vsys3)
-    session.commit()
-    session.close()
+seedutils.seed(session)
 
 pa = fh.dc_engine.PaloAltoEngine(
     config.TRAFFIC_LOGS_INPUT_DIR, config.TRAFFIC_LOGS_OUTPUT_DIR)
@@ -85,7 +60,7 @@ pa.run(verbose=True)
 db = fh.db_engine.DBEngine(config.TRAFFIC_LOGS_OUTPUT_DIR, db_engine=db_engine)
 db.run(verbose=True)
 
-if session.query(IPCountry).count() == 0:
+if session.query(Country).count() == 0:
     ips = set()
     data = session.query(TrafficLogDetail.source_ip).distinct()
     [ips.add(i.source_ip) for i in data]
@@ -93,9 +68,9 @@ if session.query(IPCountry).count() == 0:
     [ips.add(i.destination_ip) for i in data]
 
     for ip in ips:
-        if session.query(IPCountry).filter_by(ip=ip).scalar():
+        if session.query(Country).filter_by(ip=ip).scalar():
             continue
-        ip_country = IPCountry(ip=ip)
+        ip_country = Country(ip=ip)
         country_name = ''
         country_iso_code = ''
         try:

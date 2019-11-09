@@ -72,6 +72,12 @@ class TrafficLog(Base):
     __tablename__ = 'core_trafficlog'
 
     id = Column(Integer, primary_key=True)
+    tenant_id = Column(
+        ForeignKey(
+            Tenant.id,
+            ondelete='CASCADE'
+        )
+    )
     processed_datetime = Column(DateTime)
     log_date = Column(DateTime)
     log_name = Column(String)

@@ -4,89 +4,55 @@ from users.models import FoxhoundUser
 from core.models import TrafficLog
 
 
-class TroubleTicketType(models.Model):
-    ANOMALY_DETECTION = "AN"
-    RULE_BASED = "RU"
-    TROUBLE_TICKET_TYPE_CHOICES = [
-        (ANOMALY_DETECTION, 'ANOMALY'),
-        (RULE_BASED, 'RULE'),
-    ]
-    name = models.CharField(max_length=2,
-                            choices=TROUBLE_TICKET_TYPE_CHOICES)
-
-    def __str__(self):
-        return self.name
-
-    def __repr__(self):
-        return self.name
-
-
 class TroubleTicket(models.Model):
-    trouble_ticket_type = models.ForeignKey(
-        TroubleTicketType, on_delete=models.CASCADE)
+    class Meta:
+        abstract = True
+
     created_datetime = models.DateTimeField(auto_now_add=True)
-    created_by_user = models.ForeignKey(FoxhoundUser, on_delete=models.CASCADE)
     is_closed = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f'{self.trouble_ticket_type.name}-{self.created_datetime}'
-
-    def __repr__(self):
-        return self.__str__()
 
 
 class TroubleTicketFollowUp(models.Model):
-    trouble_ticket = models.ForeignKey(TroubleTicket, on_delete=models.CASCADE)
+    class Meta:
+        abstract = True
+
     follow_up_datetime = models.DateTimeField(auto_now_add=True)
     assigned_by = models.ForeignKey(
-        FoxhoundUser, on_delete=models.CASCADE, related_name='assigned_by')
+        FoxhoundUser, on_delete=models.CASCADE,
+        related_name='assigned_by', null=True
+    )
     assigned_to = models.ForeignKey(
-        FoxhoundUser, on_delete=models.CASCADE, related_name='assigned_to')
+        FoxhoundUser, on_delete=models.CASCADE,
+        related_name='assigned_to', null=True
+    )
     description = models.CharField(max_length=1000)
 
     def __str__(self):
-        return f'{self.trouble_ticket}-{self.created_datetime}-followup'
+        return f'Follow-up-{self.id}'
 
     def __repr__(self):
         return self.__str__()
 
 
-class TroubleTicketAnomaly(models.Model):
-    created_datetime = models.DateTimeField(auto_now_add=True)
-    is_closed = models.BooleanField(default=False)
-    log = models.ForeignKey(TrafficLog, on_delete=models.CASCADE)
-    log_record_number = models.IntegerField()
-    source_ip = models.CharField(max_length=15)
-    destination_ip = models.CharField(max_length=15)
-    source_port = models.IntegerField()
-    destination_port = models.IntegerField()
-    bytes_sent = models.BigIntegerField()
-    bytes_received = models.BigIntegerField()
-    application = models.CharField(max_length=50)
+class TroubleTicketAnomaly(TroubleTicket):
+    log = models.ForeignKey(
+        TrafficLog, on_delete=models.CASCADE, null=True
+    )
+    row_number = models.IntegerField()
 
     def __str__(self):
-        return f'{self.log}-{self.log_record_number}-{self.created_datetime}'
+        return f'{self.log}-{self.row_number}'
 
     def __repr__(self):
         return self.__str__()
 
 
-class TroubleTicketFollowUpAnomaly(models.Model):
+class TroubleTicketFollowUpAnomaly(TroubleTicketFollowUp):
     trouble_ticket = models.ForeignKey(
-        TroubleTicketAnomaly, on_delete=models.CASCADE)
-    follow_up_datetime = models.DateTimeField(auto_now_add=True)
-    assigned_by = models.ForeignKey(
-        FoxhoundUser, on_delete=models.CASCADE,
-        related_name='trouble_ticket_anomaly_assigned_by'
-    )
-    assigned_to = models.ForeignKey(
-        FoxhoundUser, on_delete=models.CASCADE,
-        related_name='trouble_ticket_anomaly_assigned_to'
-    )
-    description = models.CharField(max_length=1000)
+        TroubleTicketAnomaly, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
-        return f'{self.trouble_ticket}-followup'
+        return f'Anomaly-{self.trouble_ticket}-followup-{self.id}'
 
     def __repr__(self):
         return self.__str__()

@@ -1,13 +1,22 @@
+from urllib.parse import urlparse
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
-from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import AllowAny
+from rest_framework.status import (
+    HTTP_400_BAD_REQUEST,
+    HTTP_200_OK,
+)
 
-from core.models import VirtualSystem
+from core.models import Domain
 
-from serializers.serializers import VirtualSystemSerializer
+from serializers.serializers import (
+    DomainURLSerializer,
+    TenantSerializer,
+    DomainSerializer
+)
 
 from users.models import FoxhoundUser
 
@@ -16,24 +25,20 @@ class TenantInfoApiView(APIView):
     permission_classes = (AllowAny,)
 
     def post(self, request):
-        domain_url = request.data.get('domain_name')
-        domain_code = domain_url.split('//')[1].split('.')[0]
-        vsys = VirtualSystem.objects.filter(domain_code=domain_code)
-        data = VirtualSystemSerializer(vsys, many=True)
-        if not data.data:
+        domain_serializer = DomainURLSerializer(data=request.data)
+        if not domain_serializer.is_valid():
             return Response(
-                {'error': 'Invalid client'},
-                status=HTTP_400_BAD_REQUEST)
-        return Response(data.data)
-
-
-class TokenValidatorApiView(APIView):
-    def post(self, request):
-        token = request.META.get('HTTP_AUTHORIZATION').split()[1]
-        token = Token.objects.get(key=token)
-        return Response({
-            'token_is_valid': True
-        })
+                domain_serializer.errors,
+                status=HTTP_400_BAD_REQUEST
+            )
+        domain_url = domain_serializer.data['domain_url']
+        try:
+            domain_name = urlparse(domain_url).hostname.split('.')[0]
+            domain = Domain.objects.get(name=domain_name)
+        except Domain.DoesNotExist as e:
+            return _ERROR_MESSAGE
+        data = DomainSerializer(domain).data
+        return Response(data)
 
 
 class InfoApiView(APIView):
