@@ -1,8 +1,8 @@
 import React, {Component,Fragment} from 'react';
-import {Card,Statistic} from "antd";
+import {Card, Spin, Statistic} from "antd";
 import {connect} from 'react-redux';
 import axios from "axios";
-import {ROOT_URL} from "../utils";
+import {ROOT_URL} from "../../utils";
 const gridStyle = {
     width: "25%",
     textAlign: "cente r"
@@ -15,6 +15,7 @@ class DashboardStats extends Component {
     constructor(props){
         super(props);
         this.state = {
+            loading : true,
             uplink : 0,
             downlink : 0,
             opened_tt : 0,
@@ -23,13 +24,12 @@ class DashboardStats extends Component {
     }
 
     componentDidMount() {
+        this.setState({loading:true});
         this.fetchDashboardStats();
+
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if (String(prevProps.date_range[1]) !== String(this.props.date_range[1])){
-            this.fetchDashboardStats();
-        }
         if (
             (String(prevProps.date_range[0]) !== String(this.props.date_range[0])) ||
             (String(prevProps.date_range[1]) !== String(this.props.date_range[1])) ||
@@ -39,7 +39,9 @@ class DashboardStats extends Component {
             (String(prevProps.source_zone) !== String(this.props.source_zone)) ||
             (String(prevProps.destination_zone) !== String(this.props.destination_zone))
         ){
+            this.setState({loading:true});
             this.fetchDashboardStats();
+
         }
     }
 
@@ -66,7 +68,8 @@ class DashboardStats extends Component {
                     uplink :  parseInt((data.uplink /(1024*1024))),
                     downlink : parseInt(data.downlink /(1024*1024)),
                     opened_tt : data.opened_tt
-                })
+                });
+                this.setState({loading:false});
             })
             .catch((error) => console.log(error))
     }
@@ -78,18 +81,20 @@ class DashboardStats extends Component {
         return(
             <Fragment>
                 <Card>
-                    <Card.Grid style={gridStyle}>
-                        <Statistic title="Uplink" value={uplink} />
-                    </Card.Grid>
-                    <Card.Grid style={gridStyle}>
-                        <Statistic title="Downlink" value={downlink} />
-                    </Card.Grid>
-                    <Card.Grid style={gridStyle}>
-                        <Statistic title="Opened TT" value={this.state.opened_tt} />
-                    </Card.Grid>
-                    <Card.Grid style={gridStyle}>
-                        <Statistic title="New Rules" value={this.state.new_rules} />
-                    </Card.Grid>
+                    <Spin tip={"loading..."} spinning={true}>
+                        <Card.Grid style={gridStyle}>
+                            <Statistic title="Uplink" value={uplink} />
+                        </Card.Grid>
+                        <Card.Grid style={gridStyle}>
+                            <Statistic title="Downlink" value={downlink} />
+                        </Card.Grid>
+                        <Card.Grid style={gridStyle}>
+                            <Statistic title="Opened TT" value={this.state.opened_tt} />
+                        </Card.Grid>
+                        <Card.Grid style={gridStyle}>
+                            <Statistic title="New Rules" value={this.state.new_rules} />
+                        </Card.Grid>
+                    </Spin>
                 </Card>
             </Fragment>
         )

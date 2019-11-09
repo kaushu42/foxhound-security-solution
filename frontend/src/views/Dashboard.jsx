@@ -4,7 +4,7 @@ import MasterLayout from "./layout/MasterLayout";
 import {Card, Col, PageHeader, Row} from "antd";
 import Filter from "../components/Filter";
 import {contentLayout} from "../utils";
-import DashboardStats from "../components/DashboardStats";
+import DashboardStats from "../components/stats/DashboardStats";
 import RequestOriginChart from "../components/charts/RequestOriginChart";
 import BandwidthUsageChart from "../charts/BandwidthUsageChart";
 import AnomalyBasedTroubleTicketTable from "../components/AnomalyBasedTroubleTicketTable";
@@ -40,7 +40,9 @@ class Dashboard extends Component{
                     <Row style={contentLayout}>
                     </Row>
                     <Row style={contentLayout}>
-                        <AnomalyBasedTroubleTicketTable />
+                        <Card title={"PCA Based Anomaly Trouble Tickets"}>
+                            <AnomalyBasedTroubleTicketTable />
+                        </Card>
                     </Row>
 
                 </MasterLayout>

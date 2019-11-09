@@ -9,7 +9,7 @@ import {ROOT_URL} from "../../utils";
 const  LOGIN_API = `${ROOT_URL}users/login/`;
 
 
-const SEND_DOMAIN_NAME_API = `${ROOT_URL}session/tenant_info/`;
+const SEND_DOMAIN_NAME_API = `${ROOT_URL}session/tenant/`;
 
 class Login extends Component {
 
@@ -34,15 +34,15 @@ class Login extends Component {
         };
 
         const data  =  {
-            domain_name : this.state.domain_url
+            domain_url : this.state.domain_url
         }
 
         axios.post(SEND_DOMAIN_NAME_API,data,{headers})
             .then(res => {
                 const data = res.data;
-                console.log('data tenant',data[0].tenant_name)
+                console.log('data tenant',data.name)
                 this.setState({
-                    tenant_name : data[0].tenant_name
+                    tenant_name : data.name
                 });
             });
     }
@@ -60,7 +60,7 @@ class Login extends Component {
         this.authenticateUser(username,password,domain_name);
     }
 
-    authenticateUser(username,password,domain_name){
+    authenticateUser(username,password,domain_url){
         let headers = {
             Accept: "application/json",
             "Content-Type": "application/json"
@@ -69,7 +69,7 @@ class Login extends Component {
         const data  =  {
             username : username,
             password : password,
-            domain_name : domain_name
+            domain_url : domain_url
         }
 
         axios.post(LOGIN_API, data,{

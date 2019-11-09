@@ -155,30 +155,31 @@ class BandwidthUsageChart extends Component{
 
     updateChart = () => {
         let data = this.state.data.bytes_received;
-
-        data = data.map(e => [new Date(e[0]),e[1]/1024/1024]);
-        data.sort(function(a, b) {
-            return a[0] > b[0] ? 1 : -1;
-        });
-        console.log('final data',data);
-        this.chart.update({
-            xAxis : {
-                type:'datetime',
-                categories : data.map(e => moment(new Date(e[0])).format("MM/DD/YYYY hh:mm"))
-            },
-            series: [
-                {
-                    id: 'bytes',
-                    type: 'spline',
-                    name : 'Bytes Received(MB)',
-                    data: data.map(e => e[1])
-                }
-            ]
-        });
-        this.setState({
-            loading : false
-        });
-
+        console.log(data);
+        if (data!==undefined || data!==null || data!==""){
+            data = data.map(e => [new Date(e[0]),e[1]/1024/1024]);
+            data.sort(function(a, b) {
+                return a[0] > b[0] ? 1 : -1;
+            });
+            console.log('final data',data);
+            this.chart.update({
+                xAxis : {
+                    type:'datetime',
+                    categories : data.map(e => moment(new Date(e[0])).format("MM/DD/YYYY hh:mm"))
+                },
+                series: [
+                    {
+                        id: 'bytes',
+                        type: 'spline',
+                        name : 'Bytes Received(MB)',
+                        data: data.map(e => e[1])
+                    }
+                ]
+            });
+            this.setState({
+                loading : false
+            });
+        }
     }
 
 
