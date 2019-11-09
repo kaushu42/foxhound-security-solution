@@ -12,12 +12,10 @@ export const filterSelectDataServiceAsync = (auth_token) => {
     Authorization: authorization
   };
 
-  let bodyFormData = new FormData();
-  bodyFormData.set('domain_url');
 
   return axios.post(
     FETCH_API,
-    bodyFormData,
+      null,
     {
       headers: headers
     }

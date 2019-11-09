@@ -10,7 +10,7 @@ function AuthenticatedRoute ({component: Component, auth_token, ...rest}) {
 
             render={(props) => auth_token!==null
                 ? <Component {...props}/>
-                : <Component {...props}/>}//<Redirect to={{pathname: '/auth/login', state: {from: props.location}}} />}
+                : <Redirect to={{pathname: '/auth/login', state: {from: props.location}}} />}
         />
     )
 }
