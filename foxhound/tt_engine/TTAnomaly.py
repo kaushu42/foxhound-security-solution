@@ -74,14 +74,15 @@ class TTAnomaly:
             code=vsys_name)[0]
         return vsys
 
-    def _get_traffic_log(self, vsys, params):
+    def _get_traffic_log(self, params):
         log_name = params['log_name']
         traffic_log = self._SESSION.query(TrafficLog).filter_by(
             log_name=log_name,
-            virtual_system_id=vsys.id
         )
-        if traffic_log.count() != 1:
-            raise Exception("Only 1 object must have been returned")
+        # if traffic_log.count() != 1:
+        #     raise Exception("Only 1 object must have been returned")
+        if traffic_log.count() == 0:
+            raise Exception("No logs")
         traffic_log = traffic_log[0]
         return traffic_log
 
@@ -90,14 +91,7 @@ class TTAnomaly:
             created_datetime=params['now'],
             is_closed=False,
             log_id=log.id,
-            source_ip=params['source_ip'],
-            destination_ip=params['destination_ip'],
-            log_record_number=params['log_record_number'],
-            source_port=params['source_port'],
-            destination_port=params['destination_port'],
-            bytes_sent=params['bytes_sent'],
-            bytes_received=params['bytes_received'],
-            application=params['application']
+            row_number=params['log_record_number']
         )
         return tt
 
@@ -119,8 +113,7 @@ class TTAnomaly:
 
             for row in tqdm(data.iterrows()):
                 params = self._get_params(row)
-                vsys = self._get_virtual_system(params)
-                traffic_log = self._get_traffic_log(vsys, params)
+                traffic_log = self._get_traffic_log(params)
                 tt = self._get_trouble_ticket(traffic_log, params)
                 self._SESSION.add(tt)
                 self._SESSION.flush()

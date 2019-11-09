@@ -85,17 +85,7 @@ class TroubleTicketAnomalySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TroubleTicketAnomaly
-        fields = (
-            'id',
-            'source_ip',
-            'destination_ip',
-            'log',
-            'source_port',
-            'destination_port',
-            'application',
-            'bytes_sent',
-            'bytes_received'
-        )
+        fields = '__all__'
 
 
 class TroubleTicketFollowUpAnomalySerializer(serializers.ModelSerializer):

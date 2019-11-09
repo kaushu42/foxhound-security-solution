@@ -3,7 +3,12 @@ import json
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK, HTTP_406_NOT_ACCEPTABLE
+from rest_framework.authtoken.models import Token
+from rest_framework.status import (
+    HTTP_200_OK,
+    HTTP_400_BAD_REQUEST
+)
+
 from users.models import FoxhoundUser
 
 from troubleticket.models import (
@@ -87,6 +92,6 @@ class TroubleTicketUsersApiView(APIView):
         token = request.META.get('HTTP_AUTHORIZATION').split()[1]
         tenant_id = Token.objects.get(key=token).user.tenant_id
 
-        response = UserNameSerializer(User.objects.filter(
+        response = UserNameSerializer(FoxhoundUser.objects.filter(
             tenant_id=tenant_id), many=True).data
         return Response(response)
