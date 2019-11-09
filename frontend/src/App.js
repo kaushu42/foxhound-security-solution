@@ -4,11 +4,12 @@ import "antd/dist/antd.css";
 import Login from "./views/auth/Login";
 import AuthenticatedRoute from "./providers/AuthenticatedRoute";
 import { connect } from "react-redux";
-import IpAddressProfile from "./views/IpAddressProfile";
+import IpAddressProfile from "./views/Ip";
 import Logout from "./views/auth/Logout";
 import Dashboard from "./views/Dashboard";
 import Test from "./views/Test";
 import "./App.css";
+import ProcessedLogs from "./views/ProcessedLogs";
 
 class App extends Component {
   render() {
@@ -29,6 +30,7 @@ class App extends Component {
             path="/ip"
             component={IpAddressProfile}
           />
+          <AuthenticatedRoute path="/logs" component={ProcessedLogs} />
         </Switch>
       </BrowserRouter>
     );

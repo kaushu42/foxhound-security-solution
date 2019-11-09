@@ -7,13 +7,11 @@ import IpSearchBar from "../components/IpSearchBar";
 import IpUsageAverageDailyTrendChart from "../components/IpUsageAverageLineChart";
 import IpUsageTimeSeriesChart from "../components/IpUsageTimeSeriesChart";
 import SankeyChart from "../charts/SankeyChart";
-import CalendarChart from "../charts/CalendarChart";
 import {contentLayout} from "../utils";
 import IpProfileStats from "../components/IpProfileStats";
 import HeatMap from "../charts/HeatMap";
-//https://react-google-charts.com/
 
-class IpAddressProfile extends Component{
+class Ip extends Component{
     render(){
         return(
             <Fragment>
@@ -66,4 +64,4 @@ const mapDispatchToProps = dispatch => {
 
     }
 }
-export default connect(mapStateToProps,mapDispatchToProps)(IpAddressProfile);
+export default connect(mapStateToProps,mapDispatchToProps)(Ip);

@@ -124,8 +124,8 @@ class UsageApiView(APIView):
         tenant_id = get_tenant_id_from_token(request)
         query = get_query_from_request(request)
         filter_serializer = FilterSerializer(data=request.data)
-        if not filter_serializer.is_valid():
-            return Response({"error": "filter error"})
+        # if not filter_serializer.is_valid():
+        #     return Response({"error": "filter error"})
         if not query:
             latest_date = TrafficLog.objects.latest('log_date')
             objects = groupby_date(
