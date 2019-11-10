@@ -1,6 +1,6 @@
 import React, {Component, Fragment} from 'react';
 import HighchartsReact from "highcharts-react-official";
-import { Card, Select} from "antd";
+import { Card, Select, Spin} from "antd";
 import {connect} from "react-redux";
 import axios from "axios";
 import {ROOT_URL} from "../../utils";
@@ -51,6 +51,13 @@ class TopSourceAddressChart extends Component {
         var bodyFormData = new FormData();
         bodyFormData.set('topcount', this.state.top_count);
         bodyFormData.set('basis', this.state.basis);
+        bodyFormData.set('start_date', this.props.date_range[0]);
+        bodyFormData.set('end_date', this.props.date_range[1]);
+        bodyFormData.set('firewall_rule', this.props.firewall_rule);
+        bodyFormData.set('application', this.props.application);
+        bodyFormData.set('protocol', this.props.protocol);
+        bodyFormData.set('source_zone', this.props.source_zone);
+        bodyFormData.set('destination_zone', this.props.destination_zone);
 
         axios.post(FETCH_API,bodyFormData,{headers}).
         then(res => {
@@ -90,7 +97,6 @@ class TopSourceAddressChart extends Component {
         if (
             (String(prevState.top_count)!==String(this.state.top_count)) ||
             (String(prevState.basis)!==String(this.state.basis)) ||
-
             (String(prevProps.ip_address)!==String(this.props.ip_address)) ||
             (String(prevProps.date_range[0])!==String(this.props.date_range[0])) ||
             (String(prevProps.date_range[1])!==String(this.props.date_range[1])) ||
@@ -106,6 +112,7 @@ class TopSourceAddressChart extends Component {
             this.updateChart();
         }
     }
+
     updateChart = () => {
         this.chart.update({
             series: [{
@@ -200,7 +207,6 @@ class TopSourceAddressChart extends Component {
                                 </Select>
                                 <Select
                                     onChange={(value) => this.setState({basis:value})}
-
                                     size={'default'}
                                     style={{width:'50%',paddingRight:10,paddingLeft:10}}
                                     defaultValue={'BytesReceived'}>
@@ -212,13 +218,15 @@ class TopSourceAddressChart extends Component {
                                 </Select>
                             </div>
                         </Fragment>
-                    }>
+                    }>  
+                        <Spin spinning = {this.state.loading}>
                         <HighchartsReact
                             highcharts={Highcharts}
                             allowChartUpdate={false}
                             ref = {'chart'}
                             options = {options}
                         />
+                        </Spin>
                     </Card>
                 </div>
             </Fragment>
