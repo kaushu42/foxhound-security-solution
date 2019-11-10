@@ -40,11 +40,13 @@ class StatsApiView(APIView):
         uplink = uplink.aggregate(Sum('bytes_sent')).get(
             'bytes_sent__sum', None)
         downlink = objects.filter(
-            source_ip__address=ip,
+            destination_ip__address=ip,
             source_ip__type=True
         )
-        downlink = objects.aggregate(Sum('bytes_received')).get(
-            'bytes_received__sum', None)
+        downlink = downlink.aggregate(
+            Sum('bytes_received')).get(
+            'bytes_received__sum', None
+        )
 
         return {
             "uplink": uplink,
@@ -159,7 +161,7 @@ class SankeyApiView(APIView):
     def _get_destination_data(self, ip, ip_as_destination):
         ip_data = []
         for i in ip_as_destination:
-            source = i['source_ip']
+            source = i['source_ip__address']
             weights = i['received']
             ip_data.append([source, ip, weights])
         return ip_data
@@ -167,7 +169,7 @@ class SankeyApiView(APIView):
     def _get_source_data(self, ip, ip_as_source):
         ip_data = []
         for i in ip_as_source:
-            source = i['destination_ip']
+            source = i['destination_ip__address']
             weights = i['sent']
             ip_data.append([ip, source, weights])
         return ip_data
@@ -176,13 +178,13 @@ class SankeyApiView(APIView):
         ip_as_source = objects.filter(
             source_ip__address=ip,
             source_ip__type=False
-        ).values('destination_ip').annotate(
+        ).values('destination_ip__address').annotate(
             sent=Sum('bytes_sent')
         )
         ip_as_destination = objects.filter(
             destination_ip__address=ip,
             destination_ip__type=False
-        ).values('source_ip').annotate(
+        ).values('source_ip__address').annotate(
             received=Sum('bytes_received')
         )
         destination_data = self._get_destination_data(ip, ip_as_destination)
@@ -200,8 +202,11 @@ class SankeyApiView(APIView):
             firewall_rule__tenant__id=tenant_id
         )
         if ip is None:
-            return Response({"error": "Invalid IP"},
-                            status=HTTP_422_UNPROCESSABLE_ENTITY)
+            return Response({
+                "ip_as_source": [],
+                "ip_as_destination": []
+            },
+                status=HTTP_422_UNPROCESSABLE_ENTITY)
         response = self._get_sankey(ip, objects)
         return Response(response, status=HTTP_200_OK)
 
