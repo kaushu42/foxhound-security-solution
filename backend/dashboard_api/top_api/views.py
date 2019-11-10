@@ -8,7 +8,9 @@ from core.models import (
 )
 
 from globalutils.utils import (
-    get_tenant_id_from_token
+    get_tenant_id_from_token,
+    get_query_from_request,
+    get_objects_from_query
 )
 
 from rest_framework import serializers
@@ -40,7 +42,8 @@ class SourceAddressApiView(APIView):
     def get(self, request):
         tenant_id = get_tenant_id_from_token(request)
         topcount, basis = get_topcount_basis(request)
-        objects = TrafficLogDetail.objects.filter(
+        query = get_query_from_request(request)
+        objects = get_objects_from_query(query).filter(
             firewall_rule__tenant__id=tenant_id,
             source_ip__type=False
         ).values('source_ip__address').annotate(
@@ -59,15 +62,16 @@ class DestinationAddressApiView(APIView):
     def get(self, request):
         tenant_id = get_tenant_id_from_token(request)
         topcount, basis = get_topcount_basis(request)
-        objects = TrafficLogDetail.objects.filter(
+        query = get_query_from_request(request)
+        objects = get_objects_from_query(query).filter(
             firewall_rule__tenant__id=tenant_id,
             source_ip__type=False
-        ).values('destination_ip__address').annotate(
+        ).values('source_ip__address').annotate(
             data=Sum(basis)
         ).order_by('-data')
         response = []
         for data in objects[:topcount]:
-            response.append([data['destination_ip__address'], data['data']])
+            response.append([data['source_ip__address'], data['data']])
         return Response({"data": response})
 
     def post(self, request):
@@ -78,7 +82,8 @@ class ApplicationApiView(APIView):
     def get(self, request):
         tenant_id = get_tenant_id_from_token(request)
         topcount, basis = get_topcount_basis(request)
-        objects = TrafficLogDetail.objects.filter(
+        query = get_query_from_request(request)
+        objects = get_objects_from_query(query).filter(
             firewall_rule__tenant__id=tenant_id,
         ).values('application__name').annotate(
             data=Sum(basis)
@@ -96,7 +101,8 @@ class PortApiView(APIView):
     def get(self, request):
         tenant_id = get_tenant_id_from_token(request)
         topcount, basis = get_topcount_basis(request)
-        objects = TrafficLogDetail.objects.filter(
+        query = get_query_from_request(request)
+        objects = get_objects_from_query(query).filter(
             firewall_rule__tenant__id=tenant_id,
         ).values('destination_port').annotate(
             data=Sum(basis)
