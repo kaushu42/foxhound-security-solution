@@ -1,6 +1,8 @@
 import json
 from collections import defaultdict, OrderedDict
 
+import ipaddress
+
 from django.db.models.functions import TruncDay, TruncMonth, TruncHour
 from django.db.models import Sum, Count, Avg
 
@@ -31,6 +33,12 @@ from globalutils import (
 from .utils import get_ip_from_request, get_filters
 
 
+def get_ip_type(ip):
+    if not ip:
+        return None
+    return "Private" if ipaddress.ip_address(ip).is_private else "Public"
+
+
 class StatsApiView(APIView):
     def _get_stats(self, ip, objects):
         uplink = objects.filter(
@@ -53,6 +61,7 @@ class StatsApiView(APIView):
             "downlink": downlink,
             "ip_address": ip,
             "alias_name": ip,
+            "address_type": get_ip_type(ip)
         }
 
     def post(self, request, format=None):
