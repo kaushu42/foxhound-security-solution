@@ -9,8 +9,8 @@ import {Col, PageHeader, Row} from "antd";
 //--components
 import Filter from "../components/Filter";
 import IpSearchBar from "../components/IpSearchBar";
-import IpUsageAverageDailyTrendChart from "../components/IpUsageAverageLineChart";
-import IpUsageTimeSeriesChart from "../components/IpUsageTimeSeriesChart";
+import IpUsageAverageDailyTrendChart from "../components/charts/IpUsageAverageLineChart";
+import IpUsageTimeSeriesChart from "../components/charts/IpUsageTimeSeriesChart";
 import IpProfileStats from "../components/stats/IpProfileStats";
 import IpAsSourceSankeyChart from "../components/charts/IpAsSourceSankeyChart";
 import IpAsDestinationSankeyChart from "../components/charts/IpAsDestinationSankeyChart";

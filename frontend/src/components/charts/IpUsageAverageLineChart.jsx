@@ -1,11 +1,11 @@
 import React, {Component, Fragment} from "react";
-import {ipUsageAverageTrendDataService} from "../services/ipUsageAverageTrendService";
+import {ipUsageAverageTrendDataService} from "../../services/ipUsageAverageTrendService";
 import {connect} from "react-redux";
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import NoDataToDisplay from 'highcharts/modules/no-data-to-display';
 NoDataToDisplay(Highcharts);
-import '../charts/chart.css';
+import '../../charts/chart.css';
 import {Card, Spin} from "antd";
 
 class IpUsageAverageDailyTrendChart extends Component {
@@ -21,6 +21,13 @@ class IpUsageAverageDailyTrendChart extends Component {
                 },
                 xAxis: {
                     type: 'string'
+                },
+                yAxis:{
+                    labels :{
+                        formatter: function () {
+                            return this.value + ' MB';
+                        }
+                    }
                 },
                 title: {
                     text: `Average Daily Trend for Bytes Received of ${this.props.ip_address}`
@@ -53,7 +60,7 @@ class IpUsageAverageDailyTrendChart extends Component {
         });
 
         const {auth_token,ip_address} = this.props;
-        ipUsageAverageTrendDataService(auth_token,ip_address).then(res => {
+        ipUsageAverageTrendDataService(auth_token,ip_address,this.props).then(res => {
             console.log('fetching data for ip',ip_address)
             const data = res.data;
             this.setState({
@@ -112,6 +119,9 @@ class IpUsageAverageDailyTrendChart extends Component {
                     noData: 'No data is available in the chart'
                 }
             });
+            this.chart.update({
+                series : []
+            })
         }
         bytesReceived.sort(function(a, b) {
             return a[0] > b[0] ? 1 : -1;
@@ -129,7 +139,7 @@ class IpUsageAverageDailyTrendChart extends Component {
                 {
                     name : 'Bytes Received',
                     type : 'spline',
-                    data : bytesReceived.map(d=> d[1])
+                    data : bytesReceived.map(d=> d[1]/1024/1024)
                 }
             ]
         })

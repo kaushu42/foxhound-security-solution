@@ -2,11 +2,11 @@ import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
-import '../charts/chart.css';
+import '../../charts/chart.css';
 import {Card, Spin} from "antd";
-import {ipUsageDataService} from "../services/ipUsageService";
 import moment from "moment";
 import NoDataToDisplay from 'highcharts/modules/no-data-to-display';
+import {ipUsageDataService} from "../../services/ipUsageService";
 NoDataToDisplay(Highcharts);
 
 class IpUsageTimeSeriesChart extends Component {
@@ -127,6 +127,9 @@ class IpUsageTimeSeriesChart extends Component {
           noData: 'No data is available in the chart'
         }
       });
+      this.chart.update({
+        series: []
+      });
     }
     else if (bytesReceived == undefined){
       Highcharts.setOptions({
@@ -134,6 +137,10 @@ class IpUsageTimeSeriesChart extends Component {
           noData: 'No data is available in the chart'
         }
       });
+      this.chart.update({
+        series: []
+      });
+
     }
     else {
       console.log(new Date(bytesReceived[0][0]));

@@ -63,7 +63,7 @@ class IpProfileStats extends Component {
     }
 
     render() {
-         const { uplink,downlink,ip_address,alias_name} = this.state.data;
+         const { uplink,downlink,ip_address,alias_name,ip_address_type} = this.state.data;
         return(
             <Fragment>
                 <Row type="flex" style={{paddingTop:24}}>
@@ -100,7 +100,7 @@ class IpProfileStats extends Component {
                     />
                     <Statistic
                         title="Ip Type (Ex)"
-                        value={"Private"}
+                        value={ip_address_type}
                         style={{
                             margin: '0 20px',
                         }}

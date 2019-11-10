@@ -1,11 +1,11 @@
 import React, {Component, Fragment} from 'react';
 import HighchartsReact from "highcharts-react-official";
 import { Card, Select} from "antd";
+import {connect} from "react-redux";
 const { Option } = Select;
 
 
-
-class Test extends Component {
+class TopSourceAddressChart extends Component {
 
     constructor(props) {
         super(props);
@@ -22,16 +22,16 @@ class Test extends Component {
                 type: 'column'
             },
             title: {
-                text: 'Top 10 Source Address on the basis of Bytes Received'
-            },
-            subtitle: {
-                text: 'Source: <a href="#">Sunrise Bank Pvt Ltd</a>'
+                text: 'Top Source Address | Bytes Received',
+                style : {
+                    fontSize: '15px'
+                }
             },
             xAxis: {
                 type: 'category',
                 labels: {
                     style: {
-                        fontSize: '12px',
+                        fontSize: '10px',
                         fontFamily: 'Verdana, sans-serif'
                     }
                 }
@@ -43,13 +43,13 @@ class Test extends Component {
                 }
             },
             legend: {
-                enabled: false
+                enabled: true
             },
             tooltip: {
                 pointFormat: 'Bytes Received: <b>{point.y:.1f} MB</b>'
             },
             series: [{
-                name: 'Population',
+                name: 'Source Address',
                 data: [
                     ['192.168.10.10', 242000],
                     ['192.168.114.4', 208000],
@@ -70,7 +70,7 @@ class Test extends Component {
                     format: '{point.y:.1f}', // one decimal
                     y: 10, // 10 pixels down from the top
                     style: {
-                        fontSize: '12px',
+                        fontSize: '10px',
                         fontFamily: 'Verdana, sans-serif'
                     }
                 }
@@ -81,25 +81,26 @@ class Test extends Component {
                 <div>
                     <Card title={
                         <Fragment>
-                            <span style={{}}>Top Source Address</span>
-                            <Select
-                                size={'large'}
-                                style={{width:'200px',float:'right',paddingRight:10,paddingLeft:10}}
-                                defaultValue={"10"}>
+                            <div>
+                                <Select
+                                    size={'default'}
+                                    style={{width:'50%',paddingRight:10,paddingLeft:10}}
+                                    defaultValue={"10"}>
+                                    <Option key="5">Top 5</Option>
                                     <Option key="10">Top 10</Option>
                                     <Option key="15">Top 15</Option>
-                                    <Option key="20">Top 20</Option>
-                            </Select>
-                            <Select
-                                size={'large'}
-                                style={{width:'200px',float:'right',paddingRight:10,paddingLeft:10}}
-                                defaultValue={'BytesReceived'}>
+                                </Select>
+                                <Select
+                                    size={'default'}
+                                    style={{width:'50%',paddingRight:10,paddingLeft:10}}
+                                    defaultValue={'BytesReceived'}>
                                     <Option key={'BytesSent'}>Bytes Sent</Option>
                                     <Option key={'BytesReceived'}>Bytes Received</Option>
                                     <Option key={'PacketsSent'}>Packets Sent</Option>
                                     <Option key={'PacketsReceived'}>Packets Received</Option>
                                     <Option key={'RepeatCount'}>Repeat Count</Option>
-                            </Select>
+                                </Select>
+                            </div>
                         </Fragment>
                     }>
                         <HighchartsReact
@@ -115,4 +116,11 @@ class Test extends Component {
     }
 }
 
-export default Test;
+
+const mapStateToProps = state => {
+    return {
+        auth_token : state.auth.auth_token
+    }
+}
+
+export default connect(mapStateToProps,null)(TopSourceAddressChart);

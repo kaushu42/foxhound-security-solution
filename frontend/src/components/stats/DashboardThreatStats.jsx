@@ -3,14 +3,16 @@
 // import {connect} from 'react-redux';
 // import axios from "axios";
 // import {ROOT_URL} from "../../utils";
+//
 // const gridStyle = {
 //     width: "25%",
-//     textAlign: "cente r"
+//     textAlign: "center",
+//     backgroundColor : "#f94f4f"
 // };
 //
 // const FETCH_API = `${ROOT_URL}dashboard/stats/`;
 //
-// class DashboardStats extends Component {
+// class DashboardThreatStats extends Component {
 //
 //     constructor(props){
 //         super(props);
@@ -78,17 +80,17 @@
 //         return(
 //             <Fragment>
 //                 <Spin tip={"loading..."} spinning={this.state.loading}>
-//                     <Card.Grid style={gridStyle}>
-//                         <Statistic title="Uplink" value={uplink} />
+//                     <Card.Grid style={gridStyle} >
+//                         <Statistic title="Total Threat Count Event" value={"24"} />
 //                     </Card.Grid>
 //                     <Card.Grid style={gridStyle}>
-//                         <Statistic title="Downlink" value={downlink} />
+//                         <Statistic title="Total Threat Originating IP Count" value={<Fragment><p>192.168.10</p><p></p>} />
 //                     </Card.Grid>
 //                     <Card.Grid style={gridStyle}>
-//                         <Statistic title="Opened TT" value={this.state.opened_tt} />
+//                         <Statistic title="total Top Threat Categories Count" value={this.state.opened_tt} />
 //                     </Card.Grid>
 //                     <Card.Grid style={gridStyle}>
-//                         <Statistic title="New Rules" value={this.state.new_rules} />
+//                         <Statistic title="Top Threat Originating Country" value={this.state.new_rules} />
 //                     </Card.Grid>
 //                 </Spin>
 //             </Fragment>
@@ -108,5 +110,5 @@
 //         destination_zone : state.filter.destination_zone
 //     }
 // }
-// export default connect(mapStateToProps,null)(DashboardStats);
+// export default connect(mapStateToProps,null)(DashboardThreatStats);
 //

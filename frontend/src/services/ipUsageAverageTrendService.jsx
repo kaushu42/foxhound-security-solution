@@ -3,7 +3,7 @@ import axios from "axios";
 
 const FETCH_API = `${ROOT_URL}profile/average-daily/`;
 
-export const ipUsageAverageTrendDataService = (auth_token,ip_address) => {
+export const ipUsageAverageTrendDataService = (auth_token,ip_address,props) => {
     const authorization = `Token ${auth_token}`;
 
     let headers = {
@@ -13,8 +13,13 @@ export const ipUsageAverageTrendDataService = (auth_token,ip_address) => {
     };
 
     let bodyFormData = new FormData();
-    bodyFormData.set('ip', ip_address);
-
+    bodyFormData.set('ip', props.ip_address);
+    bodyFormData.set('start_date', props.date_range[0]);
+    bodyFormData.set('end_date', props.date_range[1]);
+    bodyFormData.set('firewall_rule', props.firewall_rule);
+    bodyFormData.set('application', props.application);
+    bodyFormData.set('protocol', props.protocol);
+    bodyFormData.set('source_zone', props.source_zone);
     return axios.post(
         FETCH_API,
         bodyFormData,

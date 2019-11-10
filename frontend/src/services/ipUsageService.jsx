@@ -22,7 +22,6 @@ export const ipUsageDataService = (auth_token,ip_address,props) => {
     bodyFormData.set('source_zone', props.source_zone);
     bodyFormData.set('destination_zone', props.destination_zone);
 
-
     return axios.post(
         FETCH_API,
         bodyFormData,

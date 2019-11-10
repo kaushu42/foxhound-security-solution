@@ -126,7 +126,7 @@ class IpAsDestinationSankeyChart extends Component {
 
 
     updateChart = () => {
-        const data = this.state.data.ip_as_source;
+        const data = this.state.data.ip_as_destination;
         data.sort(function(a, b) {
             return a[2] < b[2] ? 1 : -1;
         });

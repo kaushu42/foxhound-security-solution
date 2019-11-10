@@ -9,15 +9,12 @@ class IpSearchBar extends Component {
 
     constructor(props){
         super(props);
-        this.state = {
-            ip_address : this.props.ip_address
-        }
     }
 
     render() {
         return (
             <Fragment>
-                {this.state.ip_address ? "" : <p style={{color:'red'}}> Please select or enter an IP address</p>}
+                {this.props.ip_address ? "" : <p style={{color:'red'}}> Please select or enter an IP address</p>}
                 <Search
                     placeholder="input IP address"
                     enterButton="Search"
