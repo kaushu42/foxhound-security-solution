@@ -61,7 +61,7 @@ class StatsApiView(APIView):
             "downlink": downlink,
             "ip_address": ip,
             "alias_name": ip,
-            "address_type": get_ip_type(ip)
+            "ip_address_type": get_ip_type(ip)
         }
 
     def post(self, request, format=None):
@@ -233,7 +233,10 @@ class TimeSeriesApiView(APIView):
             latest_date = TrafficLog.objects.latest('log_date')
             objects = groupby_date(
                 TrafficLogDetail.objects.filter(
-                    traffic_log__id=latest_date.id, source_ip__address=ip, firewall_rule__tenant__id=tenant_id
+                    traffic_log__id=latest_date.id,
+                    source_ip__address=ip,
+                    source_ip__type=False,
+                    firewall_rule__tenant__id=tenant_id
                 ),
                 'logged_datetime',
                 'hour',
@@ -244,7 +247,8 @@ class TimeSeriesApiView(APIView):
                 firewall_rule__tenant__id=tenant_id
             )
             objects = groupby_date(
-                objects.filter(source_ip=ip),
+                objects.filter(source_ip__address=ip,
+                               source_ip__type=False),
                 'logged_datetime',
                 'hour',
                 ['bytes_sent', 'bytes_received']

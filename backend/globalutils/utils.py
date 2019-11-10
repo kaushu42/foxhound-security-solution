@@ -57,11 +57,11 @@ def get_activity(queryset):
         day = obj['date'].date()
         activity_bytes_sent.append({
             "day": day,
-            "value": format(obj['bytes_sent']/(1024*1024), '.2f')
+            "value": obj['bytes_sent']
         })
         activity_bytes_received.append({
             "day": day,
-            "value": format(obj['bytes_received']/(1024*1024), '.2f')
+            "value": obj['bytes_received']
         })
 
     return activity_bytes_sent, activity_bytes_received
