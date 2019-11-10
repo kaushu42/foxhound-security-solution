@@ -2,19 +2,135 @@ import React, {Component, Fragment} from 'react';
 import HighchartsReact from "highcharts-react-official";
 import { Card, Select} from "antd";
 import {connect} from "react-redux";
+import axios from "axios";
+import {ROOT_URL} from "../../utils";
+import Highcharts from "highcharts";
 const { Option } = Select;
 
+
+const FETCH_API = `${ROOT_URL}dashboard/top/source-address/`;
 
 class TopSourceAddressChart extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { seconds: 0 };
-    }
-    componentDidMount = () => {
-        this.chart = this.refs.chart.chart;
+        this.state = {
+            seconds: 0,
+            loading : true,
+            data : [],
+            top_count: 10,
+            basis : 'bytes_received'
+        };
     }
 
+    componentDidMount = async () => {
+        this.handleFetchData();
+        this.chart = this.refs.chart.chart;
+        this.chart.component = this;
+        if (document.addEventListener) {
+            document.addEventListener('webkitfullscreenchange', this.exitHandler, false);
+            document.addEventListener('mozfullscreenchange', this.exitHandler, false);
+            document.addEventListener('fullscreenchange', this.exitHandler, false);
+            document.addEventListener('MSFullscreenChange', this.exitHandler, false);
+        }
+    }
+
+    handleFetchData = () => {
+
+        this.setState({
+            loading : true
+        });
+
+        const token = `Token ${this.props.auth_token}`;
+        let headers = {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Authorization" : token
+        };
+
+        var bodyFormData = new FormData();
+        bodyFormData.set('topcount', this.state.top_count);
+        bodyFormData.set('basis', this.state.basis);
+
+        axios.post(FETCH_API,bodyFormData,{headers}).
+        then(res => {
+            const response = res.data;
+            console.log('api data',response);
+            this.setState({
+                data : response
+            })
+
+        });
+
+    }
+
+    exitHandler = () => {
+        if (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement) {
+            console.log('Inside fullscreen. Doing chart stuff.');
+            this.chart = this.refs.chart.chart;
+            this.chart.update({
+                chart:{
+                    height: null
+                }
+            })
+        }
+
+        if (!document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
+            console.log('Exiting fullscreen. Doing chart stuff.');
+            this.chart = this.refs.chart.chart;
+            this.chart.update({
+                chart:{
+                    height:'400px'
+                }
+            })
+        }
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (
+            (String(prevState.top_count)!==String(this.state.top_count)) ||
+            (String(prevState.basis)!==String(this.state.basis)) ||
+
+            (String(prevProps.ip_address)!==String(this.props.ip_address)) ||
+            (String(prevProps.date_range[0])!==String(this.props.date_range[0])) ||
+            (String(prevProps.date_range[1])!==String(this.props.date_range[1])) ||
+            (String(prevProps.firewall_rule)!==String(this.props.firewall_rule)) ||
+            (String(prevProps.application)!==String(this.props.application)) ||
+            (String(prevProps.protocol)!==String(this.props.protocol)) ||
+            (String(prevProps.source_zone)!==String(this.props.source_zone)) ||
+            (String(prevProps.destination_zone)!==String(this.props.destination_zone))
+        ){
+            this.handleFetchData();
+        }
+        if(prevState.data!==this.state.data){
+            this.updateChart();
+        }
+    }
+    updateChart = () => {
+        this.chart.update({
+            series: [{
+                name: 'Source Address',
+                data: this.state.data.data.map(e =>[e[0],e[1]/1024/1024]),
+                dataLabels: {
+                    enabled: true,
+                    rotation: -90,
+                    color: '#FFFFFF',
+                    align: 'right',
+                    format: '{point.y:.1f}', // one decimal
+                    y: 10, // 10 pixels down from the top
+                    style: {
+                        fontSize: '10px',
+                        fontFamily: 'Verdana, sans-serif'
+                    }
+                }
+            }]
+        });
+
+        this.setState({
+            loading : false
+        });
+
+    }
 
     render(){
         const options = {
@@ -50,18 +166,7 @@ class TopSourceAddressChart extends Component {
             },
             series: [{
                 name: 'Source Address',
-                data: [
-                    ['192.168.10.10', 242000],
-                    ['192.168.114.4', 208000],
-                    ['192.168.23.1', 149000],
-                    ['192.168.23.10', 13.7],
-                    ['202.53.3.65', 13.1],
-                    ['202.53.3.79', 5.7],
-                    ['202.53.3.34', 12.7],
-                    ['202.100.3.12', 12.7],
-                    ['202.53.3.79', 15.7],
-                    ['202.53.3.79', 110.7]
-                ],
+                data: [],
                 dataLabels: {
                     enabled: true,
                     rotation: -90,
@@ -76,13 +181,16 @@ class TopSourceAddressChart extends Component {
                 }
             }]
         }
+        console.log('top_count',this.state.top_count);
         return (
+
             <Fragment>
                 <div>
                     <Card title={
                         <Fragment>
                             <div>
                                 <Select
+                                    onChange={(value) => this.setState({top_count:value})}
                                     size={'default'}
                                     style={{width:'50%',paddingRight:10,paddingLeft:10}}
                                     defaultValue={"10"}>
@@ -91,23 +199,25 @@ class TopSourceAddressChart extends Component {
                                     <Option key="15">Top 15</Option>
                                 </Select>
                                 <Select
+                                    onChange={(value) => this.setState({basis:value})}
+
                                     size={'default'}
                                     style={{width:'50%',paddingRight:10,paddingLeft:10}}
                                     defaultValue={'BytesReceived'}>
-                                    <Option key={'BytesSent'}>Bytes Sent</Option>
-                                    <Option key={'BytesReceived'}>Bytes Received</Option>
-                                    <Option key={'PacketsSent'}>Packets Sent</Option>
-                                    <Option key={'PacketsReceived'}>Packets Received</Option>
-                                    <Option key={'RepeatCount'}>Repeat Count</Option>
+                                    <Option key={'bytes_sent'}>Bytes Sent</Option>
+                                    <Option key={'bytes_received'}>Bytes Received</Option>
+                                    <Option key={'packets_sent'}>Packets Sent</Option>
+                                    <Option key={'packets_received'}>Packets Received</Option>
+                                    <Option key={'repeat_count'}>Repeat Count</Option>
                                 </Select>
                             </div>
                         </Fragment>
                     }>
                         <HighchartsReact
-                            highcharts={this.props.highcharts}
-                            constructorType={"chart"}
-                            options={options}
-                            ref={"chart"}
+                            highcharts={Highcharts}
+                            allowChartUpdate={false}
+                            ref = {'chart'}
+                            options = {options}
                         />
                     </Card>
                 </div>
@@ -119,7 +229,16 @@ class TopSourceAddressChart extends Component {
 
 const mapStateToProps = state => {
     return {
-        auth_token : state.auth.auth_token
+        auth_token : state.auth.auth_token,
+
+        ip_address : state.ipSearchBar.ip_address,
+
+        date_range : state.filter.date_range,
+        firewall_rule : state.filter.firewall_rule,
+        application : state.filter.application,
+        protocol : state.filter.protocol,
+        source_zone : state.filter.source_zone,
+        destination_zone : state.filter.destination_zone
     }
 }
 
