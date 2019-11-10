@@ -112,10 +112,50 @@ class TopApplicationChart extends Component {
     }
 
     updateChart = () => {
+        let title = "";
+        let data = [];
+        let tooltip = "";
+        switch(this.state.basis){
+            case "bytes_received":
+                title = "Top Applications | Bytes Received";
+                data = this.state.data.data.map(e => [e[0],e[1]/1024/1024]);
+                tooltip = 'Bytes Received: <b>{point.y:.1f} MB</b>';
+                break;
+
+            case "bytes_sent":
+                title = "Top Applications | Bytes Sent";
+                data = this.state.data.data.map(e => [e[0],e[1]/1024/1024]);
+                tooltip = 'Bytes Sent: <b>{point.y:.1f} MB</b>';
+                break;
+            case "packets_sent":
+                    title = "Top Applications | Packets Sent";
+                    data = this.state.data.data.map(e => [e[0],e[1]]);
+                    tooltip = 'Packets Sent: <b>{point.y:.1f} </b>';
+                    break;
+            case "packets_received":
+                    title = "Top Applications | Packets Received";
+                    data = this.state.data.data.map(e => [e[0],e[1]]);
+                    tooltip = 'Packets Received: <b>{point.y:.1f} </b>';
+                    break;
+            case "repeat_count":
+                    title = "Top Applications | Repeat Count";
+                    data = this.state.data.data.map(e => [e[0],e[1]]);
+                    tooltip = 'Repeat Count: <b>{point.y:.1f} </b>';
+                    break;
+        }
         this.chart.update({
+            title: {
+                text: title,
+                style : {
+                    fontSize: '15px'
+                }
+            },
+            tooltip: {
+                pointFormat: tooltip
+            },
             series: [{
                 name: 'Top Applications',
-                data: this.state.data.data.map(e =>[e[0],e[1]/1024/1024]),
+                data: data,
                 dataLabels: {
                     enabled: true,
                     rotation: -90,
@@ -136,6 +176,7 @@ class TopApplicationChart extends Component {
         });
 
     }
+
 
     render(){
         const options = {
