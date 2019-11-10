@@ -4,7 +4,7 @@ from collections import defaultdict, OrderedDict
 import ipaddress
 
 from django.db.models.functions import TruncDay, TruncMonth, TruncHour
-from django.db.models import Sum, Count, Avg
+from django.db.models import Sum, Count
 
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
@@ -56,8 +56,8 @@ class StatsApiView(APIView):
         )
 
         return {
-            "uplink": uplink,
-            "downlink": downlink,
+            "uplink": uplink/(1024*1024),
+            "downlink": downlink/(1024*1024),
             "ip_address": ip,
             "alias_name": ip,
             "ip_address_type": get_ip_type(ip)
@@ -79,33 +79,31 @@ class StatsApiView(APIView):
 
 class AverageDailyApiView(APIView):
     def _get_usage(self, ip, objects):
+        objects = objects.filter(
+            source_ip__address=ip,
+            source_ip__type=False,
+        )
         as_source = groupby_date(
-            objects.filter(
-                source_ip__address=ip,
-                source_ip__type=False,
-            ),
+            objects,
             'logged_datetime',
             'hour',
             ['bytes_sent'],
-            Avg
+            Sum
         )
         as_destination = groupby_date(
-            objects.filter(
-                source_ip__address=ip,
-                source_ip__type=False,
-            ),
+            objects,
             'logged_datetime',
             'hour',
             ['bytes_received'],
-            Avg
+            Sum
         )
+        n_days = len(as_destination)//24
         bytes_sent = defaultdict(int)
         bytes_received = defaultdict(int)
         for sent, received in zip(as_source, as_destination):
-            source_time = str(sent['date'].time())
-            dest_time = str(sent['date'].time())
-            bytes_sent[source_time] += sent['bytes_sent']
-            bytes_received[dest_time] += received['bytes_received']
+            time = str(sent['date'].time())
+            bytes_sent[time] += sent['bytes_sent']/n_days
+            bytes_received[time] += received['bytes_received']/n_days
 
         bytes_sent = OrderedDict(sorted(bytes_sent.items()))
         bytes_received = OrderedDict(sorted(bytes_received.items()))
