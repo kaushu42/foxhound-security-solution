@@ -1,18 +1,18 @@
 import React, {Component} from "react";
 import Highcharts from "highcharts";
-import Chart from "./Chart";
-import {ROOT_URL} from "../utils";
+import Chart from "../../charts/Chart";
+import {ROOT_URL} from "../../utils";
 require('highcharts/modules/sankey')(Highcharts);
 require("highcharts/modules/exporting")(Highcharts);
 import axios from 'axios';
 import {connect} from "react-redux";
-import mapdata from "./mapdata";
-import {Row, Spin} from "antd";
+import mapdata from "../../charts/mapdata";
+import {Card, Row, Spin} from "antd";
 import HighchartsReact from "highcharts-react-official";
 
 const FETCH_API = `${ROOT_URL}profile/sankey/`;
 
-class SankeyChart extends Component {
+class IpAsDestinationSankeyChart extends Component {
     constructor(props){
         super(props);
         this.state = {
@@ -24,7 +24,7 @@ class SankeyChart extends Component {
 
                 },
                 title: {
-                    text: "IP ADDRESS AS SOURCE"
+                    text: "Connections of IP as Destination to Other IP"
                 },
                 series: [
                     {
@@ -141,7 +141,6 @@ class SankeyChart extends Component {
                     keys: ['from', 'to', 'weight'],
                     type: "sankey",
                     data: d,
-                    name: "Source ==> Destination"
                 }
             ]
         });
@@ -155,14 +154,14 @@ class SankeyChart extends Component {
     render() {
         return (
             <Spin tip="Loading..." spinning={this.state.loading}>
-                <Row>
+                <Card>
                     <HighchartsReact
                         allowChartUpdate={false}
                         highcharts={Highcharts}
                         ref = {'chart'}
                         options = {this.state.options}
                     />
-                </Row>
+                </Card>
             </Spin>
         )
     }
@@ -184,6 +183,6 @@ const mapStateToProps = state => {
     }
 }
 
-export default connect(mapStateToProps,null)(SankeyChart);
+export default connect(mapStateToProps,null)(IpAsDestinationSankeyChart);
 
 

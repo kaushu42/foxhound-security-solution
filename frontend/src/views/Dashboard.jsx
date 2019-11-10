@@ -7,7 +7,7 @@ import {contentLayout} from "../utils";
 import DashboardStats from "../components/stats/DashboardStats";
 import RequestOriginChart from "../components/charts/RequestOriginChart";
 import BandwidthUsageChart from "../charts/BandwidthUsageChart";
-import AnomalyBasedTroubleTicketTable from "../components/AnomalyBasedTroubleTicketTable";
+import AnomalyBasedTroubleTicketTable from "../components/tables/AnomalyBasedTroubleTicketTable";
 
 class Dashboard extends Component{
     render() {

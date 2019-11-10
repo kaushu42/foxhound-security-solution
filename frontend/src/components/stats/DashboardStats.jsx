@@ -80,7 +80,6 @@ class DashboardStats extends Component {
 
         return(
             <Fragment>
-                <Card>
                     <Spin tip={"loading..."} spinning={this.state.loading}>
                         <Card.Grid style={gridStyle}>
                             <Statistic title="Uplink" value={uplink} />
@@ -95,7 +94,6 @@ class DashboardStats extends Component {
                             <Statistic title="New Rules" value={this.state.new_rules} />
                         </Card.Grid>
                     </Spin>
-                </Card>
             </Fragment>
         )
     }

@@ -1,42 +1,44 @@
-import React, {Component, Fragment} from "react";
-import {ipUsageAverageTrendDataService} from "../services/ipUsageAverageTrendService";
+import React, {Component} from "react";
+import Highcharts from "highcharts";
+import Chart from "../../charts/Chart";
+import {ROOT_URL} from "../../utils";
+require('highcharts/modules/sankey')(Highcharts);
+require("highcharts/modules/exporting")(Highcharts);
+import axios from 'axios';
 import {connect} from "react-redux";
-import Highcharts from 'highcharts';
-import HighchartsReact from 'highcharts-react-official';
-import NoDataToDisplay from 'highcharts/modules/no-data-to-display';
-NoDataToDisplay(Highcharts);
-import '../charts/chart.css';
-import {Card, Spin} from "antd";
+import mapdata from "../../charts/mapdata";
+import {Card, Row, Spin} from "antd";
+import HighchartsReact from "highcharts-react-official";
 
-class IpUsageAverageDailyTrendChart extends Component {
+const FETCH_API = `${ROOT_URL}profile/sankey/`;
 
-    constructor(props) {
+class IpAsSourceSankeyChart extends Component {
+    constructor(props){
         super(props);
         this.state = {
-            loading : true,
             data : [],
-            options: {
-                chart: {
-                    zoomType: 'x'
-                },
-                xAxis: {
-                    type: 'string'
+            loading : true,
+            options : {
+                chart : {
+                    margin : 50,
+
                 },
                 title: {
-                    text: `Average Daily Trend for Bytes Received of ${this.props.ip_address}`
+                    text: "Connections of IP as Source to Other IP"
                 },
                 series: [
                     {
-                        type: 'line',
-                        data: []
+                        keys: ['from', 'to', 'weight'],
+                        data: [],
+                        type: "sankey",
+                        connectNulls : true,
                     }
-                ],
+                ]
             }
+
         }
     }
-
-
-    componentDidMount() {
+    componentDidMount = () => {
         this.handleFetchData();
         this.chart = this.refs.chart.chart;
         if (document.addEventListener) {
@@ -46,25 +48,41 @@ class IpUsageAverageDailyTrendChart extends Component {
             document.addEventListener('MSFullscreenChange', this.exitHandler, false);
         }
     }
-
     handleFetchData = () => {
+
         this.setState({
             loading : true
         });
 
-        const {auth_token,ip_address} = this.props;
-        ipUsageAverageTrendDataService(auth_token,ip_address).then(res => {
-            console.log('fetching data for ip',ip_address)
-            const data = res.data;
+
+        const token = `Token ${this.props.auth_token}`;
+        let headers = {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Authorization" : token
+        };
+
+        var bodyFormData = new FormData();
+        bodyFormData.set('ip', this.props.ip_address);
+        bodyFormData.set('start_date', this.props.date_range[0]);
+        bodyFormData.set('end_date', this.props.date_range[1]);
+        bodyFormData.set('firewall_rule', this.props.firewall_rule);
+        bodyFormData.set('application', this.props.application);
+        bodyFormData.set('protocol', this.props.protocol);
+        bodyFormData.set('source_zone', this.props.source_zone);
+        bodyFormData.set('destination_zone', this.props.destination_zone);
+
+        axios.post(FETCH_API,bodyFormData,{headers}).
+        then(res => {
+            const response = res.data;
+            console.log('api data',response);
             this.setState({
-                data : data
-            });
-            console.log('fetched data ',data);
-        })
+                data : response
+            })
+
+        });
 
     }
-
-
     exitHandler = () => {
         if (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement) {
             console.log('Inside fullscreen. Doing chart stuff.');
@@ -87,6 +105,7 @@ class IpUsageAverageDailyTrendChart extends Component {
         }
     }
 
+
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (
             (String(prevProps.ip_address)!==String(this.props.ip_address)) ||
@@ -104,60 +123,50 @@ class IpUsageAverageDailyTrendChart extends Component {
             this.updateChart();
         }
     }
-    updateChart = () => {
-        let bytesReceived = this.state.data.bytes_received;
-        if (bytesReceived.length == 0){
-            Highcharts.setOptions({
-                lang: {
-                    noData: 'No data is available in the chart'
-                }
-            });
-        }
-        bytesReceived.sort(function(a, b) {
-            return a[0] > b[0] ? 1 : -1;
-        });
-        this.chart.update({
-            title : {
-              text : `Average Daily Trend for Bytes Received of ${this.props.ip_address}`
-            },
-            xAxis: {
 
-                type:"string",
-                categories : bytesReceived.map(d=> d[0])
-            },
+
+    updateChart = () => {
+        const data = this.state.data.ip_as_source;
+        data.sort(function(a, b) {
+            return a[2] < b[2] ? 1 : -1;
+        });
+        let d = [];
+        for(var i=0;i<10;i++){
+            d.push(data[i]);
+        }
+
+        this.chart.update({
             series: [
                 {
-                    name : 'Bytes Received',
-                    type : 'spline',
-                    data : bytesReceived.map(d=> d[1])
+                    keys: ['from', 'to', 'weight'],
+                    type: "sankey",
+                    data: d,
                 }
             ]
-        })
+        });
         this.setState({
             loading : false
         });
 
     }
 
+
     render() {
-        console.log("loading",this.state.loading);
         return (
-            <Fragment>
+            <Spin tip="Loading..." spinning={this.state.loading}>
                 <Card>
-                    <Spin tip="Loading..." spinning={this.state.loading}>
-                        <div id={"container"}>
-                            <HighchartsReact
-                                highcharts={Highcharts}
-                                options={this.state.options}
-                                ref={'chart'}
-                            />
-                        </div>
-                    </Spin>
+                    <HighchartsReact
+                        allowChartUpdate={false}
+                        highcharts={Highcharts}
+                        ref = {'chart'}
+                        options = {this.state.options}
+                    />
                 </Card>
-            </Fragment>
-        );
+            </Spin>
+        )
     }
 }
+
 
 const mapStateToProps = state => {
     return {
@@ -174,4 +183,6 @@ const mapStateToProps = state => {
     }
 }
 
-export default connect(mapStateToProps,null)(IpUsageAverageDailyTrendChart);
+export default connect(mapStateToProps,null)(IpAsSourceSankeyChart);
+
+

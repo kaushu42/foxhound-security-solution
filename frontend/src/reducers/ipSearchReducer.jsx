@@ -1,5 +1,5 @@
 const initialState = {
-    ip_address : "172.16.232.5"
+    ip_address : ""
 }
 
 

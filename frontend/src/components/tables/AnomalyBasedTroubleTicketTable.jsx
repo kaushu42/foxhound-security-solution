@@ -1,7 +1,7 @@
 import React, {Component, Fragment} from 'react';
 import {Avatar, Button, Form, List, Select, Spin, Statistic, Table} from 'antd';
 import reqwest from "reqwest";
-import {ROOT_URL} from "../utils";
+import {ROOT_URL} from "../../utils";
 import {connect} from "react-redux";
 import { Drawer} from 'antd';
 import { Card, Col, Row } from 'antd';

@@ -3,9 +3,11 @@ import {connect} from "react-redux";
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import '../charts/chart.css';
-import {Spin} from "antd";
+import {Card, Spin} from "antd";
 import {ipUsageDataService} from "../services/ipUsageService";
 import moment from "moment";
+import NoDataToDisplay from 'highcharts/modules/no-data-to-display';
+NoDataToDisplay(Highcharts);
 
 class IpUsageTimeSeriesChart extends Component {
 
@@ -118,47 +120,62 @@ class IpUsageTimeSeriesChart extends Component {
     }
   }
   updateChart = () => {
-    let data = this.state.data.bytes_received;
-    console.log(new Date(data[0][0]));
-    data = data.map(e => [new Date(e[0]),e[1]/1024/1024]);
-    data.sort(function(a, b) {
-      return a[0] > b[0] ? 1 : -1;
-    });
-    console.log('final data for ip time series',data);
-    this.chart.update({
-      xAxis : {
-        type:'datetime',
-        categories : data.map(e => moment(new Date(e[0])).format("MM/DD/YYYY hh:mm"))
-
-      },
-      series: [
-        {
-          id: 'bytes',
-          type: 'spline',
-          name : 'Bytes Received(MB)',
-          data: data.map(e => e[1])
+    let bytesReceived = this.state.data.bytes_received;
+    if (bytesReceived.length == 0){
+      Highcharts.setOptions({
+        lang: {
+          noData: 'No data is available in the chart'
         }
-      ]
-    });
+      });
+    }
+    else if (bytesReceived == undefined){
+      Highcharts.setOptions({
+        lang: {
+          noData: 'No data is available in the chart'
+        }
+      });
+    }
+    else {
+      console.log(new Date(bytesReceived[0][0]));
+      bytesReceived = bytesReceived.map(e => [new Date(e[0]),e[1]/1024/1024]);
+      bytesReceived.sort(function(a, b) {
+        return a[0] > b[0] ? 1 : -1;
+      });
+      console.log('final data for ip time series',bytesReceived);
+      this.chart.update({
+        xAxis : {
+          type:'datetime',
+          categories : bytesReceived.map(e => moment(new Date(e[0])).format("MM/DD/YYYY hh:mm"))
+
+        },
+        series: [
+          {
+            id: 'bytes',
+            type: 'spline',
+            name : 'Bytes Received(MB)',
+            data: bytesReceived.map(e => e[1])
+          }
+        ]
+      });
+    }
     this.setState({
       loading : false
     });
-
-    }
+  }
 
   render() {
     console.log("loading",this.state.loading);
     return (
         <Fragment>
-          <Spin tip="Loading..." spinning={this.state.loading}>
-            <div id={"container"}>
+          <Card>
+            <Spin tip="Loading..." spinning={this.state.loading}>
               <HighchartsReact
                   highcharts={Highcharts}
                   options={this.state.options}
                   ref={'chart'}
               />
-            </div>
-          </Spin>
+            </Spin>
+          </Card>
         </Fragment>
     );
   }

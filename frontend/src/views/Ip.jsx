@@ -1,15 +1,23 @@
+//--core packages
 import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
-import {Col, PageHeader, Row, Statistic} from "antd";
-import MasterLayout from "./layout/MasterLayout";
+
+//--ant.design
+import {Col, PageHeader, Row} from "antd";
+
+
+//--components
 import Filter from "../components/Filter";
 import IpSearchBar from "../components/IpSearchBar";
 import IpUsageAverageDailyTrendChart from "../components/IpUsageAverageLineChart";
 import IpUsageTimeSeriesChart from "../components/IpUsageTimeSeriesChart";
-import SankeyChart from "../charts/SankeyChart";
+import IpProfileStats from "../components/stats/IpProfileStats";
+import IpAsSourceSankeyChart from "../components/charts/IpAsSourceSankeyChart";
+import IpAsDestinationSankeyChart from "../components/charts/IpAsDestinationSankeyChart";
+
+//--layouts and styles
+import MasterLayout from "./layout/MasterLayout";
 import {contentLayout} from "../utils";
-import IpProfileStats from "../components/IpProfileStats";
-import HeatMap from "../charts/HeatMap";
 
 class Ip extends Component{
     render(){
@@ -39,14 +47,12 @@ class Ip extends Component{
                     </Row>
                     <Row style={contentLayout}>
                         <Col xs={24} sm={24} md={24} lg={12} xl={12}>
-                            <SankeyChart/>
+                            <IpAsSourceSankeyChart />
                         </Col>
-                    </Row>
-                    <Row style={contentLayout}>
-                        <Col xs={24} sm={24} md={24} lg={24} xl={24}>
-                            {/* <CalendarChart /> */}
-                            <HeatMap></HeatMap>
+                        <Col xs={24} sm={24} md={24} lg={12} xl={12}>
+                            <IpAsDestinationSankeyChart />
                         </Col>
+
                     </Row>
                 </MasterLayout>
             </Fragment>

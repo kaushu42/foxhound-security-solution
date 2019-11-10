@@ -206,7 +206,7 @@ class RequestOriginChart extends Component {
             />
             {this.state.selectedCountryEvent ?
 
-            <Drawer title={`Request originating from ${this.state.selectedCountryEvent.point.name}`}
+            <Drawer title={`Logs With Request originating from ${this.state.selectedCountryEvent.point.name} (Experimental)`}
                               width={600}
                               placement="bottom"
                               closable={true}

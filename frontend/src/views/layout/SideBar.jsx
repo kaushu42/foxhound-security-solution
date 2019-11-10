@@ -25,6 +25,12 @@ class SideBar extends Component {
                                 <span>IP Address Profile</span>
                             </a>
                         </Menu.Item>
+                        <Menu.Item key="3">
+                            <a href={"/logs"}>
+                                <Icon type="snippets" />
+                                <span>Processed Logs</span>
+                            </a>
+                        </Menu.Item>
                     </Menu>
                 </Sider>
             </Fragment>

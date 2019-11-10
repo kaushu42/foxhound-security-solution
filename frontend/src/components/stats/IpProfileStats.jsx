@@ -2,7 +2,7 @@ import React, {Component,Fragment} from 'react';
 import {Card, Row, Statistic} from "antd";
 import {connect} from 'react-redux';
 import axios from "axios";
-import {ROOT_URL} from "../utils";
+import {ROOT_URL} from "../../utils";
 
 
 const FETCH_API = `${ROOT_URL}profile/stats/`;
@@ -98,6 +98,14 @@ class IpProfileStats extends Component {
                             margin: '0 20px',
                         }}
                     />
+                    <Statistic
+                        title="Ip Type (Ex)"
+                        value={"Private"}
+                        style={{
+                            margin: '0 20px',
+                        }}
+                    />
+
                 </Row>
             </Fragment>
         )

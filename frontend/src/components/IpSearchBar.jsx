@@ -17,6 +17,7 @@ class IpSearchBar extends Component {
     render() {
         return (
             <Fragment>
+                {this.state.ip_address ? "" : <p style={{color:'red'}}> Please select or enter an IP address</p>}
                 <Search
                     placeholder="input IP address"
                     enterButton="Search"
