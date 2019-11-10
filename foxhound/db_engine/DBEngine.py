@@ -132,7 +132,7 @@ class DBEngine(object):
             return 'Nepal', 'np'
         try:
             info = self._reader.city(ip_address).country
-            if info is None:
+            if info.name is None:
                 raise geoip2.errors.AddressNotFoundError
         except geoip2.errors.AddressNotFoundError:
             print('Not in database')
