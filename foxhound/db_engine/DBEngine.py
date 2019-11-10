@@ -24,7 +24,7 @@ TENANT_ID_DEFAULT = 1
 
 
 class DBEngine(object):
-    def __init__(self, input_dir: str, *, db_engine):
+    def __init__(self, input_dir: str, *, db_engine, db_path):
         if not isinstance(input_dir, str):
             raise TypeError('Input_dir must be a string')
 
@@ -36,7 +36,7 @@ class DBEngine(object):
         self._check_data_dir_valid(self._INPUT_DIR)
         self._csvs = self._get_csv_paths(self._INPUT_DIR)
         self._session = sessionmaker(bind=db_engine, autoflush=False)()
-        self._reader = geoip2.database.Reader('./GeoLite2-City.mmdb')
+        self._reader = geoip2.database.Reader(db_path)
         self._cols = [
             'core_virtualsystem',
             'core_tenant',
