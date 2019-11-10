@@ -41,17 +41,16 @@ def get_ip_type(ip):
 
 class StatsApiView(APIView):
     def _get_stats(self, ip, objects):
-        uplink = objects.filter(
+        objects = objects.filter(
             source_ip__address=ip,
             source_ip__type=False
         )
-        uplink = uplink.aggregate(Sum('bytes_sent')).get(
-            'bytes_sent__sum', None)
-        downlink = objects.filter(
-            destination_ip__address=ip,
-            source_ip__type=True
+        uplink = objects.aggregate(
+            Sum('bytes_sent')).get(
+                'bytes_sent__sum', None
         )
-        downlink = downlink.aggregate(
+
+        downlink = objects.aggregate(
             Sum('bytes_received')).get(
             'bytes_received__sum', None
         )
