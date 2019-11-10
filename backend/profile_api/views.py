@@ -56,8 +56,8 @@ class StatsApiView(APIView):
         )
 
         return {
-            "uplink": uplink/(1024*1024),
-            "downlink": downlink/(1024*1024),
+            "uplink": uplink,
+            "downlink": downlink,
             "ip_address": ip,
             "alias_name": ip,
             "ip_address_type": get_ip_type(ip)
