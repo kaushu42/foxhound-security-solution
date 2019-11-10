@@ -41,18 +41,18 @@ class AnomalyBasedTroubleTicketTable extends Component {
                 },
                 {
                     title: 'Source Address',
-                    dataIndex: 'source_ip',
-                    key: 'source_ip',
+                    dataIndex: 'source_ip.address',
+                    key: 'source_ip.address',
                 },
                 {
                     title: 'Destination Address',
-                    dataIndex: 'destination_ip',
-                    key: 'destination_ip',
+                    dataIndex: 'destination_ip.address',
+                    key: 'destination_ip.address',
                 },
                 {
                     title: 'Application',
-                    dataIndex: 'application',
-                    key: 'application',
+                    dataIndex: 'application.name',
+                    key: 'application.name',
                 },
                 {
                     title: 'Source Port',
@@ -74,11 +74,11 @@ class AnomalyBasedTroubleTicketTable extends Component {
                     dataIndex: 'bytes_received',
                     key: 'bytes_received',
                 },
-                {
-                    title: 'Log Name',
-                    dataIndex: 'log.log_name',
-                    key: 'log.log_name',
-                },
+                // {
+                //     title: 'Log Name',
+                //     dataIndex: 'log.log_name',
+                //     key: 'log.log_name',
+                // },
                 {
                     title: 'Action',
                     dataIndex: '',
