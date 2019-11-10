@@ -25,7 +25,7 @@ class TopCountBasisSerializer(serializers.Serializer):
         'packets_received',
     )
     topcount = serializers.IntegerField(required=False, default=5)
-    basis = serializers.ChoiceField(choices)
+    basis = serializers.ChoiceField(choices, default='bytes_sent')
 
 
 def get_topcount_basis(request):
