@@ -91,8 +91,8 @@ class AverageDailyApiView(APIView):
         )
         as_destination = groupby_date(
             objects.filter(
-                destination_ip__address=ip,
-                destination_ip__type=True,
+                source_ip__address=ip,
+                source_ip__type=False,
             ),
             'logged_datetime',
             'hour',
