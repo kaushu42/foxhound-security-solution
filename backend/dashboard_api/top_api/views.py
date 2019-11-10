@@ -66,12 +66,12 @@ class DestinationAddressApiView(APIView):
         objects = get_objects_from_query(query).filter(
             firewall_rule__tenant__id=tenant_id,
             source_ip__type=False
-        ).values('source_ip__address').annotate(
+        ).values('destination_ip__address').annotate(
             data=Sum(basis)
         ).order_by('-data')
         response = []
         for data in objects[:topcount]:
-            response.append([data['source_ip__address'], data['data']])
+            response.append([data['destination_ip__address'], data['data']])
         return Response({"data": response})
 
     def post(self, request):
