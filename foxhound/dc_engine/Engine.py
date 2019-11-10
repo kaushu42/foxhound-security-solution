@@ -71,6 +71,8 @@ class Engine(ABC):
         data = self._read_csv(csv_path)
         data = self._process(data)
         self._dump(csv_path, data)
+        os.remove(csv_path)
+        print(f'Log file at {csv_path} deleted.')
 
     def run(self, verbose=False):
         self._run(self._run_one, self._input_csvs, verbose=verbose)
