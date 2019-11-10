@@ -35,6 +35,7 @@ class RequestOriginChart extends Component {
       document.addEventListener('MSFullscreenChange', this.exitHandler, false);
     }
   }
+
   handleFetchData = () => {
 
     this.setState({
