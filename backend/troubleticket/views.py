@@ -37,14 +37,11 @@ class TroubleTicketAnomalyApiView(PaginatedView):
         log_details = TrafficLogDetail.objects.filter(
             firewall_rule__tenant__id=tenant_id
         )
-        logs = []
-        row_numbers = []
-        [
-            (logs.append(i.log), row_numbers.append(i.row_number))
-            for i in TroubleTicketAnomaly.objects.all()
-        ]
+        logs = TroubleTicketAnomaly.objects.values('log').distinct()
+        row_numbers = TroubleTicketAnomaly.objects.values(
+            'row_number').distinct()
         anomalies = log_details.filter(
-            traffic_log__in=logs, row_number__in=row_numbers)
+            traffic_log__in=logs, row_number__in=row_numbers).order_by('id')
         page = self.paginate_queryset(anomalies)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
