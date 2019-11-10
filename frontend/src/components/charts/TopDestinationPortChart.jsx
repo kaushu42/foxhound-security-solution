@@ -11,6 +11,7 @@ class TopDestinationPortChart extends Component {
         super(props);
         this.state = { seconds: 0 };
     }
+
     componentDidMount = () => {
         this.chart = this.refs.chart.chart;
     }
