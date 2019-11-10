@@ -3,7 +3,9 @@ from rest_framework import serializers
 from core.models import (
     TrafficLog, TrafficLogDetail,
     Tenant, Domain,
-    VirtualSystem
+    VirtualSystem,
+    IPAddress,
+    Application
 )
 from troubleticket.models import (
     TroubleTicketAnomaly,
@@ -74,7 +76,23 @@ class TrafficLogNameSerializer(serializers.ModelSerializer):
         fields = ('id', 'log_name')
 
 
+class IPAddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = IPAddress
+        fields = ('address',)
+
+
+class ApplicationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Application
+        fields = ('name',)
+
+
 class TrafficLogDetailSerializer(serializers.ModelSerializer):
+    source_ip = IPAddressSerializer()
+    destination_ip = IPAddressSerializer()
+    application = ApplicationSerializer()
+
     class Meta:
         model = TrafficLogDetail
         fields = '__all__'
