@@ -52,6 +52,15 @@ class TopSourceAddressChart extends Component {
         bodyFormData.set('topcount', this.state.top_count);
         bodyFormData.set('basis', this.state.basis);
 
+        bodyFormData.set('start_date', this.props.date_range[0]);
+        bodyFormData.set('end_date', this.props.date_range[1]);
+        bodyFormData.set('firewall_rule', this.props.firewall_rule);
+        bodyFormData.set('application', this.props.application);
+        bodyFormData.set('protocol', this.props.protocol);
+        bodyFormData.set('source_zone', this.props.source_zone);
+        bodyFormData.set('destination_zone', this.props.destination_zone);
+
+
         axios.post(FETCH_API,bodyFormData,{headers}).
         then(res => {
             const response = res.data;
@@ -90,7 +99,6 @@ class TopSourceAddressChart extends Component {
         if (
             (String(prevState.top_count)!==String(this.state.top_count)) ||
             (String(prevState.basis)!==String(this.state.basis)) ||
-
             (String(prevProps.ip_address)!==String(this.props.ip_address)) ||
             (String(prevProps.date_range[0])!==String(this.props.date_range[0])) ||
             (String(prevProps.date_range[1])!==String(this.props.date_range[1])) ||
@@ -181,9 +189,7 @@ class TopSourceAddressChart extends Component {
                 }
             }]
         }
-        console.log('top_count',this.state.top_count);
         return (
-
             <Fragment>
                 <div>
                     <Card title={
@@ -203,7 +209,7 @@ class TopSourceAddressChart extends Component {
 
                                     size={'default'}
                                     style={{width:'50%',paddingRight:10,paddingLeft:10}}
-                                    defaultValue={'BytesReceived'}>
+                                    defaultValue={'bytes_received'}>
                                     <Option key={'bytes_sent'}>Bytes Sent</Option>
                                     <Option key={'bytes_received'}>Bytes Received</Option>
                                     <Option key={'packets_sent'}>Packets Sent</Option>
