@@ -112,10 +112,50 @@ class TopDestinationPortChart extends Component {
     }
 
     updateChart = () => {
+        let title = "";
+        let data = [];
+        let tooltip = "";
+        switch(this.state.basis){
+            case "bytes_received":
+                title = "Top Destination Port | Bytes Received";
+                data = this.state.data.data.map(e => [`Port ${e[0]}`,e[1]/1024/1024]);
+                tooltip = 'Bytes Received: <b>{point.y:.1f} MB</b>';
+                break;
+
+            case "bytes_sent":
+                title = "Top Destination Port | Bytes Sent";
+                data = this.state.data.data.map(e => [`Port ${e[0]}`,e[1]/1024/1024]);
+                tooltip = 'Bytes Sent: <b>{point.y:.1f} MB</b>';
+                break;
+            case "packets_sent":
+                    title = "Top Destination Port | Packets Sent";
+                    data = this.state.data.data.map(e => [`Port ${e[0]}`,e[1]]);
+                    tooltip = 'Packets Sent: <b>{point.y:.1f} </b>';
+                    break;
+            case "packets_received":
+                    title = "Top Destination Port | Packets Received";
+                    data = this.state.data.data.map(e => [`Port ${e[0]}`,e[1]]);
+                    tooltip = 'Packets Received: <b>{point.y:.1f} </b>';
+                    break;
+            case "repeat_count":
+                    title = "Top Destination Port | Repeat Count";
+                    data = this.state.data.data.map(e => [`Port ${e[0]}`,e[1]]);
+                    tooltip = 'Repeat Count: <b>{point.y:.1f} </b>';
+                    break;
+        }
         this.chart.update({
+            title: {
+                text: title,
+                style : {
+                    fontSize: '15px'
+                }
+            },
+            tooltip: {
+                pointFormat: tooltip
+            },
             series: [{
                 name: 'Top Destination Port',
-                data: this.state.data.data.map(e =>[`Port ${e[0]}`,e[1]/1024/1024]),
+                data: data,
                 dataLabels: {
                     enabled: true,
                     rotation: -90,

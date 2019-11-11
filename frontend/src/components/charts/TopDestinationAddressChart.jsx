@@ -112,11 +112,64 @@ class TopDestinationAddressChart extends Component {
             this.updateChart();
         }
     }
+
     updateChart = () => {
+        let title = "";
+        let data = [];
+        let yAxisTitle = "";
+        let tooltip = "";
+        switch(this.state.basis){
+            case "bytes_received":
+                title = "Top Destination Address | Bytes Received";
+                data = this.state.data.data.map(e => [e[0],e[1]/1024/1024]);
+                yAxisTitle = "Bytes Received (MB)";
+                tooltip = 'Bytes Received: <b>{point.y:.1f} MB</b>';
+                break;
+
+            case "bytes_sent":
+                title = "Top Destination Address | Bytes Sent";
+                data = this.state.data.data.map(e => [e[0],e[1]/1024/1024]);
+                yAxisTitle = "Bytes Sent (MB)";
+                tooltip = 'Bytes Sent: <b>{point.y:.1f} MB</b>';
+                break;
+            case "packets_sent":
+                    title = "Top Destination Address | Packets Sent";
+                    data = this.state.data.data.map(e => [e[0],e[1]]);
+                    yAxisTitle = "Packets Sent (Count)";
+                    tooltip = 'Packets Sent: <b>{point.y:.1f} </b>';
+                    break;
+            case "packets_received":
+                    title = "Top Destination Address | Packets Received";
+                    data = this.state.data.data.map(e => [e[0],e[1]]);
+                    yAxisTitle = "Packets Received (Count)";
+                    tooltip = 'Packets Received: <b>{point.y:.1f} </b>';
+                    break;
+            case "repeat_count":
+                    title = "Top Destination Address | Repeat Count";
+                    data = this.state.data.data.map(e => [e[0],e[1]]);
+                    yAxisTitle = "Repeat Count (Count)";
+                    tooltip = 'Repeat Count: <b>{point.y:.1f} </b>';
+                    break;
+        }
         this.chart.update({
+            title: {
+                text: title,
+                style : {
+                    fontSize: '15px'
+                }
+            },
+            tooltip: {
+                pointFormat: tooltip
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: yAxisTitle
+                }
+            },
             series: [{
                 name: 'Destination Address',
-                data: this.state.data.data.map(e =>[e[0],e[1]/1024/1024]),
+                data: data,
                 dataLabels: {
                     enabled: true,
                     rotation: -90,
@@ -131,7 +184,6 @@ class TopDestinationAddressChart extends Component {
                 }
             }]
         });
-
         this.setState({
             loading : false
         });

@@ -11,6 +11,8 @@ from rest_framework.status import (
 
 from users.models import FoxhoundUser
 
+from core.models import TrafficLogDetail
+
 from troubleticket.models import (
     TroubleTicketAnomaly,
     TroubleTicketFollowUpAnomaly
@@ -20,16 +22,27 @@ from views.views import PaginatedView
 from serializers.serializers import (
     TroubleTicketAnomalySerializer,
     TroubleTicketFollowUpAnomalySerializer,
-    UserNameSerializer
+    UserNameSerializer,
+    TrafficLogDetailSerializer
 )
+
+from globalutils.utils import get_tenant_id_from_token
 
 
 class TroubleTicketAnomalyApiView(PaginatedView):
-    queryset = TroubleTicketAnomaly.objects.all()
-    serializer_class = TroubleTicketAnomalySerializer
+    serializer_class = TrafficLogDetailSerializer
 
     def get(self, request):
-        page = self.paginate_queryset(self.queryset)
+        tenant_id = get_tenant_id_from_token(request)
+        log_details = TrafficLogDetail.objects.filter(
+            firewall_rule__tenant__id=tenant_id
+        )
+        logs = TroubleTicketAnomaly.objects.values('log').distinct()
+        row_numbers = TroubleTicketAnomaly.objects.values(
+            'row_number').distinct()
+        anomalies = log_details.filter(
+            traffic_log__in=logs, row_number__in=row_numbers).order_by('id')
+        page = self.paginate_queryset(anomalies)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
