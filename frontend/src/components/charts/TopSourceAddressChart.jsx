@@ -59,6 +59,15 @@ class TopSourceAddressChart extends Component {
         bodyFormData.set('source_zone', this.props.source_zone);
         bodyFormData.set('destination_zone', this.props.destination_zone);
 
+        bodyFormData.set('start_date', this.props.date_range[0]);
+        bodyFormData.set('end_date', this.props.date_range[1]);
+        bodyFormData.set('firewall_rule', this.props.firewall_rule);
+        bodyFormData.set('application', this.props.application);
+        bodyFormData.set('protocol', this.props.protocol);
+        bodyFormData.set('source_zone', this.props.source_zone);
+        bodyFormData.set('destination_zone', this.props.destination_zone);
+
+
         axios.post(FETCH_API,bodyFormData,{headers}).
         then(res => {
             const response = res.data;
@@ -239,9 +248,7 @@ class TopSourceAddressChart extends Component {
                 }
             }]
         }
-        console.log('top_count',this.state.top_count);
         return (
-
             <Fragment>
                 <div>
                     <Card title={
@@ -260,7 +267,7 @@ class TopSourceAddressChart extends Component {
                                     onChange={(value) => this.setState({basis:value})}
                                     size={'default'}
                                     style={{width:'50%',paddingRight:10,paddingLeft:10}}
-                                    defaultValue={'BytesReceived'}>
+                                    defaultValue={'bytes_received'}>
                                     <Option key={'bytes_sent'}>Bytes Sent</Option>
                                     <Option key={'bytes_received'}>Bytes Received</Option>
                                     <Option key={'packets_sent'}>Packets Sent</Option>
