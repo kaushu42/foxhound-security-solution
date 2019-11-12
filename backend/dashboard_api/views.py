@@ -184,6 +184,7 @@ class ActivityApiView(APIView):
 
 class WorldMapApiView(APIView):
     def get(self, request):
+        show_nepal = request.data.get('show_nepal', False)
         tenant_id = get_tenant_id_from_token(request)
         query = get_query_from_request(request)
         objects = get_objects_from_query(query).filter(
@@ -206,14 +207,14 @@ class WorldMapApiView(APIView):
         objects = objects[:]
         objects = pd.DataFrame(objects)
         objects.columns = ['ip_address_id', 'count']
-        print(objects.columns)
         countries = pd.read_sql('core_country', db_engine, index_col='id')
-        print(countries.columns)
         data = objects.merge(countries, on='ip_address_id', how='inner')[
             ['iso_code', 'count']]
         data = data.groupby('iso_code').sum().to_dict(orient='split')
         response = []
         for i, j in zip(data['index'], data['data']):
+            if (not show_nepal) and (i == 'np'):
+                continue
             response.append([i, j[0]])
         return Response({
             'data': response
