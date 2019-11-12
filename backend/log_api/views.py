@@ -1,9 +1,21 @@
-from core.models import TrafficLog, TrafficLogDetail
-
+from rest_framework.response import Response
+from rest_framework.status import (
+    HTTP_200_OK,
+    HTTP_406_NOT_ACCEPTABLE
+)
+from core.models import (
+    TrafficLog, TrafficLogDetail,
+    Country
+)
 from views.views import PaginatedView
 from serializers.serializers import (
     TrafficLogSerializer,
     TrafficLogDetailSerializer
+)
+from globalutils.utils import (
+    get_tenant_id_from_token,
+    get_query_from_request,
+    get_objects_from_query
 )
 
 
@@ -34,3 +46,53 @@ class TrafficLogDetailApiView(PaginatedView):
 
     def post(self, request, id):
         return self.get(request, id)
+
+
+class RequestOriginLogApiView(PaginatedView):
+    serializer_class = TrafficLogDetailSerializer
+
+    def get(self, request):
+        country = request.data.get('country')
+        if country is None:
+            return Response({
+                "error": "\"country\" field is required"
+            })
+        ips = Country.objects.filter(iso_code=country).values('ip_address')
+
+        tenant_id = get_tenant_id_from_token(request)
+        tenant_id = get_tenant_id_from_token(request)
+        query = get_query_from_request(request)
+        objects = get_objects_from_query(query).filter(
+            firewall_rule__tenant__id=tenant_id,
+            source_ip__in=ips
+        ).order_by('-logged_datetime')
+        page = self.paginate_queryset(objects)
+        if page is not None:
+            serializer = self.serializer_class(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        return Response({})
+
+
+class RequestEndLogApiView(PaginatedView):
+    serializer_class = TrafficLogDetailSerializer
+
+    def get(self, request):
+        country = request.data.get('country')
+        if country is None:
+            return Response({
+                "error": "\"country\" field is required"
+            }, status=HTTP_406_NOT_ACCEPTABLE)
+
+        tenant_id = get_tenant_id_from_token(request)
+        query = get_query_from_request(request)
+        ips = Country.objects.filter(iso_code=country).values('ip_address')
+        objects = get_objects_from_query(query).filter(
+            firewall_rule__tenant__id=tenant_id,
+            destination_ip__in=ips
+        ).order_by('-logged_datetime')
+        ip = Country.objects.values('ip_address').distinct()
+        page = self.paginate_queryset(objects)
+        if page is not None:
+            serializer = self.serializer_class(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        return Response({})
