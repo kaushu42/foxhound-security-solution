@@ -4,6 +4,7 @@ import datetime
 from collections import defaultdict
 import json
 
+from django.db import connection
 from django.db.models import Sum, Count
 
 from rest_framework.views import APIView
@@ -193,25 +194,41 @@ class WorldMapApiView(APIView):
             ip_count=Count('source_ip')
         )
         country_data = defaultdict(int)
-        for obj in objects:
-            ip = obj['source_ip']
-            count = obj['ip_count']
-            try:
-                country = Country.objects.get(
-                    ip_address__id=ip).iso_code
-            except Exception as e:
-                print(e)
-                return Response({
-                    "error": "Database Error"
-                }, status=HTTP_500_INTERNAL_SERVER_ERROR)
-            country_data[country] += count
-
-        data = []
-        for key, value in country_data.items():
-            data.append([key, value])
+        import os
+        import pandas as pd
+        from sqlalchemy import create_engine
+        db_name = os.environ.get('FH_DB_NAME', '')
+        db_user = os.environ.get('FH_DB_USER', '')
+        db_password = os.environ.get('FH_DB_PASSWORD', '')
+        db_engine = create_engine(
+            f'postgresql://{db_user}:{db_password}@localhost:5432/{db_name}'
+        )
+        objects = objects[:]
+        objects = pd.DataFrame(objects)
+        objects.columns = ['ip_address_id', 'count']
+        print(objects.columns)
+        countries = pd.read_sql('core_country', db_engine, index_col='id')
+        print(countries.columns)
+        data = objects.merge(countries, on='ip_address_id', how='inner')[
+            ['iso_code', 'count']]
+        data = data.groupby('iso_code').sum().to_dict(orient='split')
+        response = []
+        for i, j in zip(data['index'], data['data']):
+            response.append([i, j[0]])
         return Response({
-            'data': data
+            'data': response
         }, status=HTTP_200_OK)
 
     def post(self, request, format=None):
         return self.get(request)
+
+
+class IPAddressApiView(APIView):
+    def get(self, request):
+        tenant_id = get_tenant_id_from_token(request)
+        query = get_query_from_request(request)
+        objects = get_objects_from_query(query).filter(
+            firewall_rule__tenant__id=tenant_id)
+        data = objects.values('source_ip__id', 'source_ip__address',
+                              'source_ip__alias').distinct('source_ip__address')
+        return Response(data)
