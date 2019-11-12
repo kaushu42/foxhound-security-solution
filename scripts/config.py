@@ -17,3 +17,5 @@ TRAFFIC_LOGS_OUTPUT_DIR = os.path.join(BASE_PATH, '../outputs/traffic_logs')
 IP_PROFILE_OUTPUT_DIR = os.path.join(BASE_PATH, "../outputs/ip_profile")
 IP_MODEL_OUTPUT_DIR = os.path.join(BASE_PATH, "../outputs/ip_model")
 ANOMALY_LOGS_OUTPUT_DIR = os.path.join(BASE_PATH, "../outputs/anomaly_logs")
+
+LOG_FILE = os.path.join(BASE_PATH, 'main.log')
