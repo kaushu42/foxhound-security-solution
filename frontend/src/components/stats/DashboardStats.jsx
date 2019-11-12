@@ -19,7 +19,8 @@ class DashboardStats extends Component {
             uplink : 0,
             downlink : 0,
             opened_tt : 0,
-            new_rules : 0
+            new_rules : 0,
+            unit : ""
         }
     }
 
@@ -64,19 +65,27 @@ class DashboardStats extends Component {
         })
             .then((response) => {
                 const data = response.data;
-                this.setState({
-                    uplink :  parseInt((data.uplink /(1024*1024))),
-                    downlink : parseInt(data.downlink /(1024*1024)),
+                (data.uplink > 1000000000 || data.downlink > 1000000000) ?
+                (this.setState({
+                    uplink :  parseFloat((data.uplink /(1024*1024*1024))).toFixed(2),
+                    downlink : parseFloat(data.downlink /(1024*1024*1024)).toFixed(2),
+                    unit : "GB",
                     opened_tt : data.opened_tt
-                });
+                })):
+                (this.setState({
+                    uplink :  parseFloat((data.uplink /(1024*1024))).toFixed(2),
+                    downlink : parseFloat(data.downlink /(1024*1024)).toFixed(2),
+                    unit : "MB",
+                    opened_tt : data.opened_tt
+                }))
                 this.setState({loading:false});
             })
             .catch((error) => console.log(error))
     }
 
     render() {
-        const uplink = `${this.state.uplink} MB`;
-        const downlink = `${this.state.downlink} MB`;
+        const uplink = `${this.state.uplink} ${this.state.unit}`;
+        const downlink = `${this.state.downlink} ${this.state.unit}`;
 
         return(
             <Fragment>
