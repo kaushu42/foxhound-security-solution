@@ -19,7 +19,8 @@ class RequestOriginChart extends Component {
       loading : true,
       data: [],
       mapDrawerVisible : false,
-      selectedCountryEvent: null
+      selectedCountryEvent: null,
+      showNepal: false
     }
   }
 
@@ -48,9 +49,10 @@ class RequestOriginChart extends Component {
       Accept: "application/json",
       "Content-Type": "application/json",
       "Authorization" : token
-    };
+    };  
 
     var bodyFormData = new FormData();
+    bodyFormData.set('show_nepal', this.state.showNepal);
     bodyFormData.set('start_date', this.props.date_range[0]);
     bodyFormData.set('end_date', this.props.date_range[1]);
     bodyFormData.set('firewall_rule', this.props.firewall_rule);
@@ -95,6 +97,7 @@ class RequestOriginChart extends Component {
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (
+        (String(prevState.showNepal)!==String(this.state.showNepal)) || 
         (String(prevProps.ip_address)!==String(this.props.ip_address)) ||
         (String(prevProps.date_range[0])!==String(this.props.date_range[0])) ||
         (String(prevProps.date_range[1])!==String(this.props.date_range[1])) ||
@@ -198,15 +201,18 @@ class RequestOriginChart extends Component {
     return (
         <Spin tip="Loading..." spinning={this.state.loading}>
           <Card title={
-            <Select
-                id="ExceptCountry"
-                size={"large"}
-                mode="multiple"
-                allowClear={true}
-                style={{ width: "100%" }}
-                placeholder="Except Country"
-                >
-            </Select>
+            <Fragment>
+              <div>
+                <Select
+                    onChange={(value) => this.setState({showNepal:value})}
+                    size={'default'}
+                    style={{width:'50%',paddingRight:10,paddingLeft:10}}
+                    defaultValue={"hideNp"}>
+                    <Option key="showNp">Show Nepal</Option>
+                    <Option key="hideNp">Hide Nepal</Option>
+                </Select>
+              </div>
+            </Fragment>
           }>
             <HighchartsReact
                 constructorType={"mapChart"}
