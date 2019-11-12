@@ -12,6 +12,7 @@ import TopSourceAddressChart from "../components/charts/TopSourceAddressChart";
 import TopDestinationAddressChart from "../components/charts/TopDestinationAddressChart";
 import TopApplicationChart from "../components/charts/TopApplicationChart";
 import TopDestinationPortChart from "../components/charts/TopDestinationPortChart";
+import DashboardFilter from "../components/DashboardFilter";
 
 class Dashboard extends Component{
     render() {
@@ -23,7 +24,7 @@ class Dashboard extends Component{
                         title={"Dashboard"}
                         onBack={() => window.history.back()} />
                     <Row style={contentLayout}>
-                        <Filter />
+                        <DashboardFilter />
                     </Row>
                     <Row style={contentLayout}>
                         <DashboardStats />
@@ -34,9 +35,8 @@ class Dashboard extends Component{
 
                     <Row style={contentLayout}>
                         <Col xs={24} sm={24} md={24} lg={24} xl={12}>
-                            <Card>
-                                <RequestOriginChart />
-                            </Card>
+                            <RequestOriginChart />
+
                         </Col>
                         <Col xs={24} sm={24} md={24} lg={24} xl={12}>
                             <Card>
