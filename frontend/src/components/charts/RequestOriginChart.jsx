@@ -20,7 +20,7 @@ class RequestOriginChart extends Component {
       data: [],
       mapDrawerVisible : false,
       selectedCountryEvent: null,
-      showNepal: false
+      showNepal: 0
     }
   }
 
@@ -207,9 +207,9 @@ class RequestOriginChart extends Component {
                     onChange={(value) => this.setState({showNepal:value})}
                     size={'default'}
                     style={{width:'50%',paddingRight:10,paddingLeft:10}}
-                    defaultValue={"hideNp"}>
-                    <Option key="showNp">Show Nepal</Option>
-                    <Option key="hideNp">Hide Nepal</Option>
+                    defaultValue={"0"}>
+                    <Option key="1">Show Nepal</Option>
+                    <Option key="0">Hide Nepal</Option>
                 </Select>
               </div>
             </Fragment>
