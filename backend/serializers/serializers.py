@@ -31,6 +31,11 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('username', 'id')
 
 
+class UserPassworChangeSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+
+
 class UserNameSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
 

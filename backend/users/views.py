@@ -1,3 +1,4 @@
+import re
 from urllib.parse import urlparse
 
 from django.contrib.auth import authenticate
@@ -8,12 +9,17 @@ from rest_framework.status import (
     HTTP_400_BAD_REQUEST,
     HTTP_404_NOT_FOUND,
     HTTP_200_OK,
-    HTTP_401_UNAUTHORIZED
+    HTTP_401_UNAUTHORIZED,
+    HTTP_406_NOT_ACCEPTABLE
 )
 from rest_framework.response import Response
 from core.models import Domain
 
-from serializers.serializers import UserSerializer, UserLoginSerializer
+from serializers.serializers import (
+    UserSerializer,
+    UserLoginSerializer,
+    UserPassworChangeSerializer
+)
 from .auth import token_expire_handler, expires_in
 from core.models import VirtualSystem
 
@@ -58,3 +64,32 @@ def login(request):
         'full_name': f'{user.first_name} {user.last_name}',
         'tenant_name': user.tenant.name
     }, status=HTTP_200_OK)
+
+
+@api_view(["POST"])
+def change_password(request):
+    token = request.META['HTTP_AUTHORIZATION'].split()[1]
+    user = Token.objects.get(key=token).user
+    serializer = UserPassworChangeSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+    old_password = serializer.data.get('old_password')
+    new_password = serializer.data.get('new_password')
+    is_correct = authenticate(
+        username=user.username,
+        password=old_password
+    ) is not None
+    if not is_correct:
+        return Response({
+            "error": "Old password is incorrect"
+        }, status=HTTP_406_NOT_ACCEPTABLE)
+    pattern = re.compile(
+        '^(?=\S{6,20}$)(?=.*?\d)(?=.*?[a-z])(?=.*?[A-Z])(?=.*?[^A-Za-z\s0-9])'
+    )
+    if not re.match(pattern, new_password):
+        return Response({
+            "error": "Password must be greater than 6 characters and less than 20 characters and must contain at least one lowercase letter, uppercase letter, special character and a digit"
+        })
+    user.set_password(new_password)
+    user.save()
+    return Response({'status': 'Password changed'})

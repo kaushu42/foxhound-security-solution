@@ -90,7 +90,6 @@ class RequestEndLogApiView(PaginatedView):
             firewall_rule__tenant__id=tenant_id,
             destination_ip__in=ips
         ).order_by('-logged_datetime')
-        ip = Country.objects.values('ip_address').distinct()
         page = self.paginate_queryset(objects)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
