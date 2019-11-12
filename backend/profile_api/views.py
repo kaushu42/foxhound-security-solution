@@ -98,6 +98,8 @@ class AverageDailyApiView(APIView):
             Sum
         )
         n_days = len(as_destination)//24
+        if n_days == 0:
+            n_days = 1
         bytes_sent = defaultdict(int)
         bytes_received = defaultdict(int)
         for sent, received in zip(as_source, as_destination):

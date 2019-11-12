@@ -9,5 +9,6 @@ urlpatterns = [
     path('usage/', views.UsageApiView.as_view()),
     path('activity/', views.ActivityApiView.as_view()),
     path('map/', views.WorldMapApiView.as_view()),
+    path('ip-address/', views.IPAddressApiView.as_view()),
     path('top/', include('dashboard_api.top_api.urls')),
 ]
