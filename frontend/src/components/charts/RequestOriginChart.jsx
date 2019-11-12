@@ -4,7 +4,7 @@ import HighchartsReact from "highcharts-react-official";
 import {connect} from "react-redux";
 import axios from 'axios';
 import '../../charts/chart.css';
-import {Drawer, Row, Spin} from "antd";
+import {Card, Drawer, Row, Select, Spin} from "antd";
 import mapdata from "../../charts/mapdata";
 import {ROOT_URL} from "../../utils";
 
@@ -197,7 +197,17 @@ class RequestOriginChart extends Component {
 
     return (
         <Spin tip="Loading..." spinning={this.state.loading}>
-          <Row>
+          <Card title={
+            <Select
+                id="ExceptCountry"
+                size={"large"}
+                mode="multiple"
+                allowClear={true}
+                style={{ width: "100%" }}
+                placeholder="Except Country"
+                >
+            </Select>
+          }>
             <HighchartsReact
                 constructorType={"mapChart"}
                 allowChartUpdate={false}
@@ -205,6 +215,8 @@ class RequestOriginChart extends Component {
                 ref = {'chart'}
                 options = {options}
             />
+
+          </Card>
             {this.state.selectedCountryEvent ?
 
             <Drawer title={`Logs With Request originating from ${this.state.selectedCountryEvent.point.name} (Experimental)`}
@@ -216,7 +228,6 @@ class RequestOriginChart extends Component {
                       ></Drawer>
                 : null
             }
-          </Row>
         </Spin>
     );
   }
