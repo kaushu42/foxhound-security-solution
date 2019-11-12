@@ -184,7 +184,7 @@ class ActivityApiView(APIView):
 
 class WorldMapApiView(APIView):
     def get(self, request):
-        show_nepal = request.data.get('show_nepal', False)
+        show_nepal = int(request.data.get('show_nepal', False))
         tenant_id = get_tenant_id_from_token(request)
         query = get_query_from_request(request)
         objects = get_objects_from_query(query).filter(
