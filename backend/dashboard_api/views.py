@@ -21,7 +21,9 @@ from core.models import (
     TrafficLog, TrafficLogDetail,
     Country, Domain
 )
-from troubleticket.models import TroubleTicketAnomaly
+from rules.models import Rule
+from views.views import PaginatedView
+from troubleticket.models import TroubleTicketAnomaly, TroubleTicketRule
 from globalutils import (
     get_month_day_index,
     groupby_date,
@@ -33,7 +35,8 @@ from globalutils import (
 )
 from serializers.serializers import (
     FilterSerializer,
-    DomainURLSerializer
+    DomainURLSerializer,
+    RuleSerializer
 )
 
 
@@ -41,15 +44,20 @@ class StatsApiView(APIView):
     def get(self, request, format=None):
         tenant_id = get_tenant_id_from_token(request)
         query = get_query_from_request(request)
-        uplink_downlink = get_objects_from_query(query).filter(
+        objects = get_objects_from_query(query).filter(
             firewall_rule__tenant__id=tenant_id)
-        uplink = uplink_downlink.aggregate(
+        uplink = objects.aggregate(
             Sum('bytes_sent')).get('bytes_sent__sum', None)
-        downlink = uplink_downlink.aggregate(
+        downlink = objects.aggregate(
             Sum('bytes_received')).get('bytes_received__sum', None)
         opened_tt = TroubleTicketAnomaly.objects.filter(
+            firewall_rule__tenant__id=tenant_id,
             is_closed=False).count()
-        new_rules = None
+
+        new_rules = Rule.objects.filter(
+            firewall_rule__tenant__id=tenant_id,
+            is_verified_rule=False
+        ).count()
 
         return Response(
             {
@@ -64,9 +72,22 @@ class StatsApiView(APIView):
         return self.get(request, format=format)
 
 
-@api_view(['POST'])
-def rules(request):
-    pass
+class RulesApiView(PaginatedView):
+    serializer_class = RuleSerializer
+
+    def get(self, request):
+        tenant_id = get_tenant_id_from_token(request)
+        objects = Rule.objects.filter(
+            firewall_rule__tenant__id=tenant_id,
+            is_verified_rule=False
+        ).order_by('id')
+        page = self.paginate_queryset(objects)
+        if page is not None:
+            serializer = self.serializer_class(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+    def post(self, request):
+        return self.get(request)
 
 
 class FiltersApiView(APIView):

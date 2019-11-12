@@ -1,7 +1,8 @@
 from django.db import models
 
 from users.models import FoxhoundUser
-from core.models import TrafficLog
+from core.models import TrafficLog, Tenant, FirewallRule
+from rules.models import Rule
 
 
 class TroubleTicket(models.Model):
@@ -39,6 +40,8 @@ class TroubleTicketAnomaly(TroubleTicket):
         TrafficLog, on_delete=models.CASCADE, null=True
     )
     row_number = models.IntegerField()
+    firewall_rule = models.ForeignKey(
+        FirewallRule, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return f'{self.log}-{self.row_number}'
@@ -53,6 +56,17 @@ class TroubleTicketFollowUpAnomaly(TroubleTicketFollowUp):
 
     def __str__(self):
         return f'Anomaly-{self.trouble_ticket}-followup-{self.id}'
+
+    def __repr__(self):
+        return self.__str__()
+
+
+class TroubleTicketRule(TroubleTicket):
+    rule = models.ForeignKey(
+        Rule, on_delete=models.CASCADE, null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.rule}-TT'
 
     def __repr__(self):
         return self.__str__()

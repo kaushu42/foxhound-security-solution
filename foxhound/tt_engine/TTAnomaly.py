@@ -9,7 +9,8 @@ from sqlalchemy.orm import sessionmaker
 
 from foxhound.db_engine.core_models import (
     VirtualSystem,
-    TrafficLog
+    TrafficLog,
+    FirewallRule
 )
 
 from foxhound.db_engine.troubleticket_models import (
@@ -18,7 +19,6 @@ from foxhound.db_engine.troubleticket_models import (
 
 
 class TTAnomaly:
-
     def __init__(self, input_dir, db_engine):
         if not os.path.exists(input_dir):
             raise Exception('Generate anomaly logs first')
@@ -65,7 +65,8 @@ class TTAnomaly:
             'now': datetime.datetime.now(),
             'bytes_sent': row_data['Bytes Sent'],
             'bytes_received': row_data['Bytes Received'],
-            'application': row_data['Application']
+            'application': row_data['Application'],
+            'firewall_rule': row_data['Rule']
         }
 
     def _get_virtual_system(self, params):
@@ -87,11 +88,14 @@ class TTAnomaly:
         return traffic_log
 
     def _get_trouble_ticket(self, log, params):
+        firewall_rule_id = self._SESSION.query(
+            FirewallRule).filter_by(name=params['firewall_rule'])[0].id
         tt = TroubleTicketAnomaly(
             created_datetime=params['now'],
             is_closed=False,
             log_id=log.id,
-            row_number=params['log_record_number']
+            row_number=params['log_record_number'],
+            firewall_rule_id=firewall_rule_id
         )
         return tt
 

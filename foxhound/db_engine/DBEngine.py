@@ -19,7 +19,8 @@ from .core_models import (
     Tenant, Application, Protocol,
     Zone
 )
-
+from .troubleticket_models import TroubleTicketRule
+from .rule_models import Rule
 TENANT_ID_DEFAULT = 1
 
 
@@ -229,6 +230,55 @@ class DBEngine(object):
         data.drop(['virtual_system_id'], axis=1).to_sql(
             'core_trafficlogdetail', self._db_engine, if_exists='append', index=True)
 
+    def _write_rules(self, data):
+        data = data[['firewall_rule_id', 'source_ip_id',
+                     'destination_ip_id', 'application_id']].drop_duplicates()
+        rules_table = pd.read_sql_table('rules_rule', self._db_engine)
+        firewall_rules = pd.read_sql_table(
+            'core_firewallrule', self._db_engine)
+        data = pd.merge(
+            data, firewall_rules,
+            left_on='firewall_rule_id', right_on='name')[
+            ['id', 'source_ip_id', 'destination_ip_id', 'application_id']
+        ]
+        for i, j in data.iterrows():
+            id = j.id
+            source_ip = j.source_ip_id
+            destination_ip = j.destination_ip_id
+            application = j.application_id
+            rules = rules_table[
+                (rules_table['source_ip'] == source_ip) &
+                (rules_table['destination_ip'] == destination_ip) &
+                (rules_table['application'] == application)
+            ]
+            if rules.index.empty:
+                rule_name = f'{source_ip}--{destination_ip}--{application}'
+                now = datetime.datetime.now()
+                rule = Rule(
+                    firewall_rule_id=id,
+                    verified_by_user_id=None,
+                    created_date_time=now,
+                    name=rule_name,
+                    source_ip=source_ip,
+                    destination_ip=destination_ip,
+                    application=application,
+                    description='New Rule',
+                    is_verified_rule=False,
+                    verified_date_time=None
+                )
+                self._session.add(rule)
+                # self._session.flush()
+                # tt_rule = TroubleTicketRule(
+                #     created_datetime=now,
+                #     is_closed=False,
+                #     rule_id=rule.id,
+                # )
+                # self._session.add(tt_rule)
+                print(
+                    f'Created Rule: {source_ip}--{destination_ip}--{application}')
+
+        self._session.commit()
+
     def _write_to_db(self, csv: str):
         data = self._read_csv(csv)
         dfs = self._read_tables_from_db()
@@ -238,6 +288,7 @@ class DBEngine(object):
         self._map_to_foreign_key(data, dfs)
         traffic_log_id = self._write_traffic_log(csv)
         self._write_traffic_log_detail(data, traffic_log_id)
+        self._write_rules(self._read_csv(csv))
 
     def _get_date_from_filename(self, string):
         date = re.findall(r'[0-9]{4}_[0-9]{2}_[0-9]{2}',
@@ -254,7 +305,7 @@ class DBEngine(object):
             if verbose:
                 print('Writing to db: ', csv)
             self._write_to_db(csv)
-            os.remove(csv)
+            # os.remove(csv)
 
     def _check_data_dir_valid(self, data_dir: str):
         if not os.path.isdir(data_dir):

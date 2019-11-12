@@ -11,7 +11,7 @@ from troubleticket.models import (
     TroubleTicketAnomaly,
     TroubleTicketFollowUpAnomaly
 )
-
+from rules.models import Rule
 from users.models import FoxhoundUser
 
 
@@ -120,3 +120,9 @@ class VirtualSystemSerializer(serializers.ModelSerializer):
     class Meta:
         model = VirtualSystem
         fields = ['tenant_name']
+
+
+class RuleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rule
+        fields = '__all__'
