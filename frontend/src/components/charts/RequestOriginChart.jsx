@@ -3,8 +3,9 @@ import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import {connect} from "react-redux";
 import axios from 'axios';
+import reqwest from "reqwest";
 import '../../charts/chart.css';
-import {Card, Drawer, Row, Select, Spin, Col} from "antd";
+import {Card, Drawer, Row, Select, Spin, Col, Statistic, Table} from "antd";
 import mapdata from "../../charts/mapdata";
 import {ROOT_URL} from "../../utils";
 
@@ -12,7 +13,13 @@ require("highcharts/modules/map")(Highcharts);
 
 const FETCH_API = `${ROOT_URL}dashboard/map/`;
 const FETCH_API_COUNTRY_NAMES = `${ROOT_URL}dashboard/countries/`;
+const FETCH_API_REQUEST_ORIGIN = `${ROOT_URL}log/request-origin/`;
 
+const drawerInfoStyle = {
+  paddingBottom : 10,
+  paddingTop : 10,
+  border: '1px solid rgb(235, 237, 240)'
+}
 
 class RequestOriginChart extends Component {
   constructor(props) {
@@ -22,12 +29,63 @@ class RequestOriginChart extends Component {
       data: [],
       mapDrawerVisible : false,
       selectedCountryEvent: null,
-      // showNepal: 0,
+      record : null,
       countries: [],
-      exceptcountries: []
+      exceptcountries: [],
+      loadCountrydata: true,
+      selectedCountry: "",
+      selectedCountryCode: "",
+      selectedCountryData: [],
+      pagination: {},
+      columns : [
+        {
+            title: 'Id',
+            dataIndex: 'id',
+            key: 'id',
+        },
+        {
+            title: 'Source Address',
+            dataIndex: 'source_ip.address',
+            key: 'source_ip.address',
+        },
+        {
+            title: 'Destination Address',
+            dataIndex: 'destination_ip.address',
+            key: 'destination_ip.address',
+        },
+        {
+            title: 'Application',
+            dataIndex: 'application.name',
+            key: 'application.name',
+        },
+        {
+            title: 'Source Port',
+            dataIndex: 'source_port',
+            key: 'source_port',
+        },
+        {
+            title: 'Destination Port',
+            dataIndex: 'destination_port',
+            key: 'destination_port',
+        },
+        {
+            title: 'Bytes Sent',
+            dataIndex: 'bytes_sent',
+            key: 'bytes_sent',
+        },
+        {
+            title: 'Bytes Received',
+            dataIndex: 'bytes_received',
+            key: 'bytes_received',
+        },
+        {
+            title: 'Logged DateTime',
+            dataIndex: 'logged_datetime',
+            key: 'logged_datetime',
+        },
+      ]
     }
   }
-
 
   componentDidMount = async () => {
     this.handleFetchData();
@@ -41,12 +99,11 @@ class RequestOriginChart extends Component {
     }
   }
 
-  handleFetchData = () => {
+  handleFetchData = (params = {}) => {
 
     this.setState({
       loading : true
     });
-
 
     const token = `Token ${this.props.auth_token}`;
     let headers = {
@@ -56,7 +113,7 @@ class RequestOriginChart extends Component {
     };  
 
     var bodyFormData = new FormData();
-    // bodyFormData.set('show_nepal', this.state.showNepal);
+    bodyFormData.set('country', this.state.selectedCountryCode);
     bodyFormData.set('except_countries', this.state.exceptcountries);
     bodyFormData.set('start_date', this.props.date_range[0]);
     bodyFormData.set('end_date', this.props.date_range[1]);
@@ -66,27 +123,38 @@ class RequestOriginChart extends Component {
     bodyFormData.set('source_zone', this.props.source_zone);
     bodyFormData.set('destination_zone', this.props.destination_zone);
 
+    // console.log('excluded countries', this.state.exceptcountries)
+
     axios.post(FETCH_API,bodyFormData,{headers}).
     then(res => {
       const response = res.data;
       console.log('api data',response);
       this.setState({
         data : response,
-        // countries: response.countryList
       })
-
     });
+
     axios.post(FETCH_API_COUNTRY_NAMES,bodyFormData,{headers}).
     then(res => {
       const response = res.data;
-      console.log('countrynames',response);
       this.setState({
-        // data : response,
         countries: response
       })
-    })
+    });
 
+    axios.post(FETCH_API_REQUEST_ORIGIN,bodyFormData,{headers}).
+    then(res => {
+      const response = res.data;
+      const { pagination } = this.state;
+      pagination.total = response.count;
+      this.setState({
+        selectedCountryData: response.results,
+        loadCountrydata: false,
+        pagination:pagination
+      })
+    });
   }
+
   exitHandler = () => {
     if (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement) {
       console.log('Inside fullscreen. Doing chart stuff.');
@@ -109,10 +177,8 @@ class RequestOriginChart extends Component {
     }
   }
 
-
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (
-        // (String(prevState.showNepal)!==String(this.state.showNepal)) ||
         (String(prevState.exceptcountries)!==String(this.state.exceptcountries)) || 
         (String(prevProps.ip_address)!==String(this.props.ip_address)) ||
         (String(prevProps.date_range[0])!==String(this.props.date_range[0])) ||
@@ -159,10 +225,34 @@ class RequestOriginChart extends Component {
       mapDrawerVisible:true
     })
     this.setState({
-      selectedCountryEvent : e
+      selectedCountryEvent : e,
+      loadCountrydata: true,
+      selectedCountryCode: e.point['hc-key'],
+      selectedCountry: e.point.name
+    })
+    this.handleFetchData();
+    this.setState({
+      loadCountrydata: false
     })
   }
 
+  handleTableChange = (pagination, filters, sorter) => {
+      console.log('pagination',pagination);
+      console.log('filter',filters)
+      console.log('sorter',sorter)
+      const pager = { ...this.state.pagination };
+      pager.current = pagination.current;
+      this.setState({
+          pagination: pager
+      });
+      this.handleFetchData({
+          // results: pagination.pageSize,
+          page: pagination.current,
+          sortField: sorter.field,
+          sortOrder: sorter.order,
+          ...filters
+      });
+  };
 
   render(){
     const countrySelectListItem = this.state.countries.map(data => <Option key={data['id']}>{data['name']}</Option>);
@@ -192,8 +282,6 @@ class RequestOriginChart extends Component {
             click: function (e) {
               const self = this.chart.component;
               self.handleClickEvent(e);
-              console.log(self);
-
               let text = this.name +
                   '<br>Request Count: ' + e.point.name + ' '+ e.point.value + ' Requests';
               if (!this.chart.clickLabel) {
@@ -219,16 +307,6 @@ class RequestOriginChart extends Component {
         <Spin tip="Loading..." spinning={this.state.loading}>
           <Card title={
             <Fragment>
-              {/* <div>
-                <Select
-                    onChange={(value) => this.setState({showNepal:value})}
-                    size={'default'}
-                    style={{width:'50%',paddingRight:10,paddingLeft:10}}
-                    defaultValue={"0"}>
-                    <Option key="1">Show Nepal</Option>
-                    <Option key="0">Hide Nepal</Option>
-                </Select>
-              </div> */}
               <Col xs={24} sm={24} md={24} lg={24} xl={24}>
                         <Select
                             id="country"
@@ -239,7 +317,8 @@ class RequestOriginChart extends Component {
                             style={{ width: "100%" }}
                             placeholder="Exclude"
                             onChange={(v)=> this.setState({
-                              exceptcountries: v
+                              exceptcountries: v,
+                              loading:true
                             })}>
                             {
                                 countrySelectListItem
@@ -259,13 +338,26 @@ class RequestOriginChart extends Component {
           </Card>
             {this.state.selectedCountryEvent ?
 
-            <Drawer title={`Logs With Request originating from ${this.state.selectedCountryEvent.point.name} (Experimental)`}
+            <Drawer title={`Logs With Request originating from ${this.state.selectedCountry} (Experimental)`}
                               width={600}
-                              placement="bottom"
+                              placement="right"
                               closable={true}
                               onClose={this.onClose}
                               visible={this.state.mapDrawerVisible}
-                      ></Drawer>
+                      >
+                    <Spin tip={"loading..."} spinning={this.state.loadCountrydata}>
+                          <Fragment>
+                          <Table
+                              columns={this.state.columns}
+                              // rowKey={record => record.id}
+                              dataSource={this.state.selectedCountryData}
+                              pagination={this.state.pagination}
+                              loading={this.state.loadCountrydata}
+                              onChange={this.handleTableChange}
+                          />
+                          </Fragment>
+                    </Spin>
+              </Drawer>
                 : null
             }
         </Spin>
