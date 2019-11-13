@@ -23,6 +23,7 @@
     "react-scripts": "0.9.5",
     "reactjs-calendar-heatmap": "0.0.10",
     "redux": "latest",
+    "redux-thunk": "^2.3.0",
     "reqwest": "^2.0.5"
   },
   "devDependencies": {},
