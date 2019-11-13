@@ -4,8 +4,7 @@ import datetime
 from collections import defaultdict
 import json
 
-from django.db import connection
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, F
 
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
@@ -72,24 +71,6 @@ class StatsApiView(APIView):
         return self.get(request, format=format)
 
 
-class RulesApiView(PaginatedView):
-    serializer_class = RuleSerializer
-
-    def get(self, request):
-        tenant_id = get_tenant_id_from_token(request)
-        objects = Rule.objects.filter(
-            firewall_rule__tenant__id=tenant_id,
-            is_verified_rule=False
-        ).order_by('id')
-        page = self.paginate_queryset(objects)
-        if page is not None:
-            serializer = self.serializer_class(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-    def post(self, request):
-        return self.get(request)
-
-
 class FiltersApiView(APIView):
     def get(self, request, format=None):
         tenant_id = get_tenant_id_from_token(request)
@@ -141,13 +122,28 @@ class FiltersApiView(APIView):
         return self.get(request, format=format)
 
 
+class RulesApiView(PaginatedView):
+    serializer_class = RuleSerializer
+
+    def get(self, request):
+        tenant_id = get_tenant_id_from_token(request)
+        objects = Rule.objects.filter(
+            firewall_rule__tenant__id=tenant_id,
+            is_verified_rule=False
+        ).order_by('id')
+        page = self.paginate_queryset(objects)
+        if page is not None:
+            serializer = self.serializer_class(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+    def post(self, request):
+        return self.get(request)
+
+
 class UsageApiView(APIView):
     def get(self, request, format=None):
         tenant_id = get_tenant_id_from_token(request)
         query = get_query_from_request(request)
-        filter_serializer = FilterSerializer(data=request.data)
-        # if not filter_serializer.is_valid():
-        #     return Response({"error": "filter error"})
         if not query:
             latest_date = TrafficLog.objects.latest('log_date')
             objects = groupby_date(
@@ -156,7 +152,7 @@ class UsageApiView(APIView):
                     firewall_rule__tenant__id=tenant_id
                 ),
                 'logged_datetime',
-                'hour',
+                'minute',
                 ['bytes_sent', 'bytes_received']
             )
         else:
@@ -165,7 +161,7 @@ class UsageApiView(APIView):
             objects = groupby_date(
                 objects,
                 'logged_datetime',
-                'hour',
+                'minute',
                 ['bytes_sent', 'bytes_received']
             )
         bytes_sent, bytes_received = get_usage(objects)
@@ -178,6 +174,71 @@ class UsageApiView(APIView):
 
     def post(self, request, format=None):
         return self.get(request, format=format)
+
+
+class WorldMapApiView(APIView):
+    def get(self, request):
+        show_nepal = int(request.data.get('show_nepal', False))
+        tenant_id = get_tenant_id_from_token(request)
+        query = get_query_from_request(request)
+        objects = get_objects_from_query(query).filter(
+            firewall_rule__tenant__id=tenant_id).values(
+            'source_ip'
+        ).annotate(
+            ip_count=Count('source_ip')
+        )[:]
+        # print(Country.objects.filter(ip_address__in=objects.values('source_ip')))
+        # objects.filter(objects)
+        # return Response({})
+        country_data = defaultdict(int)
+        import os
+        import pandas as pd
+        from sqlalchemy import create_engine
+        db_name = os.environ.get('FH_DB_NAME', '')
+        db_user = os.environ.get('FH_DB_USER', '')
+        db_password = os.environ.get('FH_DB_PASSWORD', '')
+        db_engine = create_engine(
+            f'postgresql://{db_user}:{db_password}@localhost:5432/{db_name}'
+        )
+        objects = objects[:]
+        objects = pd.DataFrame(objects)
+        objects.columns = ['ip_address_id', 'count']
+        countries = pd.read_sql('core_country', db_engine, index_col='id')
+        print(countries)
+        data = objects.merge(countries, on='ip_address_id', how='inner')[
+            ['iso_code', 'count']]
+        data = data.groupby('iso_code').sum().to_dict(orient='split')
+        response = []
+        for i, j in zip(data['index'], data['data']):
+            if (not show_nepal) and (i == 'np'):
+                continue
+            response.append([i, j[0]])
+        return Response({
+            'data': response
+        }, status=HTTP_200_OK)
+
+    def post(self, request, format=None):
+        return self.get(request)
+
+
+class IPAddressApiView(APIView):
+    def get(self, request):
+        tenant_id = get_tenant_id_from_token(request)
+        query = get_query_from_request(request)
+        objects = get_objects_from_query(query).filter(
+            firewall_rule__tenant__id=tenant_id)
+        data = objects.values(
+            'source_ip__id', 'source_ip__address',
+            'source_ip__alias'
+        ).distinct('source_ip__address').annotate(
+            id=F('source_ip__id'),
+            address=F('source_ip__address'),
+            alias=F('source_ip__alias'),
+        ).values('id', 'address', 'alias')
+        return Response(data)
+
+    def post(self, request):
+        return self.get(request)
 
 
 class ActivityApiView(APIView):
@@ -201,56 +262,3 @@ class ActivityApiView(APIView):
 
     def post(self, request, format=None):
         return self.get(request)
-
-
-class WorldMapApiView(APIView):
-    def get(self, request):
-        show_nepal = int(request.data.get('show_nepal', False))
-        tenant_id = get_tenant_id_from_token(request)
-        query = get_query_from_request(request)
-        objects = get_objects_from_query(query).filter(
-            firewall_rule__tenant__id=tenant_id)
-        objects = objects.values(
-            'source_ip'
-        ).annotate(
-            ip_count=Count('source_ip')
-        )
-        country_data = defaultdict(int)
-        import os
-        import pandas as pd
-        from sqlalchemy import create_engine
-        db_name = os.environ.get('FH_DB_NAME', '')
-        db_user = os.environ.get('FH_DB_USER', '')
-        db_password = os.environ.get('FH_DB_PASSWORD', '')
-        db_engine = create_engine(
-            f'postgresql://{db_user}:{db_password}@localhost:5432/{db_name}'
-        )
-        objects = objects[:]
-        objects = pd.DataFrame(objects)
-        objects.columns = ['ip_address_id', 'count']
-        countries = pd.read_sql('core_country', db_engine, index_col='id')
-        data = objects.merge(countries, on='ip_address_id', how='inner')[
-            ['iso_code', 'count']]
-        data = data.groupby('iso_code').sum().to_dict(orient='split')
-        response = []
-        for i, j in zip(data['index'], data['data']):
-            if (not show_nepal) and (i == 'np'):
-                continue
-            response.append([i, j[0]])
-        return Response({
-            'data': response
-        }, status=HTTP_200_OK)
-
-    def post(self, request, format=None):
-        return self.get(request)
-
-
-class IPAddressApiView(APIView):
-    def get(self, request):
-        tenant_id = get_tenant_id_from_token(request)
-        query = get_query_from_request(request)
-        objects = get_objects_from_query(query).filter(
-            firewall_rule__tenant__id=tenant_id)
-        data = objects.values('source_ip__id', 'source_ip__address',
-                              'source_ip__alias').distinct('source_ip__address')
-        return Response(data)
