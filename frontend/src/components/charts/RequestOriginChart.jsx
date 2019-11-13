@@ -165,7 +165,7 @@ class RequestOriginChart extends Component {
 
 
   render(){
-    const countrySelectListItem = this.state.countries.map(data => <Option key={data[0]}>{data[2]}</Option>);
+    const countrySelectListItem = this.state.countries.map(data => <Option key={data['id']}>{data['name']}</Option>);
     const options = {
       title: {
         text: "Request Origin"
