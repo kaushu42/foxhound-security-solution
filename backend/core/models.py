@@ -68,7 +68,6 @@ class TrafficLog(models.Model):
 
 class IPAddress(models.Model):
     address = models.CharField(max_length=15)
-    type = models.BooleanField()
     alias = models.CharField(max_length=200, null=True)
 
     def __str__(self):

@@ -45,7 +45,6 @@ class SourceAddressApiView(APIView):
         query = get_query_from_request(request)
         objects = get_objects_from_query(query).filter(
             firewall_rule__tenant__id=tenant_id,
-            source_ip__type=False
         ).values('source_ip__address').annotate(
             data=Sum(basis)
         ).order_by('-data')
@@ -65,7 +64,6 @@ class DestinationAddressApiView(APIView):
         query = get_query_from_request(request)
         objects = get_objects_from_query(query).filter(
             firewall_rule__tenant__id=tenant_id,
-            source_ip__type=False
         ).values('destination_ip__address').annotate(
             data=Sum(basis)
         ).order_by('-data')
