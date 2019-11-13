@@ -4,7 +4,7 @@ import HighchartsReact from "highcharts-react-official";
 import {connect} from "react-redux";
 import axios from 'axios';
 import '../../charts/chart.css';
-import {Card, Drawer, Row, Select, Spin} from "antd";
+import {Card, Drawer, Row, Select, Spin, Col} from "antd";
 import mapdata from "../../charts/mapdata";
 import {ROOT_URL} from "../../utils";
 
@@ -20,7 +20,8 @@ class RequestOriginChart extends Component {
       data: [],
       mapDrawerVisible : false,
       selectedCountryEvent: null,
-      showNepal: 0
+      showNepal: 0,
+      countries: []
     }
   }
 
@@ -36,6 +37,10 @@ class RequestOriginChart extends Component {
       document.addEventListener('MSFullscreenChange', this.exitHandler, false);
     }
   }
+
+  handleCountryListChange = (value) => {
+    this.props.dispatchCountryListUpdate(value);
+}
 
   handleFetchData = () => {
 
@@ -66,7 +71,8 @@ class RequestOriginChart extends Component {
       const response = res.data;
       console.log('api data',response);
       this.setState({
-        data : response
+        data : response,
+        // countries: response.countryList
       })
 
     });
@@ -97,7 +103,8 @@ class RequestOriginChart extends Component {
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (
-        (String(prevState.showNepal)!==String(this.state.showNepal)) || 
+        (String(prevState.showNepal)!==String(this.state.showNepal)) ||
+        (String(prevState.countries)!==String(this.state.countries)) || 
         (String(prevProps.ip_address)!==String(this.props.ip_address)) ||
         (String(prevProps.date_range[0])!==String(this.props.date_range[0])) ||
         (String(prevProps.date_range[1])!==String(this.props.date_range[1])) ||
@@ -149,6 +156,7 @@ class RequestOriginChart extends Component {
 
 
   render(){
+    const countrySelectListItem = this.state.countries.map(data => <Option key={data[0]}>{data[1]}</Option>);
     const options = {
       title: {
         text: "Request Origin"
@@ -202,7 +210,7 @@ class RequestOriginChart extends Component {
         <Spin tip="Loading..." spinning={this.state.loading}>
           <Card title={
             <Fragment>
-              <div>
+              {/* <div>
                 <Select
                     onChange={(value) => this.setState({showNepal:value})}
                     size={'default'}
@@ -211,7 +219,22 @@ class RequestOriginChart extends Component {
                     <Option key="1">Show Nepal</Option>
                     <Option key="0">Hide Nepal</Option>
                 </Select>
-              </div>
+              </div> */}
+              <Col xs={24} sm={24} md={24} lg={24} xl={24}>
+                        <Select
+                            id="country"
+                            size={"large"}
+                            mode="multiple"
+                            loading={this.state.loading}
+                            allowClear={true}
+                            style={{ width: "100%" }}
+                            placeholder="Exclude">
+                            {/* onChange={(v)=> this.handleCountryListChange(v)}>
+                            {
+                                countrySelectListItem
+                            } */}
+                        </Select>
+                    </Col>
             </Fragment>
           }>
             <HighchartsReact
