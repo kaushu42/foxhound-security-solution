@@ -13,7 +13,7 @@ const LayoutStyle = {
     margin: '24px 16px',
     background: '#fff',
 }
-class Master extends Component {
+class MasterLayout extends Component {
     render(){
         return (
             <Layout className="Fade">
@@ -43,4 +43,4 @@ const mapDispatchToProps = dispatch => {
     }
 }
 
-export default connect(mapStateToProps,mapDispatchToProps)(Master);
+export default connect(mapStateToProps,mapDispatchToProps)(MasterLayout);

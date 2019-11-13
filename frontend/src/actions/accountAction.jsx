@@ -35,10 +35,11 @@ export function passwordChangeComplete(){
     }
 }
 
-export function handlePasswordChange(auth_token,old_password, new_password,confirm_new_password) {
+export function handlePasswordChange(auth_token,old_password, new_password) {
     return (dispatch) => {
         dispatch(passwordChangeBegin());
         const formData = new FormData();
+        formData.set('auth_token', auth_token);
         formData.set('old_password', old_password);
         formData.set('new_password', new_password);
         let headers = {
@@ -50,5 +51,6 @@ export function handlePasswordChange(auth_token,old_password, new_password,confi
             .then(res => dispatch(passwordChangeSuccess()))
             .then(res => dispatch(passwordChangeComplete()))
             .catch(e => dispatch(passwordChangeFailure()))
+
     }
 }

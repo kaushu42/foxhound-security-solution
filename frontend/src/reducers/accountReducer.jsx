@@ -25,12 +25,15 @@ const accountReducer = (state=initialState, action) => {
         case PASSWORD_CHANGE_SUCCESS:
             return {
                 ...state,
-                passwordChangeSuccess:true
+                passwordChangeSuccess:true,
+                passwordChangeError: false,
             };
         case PASSWORD_CHANGE_ERROR:
             return {
                 ...state,
                 passwordChangeError: true,
+                passwordChangeSuccess: false,
+                passwordChangeLoading: false
             };
         default:
             return state;

@@ -8,7 +8,12 @@ const accountDropdownMenu = (
     <Menu>
         <Menu.Item>
             <a rel="noopener noreferrer" href="/auth/logout">
-                Logout
+                Logout of session
+            </a>
+        </Menu.Item>
+        <Menu.Item>
+            <a rel="noopener noreferrer" href="/test">
+                Change Password
             </a>
         </Menu.Item>
     </Menu>
