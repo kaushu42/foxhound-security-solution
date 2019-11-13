@@ -95,11 +95,11 @@ class DBEngine(object):
         ]
         source_ip = [
             i for i in data['source_ip_id'].unique(
-            ) if i not in dfs['core_ipaddress'][dfs['core_ipaddress'].type == False].address.values
+            ) if i not in dfs['core_ipaddress'].address.values
         ]
         destination_ip = [
             i for i in data['destination_ip_id'].unique(
-            ) if i not in dfs['core_ipaddress'][dfs['core_ipaddress'].type == True].address.values
+            ) if i not in dfs['core_ipaddress'].address.values
         ]
         application = [
             i for i in data['application_id'].unique(
@@ -111,11 +111,11 @@ class DBEngine(object):
         ]
         source_zone = [
             i for i in data['source_zone_id'].unique(
-            ) if i not in dfs['core_zone'][dfs['core_zone'].type == False].name.values
+            ) if i not in dfs['core_zone'].name.values
         ]
         destination_zone = [
             i for i in data['destination_zone_id'].unique(
-            ) if i not in dfs['core_zone'][dfs['core_zone'].type == True].name.values
+            ) if i not in dfs['core_zone'].name.values
         ]
         return {
             'vsys': vsys,

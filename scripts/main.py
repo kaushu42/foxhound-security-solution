@@ -40,11 +40,17 @@ try:
         print('Downloading IP database....')
 
         wget.download(config.DATABASE_URL)
-        tar = tarfile.open('GeoLite2-City_20191029.tar.gz')
+        tar = tarfile.open(os.path.join(
+            config.BASE_PATH, 'GeoLite2-City_20191029.tar.gz'))
         tar.extractall()
         os.rename(
-            'GeoLite2-City_20191029/GeoLite2-City.mmdb',
-            './GeoLite2-City.mmdb'
+            os.path.join(
+                config.BASE_PATH,
+                'GeoLite2-City_20191029/GeoLite2-City.mmdb'
+            ),
+            os.path.join(
+                config.BASE_PATH, './GeoLite2-City.mmdb'
+            )
         )
         shutil.rmtree('GeoLite2-City_20191029/')
         os.remove('GeoLite2-City_20191029.tar.gz')

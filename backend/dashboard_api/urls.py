@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     path('stats/', views.StatsApiView.as_view()),
     path('filters/', views.FiltersApiView.as_view()),
+    path('countries/', views.CountryListApiView.as_view()),
     path('rules/', views.RulesApiView.as_view()),
     path('usage/', views.UsageApiView.as_view()),
     path('activity/', views.ActivityApiView.as_view()),

@@ -72,6 +72,9 @@ class RequestOriginLogApiView(PaginatedView):
             return self.get_paginated_response(serializer.data)
         return Response({})
 
+    def post(self, request):
+        return self.get(request)
+
 
 class RequestEndLogApiView(PaginatedView):
     serializer_class = TrafficLogDetailSerializer

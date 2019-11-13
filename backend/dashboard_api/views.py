@@ -35,7 +35,8 @@ from globalutils import (
 from serializers.serializers import (
     FilterSerializer,
     DomainURLSerializer,
-    RuleSerializer
+    RuleSerializer,
+    CountrySerializer
 )
 
 
@@ -176,9 +177,22 @@ class UsageApiView(APIView):
         return self.get(request, format=format)
 
 
+class CountryListApiView(APIView):
+    def post(self, request):
+        tenant_id = get_tenant_id_from_token(request)
+        query = get_query_from_request(request)
+        objects = get_objects_from_query(query).filter(
+            firewall_rule__tenant__id=tenant_id).values(
+            'source_ip'
+        )
+        countries = Country.objects.filter(ip_address__in=objects)
+        countries = countries.values(
+            'id', 'iso_code', 'name').distinct('iso_code')
+        return Response(CountrySerializer(countries, many=True).data)
+
+
 class WorldMapApiView(APIView):
     def get(self, request):
-        show_nepal = int(request.data.get('show_nepal', False))
         tenant_id = get_tenant_id_from_token(request)
         query = get_query_from_request(request)
         objects = get_objects_from_query(query).filter(
@@ -187,9 +201,6 @@ class WorldMapApiView(APIView):
         ).annotate(
             ip_count=Count('source_ip')
         )[:]
-        # print(Country.objects.filter(ip_address__in=objects.values('source_ip')))
-        # objects.filter(objects)
-        # return Response({})
         country_data = defaultdict(int)
         import os
         import pandas as pd
@@ -204,14 +215,11 @@ class WorldMapApiView(APIView):
         objects = pd.DataFrame(objects)
         objects.columns = ['ip_address_id', 'count']
         countries = pd.read_sql('core_country', db_engine, index_col='id')
-        print(countries)
         data = objects.merge(countries, on='ip_address_id', how='inner')[
             ['iso_code', 'count']]
         data = data.groupby('iso_code').sum().to_dict(orient='split')
         response = []
         for i, j in zip(data['index'], data['data']):
-            if (not show_nepal) and (i == 'np'):
-                continue
             response.append([i, j[0]])
         return Response({
             'data': response

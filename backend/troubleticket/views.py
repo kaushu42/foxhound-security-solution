@@ -33,16 +33,28 @@ class TroubleTicketAnomalyApiView(PaginatedView):
     serializer_class = TrafficLogDetailSerializer
 
     def get(self, request):
+        # Get the tenant id to filter the TTs
         tenant_id = get_tenant_id_from_token(request)
+
+        # Get all the log details belonging to the tenant
         log_details = TrafficLogDetail.objects.filter(
             firewall_rule__tenant__id=tenant_id
         )
+
+        # Get a list of all logs which have anomaly tts
         logs = TroubleTicketAnomaly.objects.values('log').distinct()
+        # Get the row numbers for each log
         row_numbers = TroubleTicketAnomaly.objects.values(
             'row_number').distinct()
-        anomalies = log_details.filter(
-            traffic_log__in=logs, row_number__in=row_numbers).order_by('id')
-        page = self.paginate_queryset(anomalies)
+
+        # Using the log name and row_number get all the records which
+        # are anomalous
+        anomalous_logs = log_details.filter(
+            traffic_log__in=logs,
+            row_number__in=row_numbers
+        ).order_by('-id')
+        print(anomalous_logs.count())
+        page = self.paginate_queryset(anomalous_logs)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
@@ -65,7 +77,13 @@ class TroubleTicketFollowUpAnomalyApiView(PaginatedView):
             return self.get_paginated_response(serializer.data)
 
     def post(self, request, id):
-        tt_anomaly = TroubleTicketAnomaly.objects.get(id=id)
+        print(id)
+        try:
+            tt_anomaly = TroubleTicketAnomaly.objects.get(id=id)
+        except Exception as e:
+            print([i['id']
+                   for i in TroubleTicketAnomaly.objects.values('id').distinct()])
+            return Response({"error": "No matching TT Found"}, status=HTTP_400_BAD_REQUEST)
         assigned_by_user_id = request.data.get('assigned_by_user_id')
         assigned_to_user_id = request.data.get('assigned_to_user_id')
         description = request.data.get('description')

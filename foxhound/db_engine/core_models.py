@@ -85,7 +85,6 @@ class IPAddress(Base):
 
     id = Column(Integer, primary_key=True)
     address = Column(String)
-    type = Column(Boolean)
 
     def __repr__(self):
         return self.address
@@ -128,7 +127,6 @@ class Zone(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
-    type = Column(Boolean)
 
     def __repr__(self):
         return f"{self.name}"

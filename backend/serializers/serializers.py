@@ -5,7 +5,8 @@ from core.models import (
     Tenant, Domain,
     VirtualSystem,
     IPAddress,
-    Application
+    Application,
+    Country
 )
 from troubleticket.models import (
     TroubleTicketAnomaly,
@@ -131,3 +132,9 @@ class RuleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rule
         fields = '__all__'
+
+
+class CountrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Country
+        fields = ('id', 'iso_code', 'name')
