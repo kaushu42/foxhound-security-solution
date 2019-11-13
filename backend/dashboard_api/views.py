@@ -194,9 +194,11 @@ class CountryListApiView(APIView):
 class WorldMapApiView(APIView):
     def get(self, request):
         tenant_id = get_tenant_id_from_token(request)
-        except_countries = request.data.get('except_countries', [])
-        except_countries = [Country.objects.get(
-            id=int(id)).iso_code for id in except_countries]
+        except_countries = request.data.get('except_countries')
+        if except_countries:
+            except_countries = [
+                Country.objects.get(id=int(i)).iso_code for i in except_countries.split(',')
+            ]
         query = get_query_from_request(request)
         objects = get_objects_from_query(query).filter(
             firewall_rule__tenant__id=tenant_id).values(
