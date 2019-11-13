@@ -39,7 +39,7 @@ class RequestOriginChart extends Component {
   }
 
   handleCountryListChange = (value) => {
-    this.props.dispatchCountryListUpdate(value);
+    // this.props.dispatchCountryListUpdate(value);
 }
 
   handleFetchData = () => {

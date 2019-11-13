@@ -269,13 +269,13 @@ class AnomalyBasedTroubleTicketTable extends Component {
                                 <Fragment>
                                     <Row type="flex" gutter={16}>
                                         <Col xs={24} sm={12} md={12} lg={8} xl={8} style={drawerInfoStyle}>
-                                            <Statistic title="Source IP" value={this.state.record.source_ip} />
+                                            <Statistic title="Source IP" value={this.state.record.source_ip.address} />
                                         </Col>
                                         <Col xs={24} sm={12} md={12} lg={8} xl={8} style={drawerInfoStyle}>
-                                            <Statistic title="Destination IP" value={this.state.record.destination_ip}/>
+                                            <Statistic title="Destination IP" value={this.state.record.destination_ip.address}/>
                                         </Col>
                                         <Col xs={24} sm={12} md={12} lg={8} xl={8} style={drawerInfoStyle}>
-                                            <Statistic title="Application" value={this.state.record.application}/>
+                                            <Statistic title="Application" value={this.state.record.application.name}/>
                                         </Col>
                                         <Col xs={24} sm={12} md={12} lg={6} xl={6} style={drawerInfoStyle}>
                                             <Statistic title="Source Port" value={this.state.record.source_port}/>
@@ -289,9 +289,9 @@ class AnomalyBasedTroubleTicketTable extends Component {
                                         <Col xs={24} sm={12} md={12} lg={6} xl={6} style={drawerInfoStyle}>
                                             <Statistic title="Bytes Received" value={this.state.record.bytes_received}/>
                                         </Col>
-                                        <Col xs={24} sm={24} md={24} lg={24} xl={24} style={drawerInfoStyle}>
+                                        {/* <Col xs={24} sm={24} md={24} lg={24} xl={24} style={drawerInfoStyle}>
                                             <Statistic title="Log Name" value={this.state.record.log.log_name}/>
-                                        </Col>
+                                        </Col> */}
                                     </Row>
                                     <br />
 
