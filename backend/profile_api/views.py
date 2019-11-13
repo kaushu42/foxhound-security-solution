@@ -43,7 +43,6 @@ class StatsApiView(APIView):
     def _get_stats(self, ip, objects):
         objects = objects.filter(
             source_ip__address=ip,
-            source_ip__type=False
         )
         uplink = objects.aggregate(
             Sum('bytes_sent')).get(
@@ -54,7 +53,6 @@ class StatsApiView(APIView):
             Sum('bytes_received')).get(
             'bytes_received__sum', None
         )
-
         return {
             "uplink": uplink,
             "downlink": downlink,
@@ -81,7 +79,6 @@ class AverageDailyApiView(APIView):
     def _get_usage(self, ip, objects):
         objects = objects.filter(
             source_ip__address=ip,
-            source_ip__type=False,
         )
         as_source = groupby_date(
             objects,
@@ -185,13 +182,11 @@ class SankeyApiView(APIView):
     def _get_sankey(self, ip, objects):
         ip_as_source = objects.filter(
             source_ip__address=ip,
-            source_ip__type=False
         ).values('destination_ip__address').annotate(
             sent=Sum('bytes_sent')
         )
         ip_as_destination = objects.filter(
             destination_ip__address=ip,
-            destination_ip__type=False
         ).values('source_ip__address').annotate(
             received=Sum('bytes_received')
         )
@@ -229,12 +224,13 @@ class TimeSeriesApiView(APIView):
         query = get_query_from_request(request)
 
         if not query:
-            latest_date = TrafficLog.objects.latest('log_date')
+            latest_date = TrafficLogDetail.objects.latest(
+                'logged_datetime'
+            ).logged_datetime.date()
             objects = groupby_date(
                 TrafficLogDetail.objects.filter(
-                    traffic_log__id=latest_date.id,
+                    logged_datetime__gte=latest_date,
                     source_ip__address=ip,
-                    source_ip__type=False,
                     firewall_rule__tenant__id=tenant_id
                 ),
                 'logged_datetime',
@@ -246,8 +242,7 @@ class TimeSeriesApiView(APIView):
                 firewall_rule__tenant__id=tenant_id
             )
             objects = groupby_date(
-                objects.filter(source_ip__address=ip,
-                               source_ip__type=False),
+                objects.filter(source_ip__address=ip),
                 'logged_datetime',
                 'hour',
                 ['bytes_sent', 'bytes_received']
@@ -260,4 +255,4 @@ class TimeSeriesApiView(APIView):
         }, status=HTTP_200_OK)
 
     def get(self, request, format=None):
-        return self.get(request, format=format)
+        return self.post(request, format=format)

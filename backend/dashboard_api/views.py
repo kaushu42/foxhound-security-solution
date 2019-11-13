@@ -237,6 +237,9 @@ class IPAddressApiView(APIView):
         ).values('id', 'address', 'alias')
         return Response(data)
 
+    def post(self, request):
+        return self.get(request)
+
 
 class ActivityApiView(APIView):
     def get(self, request):

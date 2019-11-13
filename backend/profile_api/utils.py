@@ -12,9 +12,7 @@ def _is_ip_valid(ip):
 
 def get_ip_from_request(request):
     try:
-        ip = json.loads(request.body)
-        if 'ip' in ip:
-            return ip['ip']
+        return request.data['ip']
     except Exception:
         pass
     if request.method == 'POST':
