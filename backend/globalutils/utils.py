@@ -71,7 +71,8 @@ def get_usage(queryset):
     bytes_sent = []
     bytes_received = []
     for obj in queryset:
-        time = obj['date']
+        # Correction for time
+        time = obj['date'] - datetime.timedelta(hours=5, minutes=45)
         bytes_sent.append([time, obj['bytes_sent']])
         bytes_received.append([time, obj['bytes_received']])
 
