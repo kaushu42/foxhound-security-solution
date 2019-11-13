@@ -11,6 +11,8 @@ import {ROOT_URL} from "../../utils";
 require("highcharts/modules/map")(Highcharts);
 
 const FETCH_API = `${ROOT_URL}dashboard/map/`;
+const FETCH_API_COUNTRY_NAMES = `${ROOT_URL}dashboard/countries/`;
+
 
 class RequestOriginChart extends Component {
   constructor(props) {
@@ -20,8 +22,9 @@ class RequestOriginChart extends Component {
       data: [],
       mapDrawerVisible : false,
       selectedCountryEvent: null,
-      showNepal: 0,
-      countries: []
+      // showNepal: 0,
+      countries: [],
+      exceptcountries: []
     }
   }
 
@@ -38,10 +41,6 @@ class RequestOriginChart extends Component {
     }
   }
 
-  handleCountryListChange = (value) => {
-    // this.props.dispatchCountryListUpdate(value);
-}
-
   handleFetchData = () => {
 
     this.setState({
@@ -57,7 +56,8 @@ class RequestOriginChart extends Component {
     };  
 
     var bodyFormData = new FormData();
-    bodyFormData.set('show_nepal', this.state.showNepal);
+    // bodyFormData.set('show_nepal', this.state.showNepal);
+    bodyFormData.set('except_countries', this.state.exceptcountries);
     bodyFormData.set('start_date', this.props.date_range[0]);
     bodyFormData.set('end_date', this.props.date_range[1]);
     bodyFormData.set('firewall_rule', this.props.firewall_rule);
@@ -76,6 +76,15 @@ class RequestOriginChart extends Component {
       })
 
     });
+    axios.post(FETCH_API_COUNTRY_NAMES,bodyFormData,{headers}).
+    then(res => {
+      const response = res.data;
+      console.log('countrynames',response);
+      this.setState({
+        // data : response,
+        countries: response
+      })
+    })
 
   }
   exitHandler = () => {
@@ -103,8 +112,8 @@ class RequestOriginChart extends Component {
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (
-        (String(prevState.showNepal)!==String(this.state.showNepal)) ||
-        (String(prevState.countries)!==String(this.state.countries)) || 
+        // (String(prevState.showNepal)!==String(this.state.showNepal)) ||
+        (String(prevState.exceptcountries)!==String(this.state.exceptcountries)) || 
         (String(prevProps.ip_address)!==String(this.props.ip_address)) ||
         (String(prevProps.date_range[0])!==String(this.props.date_range[0])) ||
         (String(prevProps.date_range[1])!==String(this.props.date_range[1])) ||
@@ -156,7 +165,7 @@ class RequestOriginChart extends Component {
 
 
   render(){
-    const countrySelectListItem = this.state.countries.map(data => <Option key={data[0]}>{data[1]}</Option>);
+    const countrySelectListItem = this.state.countries.map(data => <Option key={data[0]}>{data[2]}</Option>);
     const options = {
       title: {
         text: "Request Origin"
@@ -228,11 +237,13 @@ class RequestOriginChart extends Component {
                             loading={this.state.loading}
                             allowClear={true}
                             style={{ width: "100%" }}
-                            placeholder="Exclude">
-                            {/* onChange={(v)=> this.handleCountryListChange(v)}>
+                            placeholder="Exclude"
+                            onChange={(v)=> this.setState({
+                              exceptcountries: v
+                            })}>
                             {
                                 countrySelectListItem
-                            } */}
+                            }
                         </Select>
                     </Col>
             </Fragment>
