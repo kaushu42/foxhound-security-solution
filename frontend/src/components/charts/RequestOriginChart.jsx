@@ -131,31 +131,7 @@ class RequestOriginChart extends Component {
 
     (flag == 1) ?
     (
-        // reqwest({
-        //   url: FETCH_API_REQUEST_ORIGIN,
-        //   method: "get",
-        //   headers: {
-        //     Authorization: `Token ${this.props.auth_token}`
-        //   },
-        //   data: {
-        //     results: 5,
-        //     page: params.page ? params.page : 1,
-        //     offset: 10
-        //   },
-        //   type: "json"
-        // }).then(data => {
-        //   console.log('data fetched',this.data);
-        //   const { pagination } = this.state;
-        //   pagination.total = data.count;
-        //   this.setState({
-        //     loading: false,
-        //     data: data.results,
-        //     pagination
-        //   });
-        // });
-        //
-
-        axios.post(FETCH_API_REQUEST_ORIGIN,bodyFormData,{headers}).
+        axios.post(FETCH_API_REQUEST_ORIGIN,bodyFormData,{headers,params}).
     then(res => {
       console.log(res);
       const response = res.data;

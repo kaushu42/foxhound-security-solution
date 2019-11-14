@@ -7,3 +7,13 @@ export const contentLayout = {
   paddingRight: 24,
   paddingTop: 12
 };
+
+export const axiosHeader = (auth_token) => {
+
+  let token = `Token ${auth_token}`;
+  return {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+    "Authorization" : token
+  }
+}

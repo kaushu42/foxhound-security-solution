@@ -4,13 +4,15 @@ import filterReducer from "./reducers/filterReducer";
 import layoutReducer from "./reducers/layoutReducer";
 import ipSearchBarReducer from "./reducers/ipSearchReducer";
 import accountReducer from "./reducers/accountReducer";
+import requestOriginChartReducer from "./reducers/requestOriginChartReducer";
 
 const rootReducer = combineReducers({
     auth : authReducer,
     filter : filterReducer,
     layout : layoutReducer,
     ipSearchBar : ipSearchBarReducer,
-    account : accountReducer
+    account : accountReducer,
+    requestOriginChart : requestOriginChartReducer
 })
 
 export default rootReducer;
