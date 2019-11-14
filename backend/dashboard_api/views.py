@@ -18,7 +18,10 @@ from rest_framework.status import (
 
 from core.models import (
     TrafficLog, TrafficLogDetail,
-    Country, Domain
+    Country, Domain,
+    TenantIPAddressInfo,
+    TenantApplicationInfo,
+    BlacklistedIP
 )
 from rules.models import Rule
 from views.views import PaginatedView
@@ -194,7 +197,7 @@ class CountryListApiView(APIView):
 class WorldMapApiView(APIView):
     def get(self, request):
         tenant_id = get_tenant_id_from_token(request)
-        except_countries = request.data.get('except_countries')
+        except_countries = request.data.get('except_countries', [])
         if except_countries:
             except_countries = [
                 Country.objects.get(id=int(i)).iso_code for i in except_countries.split(',')
@@ -275,4 +278,34 @@ class ActivityApiView(APIView):
         }, status=HTTP_200_OK)
 
     def post(self, request, format=None):
+        return self.get(request)
+
+
+class BlacklistedIPAddressApiView(APIView):
+    def get(self, request):
+        tenant_id = get_tenant_id_from_token(request)
+        query = get_query_from_request(request)
+        objects = get_objects_from_query(query).filter(
+            firewall_rule__tenant__id=tenant_id
+        )
+        blacklist = BlacklistedIP.objects.values_list('ip_address')
+        # print(blacklist)
+        request_from_blacklisted_ip = objects.filter(
+            source_ip__address__in=blacklist
+        ).distinct().values_list(
+            'source_ip__address',
+            'destination_ip__address'
+        )
+        request_to_blacklisted_ip = objects.filter(
+            destination_ip__address__in=blacklist
+        ).distinct().values_list(
+            'source_ip__address',
+            'destination_ip__address'
+        )
+        return Response({
+            "request_from_blacklisted_ip": request_from_blacklisted_ip,
+            "request_to_blacklisted_ip": request_to_blacklisted_ip
+        })
+
+    def post(self, request):
         return self.get(request)

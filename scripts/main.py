@@ -67,17 +67,17 @@ try:
     session = Session()
 
     seedutils.seed(session)
-    init = Initialize(config.TRAFFIC_LOGS_INPUT_DIR,
-                      config.IP_PROFILE_OUTPUT_DIR)
-    init.parse_all_csv()
+    # init = Initialize(config.TRAFFIC_LOGS_INPUT_DIR,
+    #                   config.IP_PROFILE_OUTPUT_DIR)
+    # init.parse_all_csv()
 
-    mle = MLEngine(config.IP_PROFILE_OUTPUT_DIR, config.IP_MODEL_OUTPUT_DIR,
-                   config.TRAFFIC_LOGS_INPUT_DIR, config.ANOMALY_LOGS_OUTPUT_DIR)
-    mle.run(create_model=True, predict=True)
+    # mle = MLEngine(config.IP_PROFILE_OUTPUT_DIR, config.IP_MODEL_OUTPUT_DIR,
+    #                config.TRAFFIC_LOGS_INPUT_DIR, config.ANOMALY_LOGS_OUTPUT_DIR)
+    # mle.run(create_model=True, predict=True)
 
-    pa = fh.dc_engine.PaloAltoEngine(
-        config.TRAFFIC_LOGS_INPUT_DIR, config.TRAFFIC_LOGS_OUTPUT_DIR)
-    pa.run(verbose=True)
+    # pa = fh.dc_engine.PaloAltoEngine(
+    #     config.TRAFFIC_LOGS_INPUT_DIR, config.TRAFFIC_LOGS_OUTPUT_DIR)
+    # pa.run(verbose=True)
 
     db = fh.db_engine.DBEngine(
         config.TRAFFIC_LOGS_OUTPUT_DIR,
@@ -86,13 +86,14 @@ try:
     )
     db.run(verbose=True)
 
-    tt_anomaly = TTAnomaly(config.ANOMALY_LOGS_OUTPUT_DIR, db_engine)
-    tt_anomaly.run()
+    # tt_anomaly = TTAnomaly(config.ANOMALY_LOGS_OUTPUT_DIR, db_engine)
+    # tt_anomaly.run()
 
-    anomaly_logs = [os.path.join(config.ANOMALY_LOGS_OUTPUT_DIR, f)
-                    for f in os.listdir(config.ANOMALY_LOGS_OUTPUT_DIR)]
-    for log in anomaly_logs:
-        os.remove(log)
-        print(f'{log} deleted!')
-except Exception:
+    # anomaly_logs = [os.path.join(config.ANOMALY_LOGS_OUTPUT_DIR, f)
+    #                 for f in os.listdir(config.ANOMALY_LOGS_OUTPUT_DIR)]
+    # for log in anomaly_logs:
+    #     os.remove(log)
+    #     print(f'{log} deleted!')
+except Exception as e:
     logging.exception(f'An error occured on {datetime.datetime.now()}')
+    raise(e)

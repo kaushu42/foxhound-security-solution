@@ -12,5 +12,8 @@ db_engine = create_engine(
     f'postgresql://{db_user}:{db_password}@{config.HOST}:{config.PORT}/{db_name}'
 )
 
-df = pd.read_csv('greensnow.txt')
-df.to_sql('core_blacklistedip', db_engine, if_exists='append', index=True)
+df = pd.read_csv('greensnow.txt', header=None)
+df.columns = ['ip_address']
+print(df.columns)
+df.index.name = 'id'
+df.to_sql('core_blacklistedip', db_engine, if_exists='replace', index=True)

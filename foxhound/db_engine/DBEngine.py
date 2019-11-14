@@ -17,7 +17,8 @@ from .core_models import (
     TrafficLogDetail, Country,
     IPAddress, FirewallRule,
     Tenant, Application, Protocol,
-    Zone
+    Zone, TenantIPAddressInfo,
+    TenantApplicationInfo
 )
 from .troubleticket_models import TroubleTicketRule
 from .rule_models import Rule
@@ -198,13 +199,13 @@ class DBEngine(object):
         data.virtual_system_id = data.virtual_system_id.map(
             dfs['core_virtualsystem'].reset_index().set_index('code').id)
         data.source_ip_id = data.source_ip_id.map(
-            dfs['core_ipaddress'][dfs['core_ipaddress'].type == False].reset_index().set_index('address').id)
+            dfs['core_ipaddress'].reset_index().set_index('address').id)
         data.destination_ip_id = data.destination_ip_id.map(
-            dfs['core_ipaddress'][dfs['core_ipaddress'].type == True].reset_index().set_index('address').id)
+            dfs['core_ipaddress'].reset_index().set_index('address').id)
         data.source_zone_id = data.source_zone_id.map(
-            dfs['core_zone'][dfs['core_zone'].type == False].reset_index().set_index('name').id)
+            dfs['core_zone'].reset_index().set_index('name').id)
         data.destination_zone_id = data.destination_zone_id.map(
-            dfs['core_zone'][dfs['core_zone'].type == True].reset_index().set_index('name').id)
+            dfs['core_zone'].reset_index().set_index('name').id)
         data.application_id = data.application_id.map(
             dfs['core_application'].reset_index().set_index('name').id)
         data.protocol_id = data.protocol_id.map(
@@ -267,28 +268,74 @@ class DBEngine(object):
                     verified_date_time=None
                 )
                 self._session.add(rule)
-                # self._session.flush()
-                # tt_rule = TroubleTicketRule(
-                #     created_datetime=now,
-                #     is_closed=False,
-                #     rule_id=rule.id,
-                # )
-                # self._session.add(tt_rule)
                 print(
-                    f'Created Rule: {source_ip}--{destination_ip}--{application}')
+                    f'Created Rule: {source_ip}--{destination_ip}--{application}'
+                )
 
+        self._session.commit()
+
+    def _write_ip_info(self, id, data, ip_in_db):
+        for date, ip_address in data:
+            if ip_address not in ip_in_db:
+                ip = TenantIPAddressInfo(
+                    firewall_rule_id=id,
+                    created_date=date,
+                    ip_address=ip_address
+                )
+                self._session.add(ip)
+
+    def _write_application_info(self, id,  data, application_in_db):
+        for date, application in data:
+            if application not in application_in_db:
+                appl = TenantApplicationInfo(
+                    firewall_rule_id=id,
+                    created_date=date,
+                    application=application
+                )
+                self._session.add(appl)
+
+    def _write_info(self, data):
+        ip_in_db = pd.read_sql_table(
+            'core_tenantipaddressinfo',
+            self._db_engine,
+            index_col='id'
+        ).ip_address.unique()
+        application_in_db = pd.read_sql_table(
+            'core_tenantapplicationinfo',
+            self._db_engine,
+            index_col='id'
+        ).application.unique()
+        firewall_rules = pd.read_sql_table(
+            'core_firewallrule', self._db_engine, index_col='id')
+        data.firewall_rule_id = data.firewall_rule_id.map(
+            firewall_rules.reset_index().set_index('name').id)
+        grouped = data.groupby('firewall_rule_id')
+        for index, df in grouped:
+            df.logged_datetime = pd.to_datetime(
+                df.logged_datetime).map(lambda x: x.date())
+            source = df[['logged_datetime', 'source_ip_id']].drop_duplicates()
+            source.columns = ['logged_datetime', 'ip']
+            destination = df[['logged_datetime',
+                              'destination_ip_id']].drop_duplicates()
+            destination.columns = ['logged_datetime', 'ip']
+            ip = pd.concat([source, destination]).drop_duplicates().values
+            application = df[['logged_datetime', 'application_id']
+                             ].drop_duplicates().values
+            self._write_ip_info(index, ip, ip_in_db)
+            self._write_application_info(index, application, application_in_db)
         self._session.commit()
 
     def _write_to_db(self, csv: str):
         data = self._read_csv(csv)
-        dfs = self._read_tables_from_db()
-        params = self._get_unique(data, dfs)
-        self._write_new_items_to_db(params)
-        dfs = self._read_tables_from_db()
-        self._map_to_foreign_key(data, dfs)
-        traffic_log_id = self._write_traffic_log(csv)
-        self._write_traffic_log_detail(data, traffic_log_id)
-        self._write_rules(self._read_csv(csv))
+        # dfs = self._read_tables_from_db()
+        # params = self._get_unique(data.copy(), dfs)
+        # self._write_new_items_to_db(params)
+        # dfs = self._read_tables_from_db()
+        # self._map_to_foreign_key(data.copy(), dfs)
+        # traffic_log_id = self._write_traffic_log(csv)
+        # self._write_traffic_log_detail(data.copy(), traffic_log_id)
+        # self._write_rules(data.copy())
+        self._write_info(data.copy())
 
     def _get_date_from_filename(self, string):
         date = re.findall(r'[0-9]{4}_[0-9]{2}_[0-9]{2}',

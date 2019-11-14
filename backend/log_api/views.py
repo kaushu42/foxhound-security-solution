@@ -58,7 +58,6 @@ class RequestOriginLogApiView(PaginatedView):
                 "error": "\"country\" field is required"
             })
         ips = Country.objects.filter(iso_code=country).values('ip_address')
-        print(request.data)
         tenant_id = get_tenant_id_from_token(request)
         tenant_id = get_tenant_id_from_token(request)
         query = get_query_from_request(request)

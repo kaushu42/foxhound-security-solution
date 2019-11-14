@@ -190,3 +190,33 @@ class Country(Base):
 
     def __str__(self):
         return self.__repr__()
+
+
+class TenantIPAddressInfo(Base):
+    __tablename__ = 'core_tenantipaddressinfo'
+
+    id = Column(Integer, primary_key=True)
+    firewall_rule_id = Column(ForeignKey(FirewallRule.id, ondelete='CASCADE'))
+    created_date = Column(Date)
+    ip_address = Column(String)
+
+    def __repr__(self):
+        return f'{self.firewall_rule_id}-{self.ip_address}'
+
+    def __str__(self):
+        return self.__repr__()
+
+
+class TenantApplicationInfo(Base):
+    __tablename__ = 'core_tenantapplicationinfo'
+
+    id = Column(Integer, primary_key=True)
+    firewall_rule_id = Column(ForeignKey(FirewallRule.id, ondelete='CASCADE'))
+    created_date = Column(Date)
+    application = Column(String)
+
+    def __repr__(self):
+        return f'{self.firewall_rule_id}-{self.application}'
+
+    def __str__(self):
+        return self.__repr__()

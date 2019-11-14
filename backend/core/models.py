@@ -204,25 +204,33 @@ class BlacklistedIP(models.Model):
         return self.__repr__()
 
 
-class TenantIPAddressInfo(models.Model):
+class TenantInfo(models.Model):
+    class Meta:
+        abstract = True
+
     firewall_rule = models.ForeignKey(
         FirewallRule,
         on_delete=models.CASCADE,
         null=True
     )
+    created_date = models.DateField(auto_now=True, null=True)
+
+
+class TenantIPAddressInfo(TenantInfo):
     ip_address = models.CharField(max_length=15)
 
     def __repr__(self):
         return f'{self.firewall_rule.tenant}-{self.ipaddress}'
 
+    def __str__(self):
+        return self.__repr__()
 
-class TenantApplicationInfo(models.Model):
-    firewall_rule = models.ForeignKey(
-        FirewallRule,
-        on_delete=models.CASCADE,
-        null=True
-    )
+
+class TenantApplicationInfo(TenantInfo):
     application = models.CharField(max_length=50)
 
     def __repr__(self):
         return f'{self.firewall_rule.tenant}-{self.application}'
+
+    def __str__(self):
+        return self.__repr__()
