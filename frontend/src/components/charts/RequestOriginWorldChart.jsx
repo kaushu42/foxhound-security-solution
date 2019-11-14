@@ -9,7 +9,7 @@ import {
     fetchRequestOriginMapData,
     updateMapAfterExcludingCountries
 } from "../../actions/requestOriginMapChartAction";
-import {Select, Spin} from "antd";
+import {Drawer, Select, Spin} from "antd";
 
 class RequestOriginWorldChart extends Component {
 
@@ -30,7 +30,8 @@ class RequestOriginWorldChart extends Component {
     }
 
     handleMapChartLogView(event){
-        this.props.dispatchCountrySelectedInMapChart(event);
+        const {auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries} = this.props;
+        this.props.dispatchCountrySelectedInMapChart(event,auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries);
     }
 
     render() {
@@ -90,6 +91,13 @@ class RequestOriginWorldChart extends Component {
                         options = {options}
                 />
                 </Spin>
+                <Drawer title={`Logs With Request originating from ${this.props.mapChartSelectedCountryName}`}
+                        width={400}
+                        placement="bottom"
+                        closable={true}
+                        visible={this.props.mapChartLogDrawerVisible}
+                >
+                </Drawer>
             </Fragment>
         )
     }
@@ -103,6 +111,13 @@ const mapStateToProps = state => {
         mapChartData : state.requestOriginChart.mapChartData,
         countrySelectListData : state.requestOriginChart.countrySelectListData,
         excludeCountries : state.requestOriginChart.excludeCountries,
+
+        mapChartSelectedCountryCode : state.requestOriginChart.mapChartSelectedCountryCode,
+        mapChartSelectedCountryName :state.requestOriginChart.mapChartSelectedCountryName,
+        mapSelectedCountryLogData : state.requestOriginChart.mapSelectedCountryLogData,
+        mapChartLogDrawerVisible: state.requestOriginChart.mapChartLogDrawerVisible,
+
+
 
         date_range : state.filter.date_range,
         firewall_rule : state.filter.firewall_rule,
@@ -119,7 +134,7 @@ const mapDispatchToProps = dispatch => {
         dispatchFetchRequestOriginMapData : (auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries) => dispatch(fetchRequestOriginMapData(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries)),
         dispatchFetchCountryListData : (auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries) => dispatch(fetchCountryListData(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries)),
         dispatchUpdateMapAfterCountryExcluding : (exclude_countries) => dispatch(updateMapAfterExcludingCountries(exclude_countries)),
-        dispatchCountrySelectedInMapChart : (event) => dispatch(countrySelectedInMapChart(event))
+        dispatchCountrySelectedInMapChart : (event,auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries) => dispatch(countrySelectedInMapChart(event,auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries))
     }
 }
 
