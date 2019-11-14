@@ -13,6 +13,7 @@ class Rule(models.Model):
     application = models.CharField(max_length=50)
     description = models.CharField(max_length=250)
     is_verified_rule = models.BooleanField(default=False)
+    is_anomalous_rule = models.BooleanField(default=False)
     verified_by_user = models.ForeignKey(
         FoxhoundUser,
         on_delete=models.CASCADE,
