@@ -7,7 +7,9 @@ import {
     MAP_CHART_DATA_FETCH_SUCCESS,
     MAP_CHART_ERROR,
     MAP_CHART_LOADING,
-    MAP_CHART_COUNTRY_SELECTED
+    MAP_CHART_COUNTRY_SELECTED,
+    MAP_CHART_DRAWER_VISIBLE,
+    MAP_CHART_COUNTRY_LOG_FETCH_ERROR
 } from "../actionTypes/RequestOriginChartActionType";
 
 const initialState = {
