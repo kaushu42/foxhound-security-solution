@@ -354,7 +354,7 @@ class RequestOriginChart extends Component {
                           <Fragment>
                           <Table
                               columns={this.state.columns}
-                              // rowKey={record => record.id}
+                              rowKey={record => record.id}
                               dataSource={this.state.selectedCountryData}
                               pagination={this.state.pagination}
                               loading={this.state.loadCountrydata}
