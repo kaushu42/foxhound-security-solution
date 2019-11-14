@@ -97,18 +97,18 @@ class Initialize():
         private_ips = ips[[ipaddress.ip_address(ip).is_private for ip in ips]]
         print(f'{len(private_ips)} private ips found')
 
-        for vsys in df['Virtual System'].unique():
-            vsys_csv_path = os.path.join(dest_path, vsys)
-            if os.path.exists(vsys_csv_path) is not True:
-                os.makedirs(vsys_csv_path)
-            vsys_df = df[df['Virtual System'] == vsys]
-            ips = vsys_df['Source address'].unique()
+        for zone in df['Source Zone'].unique():
+            zone_csv_path = os.path.join(dest_path, zone)
+            if os.path.exists(zone_csv_path) is not True:
+                os.makedirs(zone_csv_path)
+            zone_df = df[df['Source Zone'] == zone]
+            ips = zone_df['Source address'].unique()
             private_ips = ips[[ipaddress.ip_address(
                 ip).is_private for ip in ips]]
 
             for ip in private_ips:  # create csv file for individual ips
-                ip_csv_path = os.path.join(vsys_csv_path, (ip+'.csv'))
-                ip_df = vsys_df[vsys_df['Source address'] == ip]
+                ip_csv_path = os.path.join(zone_csv_path, (ip+'.csv'))
+                ip_df = zone_df[zone_df['Source address'] == ip]
                 # call method to write to csv file
                 ip_df = self._preprocess(ip_df)
                 self._save_to_csv(ip_df, ip_csv_path)

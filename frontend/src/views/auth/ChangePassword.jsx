@@ -15,7 +15,6 @@ const formLayout = {
     width:'100%',
 }
 
-
 class ChangePassword extends Component{
 
     state = {

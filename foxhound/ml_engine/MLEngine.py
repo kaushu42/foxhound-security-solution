@@ -149,21 +149,21 @@ class MLEngine():
             os.makedirs(self._IP_MODEL_DIR)
 
         if os.path.exists(self._IP_PROFILE_DIR) is True:
-            for vsys in sorted(os.listdir(self._IP_PROFILE_DIR)):
-                vsys_profile_dir = os.path.join(self._IP_PROFILE_DIR, vsys)
-                vsys_model_dir = os.path.join(self._IP_MODEL_DIR, vsys)
+            for zone in sorted(os.listdir(self._IP_PROFILE_DIR)):
+                zone_profile_dir = os.path.join(self._IP_PROFILE_DIR, zone)
+                zone_model_dir = os.path.join(self._IP_MODEL_DIR, zone)
 
-                if os.path.exists(vsys_model_dir) is not True:
-                    os.makedirs(vsys_model_dir)
+                if os.path.exists(zone_model_dir) is not True:
+                    os.makedirs(zone_model_dir)
 
-                for ip_csv_file in sorted(os.listdir(vsys_profile_dir)):
+                for ip_csv_file in sorted(os.listdir(zone_profile_dir)):
                     ip_csv_path = os.path.join(
-                        self._IP_PROFILE_DIR, vsys, ip_csv_file)
+                        self._IP_PROFILE_DIR, zone, ip_csv_file)
                     ip_model_path = os.path.join(
-                        vsys_model_dir, (ip_csv_file[:-3] + 'pkl'))
+                        zone_model_dir, (ip_csv_file[:-3] + 'pkl'))
                     ip_df = pd.read_csv(ip_csv_path)
 
-                    if len(ip_df.index) > 100:
+                    if len(ip_df.index) > 50:
                         model_with_params = pca(ip_df, ip_model_path)
                         self._save_model_params(
                             model_with_params, ip_model_path)
@@ -215,20 +215,20 @@ class MLEngine():
         truncated_df = df[self._FEATURES]
         anomalous_df = df.head(0)
         anomalous_without_model_count = 0
-        for vsys in df['Virtual System'].unique():
-            vsys_df = truncated_df[truncated_df['Virtual System'] == vsys]
+        for zone in df['Source Zone'].unique():
+            zone_df = truncated_df[truncated_df['Source Zone'] == zone]
 
-            ips = vsys_df['Source address'].unique()
+            ips = zone_df['Source address'].unique()
             private_ips = ips[[ipaddress.ip_address(
                 ip).is_private for ip in ips]]
 
             for ip in private_ips:
                 ip_csv_path = os.path.join(
-                    self._IP_PROFILE_DIR, vsys, f'{ip}.csv')
+                    self._IP_PROFILE_DIR, zone, f'{ip}.csv')
                 model_path = os.path.join(
-                    self._IP_MODEL_DIR, vsys, f'{ip}.pkl')
+                    self._IP_MODEL_DIR, zone, f'{ip}.pkl')
 
-                ip_df = vsys_df[vsys_df['Source address'] == ip].copy()
+                ip_df = zone_df[zone_df['Source address'] == ip].copy()
                 ip_df = self._preprocess(ip_df)
 
                 if os.path.exists(model_path) is True:
