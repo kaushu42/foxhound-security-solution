@@ -4,6 +4,7 @@ import HighchartsReact from "highcharts-react-official";
 import Highcharts from "highcharts";
 import mapdata from "../../charts/mapdata";
 import {
+    countrySelectedInMapChart,
     fetchCountryListData,
     fetchRequestOriginMapData,
     updateMapAfterExcludingCountries
@@ -29,7 +30,7 @@ class RequestOriginWorldChart extends Component {
     }
 
     handleMapChartLogView(event){
-        
+        this.props.dispatchCountrySelectedInMapChart(event);
     }
 
     render() {
@@ -118,7 +119,7 @@ const mapDispatchToProps = dispatch => {
         dispatchFetchRequestOriginMapData : (auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries) => dispatch(fetchRequestOriginMapData(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries)),
         dispatchFetchCountryListData : (auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries) => dispatch(fetchCountryListData(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries)),
         dispatchUpdateMapAfterCountryExcluding : (exclude_countries) => dispatch(updateMapAfterExcludingCountries(exclude_countries)),
-        dispatchCountrySelectedinMapChart : (event) => dispatch(countrySelectedInMapChart(event))
+        dispatchCountrySelectedInMapChart : (event) => dispatch(countrySelectedInMapChart(event))
     }
 }
 
