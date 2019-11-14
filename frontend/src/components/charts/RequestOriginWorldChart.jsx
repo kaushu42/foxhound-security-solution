@@ -28,7 +28,9 @@ class RequestOriginWorldChart extends Component {
         }
     }
 
-
+    handleMapChartLogView(event){
+        
+    }
 
     render() {
         const {mapChartData} = this.props;
@@ -53,7 +55,7 @@ class RequestOriginWorldChart extends Component {
                     events: {
                         click: function (e) {
                             const self = this.chart.component;
-                            self.handleClickEvent(e);
+                            self.handleMapChartLogView(e);
                         }
                     }
                 }
@@ -115,7 +117,8 @@ const mapDispatchToProps = dispatch => {
     return {
         dispatchFetchRequestOriginMapData : (auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries) => dispatch(fetchRequestOriginMapData(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries)),
         dispatchFetchCountryListData : (auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries) => dispatch(fetchCountryListData(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries)),
-        dispatchUpdateMapAfterCountryExcluding : (exclude_countries) => dispatch(updateMapAfterExcludingCountries(exclude_countries))
+        dispatchUpdateMapAfterCountryExcluding : (exclude_countries) => dispatch(updateMapAfterExcludingCountries(exclude_countries)),
+        dispatchCountrySelectedinMapChart : (event) => dispatch(countrySelectedInMapChart(event))
     }
 }
 

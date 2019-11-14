@@ -14,7 +14,7 @@ import {
 
 const FETCH_API = `${ROOT_URL}dashboard/map/`;
 const FETCH_API_COUNTRY_NAMES = `${ROOT_URL}dashboard/countries/`;
-
+const FETCH_API_COUNTRY_LOGS = `${ROOT_URL}log/request-origin/`;
 
 export function fetchMapChartError(error) {
     return{
@@ -74,6 +74,29 @@ export function updateExcludingCountryList(excluding_countries){
     }
 }
 
+export function mapChartCountrySelected(selected_country_code,selected_country_name){
+    return {
+        type: MAP_CHART_COUNTRY_SELECTED,
+        payload : {
+            country_code : selected_country_code,
+            country_name : selected_country_name
+        }
+    }
+}
+
+export function mapChartLogDrawerVisible(){
+    return {
+        type: MAP_CHART_DRAWER_VISIBLE
+    }
+}
+
+export function fetchMapChartLogDataError(error){
+    return {
+        type: MAP_CHART_COUNTRY_LOG_FETCH_ERROR,
+        payload:error
+    }
+}
+
 export function fetchCountryListData(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries){
     return (dispatch) => {
 
@@ -130,5 +153,30 @@ export function fetchRequestOriginMapData(auth_token,start_date,end_date,firewal
          .then(res => dispatch(fetchMapChartDataComplete()))
          .catch(e => dispatch(fetchMapChartError(e)))
 
+    }
+}
+export function countrySelectedInMapChart(event,params){
+    return (dispatch) => {
+        
+        let headers = axiosHeader(auth_token);
+
+        let bodyFormData = new FormData();
+        bodyFormData.set('except_countries', except_countries);
+        bodyFormData.set('start_date', start_date);
+        bodyFormData.set('end_date', end_date);
+        bodyFormData.set('firewall_rule', firewall_rule);
+        bodyFormData.set('application', application);
+        bodyFormData.set('protocol', protocol);
+        bodyFormData.set('source_zone', source_zone);
+        bodyFormData.set('destination_zone', destination_zone);
+           
+        axios.post(FETCH_API_COUNTRY_LOGS,bodyFormData,{headers,params})
+         .then(res => {
+             const response = res.data;
+             dispatch(mapChartCountrySelected(e.point['hc-key'],e.point.name));
+             console.log('fetched selected country log ',response);
+             dispatch(mapChartLogDrawerVisible(response));
+         })
+         .catch(e => dispatch(fetchMapChartLogDataError(e)))
     }
 }
