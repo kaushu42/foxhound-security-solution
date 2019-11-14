@@ -192,3 +192,37 @@ class Country(models.Model):
 
     def __str__(self):
         return self.__repr__()
+
+
+class BlacklistedIP(models.Model):
+    ip_address = models.CharField(max_length=15)
+
+    def __repr__(self):
+        return slef.ip_address
+
+    def __str__(self):
+        return self.__repr__()
+
+
+class TenantIPAddressInfo(models.Model):
+    firewall_rule = models.ForeignKey(
+        FirewallRule,
+        on_delete=models.CASCADE,
+        null=True
+    )
+    ip_address = models.CharField(max_length=15)
+
+    def __repr__(self):
+        return f'{self.firewall_rule.tenant}-{self.ipaddress}'
+
+
+class TenantApplicationInfo(models.Model):
+    firewall_rule = models.ForeignKey(
+        FirewallRule,
+        on_delete=models.CASCADE,
+        null=True
+    )
+    application = models.CharField(max_length=50)
+
+    def __repr__(self):
+        return f'{self.firewall_rule.tenant}-{self.application}'

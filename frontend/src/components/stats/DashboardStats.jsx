@@ -4,8 +4,8 @@ import {connect} from 'react-redux';
 import axios from "axios";
 import {ROOT_URL} from "../../utils";
 const gridStyle = {
-    width: "25%",
-    textAlign: "cente r"
+    width: "20%",
+    textAlign: "center"
 };
 
 const FETCH_API = `${ROOT_URL}dashboard/stats/`;
@@ -102,6 +102,19 @@ class DashboardStats extends Component {
                         <Card.Grid style={gridStyle}>
                             <Statistic title="New Rules" value={this.state.new_rules} />
                         </Card.Grid>
+                        <Card.Grid style={gridStyle}>
+                            <Statistic title="New Source IP" value={10} />
+                        </Card.Grid>
+                        <Card.Grid style={gridStyle}>
+                            <Statistic title="New Destination IP" value={10} />
+                        </Card.Grid>
+                        <Card.Grid style={gridStyle}>
+                            <Statistic title="PCA Anomaly " value={10} />
+                        </Card.Grid>
+                        <Card.Grid style={gridStyle}>
+                            <Statistic title="Total Threat Event" value={50} />
+                        </Card.Grid>
+
                     </Spin>
             </Fragment>
         )
