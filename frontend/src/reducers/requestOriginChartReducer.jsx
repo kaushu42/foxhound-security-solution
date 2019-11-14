@@ -1,15 +1,20 @@
 import {
-    COUNTRY_LIST_DATA_FETCH_COMPLETE, COUNTRY_LIST_DATA_FETCH_ERROR, COUNTRY_LIST_DATA_FETCH_SUCCESS,
+    COUNTRY_LIST_DATA_FETCH_COMPLETE,
+    COUNTRY_LIST_DATA_FETCH_ERROR,
+    COUNTRY_LIST_DATA_FETCH_SUCCESS,
+    EXCLUDE_COUNTRY_UPDATED,
     MAP_CHART_DATA_FETCH_COMPLETE,
-    MAP_CHART_DATA_FETCH_SUCCESS, MAP_CHART_ERROR,
+    MAP_CHART_DATA_FETCH_SUCCESS,
+    MAP_CHART_ERROR,
     MAP_CHART_LOADING
 } from "../actionTypes/RequestOriginChartActionType";
 
 const initialState = {
     mapChartLoading : false,
-    mapChartData : [],
-    countrySelectListData : [],
-    errorMessage : ""
+    mapChartData : null,
+    countrySelectListData : null,
+    errorMessage : "",
+    excludeCountries : []
 }
 
 const requestOriginChartReducer = (state=initialState,action) => {
@@ -43,12 +48,17 @@ const requestOriginChartReducer = (state=initialState,action) => {
         case COUNTRY_LIST_DATA_FETCH_SUCCESS :
             return {
                 ...state,
-                countrySelectListData: [{id:"1",name:"np",code:"nepal"}]
+                countrySelectListData: action.payload
             }
         case COUNTRY_LIST_DATA_FETCH_ERROR :
             return {
                 ...state,
                 errorMessage: action.payload
+            }
+        case EXCLUDE_COUNTRY_UPDATED:
+            return {
+                ...state,
+                excludeCountries:action.payload
             }
         default:
             return state;

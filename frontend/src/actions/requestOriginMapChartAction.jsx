@@ -5,7 +5,11 @@ import {
     MAP_CHART_DATA_FETCH_COMPLETE,
     MAP_CHART_DATA_FETCH_SUCCESS,
     MAP_CHART_LOADING,
-    UPDATE_MAP_CHART, COUNTRY_LIST_DATA_FETCH_SUCCESS, COUNTRY_LIST_DATA_FETCH_COMPLETE, COUNTRY_LIST_DATA_FETCH_ERROR
+    UPDATE_MAP_CHART,
+    COUNTRY_LIST_DATA_FETCH_SUCCESS,
+    COUNTRY_LIST_DATA_FETCH_COMPLETE,
+    COUNTRY_LIST_DATA_FETCH_ERROR,
+    EXCLUDE_COUNTRY_UPDATED
 } from "../actionTypes/RequestOriginChartActionType";
 
 const FETCH_API = `${ROOT_URL}dashboard/map/`;
@@ -63,6 +67,13 @@ export function fetchCountryListDataError(error){
 
 }
 
+export function updateExcludingCountryList(excluding_countries){
+    return {
+        type : EXCLUDE_COUNTRY_UPDATED,
+        payload: excluding_countries
+    }
+}
+
 export function fetchCountryListData(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries){
     return (dispatch) => {
 
@@ -87,6 +98,11 @@ export function fetchCountryListData(auth_token,start_date,end_date,firewall_rul
             .catch(e => dispatch(fetchCountryListDataError(e)))
 
     }
+}
+export function updateMapAfterExcludingCountries(excluding_countries){
+ return (dispatch)=> {
+     dispatch(updateExcludingCountryList(excluding_countries));
+ }
 }
 
 export function fetchRequestOriginMapData(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries){
