@@ -37,6 +37,7 @@ class RequestOriginChart extends Component {
       selectedCountryCode: "",
       selectedCountryData: [],
       pagination: {},
+      flag: 0,
       columns : [
         {
             title: 'Id',
@@ -99,11 +100,13 @@ class RequestOriginChart extends Component {
     }
   }
 
-  handleFetchData = (params = {}) => {
+  handleFetchData = (params = {}, flag = 0) => {
 
-    this.setState({
+    (flag == 0) ?
+    (this.setState({
       loading : true
-    });
+    })):
+    (null);
 
     const token = `Token ${this.props.auth_token}`;
     let headers = {
@@ -125,24 +128,8 @@ class RequestOriginChart extends Component {
 
     // console.log('excluded countries', this.state.exceptcountries)
 
-    axios.post(FETCH_API,bodyFormData,{headers}).
-    then(res => {
-      const response = res.data;
-      console.log('api data',response);
-      this.setState({
-        data : response,
-      })
-    });
-
-    axios.post(FETCH_API_COUNTRY_NAMES,bodyFormData,{headers}).
-    then(res => {
-      const response = res.data;
-      this.setState({
-        countries: response
-      })
-    });
-
-    axios.post(FETCH_API_REQUEST_ORIGIN,bodyFormData,{headers}).
+    (flag == 1) ?
+    (axios.post(FETCH_API_REQUEST_ORIGIN,bodyFormData,{headers}).
     then(res => {
       const response = res.data;
       const { pagination } = this.state;
@@ -152,7 +139,24 @@ class RequestOriginChart extends Component {
         loadCountrydata: false,
         pagination:pagination
       })
-    });
+    })):
+
+    (axios.post(FETCH_API,bodyFormData,{headers}).
+    then(res => {
+      const response = res.data;
+      console.log('api data',response);
+      this.setState({
+        data : response,
+      })
+    }),
+
+    axios.post(FETCH_API_COUNTRY_NAMES,bodyFormData,{headers}).
+    then(res => {
+      const response = res.data;
+      this.setState({
+        countries: response
+      })
+    }));
   }
 
   exitHandler = () => {
@@ -228,9 +232,10 @@ class RequestOriginChart extends Component {
       selectedCountryEvent : e,
       loadCountrydata: true,
       selectedCountryCode: e.point['hc-key'],
-      selectedCountry: e.point.name
+      selectedCountry: e.point.name,
+      flag:1
     })
-    this.handleFetchData();
+    this.handleFetchData({}, this.state.flag);
     this.setState({
       loadCountrydata: false
     })
@@ -251,7 +256,7 @@ class RequestOriginChart extends Component {
           sortField: sorter.field,
           sortOrder: sorter.order,
           ...filters
-      });
+      }, this.state.flag);
   };
 
   render(){
@@ -339,7 +344,7 @@ class RequestOriginChart extends Component {
             {this.state.selectedCountryEvent ?
 
             <Drawer title={`Logs With Request originating from ${this.state.selectedCountry} (Experimental)`}
-                              width={600}
+                              width={1100}
                               placement="right"
                               closable={true}
                               onClose={this.onClose}
