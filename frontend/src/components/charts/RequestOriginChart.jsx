@@ -125,12 +125,39 @@ class RequestOriginChart extends Component {
     bodyFormData.set('protocol', this.props.protocol);
     bodyFormData.set('source_zone', this.props.source_zone);
     bodyFormData.set('destination_zone', this.props.destination_zone);
-
+    bodyFormData.set('page', params.page ? params.page : 1);
+    bodyFormData.set('offset', 10);
     // console.log('excluded countries', this.state.exceptcountries)
 
     (flag == 1) ?
-    (axios.post(FETCH_API_REQUEST_ORIGIN,bodyFormData,{headers}).
+    (
+        // reqwest({
+        //   url: FETCH_API_REQUEST_ORIGIN,
+        //   method: "get",
+        //   headers: {
+        //     Authorization: `Token ${this.props.auth_token}`
+        //   },
+        //   data: {
+        //     results: 5,
+        //     page: params.page ? params.page : 1,
+        //     offset: 10
+        //   },
+        //   type: "json"
+        // }).then(data => {
+        //   console.log('data fetched',this.data);
+        //   const { pagination } = this.state;
+        //   pagination.total = data.count;
+        //   this.setState({
+        //     loading: false,
+        //     data: data.results,
+        //     pagination
+        //   });
+        // });
+        //
+
+        axios.post(FETCH_API_REQUEST_ORIGIN,bodyFormData,{headers}).
     then(res => {
+      console.log(res);
       const response = res.data;
       const { pagination } = this.state;
       pagination.total = response.count;
@@ -354,7 +381,7 @@ class RequestOriginChart extends Component {
                           <Fragment>
                           <Table
                               columns={this.state.columns}
-                              // rowKey={record => record.id}
+                              rowKey={record => record.id}
                               dataSource={this.state.selectedCountryData}
                               pagination={this.state.pagination}
                               loading={this.state.loadCountrydata}
