@@ -5,11 +5,16 @@ import {
     MAP_CHART_DATA_FETCH_COMPLETE,
     MAP_CHART_DATA_FETCH_SUCCESS,
     MAP_CHART_LOADING,
-    UPDATE_MAP_CHART,
     COUNTRY_LIST_DATA_FETCH_SUCCESS,
     COUNTRY_LIST_DATA_FETCH_COMPLETE,
     COUNTRY_LIST_DATA_FETCH_ERROR,
-    EXCLUDE_COUNTRY_UPDATED
+    EXCLUDE_COUNTRY_UPDATED, 
+    MAP_CHART_COUNTRY_SELECTED, 
+    MAP_CHART_DRAWER_VISIBLE, 
+    MAP_CHART_COUNTRY_LOG_FETCH_ERROR,
+    CLOSE_MAP_CHART_LOG_DRAWER,
+    OPEN_MAP_CHART_LOG_DRAWER,
+    MAP_CHART_LOG_FETCH_SUCCESS
 } from "../actionTypes/RequestOriginChartActionType";
 
 const FETCH_API = `${ROOT_URL}dashboard/map/`;
@@ -90,12 +95,33 @@ export function mapChartLogDrawerVisible(){
     }
 }
 
+export function closeMapChartLogDrawer(){
+    return {
+        type: CLOSE_MAP_CHART_LOG_DRAWER
+    }
+}
+
+export function openMapChartLogDrawer(){
+    return {
+        type: OPEN_MAP_CHART_LOG_DRAWER
+    }
+}
+
+
 export function fetchMapChartLogDataError(error){
     return {
         type: MAP_CHART_COUNTRY_LOG_FETCH_ERROR,
         payload:error
     }
 }
+
+export function fetchSelectedCountryLogSuccess(response){
+    return {
+        type: MAP_CHART_LOG_FETCH_SUCCESS,
+        payload: response
+    }
+}
+
 
 export function fetchCountryListData(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries){
     return (dispatch) => {
@@ -155,13 +181,23 @@ export function fetchRequestOriginMapData(auth_token,start_date,end_date,firewal
 
     }
 }
-export function countrySelectedInMapChart(event,params){
+
+export function countrySelectedInMapChart(event,auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries){
     return (dispatch) => {
-        
+
+        dispatch(mapChartCountrySelected(event.point['hc-key'],event.point.name));
+        dispatch(fetchSelectedCountryLog(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,{}));
+        dispatch(openMapChartLogDrawer());
+    }
+}
+
+export function fetchSelectedCountryLog(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,params){
+    return(dispatch)=>{
         let headers = axiosHeader(auth_token);
 
         let bodyFormData = new FormData();
-        bodyFormData.set('except_countries', except_countries);
+        bodyFormData.set('country', event.point['hc-key']);
+        bodyFormData.set('except_countries', excludeCountries);
         bodyFormData.set('start_date', start_date);
         bodyFormData.set('end_date', end_date);
         bodyFormData.set('firewall_rule', firewall_rule);
@@ -172,10 +208,8 @@ export function countrySelectedInMapChart(event,params){
            
         axios.post(FETCH_API_COUNTRY_LOGS,bodyFormData,{headers,params})
          .then(res => {
-             const response = res.data;
-             dispatch(mapChartCountrySelected(e.point['hc-key'],e.point.name));
-             console.log('fetched selected country log ',response);
-             dispatch(mapChartLogDrawerVisible(response));
+             const response = res.data.results;
+             dispatch(fetchSelectedCountryLogSuccess(response));
          })
          .catch(e => dispatch(fetchMapChartLogDataError(e)))
     }

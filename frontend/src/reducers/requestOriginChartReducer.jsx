@@ -7,9 +7,12 @@ import {
     MAP_CHART_DATA_FETCH_SUCCESS,
     MAP_CHART_ERROR,
     MAP_CHART_LOADING,
-    MAP_CHART_COUNTRY_SELECTED,
-    MAP_CHART_DRAWER_VISIBLE,
-    MAP_CHART_COUNTRY_LOG_FETCH_ERROR
+    MAP_CHART_COUNTRY_SELECTED, 
+    MAP_CHART_DRAWER_VISIBLE, 
+    MAP_CHART_COUNTRY_LOG_FETCH_ERROR,
+    CLOSE_MAP_CHART_LOG_DRAWER,
+    OPEN_MAP_CHART_LOG_DRAWER,
+    MAP_CHART_LOG_FETCH_SUCCESS
 } from "../actionTypes/RequestOriginChartActionType";
 
 const initialState = {
@@ -82,6 +85,21 @@ const requestOriginChartReducer = (state=initialState,action) => {
             return {
                 ...state,
                 errorMessage:action.payload
+            }
+        case CLOSE_MAP_CHART_LOG_DRAWER:
+                return{
+                    ...state,
+                    mapChartLogDrawerVisible : false
+                }
+        case OPEN_MAP_CHART_LOG_DRAWER:
+            return {
+                ...state,
+                mapChartLogDrawerVisible : true
+            }
+        case MAP_CHART_LOG_FETCH_SUCCESS :
+            return{
+                ...state,
+                mapSelectedCountryLogData : action.payload
             }
         default:
             return state;
