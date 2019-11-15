@@ -83,8 +83,8 @@ class RequestOriginWorldChart extends Component {
     };
   
     handlefetchSelectedCountryLog = (params={}) => {
-        const {auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,dispatchFetchSelectedCountryLog,pagination} = this.props;
-        dispatchFetchSelectedCountryLog(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,params,pagination);
+        const {auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,pagination,mapChartSelectedCountryCode} = this.props;
+        this.props.dispatchFetchSelectedCountryLog(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,params,pagination,mapChartSelectedCountryCode);
     }
 
     componentDidMount = async () => {
@@ -103,9 +103,9 @@ class RequestOriginWorldChart extends Component {
         }
     }
 
-    handleMapChartLogView(event){
+    handleMapChartLogView(e){
         const {auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,pagination} = this.props;
-        this.props.dispatchCountrySelectedInMapChart(event,auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,{},pagination);
+        this.props.dispatchCountrySelectedInMapChart(e,auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,{},pagination);
     }
 
     render() {
@@ -217,7 +217,7 @@ const mapDispatchToProps = dispatch => {
         dispatchUpdateMapAfterCountryExcluding : (exclude_countries) => dispatch(updateMapAfterExcludingCountries(exclude_countries)),
         dispatchCountrySelectedInMapChart : (event,auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries,params,pagination) => dispatch(countrySelectedInMapChart(event,auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries,params,pagination)),
         dispatchCloseMapChartLogDrawer : () => dispatch(closeMapChartLogDrawer()),
-        dispatchFetchSelectedCountryLog : (auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,params) => fetchSelectedCountryLog(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,params),
+        dispatchFetchSelectedCountryLog : (auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,params,pagination,mapChartSelectedCountryCode) => dispatch(fetchSelectedCountryLog(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,params,pagination,mapChartSelectedCountryCode)),
         dispatchPaginationUpdate : (pager) => dispatch(updatePagination(pager))
     }
 }

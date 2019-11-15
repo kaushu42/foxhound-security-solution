@@ -192,17 +192,17 @@ export function countrySelectedInMapChart(event,auth_token,start_date,end_date,f
     return (dispatch) => {
 
         dispatch(mapChartCountrySelected(event.point['hc-key'],event.point.name));
-        dispatch(fetchSelectedCountryLog(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,params,pagination));
+        dispatch(fetchSelectedCountryLog(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,params,pagination,event.point['hc-key']));
         dispatch(openMapChartLogDrawer());
     }
 }
 
-export function fetchSelectedCountryLog(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,params,pagination){
+export function fetchSelectedCountryLog(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,params,pagination,mapChartSelectedCountryCode){
     return(dispatch)=>{
         let headers = axiosHeader(auth_token);
 
         let bodyFormData = new FormData();
-        bodyFormData.set('country', event.point['hc-key']);
+        bodyFormData.set('country', mapChartSelectedCountryCode);
         bodyFormData.set('except_countries', excludeCountries);
         bodyFormData.set('start_date', start_date);
         bodyFormData.set('end_date', end_date);
@@ -223,6 +223,7 @@ export function fetchSelectedCountryLog(auth_token,start_date,end_date,firewall_
              updatePagination(page);
              dispatch(updatePaginationPageCount(response.count));
              dispatch(fetchSelectedCountryLogSuccess(response.results));
+
          })
          .catch(e => dispatch(fetchMapChartLogDataError(e)))
     }
