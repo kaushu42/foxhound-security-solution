@@ -9,14 +9,13 @@ import {
     fetchRequestOriginMapData,
     updateMapAfterExcludingCountries,
     closeMapChartLogDrawer,
-    fetchSelectedCountryLog
+    fetchSelectedCountryLog, updatePagination
 } from "../../actions/requestOriginMapChartAction";
 import {Drawer, Select, Spin,Table} from "antd";
 
 class RequestOriginWorldChart extends Component {
 
     state = {
-        pagination:{},
         columns : [
             {
                 title: 'Id',
@@ -72,6 +71,7 @@ class RequestOriginWorldChart extends Component {
         console.log('sorter',sorter)
         const pager = { ...this.state.pagination };
         pager.current = pagination.current;
+        this.props.dispatchPaginationUpdate(pager);
         this.setState({
             pagination: pager
         });
@@ -205,7 +205,7 @@ const mapStateToProps = state => {
         mapChartSelectedCountryName :state.requestOriginChart.mapChartSelectedCountryName,
         mapSelectedCountryLogData : state.requestOriginChart.mapSelectedCountryLogData,
         mapChartLogDrawerVisible: state.requestOriginChart.mapChartLogDrawerVisible,
-
+        pagination : state.requestOriginChart.pagination,
 
         date_range : state.filter.date_range,
         firewall_rule : state.filter.firewall_rule,
@@ -222,7 +222,8 @@ const mapDispatchToProps = dispatch => {
         dispatchUpdateMapAfterCountryExcluding : (exclude_countries) => dispatch(updateMapAfterExcludingCountries(exclude_countries)),
         dispatchCountrySelectedInMapChart : (event,auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries) => dispatch(countrySelectedInMapChart(event,auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries)),
         dispatchCloseMapChartLogDrawer : () => dispatch(closeMapChartLogDrawer()),
-        dispatchFetchSelectedCountryLog : (auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,params) => fetchSelectedCountryLog(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,params)
+        dispatchFetchSelectedCountryLog : (auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,params) => fetchSelectedCountryLog(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,params),
+        dispatchPaginationUpdate : (pager) => dispatch(updatePagination(pager))
     }
 }
 

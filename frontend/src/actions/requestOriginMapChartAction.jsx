@@ -8,13 +8,13 @@ import {
     COUNTRY_LIST_DATA_FETCH_SUCCESS,
     COUNTRY_LIST_DATA_FETCH_COMPLETE,
     COUNTRY_LIST_DATA_FETCH_ERROR,
-    EXCLUDE_COUNTRY_UPDATED, 
-    MAP_CHART_COUNTRY_SELECTED, 
-    MAP_CHART_DRAWER_VISIBLE, 
+    EXCLUDE_COUNTRY_UPDATED,
+    MAP_CHART_COUNTRY_SELECTED,
+    MAP_CHART_DRAWER_VISIBLE,
     MAP_CHART_COUNTRY_LOG_FETCH_ERROR,
     CLOSE_MAP_CHART_LOG_DRAWER,
     OPEN_MAP_CHART_LOG_DRAWER,
-    MAP_CHART_LOG_FETCH_SUCCESS
+    MAP_CHART_LOG_FETCH_SUCCESS, PAGINATION_UPDATE
 } from "../actionTypes/RequestOriginChartActionType";
 
 const FETCH_API = `${ROOT_URL}dashboard/map/`;
@@ -213,4 +213,12 @@ export function fetchSelectedCountryLog(auth_token,start_date,end_date,firewall_
          })
          .catch(e => dispatch(fetchMapChartLogDataError(e)))
     }
+}
+
+export function updatePagination(pager){
+    return {
+        type : PAGINATION_UPDATE,
+        payload: pager
+    }
+
 }

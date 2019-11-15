@@ -24,7 +24,8 @@ const initialState = {
     mapChartSelectedCountryCode : null,
     mapChartSelectedCountryName :null,
     mapSelectedCountryLogData : [],
-    mapChartLogDrawerVisible: false
+    mapChartLogDrawerVisible: false,
+    pagination : {}
 }
 
 const requestOriginChartReducer = (state=initialState,action) => {
