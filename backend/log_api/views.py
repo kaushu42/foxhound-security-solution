@@ -64,7 +64,7 @@ class RequestOriginLogApiView(PaginatedView):
         objects = get_objects_from_query(query).filter(
             firewall_rule__tenant__id=tenant_id,
             source_ip__in=ips
-        ).order_by('-logged_datetime')
+        ).order_by('-id')
         page = self.paginate_queryset(objects)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
@@ -91,7 +91,7 @@ class RequestEndLogApiView(PaginatedView):
         objects = get_objects_from_query(query).filter(
             firewall_rule__tenant__id=tenant_id,
             destination_ip__in=ips
-        ).order_by('-logged_datetime')
+        ).order_by('-id')
         page = self.paginate_queryset(objects)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
