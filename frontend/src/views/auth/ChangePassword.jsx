@@ -6,7 +6,6 @@ import {handlePasswordChange} from "../../actions/accountAction";
 import {contentLayout} from "../../utils";
 
 
-
 const formLayout = {
     padding:24,
     backgroundColor : '#fbfbfb',
@@ -14,6 +13,7 @@ const formLayout = {
     borderRadius : 6,
     width:'100%',
 }
+
 
 class ChangePassword extends Component{
 

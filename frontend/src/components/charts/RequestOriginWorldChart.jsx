@@ -172,15 +172,16 @@ class RequestOriginWorldChart extends Component {
                         onClose={this.props.dispatchCloseMapChartLogDrawer}
                         visible={this.props.mapChartLogDrawerVisible}
                 >
-
-                    <Table
-                        columns={this.state.columns}
-                        rowKey={record => record.id}
-                        dataSource={mapSelectedCountryLogData}
-                        pagination={this.props.pagination}
-                        onChange={this.handleTableChange}
-                    />
-
+                    <Spin spinning={this.props.countryLogDataLoading}>
+                        <Table
+                            columns={this.state.columns}
+                            rowKey={record => record.id}
+                            dataSource={mapSelectedCountryLogData}
+                            loading={this.props.countryLogDataLoading}
+                            pagination={this.props.pagination}
+                            onChange={this.handleTableChange}
+                        />
+                    </Spin>
                 </Drawer>
             </Fragment>
         )
@@ -224,6 +225,5 @@ const mapDispatchToProps = dispatch => {
         dispatchPaginationUpdate : (pager) => dispatch(updatePagination(pager))
     }
 }
-
 
 export default connect(mapStateToProps,mapDispatchToProps)(RequestOriginWorldChart);
