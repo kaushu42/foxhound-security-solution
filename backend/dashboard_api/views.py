@@ -126,24 +126,6 @@ class FiltersApiView(APIView):
         return self.get(request, format=format)
 
 
-class RulesApiView(PaginatedView):
-    serializer_class = RuleSerializer
-
-    def get(self, request):
-        tenant_id = get_tenant_id_from_token(request)
-        objects = Rule.objects.filter(
-            firewall_rule__tenant__id=tenant_id,
-            is_verified_rule=False
-        ).order_by('id')
-        page = self.paginate_queryset(objects)
-        if page is not None:
-            serializer = self.serializer_class(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-    def post(self, request):
-        return self.get(request)
-
-
 class UsageApiView(APIView):
     def get(self, request, format=None):
         tenant_id = get_tenant_id_from_token(request)
@@ -306,6 +288,21 @@ class BlacklistedIPAddressApiView(APIView):
             "request_from_blacklisted_ip": request_from_blacklisted_ip,
             "request_to_blacklisted_ip": request_to_blacklisted_ip
         })
+
+    def post(self, request):
+        return self.get(request)
+
+
+class NewIPAddressApiView(APIView):
+    def get(self, request):
+        tenant_id = get_tenant_id_from_token(request)
+        query = get_query_from_request(request)
+        print(query)
+        objects = get_objects_from_query(query).filter(
+            firewall_rule__tenant__id=tenant_id
+        ).values('source_ip__address')
+        print(objects)
+        return Response({})
 
     def post(self, request):
         return self.get(request)

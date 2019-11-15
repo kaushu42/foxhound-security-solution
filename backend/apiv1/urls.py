@@ -7,4 +7,5 @@ urlpatterns = [
     path('log/', include('log_api.urls')),
     path('tt/', include('troubleticket.urls')),
     path('session/', include('session.urls')),
+    path('rules/', include('rules.urls')),
 ]

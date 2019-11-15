@@ -152,7 +152,7 @@ class DBEngine(object):
             print(f'Created Source_IP: {i}')
             next_id = self._get_next_id('core_ipaddress')
             self._db_engine.execute(
-                f"INSERT INTO core_ipaddress VALUES({next_id}, '{i}', false);")
+                f"INSERT INTO core_ipaddress VALUES({next_id}, '{i}', '{i}');")
             country_next_id = self._get_next_id('core_country')
             name, iso_code = self._get_country(i)
             self._db_engine.execute(
@@ -163,7 +163,7 @@ class DBEngine(object):
             print(f'Created Destination_IP: {i}')
             next_id = self._get_next_id('core_ipaddress')
             self._db_engine.execute(
-                f"INSERT INTO core_ipaddress VALUES({next_id}, '{i}', true);")
+                f"INSERT INTO core_ipaddress VALUES({next_id}, '{i}', '{i}');")
 
         for i in params['protocol']:
             print(f'Created {i}')
@@ -199,13 +199,13 @@ class DBEngine(object):
         data.virtual_system_id = data.virtual_system_id.map(
             dfs['core_virtualsystem'].reset_index().set_index('code').id)
         data.source_ip_id = data.source_ip_id.map(
-            dfs['core_ipaddress'].reset_index().set_index('address').id)
+            dfs['core_ipaddress'].drop_duplicates('address').reset_index().set_index('address').id)
         data.destination_ip_id = data.destination_ip_id.map(
-            dfs['core_ipaddress'].reset_index().set_index('address').id)
+            dfs['core_ipaddress'].drop_duplicates('address').reset_index().set_index('address').id)
         data.source_zone_id = data.source_zone_id.map(
-            dfs['core_zone'].reset_index().set_index('name').id)
+            dfs['core_zone'].drop_duplicates('name').reset_index().set_index('name').id)
         data.destination_zone_id = data.destination_zone_id.map(
-            dfs['core_zone'].reset_index().set_index('name').id)
+            dfs['core_zone'].drop_duplicates('name').reset_index().set_index('name').id)
         data.application_id = data.application_id.map(
             dfs['core_application'].reset_index().set_index('name').id)
         data.protocol_id = data.protocol_id.map(
@@ -239,14 +239,14 @@ class DBEngine(object):
             'core_firewallrule', self._db_engine)
         data = pd.merge(
             data, firewall_rules,
-            left_on='firewall_rule_id', right_on='name')[
+            left_on='firewall_rule_id', right_on='id')[
             ['id', 'source_ip_id', 'destination_ip_id', 'application_id']
         ]
         for i, j in data.iterrows():
-            id = j.id
-            source_ip = j.source_ip_id
-            destination_ip = j.destination_ip_id
-            application = j.application_id
+            id = int(j.id)
+            source_ip = int(j.source_ip_id)
+            destination_ip = int(j.destination_ip_id)
+            application = int(j.application_id)
             rules = rules_table[
                 (rules_table['source_ip'] == source_ip) &
                 (rules_table['destination_ip'] == destination_ip) &
@@ -265,11 +265,12 @@ class DBEngine(object):
                     application=application,
                     description='New Rule',
                     is_verified_rule=False,
-                    verified_date_time=None
+                    verified_date_time=None,
+                    is_anomalous_rule=False
                 )
                 self._session.add(rule)
                 print(
-                    f'Created Rule: {source_ip}--{destination_ip}--{application}'
+                    f'Created Rule: {(source_ip)}--{destination_ip}--{application}'
                 )
 
         self._session.commit()
@@ -327,15 +328,15 @@ class DBEngine(object):
 
     def _write_to_db(self, csv: str):
         data = self._read_csv(csv)
-        # dfs = self._read_tables_from_db()
-        # params = self._get_unique(data.copy(), dfs)
-        # self._write_new_items_to_db(params)
-        # dfs = self._read_tables_from_db()
-        # self._map_to_foreign_key(data.copy(), dfs)
-        # traffic_log_id = self._write_traffic_log(csv)
-        # self._write_traffic_log_detail(data.copy(), traffic_log_id)
-        # self._write_rules(data.copy())
-        self._write_info(data.copy())
+        dfs = self._read_tables_from_db()
+        params = self._get_unique(data, dfs)
+        self._write_new_items_to_db(params)
+        dfs = self._read_tables_from_db()
+        self._map_to_foreign_key(data, dfs)
+        traffic_log_id = self._write_traffic_log(csv)
+        self._write_traffic_log_detail(data, traffic_log_id)
+        self._write_rules(data)
+        self._write_info(self._read_csv(csv))
 
     def _get_date_from_filename(self, string):
         date = re.findall(r'[0-9]{4}_[0-9]{2}_[0-9]{2}',

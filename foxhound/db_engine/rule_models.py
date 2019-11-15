@@ -25,4 +25,5 @@ class Rule(Base):
     application = Column(String)
     description = Column(String)
     is_verified_rule = Column(Boolean)
+    is_anomalous_rule = Column(Boolean)
     verified_date_time = Column(DateTime)
