@@ -14,7 +14,7 @@ import {
     MAP_CHART_COUNTRY_LOG_FETCH_ERROR,
     CLOSE_MAP_CHART_LOG_DRAWER,
     OPEN_MAP_CHART_LOG_DRAWER,
-    MAP_CHART_LOG_FETCH_SUCCESS, PAGINATION_UPDATE, UPDATE_PAGINATION_PAGE_COUNT
+    MAP_CHART_LOG_FETCH_SUCCESS, PAGINATION_UPDATE, UPDATE_PAGINATION_PAGE_COUNT, COUNTRY_LOG_DATA_FETCH
 } from "../actionTypes/RequestOriginChartActionType";
 
 const FETCH_API = `${ROOT_URL}dashboard/map/`;
@@ -197,6 +197,12 @@ export function countrySelectedInMapChart(event,auth_token,start_date,end_date,f
     }
 }
 
+
+export function countryLogDataFetch(){
+    return {
+        type: COUNTRY_LOG_DATA_FETCH
+    }
+}
 export function fetchSelectedCountryLog(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,params,pagination,mapChartSelectedCountryCode){
     return(dispatch)=>{
         let headers = axiosHeader(auth_token);
@@ -221,6 +227,7 @@ export function fetchSelectedCountryLog(auth_token,start_date,end_date,firewall_
              const page = pagination;
              page.total  = response.count;
              updatePagination(page);
+             dispatch(countryLogDataFetch());
              dispatch(updatePaginationPageCount(response.count));
              dispatch(fetchSelectedCountryLogSuccess(response.results));
 

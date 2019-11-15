@@ -196,6 +196,9 @@ const mapStateToProps = state => {
         countrySelectListData : state.requestOriginChart.countrySelectListData,
         excludeCountries : state.requestOriginChart.excludeCountries,
 
+
+        countryLogDataLoading : state.requestOriginChart.countryLogDataLoading,
+
         mapChartSelectedCountryCode : state.requestOriginChart.mapChartSelectedCountryCode,
         mapChartSelectedCountryName :state.requestOriginChart.mapChartSelectedCountryName,
         mapSelectedCountryLogData : state.requestOriginChart.mapSelectedCountryLogData,
