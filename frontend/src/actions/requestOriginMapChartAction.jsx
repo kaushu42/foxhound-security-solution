@@ -14,7 +14,7 @@ import {
     MAP_CHART_COUNTRY_LOG_FETCH_ERROR,
     CLOSE_MAP_CHART_LOG_DRAWER,
     OPEN_MAP_CHART_LOG_DRAWER,
-    MAP_CHART_LOG_FETCH_SUCCESS, PAGINATION_UPDATE, UPDATE_PAGINATION_PAGE_COUNT, COUNTRY_LOG_DATA_FETCH
+    MAP_CHART_LOG_FETCH_SUCCESS, PAGINATION_UPDATE, UPDATE_PAGINATION_PAGE_COUNT, COUNTRY_LOG_DATA_FETCH_LOADING
 } from "../actionTypes/RequestOriginChartActionType";
 
 const FETCH_API = `${ROOT_URL}dashboard/map/`;
@@ -86,12 +86,6 @@ export function mapChartCountrySelected(selected_country_code,selected_country_n
             country_code : selected_country_code,
             country_name : selected_country_name
         }
-    }
-}
-
-export function mapChartLogDrawerVisible(){
-    return {
-        type: MAP_CHART_DRAWER_VISIBLE
     }
 }
 
@@ -198,9 +192,9 @@ export function countrySelectedInMapChart(event,auth_token,start_date,end_date,f
 }
 
 
-export function countryLogDataFetch(){
+export function countryLogDataFetchLoading(){
     return {
-        type: COUNTRY_LOG_DATA_FETCH
+        type: COUNTRY_LOG_DATA_FETCH_LOADING
     }
 }
 export function fetchSelectedCountryLog(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,params,pagination,mapChartSelectedCountryCode){
@@ -227,7 +221,7 @@ export function fetchSelectedCountryLog(auth_token,start_date,end_date,firewall_
              const page = pagination;
              page.total  = response.count;
              updatePagination(page);
-             dispatch(countryLogDataFetch());
+             dispatch(countryLogDataFetchLoading());
              dispatch(updatePaginationPageCount(response.count));
              dispatch(fetchSelectedCountryLogSuccess(response.results));
 
