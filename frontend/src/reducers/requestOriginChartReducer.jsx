@@ -7,12 +7,12 @@ import {
     MAP_CHART_DATA_FETCH_SUCCESS,
     MAP_CHART_ERROR,
     MAP_CHART_LOADING,
-    MAP_CHART_COUNTRY_SELECTED, 
-    MAP_CHART_DRAWER_VISIBLE, 
+    MAP_CHART_COUNTRY_SELECTED,
+    MAP_CHART_DRAWER_VISIBLE,
     MAP_CHART_COUNTRY_LOG_FETCH_ERROR,
     CLOSE_MAP_CHART_LOG_DRAWER,
     OPEN_MAP_CHART_LOG_DRAWER,
-    MAP_CHART_LOG_FETCH_SUCCESS
+    MAP_CHART_LOG_FETCH_SUCCESS, PAGINATION_UPDATE, UPDATE_PAGINATION_PAGE_COUNT
 } from "../actionTypes/RequestOriginChartActionType";
 
 const initialState = {
@@ -23,7 +23,7 @@ const initialState = {
     excludeCountries : [],
     mapChartSelectedCountryCode : null,
     mapChartSelectedCountryName :null,
-    mapSelectedCountryLogData : [],
+    mapSelectedCountryLogData : null,
     mapChartLogDrawerVisible: false,
     pagination : {}
 }
@@ -101,6 +101,11 @@ const requestOriginChartReducer = (state=initialState,action) => {
             return{
                 ...state,
                 mapSelectedCountryLogData : action.payload
+            }
+        case PAGINATION_UPDATE :
+            return {
+                ...state,
+                pagination: action.payload
             }
         default:
             return state;

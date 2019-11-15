@@ -14,7 +14,7 @@ import {
     MAP_CHART_COUNTRY_LOG_FETCH_ERROR,
     CLOSE_MAP_CHART_LOG_DRAWER,
     OPEN_MAP_CHART_LOG_DRAWER,
-    MAP_CHART_LOG_FETCH_SUCCESS, PAGINATION_UPDATE
+    MAP_CHART_LOG_FETCH_SUCCESS, PAGINATION_UPDATE, UPDATE_PAGINATION_PAGE_COUNT
 } from "../actionTypes/RequestOriginChartActionType";
 
 const FETCH_API = `${ROOT_URL}dashboard/map/`;
@@ -122,6 +122,12 @@ export function fetchSelectedCountryLogSuccess(response){
     }
 }
 
+export function updatePaginationPageCount(pageCount){
+    return {
+        type : UPDATE_PAGINATION_PAGE_COUNT,
+        payload: pageCount
+    }
+}
 
 export function fetchCountryListData(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries){
     return (dispatch) => {
@@ -182,16 +188,16 @@ export function fetchRequestOriginMapData(auth_token,start_date,end_date,firewal
     }
 }
 
-export function countrySelectedInMapChart(event,auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries){
+export function countrySelectedInMapChart(event,auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,params,pagination){
     return (dispatch) => {
 
         dispatch(mapChartCountrySelected(event.point['hc-key'],event.point.name));
-        dispatch(fetchSelectedCountryLog(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,{}));
+        dispatch(fetchSelectedCountryLog(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,params,pagination));
         dispatch(openMapChartLogDrawer());
     }
 }
 
-export function fetchSelectedCountryLog(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,params){
+export function fetchSelectedCountryLog(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,params,pagination){
     return(dispatch)=>{
         let headers = axiosHeader(auth_token);
 
@@ -205,20 +211,27 @@ export function fetchSelectedCountryLog(auth_token,start_date,end_date,firewall_
         bodyFormData.set('protocol', protocol);
         bodyFormData.set('source_zone', source_zone);
         bodyFormData.set('destination_zone', destination_zone);
-           
+        bodyFormData.set('page', params.page ? params.page : 1);
+        bodyFormData.set('offset', 10);
+
         axios.post(FETCH_API_COUNTRY_LOGS,bodyFormData,{headers,params})
          .then(res => {
-             const response = res.data.results;
-             dispatch(fetchSelectedCountryLogSuccess(response));
+             const response = res.data;
+             console.log('response count',response.count);
+             const page = pagination;
+             page.total  = response.count;
+             updatePagination(page);
+             dispatch(updatePaginationPageCount(response.count));
+             dispatch(fetchSelectedCountryLogSuccess(response.results));
          })
          .catch(e => dispatch(fetchMapChartLogDataError(e)))
     }
 }
 
-export function updatePagination(pager){
+export function updatePagination(pagination){
     return {
         type : PAGINATION_UPDATE,
-        payload: pager
+        payload: pagination
     }
 
 }
