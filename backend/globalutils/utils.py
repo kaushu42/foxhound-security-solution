@@ -35,11 +35,13 @@ def groupby_date(
         queryset,
         input_field,
         timeinterval,
-        output_fields,
-        group_by_func=Sum):
+        fields_to_apply_groupby_func,
+        group_by_func=Sum,
+        output_fields=[]
+):
     trunc_func = _TRUNC_TIME[timeinterval.lower()]
     query = {}
-    for field in output_fields:
+    for field in fields_to_apply_groupby_func:
         query[field] = group_by_func(field)
     return queryset.annotate(
         date=trunc_func(
@@ -47,7 +49,11 @@ def groupby_date(
         )
     ).values(
         'date'
-    ).annotate(**query).values('date', *output_fields)
+    ).annotate(**query).values(
+        'date',
+        *fields_to_apply_groupby_func,
+        *output_fields
+    )
 
 
 def get_activity(queryset):

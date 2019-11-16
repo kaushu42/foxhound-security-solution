@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from django.db.models import Sum
 
 from rest_framework.response import Response
@@ -10,7 +12,8 @@ from core.models import (
 from globalutils.utils import (
     get_tenant_id_from_token,
     get_query_from_request,
-    get_objects_from_query
+    get_objects_from_query,
+    groupby_date
 )
 
 from rest_framework import serializers
@@ -80,15 +83,27 @@ class ApplicationApiView(APIView):
     def get(self, request):
         tenant_id = get_tenant_id_from_token(request)
         topcount, basis = get_topcount_basis(request)
+        if topcount == 0:
+            topcount = None
         query = get_query_from_request(request)
+        # Get all the tenant logs
         objects = get_objects_from_query(query).filter(
             firewall_rule__tenant__id=tenant_id,
-        ).values('application__name').annotate(
-            data=Sum(basis)
-        ).order_by('-data')
-        response = []
+        )
+        # Group by minute
+        objects = groupby_date(
+            objects,
+            'logged_datetime',
+            'hour',
+            ['bytes_sent', 'bytes_received'],
+            output_fields=['application__name']
+        )
+        response = defaultdict(list)
         for data in objects[:topcount]:
-            response.append([data['application__name'], data['data']])
+            date = data['date'].timestamp()
+            application = data['application__name']
+            bytes_total = data['bytes_sent'] + data['bytes_received']
+            response[application].append([date, bytes_total])
         return Response({"data": response})
 
     def post(self, request):
