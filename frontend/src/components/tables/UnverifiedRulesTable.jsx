@@ -1,6 +1,6 @@
 import React, {Component, Fragment} from 'react';
 import {connect} from "react-redux";
-import {Table} from 'antd';
+import {Spin, Table} from 'antd';
 import {fetchUnverifiedRulesData} from "../../actions/unverifiedRulesAction";
 
 class UnverifiedRulesTable extends Component {
@@ -8,15 +8,21 @@ class UnverifiedRulesTable extends Component {
     state = {
         columns: [
             {
-                title: 'Source Address',
-                dataIndex: 'sourceAddress',
-                key: 'sourceAddress',
+                title: 'Created Date',
+                dataIndex: 'created_date_time',
+                key: 'created_date_time',
                 render: text => <a>{text}</a>,
             },
             {
-                title: 'Destination Address',
-                dataIndex: 'destinationAddress',
-                key: 'destinationAddress',
+                title: 'Source IP',
+                dataIndex: 'source_ip',
+                key: 'source_ip',
+                render: text => <a>{text}</a>,
+            },
+            {
+                title: 'Destination IP',
+                dataIndex: 'destination_ip',
+                key: 'destination_ip',
                 render: text => <a>{text}</a>,
             },
             {
@@ -26,9 +32,9 @@ class UnverifiedRulesTable extends Component {
                 render: text => <a>{text}</a>,
             },
             {
-                title: 'Destination Port',
-                dataIndex: 'destinationPort',
-                key: 'destinationPort',
+                title: 'Rule Name',
+                dataIndex: 'name',
+                key: 'name',
                 render: text => <a>{text}</a>,
             },
             {
@@ -38,19 +44,12 @@ class UnverifiedRulesTable extends Component {
                 render: text => <a>{text}</a>,
             }
         ],
-        data: [
-            {
-                key : 1,
-                sourceAddress : '192.168.101.10',
-                destinationAddress : '202.53.6.79',
-                application : 'mssql',
-                destinationPort : '137',
-                ruleName : 'app-server to core-db-server',
-                verifiedDate : String(new Date(2019,10,12)),
-                verifiedBy : 'KeshavChaurasia'
-            }
-        ]
+        data: []
 
+    }
+
+    componentDidMount() {
+        this.props.dispatchFetchUnverifiedRulesData(this.props.auth_token);
     }
 
 
@@ -59,13 +58,15 @@ class UnverifiedRulesTable extends Component {
         const title = () => <h3>Verified Rules</h3>
         return(
             <Fragment>
-                <Table
-                    bordered={true}
-                    title = {title}
-                    expandedRowRender={expandedRowRender}
-                    columns={this.state.columns.map(item => ({ ...item, ellipsis: 'enable' }))}
-                    dataSource = {this.state.data}
-                />
+                <Spin spinning={this.props.unverifiedRulesLoading}>
+                    <Table
+                        bordered={true}
+                        title = {title}
+                        expandedRowRender={expandedRowRender}
+                        columns={this.state.columns.map(item => ({ ...item, ellipsis: 'enable' }))}
+                        dataSource = {this.props.unverifiedRulesData}
+                    />
+                </Spin>
             </Fragment>
         )
     }
@@ -86,8 +87,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        dispatchFetchUnverifiedRulesData : () => dispatch(fetchUnverifiedRulesData())
-
+        dispatchFetchUnverifiedRulesData : (auth_token) => dispatch(fetchUnverifiedRulesData(auth_token))
     }
 }
 
