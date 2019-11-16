@@ -110,7 +110,8 @@ def edit_rule(request):
         'firewall_rule__tenant__id': tenant_id,
         'source_ip__regex': source_ip,
         'destination_ip__regex': destination_ip,
-        'application__regex': application
+        'application__regex': application,
+        'is_anomalous_rule': False
     }
     create_new_rule = False
     for rule in Rule.objects.filter(**query):
