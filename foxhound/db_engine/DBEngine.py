@@ -239,14 +239,14 @@ class DBEngine(object):
             'core_firewallrule', self._db_engine)
         data = pd.merge(
             data, firewall_rules,
-            left_on='firewall_rule_id', right_on='id')[
+            left_on='firewall_rule_id', right_on='name')[
             ['id', 'source_ip_id', 'destination_ip_id', 'application_id']
         ]
         for i, j in data.iterrows():
             id = int(j.id)
-            source_ip = int(j.source_ip_id)
-            destination_ip = int(j.destination_ip_id)
-            application = int(j.application_id)
+            source_ip = j.source_ip_id
+            destination_ip = j.destination_ip_id
+            application = j.application_id
             rules = rules_table[
                 (rules_table['source_ip'] == source_ip) &
                 (rules_table['destination_ip'] == destination_ip) &
@@ -272,7 +272,6 @@ class DBEngine(object):
                 print(
                     f'Created Rule: {(source_ip)}--{destination_ip}--{application}'
                 )
-
         self._session.commit()
 
     def _write_ip_info(self, id, data, ip_in_db):
@@ -328,15 +327,17 @@ class DBEngine(object):
 
     def _write_to_db(self, csv: str):
         data = self._read_csv(csv)
-        dfs = self._read_tables_from_db()
-        params = self._get_unique(data, dfs)
-        self._write_new_items_to_db(params)
-        dfs = self._read_tables_from_db()
-        self._map_to_foreign_key(data, dfs)
-        traffic_log_id = self._write_traffic_log(csv)
-        self._write_traffic_log_detail(data, traffic_log_id)
-        self._write_rules(data)
-        self._write_info(self._read_csv(csv))
+        _data = data.copy()
+        # dfs = self._read_tables_from_db()
+        # params = self._get_unique(data, dfs)
+        # self._write_new_items_to_db(params)
+        # dfs = self._read_tables_from_db()
+        # self._map_to_foreign_key(data, dfs)
+        # traffic_log_id = self._write_traffic_log(csv)
+        # self._write_traffic_log_detail(data, traffic_log_id)
+        # data = self._read_csv(csv)
+        self._write_rules(_data)
+        self._write_info(_data)
 
     def _get_date_from_filename(self, string):
         date = re.findall(r'[0-9]{4}_[0-9]{2}_[0-9]{2}',

@@ -229,3 +229,9 @@ def get_tenant_id_from_token(request):
     token = request.META.get('HTTP_AUTHORIZATION').split()[1]
     tenant_id = Token.objects.get(key=token).user.tenant.id
     return tenant_id
+
+
+def get_user_from_token(request):
+    token = request.META.get('HTTP_AUTHORIZATION').split()[1]
+    user = Token.objects.get(key=token).user
+    return user
