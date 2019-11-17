@@ -1,5 +1,5 @@
 import React, {Component, Fragment} from 'react';
-import ChangePassword from "./auth/ChangePassword";
+import ChangePassword from "./ChangePasswordForm";
 import RequestOriginWorldChart from "../components/charts/RequestOriginWorldChart";
 import VerifiedRulesTable from "../components/tables/VerifiedRulesTable";
 import ApplicationChart from "../components/charts/ApplicationChart";

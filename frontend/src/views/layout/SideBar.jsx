@@ -31,6 +31,19 @@ class SideBar extends Component {
                                 <span>Processed Logs</span>
                             </a>
                         </Menu.Item>
+                        <Menu.Item key="4">
+                            <a href={"/rules/verified"}>
+                                <Icon type="snippets" />
+                                <span>Verified Rules</span>
+                            </a>
+                        </Menu.Item>
+                        <Menu.Item key="5">
+                            <a href={"/auth/changepassword"}>
+                                <Icon type="snippets" />
+                                <span>Change Password</span>
+                            </a>
+                        </Menu.Item>
+
                     </Menu>
                 </Sider>
             </Fragment>

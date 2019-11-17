@@ -1,6 +1,6 @@
 import React, {Component, Fragment} from 'react';
 import {connect} from "react-redux";
-import {Alert, Avatar, Button, Col, Drawer, Form, Input, List, Row, Select, Spin, Statistic, Table} from 'antd';
+import {Alert, Avatar, Button, Col, Drawer, Form, Icon, Input, List, Row, Select, Spin, Statistic, Table} from 'antd';
 import {
     acceptRule,
     acceptUnverifiedRule,
@@ -27,13 +27,13 @@ class UnverifiedRulesTable extends Component {
                 render: text => Date(text),
             },
             {
-                title: 'Source IP',
+                title: 'Source Address',
                 dataIndex: 'source_ip',
                 key: 'source_ip',
                 render: text => <a>{text}</a>,
             },
             {
-                title: 'Destination IP',
+                title: 'Destination Address',
                 dataIndex: 'destination_ip',
                 key: 'destination_ip',
                 render: text => <a>{text}</a>,
@@ -56,9 +56,9 @@ class UnverifiedRulesTable extends Component {
                 render : (text,record) => {
                     return (
                         <Fragment>
-                            <a onClick={() => this.props.handleUnverifiedRuleAccept(this.props.auth_token,record)}>Accept </a> |
-                            <a onClick={() => this.props.handleUnverifiedRuleReject(this.props.auth_token,record)}>Reject </a> |
-                            <a onClick={() => this.props.handleUnverifiedRuleUpdate(this.props.auth_token,record)}>Update </a>
+                            <a onClick={() => this.props.handleUnverifiedRuleAccept(this.props.auth_token,record)}><Icon type="check-circle" theme="filled" />&nbsp;&nbsp;</a>
+                            <a onClick={() => this.props.handleUnverifiedRuleReject(this.props.auth_token,record)}><Icon type="close-circle" theme="filled" />&nbsp;&nbsp;</a>
+                            <a onClick={() => this.props.handleUnverifiedRuleUpdate(this.props.auth_token,record)}><Icon type="edit" theme="filled" />&nbsp;&nbsp;</a>
                         </Fragment>
                     )
                 }
@@ -126,8 +126,7 @@ class UnverifiedRulesTable extends Component {
                         bordered={true}
                         rowKey={record => record.id}
                         title = {title}
-                        expandedRowRender={expandedRowRender}
-                        columns={this.state.columns.map(item => ({ ...item, ellipsis: 'enable' }))}
+                        columns={this.state.columns}
                         dataSource = {this.props.unverifiedRulesData}
                     />
                 </Spin>
@@ -135,7 +134,7 @@ class UnverifiedRulesTable extends Component {
                     id={"RejectDrawer"}
                     visible={this.props.unverifiedRuleRejectDrawerLoading}
                     title={"Reject and flag this rule?"}
-                    width={400}
+                    width={500}
                     onClose={this.props.dispatchHandleDrawerClose}
                     closable={true}
                     placement={'right'}>
@@ -178,7 +177,7 @@ class UnverifiedRulesTable extends Component {
                     id={"AcceptDrawer"}
                     visible={this.props.unverifiedRuleAcceptDrawerLoading}
                     title={"Confirm Accept this rule?"}
-                    width={400}
+                    width={500}
                     closable={true}
                     onClose={this.props.dispatchHandleDrawerClose}
                     placement={'right'}>
@@ -222,7 +221,7 @@ class UnverifiedRulesTable extends Component {
                     id={"UpdateDrawer"}
                     visible={this.props.unverifiedRuleUpdateDrawerLoading}
                     title={"Confirm Update this rule?"}
-                    width={400}
+                    width={500}
                     closable={true}
                     onClose={this.props.dispatchHandleDrawerClose}
                     placement={'right'}>

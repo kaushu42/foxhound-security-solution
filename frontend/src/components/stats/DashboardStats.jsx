@@ -97,9 +97,6 @@ class DashboardStats extends Component {
                             <Statistic title="Downlink" value={downlink} />
                         </Card.Grid>
                         <Card.Grid style={gridStyle}>
-                            <Statistic title="Opened TT" value={this.state.opened_tt} />
-                        </Card.Grid>
-                        <Card.Grid style={gridStyle}>
                             <Statistic title="New Rules" value={this.state.new_rules} />
                         </Card.Grid>
                         <Card.Grid style={gridStyle}>
@@ -108,13 +105,6 @@ class DashboardStats extends Component {
                         <Card.Grid style={gridStyle}>
                             <Statistic title="New Destination IP" value={10} />
                         </Card.Grid>
-                        <Card.Grid style={gridStyle}>
-                            <Statistic title="PCA Anomaly " value={10} />
-                        </Card.Grid>
-                        <Card.Grid style={gridStyle}>
-                            <Statistic title="Total Threat Event" value={50} />
-                        </Card.Grid>
-
                     </Spin>
             </Fragment>
         )

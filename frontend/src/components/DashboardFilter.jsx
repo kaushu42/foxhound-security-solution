@@ -91,14 +91,14 @@ class DashboardFilter extends Component{
                     <Col xs={24} sm={24} md={24} lg={8} xl={8}>
                         <RangePicker
                             style={{width:"100%"}}
-                            size={"large"}
+                            size={"default"}
                             id="RangePicker"
                             onChange={(e,v)=>this.handleRangePickerChange(e,v)}/>
                     </Col>
                     <Col xs={24} sm={24} md={24} lg={8} xl={8}>
                         <Select
                             id="IpAddress"
-                            size={"large"}
+                            size={"default"}
                             mode="multiple"
                             loading={this.state.loading_firewall_rule_select}
                             allowClear={true}
@@ -114,7 +114,7 @@ class DashboardFilter extends Component{
                         <Select
                                 id="FirewallRule"
                                 mode="multiple"
-                                size={"large"}
+                                size={"default"}
                                 loading={this.state.loading_firewall_rule_select}
                                 allowClear={true}
                                 style={{ width: "100%" }}
@@ -132,7 +132,7 @@ class DashboardFilter extends Component{
                         <Select
                                 id="Application"
                                 mode="multiple"
-                                size={"large"}
+                                size={"default"}
                                 loading={this.state.loading_application_select}
                                 allowClear={true}
                                 style={{ width: "100%" }}
@@ -147,7 +147,7 @@ class DashboardFilter extends Component{
                         <Select
                             id="Protocol"
                             mode="multiple"
-                            size={"large"}
+                            size={"default"}
                             loading={this.state.loading_protocol_select}
                             allowClear={true}
                             style={{ width: "100%" }}
@@ -161,7 +161,7 @@ class DashboardFilter extends Component{
                     <Col xs={24} sm={24} md={8} lg={6} xl={6}>
                         <Select id="SourceZone"
                                 mode="multiple"
-                                size={"large"}
+                                size={"default"}
                                 loading={this.state.loading_source_zone_select}
                                 allowClear={true}
                                 style={{ width: "100%" }}
@@ -175,7 +175,7 @@ class DashboardFilter extends Component{
                     <Col xs={24} sm={24} md={8} lg={6} xl={6}>
                         <Select id="DestinationZone"
                                 mode="multiple"
-                                size={"large"}
+                                size={"default"}
                                 loading={this.state.loading_destination_zone_select}
                                 allowClear={true}
                                 style={{ width: "100%" }}

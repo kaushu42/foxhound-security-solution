@@ -5,6 +5,7 @@ import './login.css';
 import axios from "axios";
 import {sessionLogIn} from "../../actions/authAction";
 import {ROOT_URL} from "../../utils";
+import {Redirect} from "react-router-dom";
 
 const  LOGIN_API = `${ROOT_URL}users/login/`;
 
@@ -92,6 +93,9 @@ class Login extends Component {
     render(){
         return (
             <Fragment>
+                {
+                    this.props.auth_token ? <Redirect to={"/"} /> : null
+                }
                 <div className="login-page">
                     <div className="container">
                         <div className="login-container row d-flex justify-content-between">
@@ -134,7 +138,6 @@ class Login extends Component {
                                                     Log in
                                                 </Button>
                                             </Form>
-
                                         </Row>
                                     </div>
                                 </div>
@@ -149,6 +152,7 @@ class Login extends Component {
 
 const mapStateToProps = (state) => {
     return {
+        auth_token : state.auth.auth_token
 
     }
 }

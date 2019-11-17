@@ -316,22 +316,23 @@ class RequestOriginChart extends Component {
           <Card title={
             <Fragment>
               <Col xs={24} sm={24} md={24} lg={24} xl={24}>
-                        <Select
-                            id="country"
-                            size={"large"}
-                            mode="multiple"
-                            loading={this.state.loading}
-                            allowClear={true}
-                            style={{ width: "100%" }}
-                            placeholder="Exclude"
-                            onChange={(v)=> this.setState({
-                              exceptcountries: v,
-                              loading:true
-                            })}>
-                            {
-                                countrySelectListItem
-                            }
-                        </Select>
+                  <h1>Request Origin View in World Chart</h1>
+                  <Select
+                        id="country"
+                        size={"large"}
+                        mode="multiple"
+                        loading={this.state.loading}
+                        allowClear={true}
+                        style={{ width: "50%",float:'right' }}
+                        placeholder="Exclude countries..."
+                        onChange={(v)=> this.setState({
+                          exceptcountries: v,
+                          loading:true
+                        })}>
+                        {
+                            countrySelectListItem
+                        }
+                    </Select>
                     </Col>
             </Fragment>
           }>
@@ -342,7 +343,6 @@ class RequestOriginChart extends Component {
                 ref = {'chart'}
                 options = {options}
             />
-
           </Card>
             {this.state.selectedCountryEvent ?
 

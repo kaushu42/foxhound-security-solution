@@ -10,6 +10,8 @@ import BandwidthUsageChart from "../charts/BandwidthUsageChart";
 import AnomalyBasedTroubleTicketTable from "../components/tables/AnomalyBasedTroubleTicketTable";
 
 import DashboardFilter from "../components/DashboardFilter";
+import RequestOriginWorldChart from "../components/charts/RequestOriginWorldChart";
+import UnverifiedRulesTable from "../components/tables/UnverifiedRulesTable";
 
 class Dashboard extends Component{
     render() {
@@ -27,13 +29,8 @@ class Dashboard extends Component{
                         <DashboardStats />
                     </Row>
                     <Row style={contentLayout}>
-                        {/*<DashboardThreatStats />*/}
-                    </Row>
-
-                    <Row style={contentLayout}>
                         <Col xs={24} sm={24} md={24} lg={24} xl={12}>
-                            <RequestOriginChart />
-
+                            <RequestOriginWorldChart/>
                         </Col>
                         <Col xs={24} sm={24} md={24} lg={24} xl={12}>
                             <Card>
@@ -43,9 +40,7 @@ class Dashboard extends Component{
                         </Col>
                     </Row>
                     <Row style={contentLayout}>
-                        <Card title={"PCA Based Anomaly Trouble Tickets"}>
-                            <AnomalyBasedTroubleTicketTable />
-                        </Card>
+                        <UnverifiedRulesTable />
                     </Row>
 
                 </MasterLayout>

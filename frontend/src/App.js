@@ -10,6 +10,8 @@ import Dashboard from "./views/Dashboard";
 import Test from "./views/Test";
 import "./App.css";
 import ProcessedLogs from "./views/ProcessedLogs";
+import VerifiedRules from "./views/VerifiedRules";
+import ChangePassword from "./views/layout/ChangePassword";
 
 class App extends Component {
   render() {
@@ -19,6 +21,18 @@ class App extends Component {
           <Route path="/auth/login" component={Login} />
           <Route path="/auth/logout" component={Logout} />
           <Route path="/test" component={Test} />
+          <AuthenticatedRoute
+              auth_token={this.props.auth_token}
+              exact
+              path="/auth/changepassword"
+              component={ChangePassword}
+          />
+          <AuthenticatedRoute
+              auth_token={this.props.auth_token}
+              exact
+              path="/rules/verified"
+              component={VerifiedRules}
+          />
           <AuthenticatedRoute
             auth_token={this.props.auth_token}
             exact

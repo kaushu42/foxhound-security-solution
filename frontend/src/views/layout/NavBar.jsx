@@ -12,7 +12,7 @@ const accountDropdownMenu = (
             </a>
         </Menu.Item>
         <Menu.Item>
-            <a rel="noopener noreferrer" href="/test">
+            <a rel="noopener noreferrer" href="/auth/changepassword">
                 Change Password
             </a>
         </Menu.Item>

@@ -11,7 +11,7 @@ import {
     closeMapChartLogDrawer,
     fetchSelectedCountryLog, updatePagination
 } from "../../actions/requestOriginMapChartAction";
-import {Drawer, Select, Spin,Table} from "antd";
+import {Drawer, Select, Spin,Table,Card} from "antd";
 
 class RequestOriginWorldChart extends Component {
 
@@ -141,29 +141,32 @@ class RequestOriginWorldChart extends Component {
         return (
             <Fragment>
                 <Spin spinning={mapChartLoading}>
-                    {
-                        countrySelectListData ? (
-                            <Select
-                                id="country"
-                                size={"large"}
-                                mode="multiple"
-                                allowClear={true}
-                                style={{ width: "100%" }}
-                                onChange={(exclude_countries)=> dispatchUpdateMapAfterCountryExcluding(exclude_countries)}
-                                placeholder="Exclude countries....">
-                                {
-                                    countrySelectListData.map(data => <Select.Option key={data['id']}>{data['name']}</Select.Option>)
-                                }
-                            </Select>
-                        ) : null
-                    }
-                    <HighchartsReact
-                        constructorType={"mapChart"}
-                        allowChartUpdate={true}
-                        highcharts={Highcharts}
-                        ref = {'chart'}
-                        options = {options}
-                />
+                    <Card title={
+                            <Fragment>
+                                { countrySelectListData ? (
+                                    <Select
+                                        id="country"
+                                        mode="multiple"
+                                        allowClear={true}
+                                        style={{ width: "50%",float:"right" }}
+                                        onChange={(exclude_countries)=> dispatchUpdateMapAfterCountryExcluding(exclude_countries)}
+                                        placeholder="Exclude countries....">
+                                        {
+                                            countrySelectListData.map(data => <Select.Option key={data['id']}>{data['name']}</Select.Option>)
+                                        }
+                                    </Select>
+                                ) : null}
+                            </Fragment>
+
+                    }>
+                        <HighchartsReact
+                            constructorType={"mapChart"}
+                            allowChartUpdate={true}
+                            highcharts={Highcharts}
+                            ref = {'chart'}
+                            options = {options}
+                        />
+                    </Card>
                 </Spin>
                 <Drawer title={`Logs With Request originating from ${this.props.mapChartSelectedCountryName}`}
                         width={1100}
@@ -171,7 +174,7 @@ class RequestOriginWorldChart extends Component {
                         closable={true}
                         onClose={this.props.dispatchCloseMapChartLogDrawer}
                         visible={this.props.mapChartLogDrawerVisible}
-                >
+                    >
                     <Spin spinning={this.props.countryLogDataLoading}>
                         <Table
                             columns={this.state.columns}
