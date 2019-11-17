@@ -1,7 +1,7 @@
 import React, {Component, Fragment} from 'react';
 import {Avatar, Button, Form, List, Select, Spin, Statistic, Table} from 'antd';
 import reqwest from "reqwest";
-import {ROOT_URL} from "../../utils";
+import {drawerInfoStyle, ROOT_URL} from "../../utils";
 import {connect} from "react-redux";
 import { Drawer} from 'antd';
 import { Card, Col, Row } from 'antd';
@@ -12,11 +12,6 @@ const { TextArea } = Input;
 
 
 
-const drawerInfoStyle = {
-    paddingBottom : 10,
-    paddingTop : 10,
-    border: '1px solid rgb(235, 237, 240)'
-}
 
 const USER_LIST_API = `${ROOT_URL}tt/users/`;
 
@@ -315,7 +310,7 @@ class AnomalyBasedTroubleTicketTable extends Component {
                                             <p>No Follows ups</p>
                                         )}
                                         <br />
-                                        <Form >
+                                        <Form>
                                             <p style={{color:'red'}}>{this.state.error_message}</p>
                                         <Row type="flex" gutter={16} style={{paddingTop: 10,paddingBottom: 10}}>
                                             <Col xs={24} sm={12} md={24} lg={24} xl={24}>

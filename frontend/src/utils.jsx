@@ -8,6 +8,14 @@ export const contentLayout = {
   paddingTop: 12
 };
 
+
+export const drawerInfoStyle = {
+  paddingBottom : 10,
+  paddingTop : 10,
+  border: '1px solid rgb(235, 237, 240)'
+}
+
+
 export const axiosHeader = (auth_token) => {
 
   let token = `Token ${auth_token}`;
