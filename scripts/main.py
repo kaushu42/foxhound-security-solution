@@ -74,27 +74,27 @@ try:
     mle = MLEngine(config.IP_PROFILE_OUTPUT_DIR, config.IP_MODEL_OUTPUT_DIR,
                    config.TRAFFIC_LOGS_INPUT_DIR, config.ANOMALY_LOGS_OUTPUT_DIR)
     mle.run(create_model=True, predict=True)
-    # print('DC Engine running...')
-    # pa = fh.dc_engine.PaloAltoEngine(
-    #     config.TRAFFIC_LOGS_INPUT_DIR, config.TRAFFIC_LOGS_OUTPUT_DIR)
-    # pa.run(verbose=True)
+    print('DC Engine running...')
+    pa = fh.dc_engine.PaloAltoEngine(
+        config.TRAFFIC_LOGS_INPUT_DIR, config.TRAFFIC_LOGS_OUTPUT_DIR)
+    pa.run(verbose=True)
 
-    # print('DB Engine running...')
-    # db = fh.db_engine.DBEngine(
-    #     config.TRAFFIC_LOGS_OUTPUT_DIR,
-    #     db_engine=db_engine,
-    #     db_path=os.path.join(config.BASE_PATH, 'GeoLite2-City.mmdb')
-    # )
-    # db.run(verbose=True)
-    # db.clean()
-    # tt_anomaly = TTAnomaly(config.ANOMALY_LOGS_OUTPUT_DIR, db_engine)
-    # tt_anomaly.run()
+    print('DB Engine running...')
+    db = fh.db_engine.DBEngine(
+        config.TRAFFIC_LOGS_OUTPUT_DIR,
+        db_engine=db_engine,
+        db_path=os.path.join(config.BASE_PATH, 'GeoLite2-City.mmdb')
+    )
+    db.run(verbose=True)
+    db.clean()
+    tt_anomaly = TTAnomaly(config.ANOMALY_LOGS_OUTPUT_DIR, db_engine)
+    tt_anomaly.run()
 
-    # anomaly_logs = [os.path.join(config.ANOMALY_LOGS_OUTPUT_DIR, f)
-    #                 for f in os.listdir(config.ANOMALY_LOGS_OUTPUT_DIR)]
-    # for log in anomaly_logs:
-    #     os.remove(log)
-    #     print(f'{log} deleted!')
+    anomaly_logs = [os.path.join(config.ANOMALY_LOGS_OUTPUT_DIR, f)
+                    for f in os.listdir(config.ANOMALY_LOGS_OUTPUT_DIR)]
+    for log in anomaly_logs:
+        os.remove(log)
+        print(f'{log} deleted!')
 except Exception as e:
     logging.exception(f'An error occured on {datetime.datetime.now()}')
     raise(e)

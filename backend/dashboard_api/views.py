@@ -33,7 +33,8 @@ from globalutils import (
     get_usage,
     get_query_from_request,
     get_objects_from_query,
-    get_tenant_id_from_token
+    get_tenant_id_from_token,
+    get_filters
 )
 from serializers.serializers import (
     FilterSerializer,
@@ -56,18 +57,31 @@ class StatsApiView(APIView):
         opened_tt = TroubleTicketAnomaly.objects.filter(
             firewall_rule__tenant__id=tenant_id,
             is_closed=False).count()
-
         new_rules = Rule.objects.filter(
             firewall_rule__tenant__id=tenant_id,
             is_verified_rule=False
         ).count()
 
+        source_ips = objects.values('source_ip__address').distinct()
+        destination_ips = objects.values('destination_ip__address').distinct()
+        ips = TenantIPAddressInfo.objects.filter(
+            firewall_rule__tenant_id=tenant_id)
+        filters = get_filters(request)
+        start_date = filters.get('start_date', None)
+        end_date = filters.get('end_date', None)
+        if start_date:
+            ips = ips.filter(created_date__gte=start_date,
+                             created_date__lte=end_date)
+        sources = ips.filter(ip_address__in=source_ips)
+        destinations = ips.filter(ip_address__in=destination_ips)
         return Response(
             {
                 "uplink": uplink,
                 "downlink": downlink,
                 "opened_tt": opened_tt,
-                "new_rules": new_rules
+                "new_rules": new_rules,
+                "new_source_ip": sources.count(),
+                "new_destination_ip": destinations.count(),
             }, status=HTTP_200_OK
         )
 
