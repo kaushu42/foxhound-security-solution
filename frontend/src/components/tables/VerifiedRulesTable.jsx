@@ -1,22 +1,44 @@
 import React, {Component, Fragment} from 'react';
 import {connect} from "react-redux";
 import {Table} from 'antd';
+import {
+    fetchVerifiedRulesData,
+    updateVerifiedRule
+} from "../../actions/verifiedRulesAction";
+
 
 class VerifiedRulesTable extends Component {
-
 
     state = {
         columns: [
             {
-                title: 'Source Address',
-                dataIndex: 'sourceAddress',
-                key: 'sourceAddress',
+                title: 'Id',
+                dataIndex: 'table_id',
+                key: 'table_id',
                 render: text => <a>{text}</a>,
             },
             {
-                title: 'Destination Address',
-                dataIndex: 'destinationAddress',
-                key: 'destinationAddress',
+                title: 'Created Date',
+                dataIndex: 'created_date_time',
+                key: 'created_date_time',
+                render: text => Date(text),
+            },
+            {
+                title: 'Verified Date',
+                dataIndex: 'verified_date_time',
+                key: 'verified_date_time',
+                render: text => Date(text),
+            },
+            {
+                title: 'Source IP',
+                dataIndex: 'source_ip',
+                key: 'source_ip',
+                render: text => <a>{text}</a>,
+            },
+            {
+                title: 'Destination IP',
+                dataIndex: 'destination_ip',
+                key: 'destination_ip',
                 render: text => <a>{text}</a>,
             },
             {
@@ -26,33 +48,19 @@ class VerifiedRulesTable extends Component {
                 render: text => <a>{text}</a>,
             },
             {
-                title: 'Destination Port',
-                dataIndex: 'destinationPort',
-                key: 'destinationPort',
-                render: text => <a>{text}</a>,
-            },
-            {
                 title: 'Rule Name',
-                dataIndex: 'ruleName',
-                key: 'ruleName',
+                dataIndex: 'name',
+                key: 'name',
                 render: text => <a>{text}</a>,
             }
         ],
-        data: [
-            {
-                key : 1,
-                sourceAddress : '192.168.101.10',
-                destinationAddress : '202.53.6.79',
-                application : 'mssql',
-                destinationPort : '137',
-                ruleName : 'app-server to core-db-server',
-                verifiedDate : String(new Date(2019,10,12)),
-                verifiedBy : 'KeshavChaurasia'
-            }
-        ]
+        data: []
 
     }
 
+    componentDidMount() {
+        this.props.dispatchFetchVerifiedRulesData(this.props.auth_token);
+    }
 
     render(){
         const expandedRowRender = record => <p><b>Verified Data: </b>{record.verifiedDate} <br/><b>Verified By: </b> {record.verifiedBy} </p>;
@@ -61,10 +69,11 @@ class VerifiedRulesTable extends Component {
             <Fragment>
                 <Table
                     bordered={true}
+                    rowKey={record => record.id}
                     title = {title}
                     expandedRowRender={expandedRowRender}
                     columns={this.state.columns.map(item => ({ ...item, ellipsis: 'enable' }))}
-                    dataSource = {this.state.data}
+                    dataSource = {this.props.verifiedRulesData}
                 />
             </Fragment>
         )
@@ -74,13 +83,21 @@ class VerifiedRulesTable extends Component {
 
 const mapStateToProps = state => {
     return {
-        auth_token : state.auth.auth_token
+        auth_token : state.auth.auth_token,
+
+        verifiedRulesLoading : state.verifiedRule.verifiedRulesLoading,
+        verifiedRulesData : state.verifiedRule.verifiedRulesData,
+        verifiedRulesSuccess : state.verifiedRule.verifiedRulesSuccess,
+        verifiedRulesError: state.verifiedRule.verifiedRulesError,
+
+        verifiedRuleUpdateDrawerLoading: state.verifiedRule.verifiedRuleUpdateDrawerLoading,
     }
 }
 
 const mapDispatchToProps = dispatch => {
     return {
-
+        dispatchFetchVerifiedRulesData : (auth_token) => dispatch(fetchVerifiedRulesData(auth_token)),
+        handleVerifiedRuleUpdate : (auth_token,record) => dispatch(updateVerifiedRule(auth_token,record)),
     }
 }
 

@@ -8,10 +8,7 @@ import DashboardStats from "../components/stats/DashboardStats";
 import RequestOriginChart from "../components/charts/RequestOriginChart";
 import BandwidthUsageChart from "../charts/BandwidthUsageChart";
 import AnomalyBasedTroubleTicketTable from "../components/tables/AnomalyBasedTroubleTicketTable";
-import TopSourceAddressChart from "../components/charts/TopSourceAddressChart";
-import TopDestinationAddressChart from "../components/charts/TopDestinationAddressChart";
-import TopApplicationChart from "../components/charts/TopApplicationChart";
-import TopDestinationPortChart from "../components/charts/TopDestinationPortChart";
+
 import DashboardFilter from "../components/DashboardFilter";
 
 class Dashboard extends Component{
@@ -44,12 +41,6 @@ class Dashboard extends Component{
 
                             </Card>
                         </Col>
-                    </Row>
-                    <Row style={contentLayout}>
-                        <Col xs={24} sm={24} md={12} lg={6} xl={6}><TopSourceAddressChart/></Col>
-                        <Col xs={24} sm={24} md={12} lg={6} xl={6}><TopDestinationAddressChart/></Col>
-                        <Col xs={24} sm={24} md={12} lg={6} xl={6}><TopApplicationChart/></Col>
-                        <Col xs={24} sm={24} md={12} lg={6} xl={6}><TopDestinationPortChart/></Col>
                     </Row>
                     <Row style={contentLayout}>
                         <Card title={"PCA Based Anomaly Trouble Tickets"}>
