@@ -86,7 +86,7 @@ try:
         db_path=os.path.join(config.BASE_PATH, 'GeoLite2-City.mmdb')
     )
     db.run(verbose=True)
-
+    db.clean()
     # tt_anomaly = TTAnomaly(config.ANOMALY_LOGS_OUTPUT_DIR, db_engine)
     # tt_anomaly.run()
 
