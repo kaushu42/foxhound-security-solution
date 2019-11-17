@@ -5,6 +5,7 @@ import layoutReducer from "./reducers/layoutReducer";
 import ipSearchBarReducer from "./reducers/ipSearchReducer";
 import accountReducer from "./reducers/accountReducer";
 import requestOriginChartReducer from "./reducers/requestOriginChartReducer";
+import unverifiedRulesReducer from "./reducers/unverifiedRulesReducer";
 
 const rootReducer = combineReducers({
     auth : authReducer,
@@ -12,7 +13,8 @@ const rootReducer = combineReducers({
     layout : layoutReducer,
     ipSearchBar : ipSearchBarReducer,
     account : accountReducer,
-    requestOriginChart : requestOriginChartReducer
+    requestOriginChart : requestOriginChartReducer,
+    unverifiedRule : unverifiedRulesReducer
 })
 
 export default rootReducer;
