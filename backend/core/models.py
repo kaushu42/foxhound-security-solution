@@ -220,7 +220,7 @@ class TenantIPAddressInfo(TenantInfo):
     ip_address = models.CharField(max_length=15)
 
     def __repr__(self):
-        return f'{self.firewall_rule.tenant}-{self.ipaddress}'
+        return f'{self.firewall_rule.tenant}-{self.ip_address}'
 
     def __str__(self):
         return self.__repr__()
