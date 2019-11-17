@@ -1,13 +1,14 @@
 import React, {Component, Fragment} from 'react';
 import {connect} from "react-redux";
-import {Avatar, Button, Col, Drawer, Form, List, Row, Select, Spin, Statistic, Table} from 'antd';
+import {Alert, Avatar, Button, Col, Drawer, Form, Input, List, Row, Select, Spin, Statistic, Table} from 'antd';
 import {
     acceptRule,
     acceptUnverifiedRule,
     fetchUnverifiedRulesData, handleDrawerClose, rejectRule,
-    rejectUnverifiedRule, selectRecordToAccept, updateUnverifiedRule
+    rejectUnverifiedRule, updateRule, updateUnverifiedRule
 } from "../../actions/unverifiedRulesAction";
-import {drawerInfoStyle} from "../../utils";
+import {contentLayout, drawerInfoStyle} from "../../utils";
+
 
 class UnverifiedRulesTable extends Component {
 
@@ -63,7 +64,8 @@ class UnverifiedRulesTable extends Component {
                 }
             }
         ],
-        data: []
+        data: [],
+
 
     }
 
@@ -85,7 +87,12 @@ class UnverifiedRulesTable extends Component {
 
     handleUpdateRuleSubmit = (e) => {
         e.preventDefault();
-        const {auth_token,selectedRecordToUpdate} = this.props;
+        const {auth_token} = this.props;
+        const source_ip = this.source_ip.state.value;
+        const destination_ip = this.destination_ip.state.value;
+        const application = this.application.state.value;
+        console.log(this.source_ip.state.value);
+        this.props.dispatchUpdateRule(auth_token,source_ip,destination_ip,application);
     }
 
 
@@ -95,10 +102,25 @@ class UnverifiedRulesTable extends Component {
         const title = () => <h3>Unverified Rules</h3>
         return(
             <Fragment>
-                {this.props.acceptUnverifiedRuleError ? <p style={{color:'red'}}>{this.props.acceptUnverifiedRuleErrorMessage }</p>: null }
-                {this.props.acceptUnverifiedRuleSuccess ? <p style={{color:'green'}}>{this.props.acceptUnverifiedRuleSuccessMessage} </p>: null }
-                {this.props.rejectUnverifiedRuleError ? <p style={{color:'red'}}>{this.props.rejectUnverifiedRuleErrorMessage }</p>: null }
-                {this.props.rejectUnverifiedRuleSuccess ? <p style={{color:'green'}}>{this.props.rejectUnverifiedRuleSuccessMessage} </p>: null }
+                {this.props.acceptUnverifiedRuleError ?
+                    <Alert message="Error" type="error" closeText="Close Now" showIcon description={this.props.acceptUnverifiedRuleErrorMessage} />
+                    : null }
+                {this.props.acceptUnverifiedRuleSuccess ?
+                    <Alert message="Success" type="success" closeText="Close Now" showIcon description={this.props.acceptUnverifiedRuleSuccessMessage} />
+                    : null }
+                {this.props.rejectUnverifiedRuleError ?
+                    <Alert message="Error" type="error" closeText="Close Now" showIcon description={this.props.rejectUnverifiedRuleErrorMessage} />
+                    : null }
+                {this.props.rejectUnverifiedRuleSuccess ?
+                    <Alert message="Success" type="success" closeText="Close Now" showIcon description={this.props.rejectUnverifiedRuleSuccessMessage} />
+                    : null }
+                {this.props.updateUnverifiedRuleError ?
+                    <Alert message="Error" type="error" closeText="Close Now" showIcon description={this.props.updateUnverifiedRuleErrorMessage} />
+                    : null }
+                {this.props.updateUnverifiedRuleSuccess ?
+                    <Alert message="Success" type="success" closeText="Close Now" showIcon description={this.props.updateUnverifiedRuleSuccessMessage} />
+                    : null }
+
                 <Spin spinning={this.props.unverifiedRulesLoading}>
                     <Table
                         bordered={true}
@@ -114,9 +136,10 @@ class UnverifiedRulesTable extends Component {
                     visible={this.props.unverifiedRuleRejectDrawerLoading}
                     title={"Reject and flag this rule?"}
                     width={400}
+                    onClose={this.props.dispatchHandleDrawerClose}
                     closable={true}
                     placement={'right'}>
-                    <Spin spinning={selectedRecordToReject ? false : true}>
+                    <Spin spinning={!selectedRecordToReject}>
                         {
                             selectedRecordToReject ? (
                                 <Fragment>
@@ -159,7 +182,7 @@ class UnverifiedRulesTable extends Component {
                     closable={true}
                     onClose={this.props.dispatchHandleDrawerClose}
                     placement={'right'}>
-                    <Spin spinning={selectedRecordToAccept ? false : true }>
+                    <Spin spinning={!selectedRecordToAccept}>
                         {
                             selectedRecordToAccept ? (
                             <Fragment>
@@ -203,37 +226,49 @@ class UnverifiedRulesTable extends Component {
                     closable={true}
                     onClose={this.props.dispatchHandleDrawerClose}
                     placement={'right'}>
-                    <Spin spinning={selectedRecordToUpdate ? false : true }>
+                    <Spin spinning={!selectedRecordToUpdate}>
                         {
                             selectedRecordToUpdate ? (
                                 <Fragment>
-                                    {this.props.acceptUnverifiedRuleError ? <p style={{color:'red'}}>{this.props.acceptUnverifiedRuleErrorMessage }</p>: null }
-                                    {this.props.acceptUnverifiedRuleSuccess ? <p style={{color:'green'}}>{this.props.acceptUnverifiedRuleSuccessMessage} </p>: null }
+                                    {this.props.updateUnverifiedRuleError ? <p style={{color:'red'}}>{this.props.updateUnverifiedRuleErrorMessage }</p>: null }
+                                    {this.props.updateUnverifiedRuleSuccess ? <p style={{color:'green'}}>{this.props.updateUnverifiedRuleSuccessMessage} </p>: null }
                                     <Row type="flex" gutter={16}>
                                         <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
-                                            <Statistic title="Source IP" value={selectedRecordToAccept.source_ip} />
+                                            <Statistic title="Source IP" value={selectedRecordToUpdate.source_ip} />
                                         </Col>
                                         <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
-                                            <Statistic title="Destination IP" value={selectedRecordToAccept.destination_ip}/>
+                                            <Statistic title="Destination IP" value={selectedRecordToUpdate.destination_ip}/>
                                         </Col>
                                         <Col xs={24} sm={12} md={12} lg={24} xl={24} style={drawerInfoStyle}>
-                                            <Statistic title="Application" value={selectedRecordToAccept.application}/>
+                                            <Statistic title="Application" value={selectedRecordToUpdate.application}/>
                                         </Col>
                                     </Row>
                                     <br />
-                                    <Form>
                                         <p style={{color:'red'}}>{this.props.error_message}</p>
                                         <Row type="flex" gutter={16} style={{paddingTop: 10,paddingBottom: 10}}>
+                                            <Form style={{width:'100%'}} name={"updateRuleForm"}>
+                                            <Form.Item>
+                                                <label>Source IP</label>
+                                                <Input ref={node => (this.source_ip = node)} defaultValue={selectedRecordToUpdate.source_ip} />
+                                            </Form.Item>
+                                            <Form.Item>
+                                                <label>Destination IP</label>
+                                                <Input ref={node => (this.destination_ip = node)}defaultValue={selectedRecordToUpdate.destination_ip} />
+                                            </Form.Item>
+                                            <Form.Item>
+                                                <label>Application</label>
+                                                <Input ref={node => (this.application = node)} defaultValue={selectedRecordToUpdate.application} />
+                                            </Form.Item>
                                             <Button
                                                 type="primary"
                                                 style={{width:'100%'}}
                                                 htmlType="submit"
                                                 className="login-form-button"
                                                 loading={this.props.acceptUnverifiedRuleLoading}
-                                                onClick={e =>this.handleAcceptRuleSubmit(e)}>Accept this rule
+                                                onClick={e =>this.handleUpdateRuleSubmit(e)}>Update this rule
                                             </Button>
+                                            </Form>
                                         </Row>
-                                    </Form>
                                 </Fragment>
                             ):null
                         }
@@ -299,7 +334,7 @@ const mapDispatchToProps = dispatch => {
         dispatchHandleDrawerClose : () => dispatch(handleDrawerClose()),
         dispatchAcceptRule : (auth_token,record) => dispatch(acceptRule(auth_token,record)),
         dispatchRejectRule : (auth_token,record) => dispatch(rejectRule(auth_token,record)),
-        dispatchUpdateRule : (auth_token,source_ip,destination_ip,application) => dispatch(rejectRule(auth_token,source_ip,destination_ip,application))
+        dispatchUpdateRule : (auth_token,source_ip,destination_ip,application) => dispatch(updateRule(auth_token,source_ip,destination_ip,application))
 
     }
 }

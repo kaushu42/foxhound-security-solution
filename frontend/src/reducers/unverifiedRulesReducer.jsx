@@ -3,17 +3,23 @@ import {
     ACCEPT_UNVERFIED_RULE_BEGIN,
     ACCEPT_UNVERFIED_RULE_COMPLETE,
     ACCEPT_UNVERFIED_RULE_ERROR,
-    ACCEPT_UNVERFIED_RULE_SUCCESS,
-    CLOSE_ALL_DRAWER, REJECT_RULE_DRAWER_TOGGLE,
+    ACCEPT_UNVERFIED_RULE_SUCCESS, CLEAN_ALL_STATE,
+    CLOSE_ALL_DRAWER,
+    REJECT_RULE_DRAWER_TOGGLE,
     REJECT_UNVERFIED_RULE_BEGIN,
     REJECT_UNVERFIED_RULE_COMPLETE,
     REJECT_UNVERFIED_RULE_ERROR,
     REJECT_UNVERFIED_RULE_SUCCESS,
-    RULE_SELECTED_TO_ACCEPT, RULE_SELECTED_TO_REJECT,
+    RULE_SELECTED_TO_ACCEPT,
+    RULE_SELECTED_TO_REJECT,
+    RULE_SELECTED_TO_UPDATE,
     UNVERIFIED_RULES_DATA_FETCH_BEGIN,
     UNVERIFIED_RULES_DATA_FETCH_COMPLETE,
     UNVERIFIED_RULES_DATA_FETCH_ERROR,
-    UNVERIFIED_RULES_DATA_FETCH_SUCCESS, UPDATE_RULE_DRAWER_TOGGLE
+    UNVERIFIED_RULES_DATA_FETCH_SUCCESS,
+    UPDATE_RULE_DRAWER_TOGGLE,
+    UPDATE_UNVERFIED_RULE_BEGIN, UPDATE_UNVERFIED_RULE_COMPLETE, UPDATE_UNVERFIED_RULE_ERROR,
+    UPDATE_UNVERFIED_RULE_SUCCESS
 } from "../actionTypes/unverifiedRulesActionType";
 
 const initialState = {
@@ -38,6 +44,15 @@ const initialState = {
     rejectUnverifiedRuleError:false,
     rejectUnverifiedRuleSuccessMessage : "Unknown Rule Flagged Successfully",
     rejectUnverifiedRuleErrorMessage: "Unknown Rule Flag Error",
+
+    selectedRecordToUpdate : null,
+    updateUnverifiedRuleLoading:false,
+    updateUnverifiedRuleSuccess:false,
+    updateUnverifiedRuleError:false,
+    updateUnverifiedRuleSuccessMessage : "Unknown Rule Update Successfully",
+    updateUnverifiedRuleErrorMessage: "Unknown Rule Update Error",
+
+
 
 
 
@@ -102,6 +117,12 @@ const unverifiedRulesReducer = (state=initialState,action)=>{
                 selectedRecordToReject : action.payload
             }
 
+        case RULE_SELECTED_TO_UPDATE :
+            return {
+                ...state,
+                selectedRecordToUpdate : action.payload
+            }
+
         case ACCEPT_UNVERFIED_RULE_BEGIN:
             return {
                 ...state,
@@ -158,6 +179,54 @@ const unverifiedRulesReducer = (state=initialState,action)=>{
                 rejectUnverifiedRuleLoading: false
             }
 
+        case UPDATE_UNVERFIED_RULE_BEGIN:
+            return {
+                ...state,
+                updateUnverifiedRuleLoading : true
+            }
+        case UPDATE_UNVERFIED_RULE_SUCCESS:
+            return{
+                ...state,
+                updateUnverifiedRuleSuccess: true,
+                updateUnverifiedRuleError: false
+            }
+        case UPDATE_UNVERFIED_RULE_ERROR :
+            return {
+                ...state,
+                updateUnverifiedRuleError: true,
+                updateUnverifiedRuleSuccess: false,
+                updateUnverifiedRuleLoading: false
+            }
+        case UPDATE_UNVERFIED_RULE_COMPLETE:
+            return{
+                ...state,
+                selectedRecordToUpdate:null,
+                updateUnverifiedRuleLoading: false
+            }
+        case CLEAN_ALL_STATE :
+            return {
+                ...state,
+                selectedRecordToAccept : null,
+                acceptUnverifiedRuleLoading:false,
+                acceptUnverifiedRuleSuccess:false,
+                acceptUnverifiedRuleError:false,
+                acceptUnverifiedRuleSuccessMessage : "Unknown Rule Verified Successfully",
+                acceptUnverifiedRuleErrorMessage: "Unknown Rule Verify Error",
+
+                selectedRecordToReject : null,
+                rejectUnverifiedRuleLoading:false,
+                rejectUnverifiedRuleSuccess:false,
+                rejectUnverifiedRuleError:false,
+                rejectUnverifiedRuleSuccessMessage : "Unknown Rule Flagged Successfully",
+                rejectUnverifiedRuleErrorMessage: "Unknown Rule Flag Error",
+
+                selectedRecordToUpdate : null,
+                updateUnverifiedRuleLoading:false,
+                updateUnverifiedRuleSuccess:false,
+                updateUnverifiedRuleError:false,
+                updateUnverifiedRuleSuccessMessage : "Unknown Rule Update Successfully",
+                updateUnverifiedRuleErrorMessage: "Unknown Rule Update Error"
+            }
 
         default:
             return state
