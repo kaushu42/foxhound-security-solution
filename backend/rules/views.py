@@ -92,6 +92,17 @@ def anomalous_rules(request):
 
 
 @api_view(['POST'])
+def verified_rules(request):
+    tenant_id = get_tenant_id_from_token(request)
+    objects = Rule.objects.filter(
+        firewall_rule__tenant__id=tenant_id,
+        is_verified_rule=True,
+    )
+    rule_serializer = RuleSerializer(objects, many=True)
+    return Response(rule_serializer.data)
+
+
+@api_view(['POST'])
 def edit_rule(request):
     def handle_empty_regex(string):
         if string == '*':
