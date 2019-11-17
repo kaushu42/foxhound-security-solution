@@ -1,13 +1,14 @@
 import React, {Component, Fragment} from 'react';
 import {connect} from "react-redux";
-import {Avatar, Button, Col, Drawer, Form, List, Row, Select, Spin, Statistic, Table} from 'antd';
+import {Alert, Avatar, Button, Col, Drawer, Form, Input, List, Row, Select, Spin, Statistic, Table} from 'antd';
 import {
     acceptRule,
     acceptUnverifiedRule,
-    fetchUnverifiedRulesData, handleDrawerClose,
-    rejectUnverifiedRule, selectRecordToAccept, updateUnverifiedRule
+    fetchUnverifiedRulesData, handleDrawerClose, rejectRule,
+    rejectUnverifiedRule, updateRule, updateUnverifiedRule
 } from "../../actions/unverifiedRulesAction";
-import {drawerInfoStyle} from "../../utils";
+import {contentLayout, drawerInfoStyle} from "../../utils";
+
 
 class UnverifiedRulesTable extends Component {
 
@@ -63,7 +64,8 @@ class UnverifiedRulesTable extends Component {
                 }
             }
         ],
-        data: []
+        data: [],
+
 
     }
 
@@ -77,52 +79,110 @@ class UnverifiedRulesTable extends Component {
         this.props.dispatchAcceptRule(auth_token,selectedRecordToAccept);
     }
 
+    handleRejectRuleSubmit = (e) => {
+        e.preventDefault();
+        const {auth_token,selectedRecordToReject} = this.props;
+        this.props.dispatchRejectRule(auth_token,selectedRecordToReject);
+    }
+
+    handleUpdateRuleSubmit = (e) => {
+        e.preventDefault();
+        const {auth_token} = this.props;
+        const source_ip = this.source_ip.state.value;
+        const destination_ip = this.destination_ip.state.value;
+        const application = this.application.state.value;
+        console.log(this.source_ip.state.value);
+        this.props.dispatchUpdateRule(auth_token,source_ip,destination_ip,application);
+    }
+
+
     render(){
-        const {selectedRecordToAccept} = this.props;
-        // const expandedRowRender = record => <p><b>Verified Data: </b>{record.verifiedDate} <br/><b>Verified By: </b> {record.verifiedBy} </p>;
+        const {selectedRecordToAccept,selectedRecordToReject,selectedRecordToUpdate} = this.props;
+        const expandedRowRender = record => <p><b>Verified Data: </b>{record.verifiedDate} <br/><b>Verified By: </b> {record.verifiedBy} </p>;
         const title = () => <h3>Unverified Rules</h3>
         return(
             <Fragment>
-                {this.props.acceptUnverifiedRuleError ? <p style={{color:'red'}}>{this.props.acceptUnverifiedRuleErrorMessage }</p>: null }
-                {this.props.acceptUnverifiedRuleSuccess ? <p style={{color:'green'}}>{this.props.acceptUnverifiedRuleSuccessMessage} </p>: null }
+                {this.props.acceptUnverifiedRuleError ?
+                    <Alert message="Error" type="error" closeText="Close Now" showIcon description={this.props.acceptUnverifiedRuleErrorMessage} />
+                    : null }
+                {this.props.acceptUnverifiedRuleSuccess ?
+                    <Alert message="Success" type="success" closeText="Close Now" showIcon description={this.props.acceptUnverifiedRuleSuccessMessage} />
+                    : null }
+                {this.props.rejectUnverifiedRuleError ?
+                    <Alert message="Error" type="error" closeText="Close Now" showIcon description={this.props.rejectUnverifiedRuleErrorMessage} />
+                    : null }
+                {this.props.rejectUnverifiedRuleSuccess ?
+                    <Alert message="Success" type="success" closeText="Close Now" showIcon description={this.props.rejectUnverifiedRuleSuccessMessage} />
+                    : null }
+                {this.props.updateUnverifiedRuleError ?
+                    <Alert message="Error" type="error" closeText="Close Now" showIcon description={this.props.updateUnverifiedRuleErrorMessage} />
+                    : null }
+                {this.props.updateUnverifiedRuleSuccess ?
+                    <Alert message="Success" type="success" closeText="Close Now" showIcon description={this.props.updateUnverifiedRuleSuccessMessage} />
+                    : null }
+
                 <Spin spinning={this.props.unverifiedRulesLoading}>
                     <Table
                         bordered={true}
                         rowKey={record => record.id}
                         title = {title}
-                        // expandedRowRender={expandedRowRender}
+                        expandedRowRender={expandedRowRender}
                         columns={this.state.columns.map(item => ({ ...item, ellipsis: 'enable' }))}
                         dataSource = {this.props.unverifiedRulesData}
                     />
                 </Spin>
                 <Drawer
-                    visible={this.props.unverifiedRuleAcceptDrawerLoading}
-                    title={"Accept this rule"}
+                    id={"RejectDrawer"}
+                    visible={this.props.unverifiedRuleRejectDrawerLoading}
+                    title={"Reject and flag this rule?"}
                     width={400}
+                    onClose={this.props.dispatchHandleDrawerClose}
                     closable={true}
                     placement={'right'}>
-                    <Spin>
-                        This drawer is to accept the rule
+                    <Spin spinning={!selectedRecordToReject}>
+                        {
+                            selectedRecordToReject ? (
+                                <Fragment>
+                                    {this.props.rejectUnverifiedRuleError ? <p style={{color:'red'}}>{this.props.rejectUnverifiedRuleErrorMessage }</p>: null }
+                                    {this.props.rejectUnverifiedRuleSuccess ? <p style={{color:'green'}}>{this.props.rejectUnverifiedRuleSuccessMessage} </p>: null }
+                                    <Row type="flex" gutter={16}>
+                                        <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
+                                            <Statistic title="Source IP" value={selectedRecordToReject.source_ip} />
+                                        </Col>
+                                        <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
+                                            <Statistic title="Destination IP" value={selectedRecordToReject.destination_ip}/>
+                                        </Col>
+                                        <Col xs={24} sm={12} md={12} lg={24} xl={24} style={drawerInfoStyle}>
+                                            <Statistic title="Application" value={selectedRecordToReject.application}/>
+                                        </Col>
+                                    </Row>
+                                    <br />
+                                    <Form>
+                                        <Row type="flex" gutter={16} style={{paddingTop: 10,paddingBottom: 10}}>
+                                            <Button
+                                                type="primary"
+                                                style={{width:'100%'}}
+                                                htmlType="submit"
+                                                className="login-form-button"
+                                                loading={this.props.rejectUnverifiedRuleLoading}
+                                                onClick={e =>this.handleRejectRuleSubmit(e)}>Reject this rule
+                                            </Button>
+                                        </Row>
+                                    </Form>
+                                </Fragment>
+                            ):null
+                        }
                     </Spin>
                 </Drawer>
                 <Drawer
+                    id={"AcceptDrawer"}
                     visible={this.props.unverifiedRuleAcceptDrawerLoading}
-                    title={"Accept this rule"}
-                    width={400}
-                    closable={true}
-                    placement={'right'}>
-                    <Spin>
-                        This drawer is to update the rule
-                    </Spin>
-                </Drawer>
-                <Drawer
-                    visible={this.props.unverifiedRuleAcceptDrawerLoading}
-                    title={"Accept this rule"}
+                    title={"Confirm Accept this rule?"}
                     width={400}
                     closable={true}
                     onClose={this.props.dispatchHandleDrawerClose}
                     placement={'right'}>
-                    <Spin spinning={false}>
+                    <Spin spinning={!selectedRecordToAccept}>
                         {
                             selectedRecordToAccept ? (
                             <Fragment>
@@ -158,6 +218,62 @@ class UnverifiedRulesTable extends Component {
                         }
                     </Spin>
                 </Drawer>
+                <Drawer
+                    id={"UpdateDrawer"}
+                    visible={this.props.unverifiedRuleUpdateDrawerLoading}
+                    title={"Confirm Update this rule?"}
+                    width={400}
+                    closable={true}
+                    onClose={this.props.dispatchHandleDrawerClose}
+                    placement={'right'}>
+                    <Spin spinning={!selectedRecordToUpdate}>
+                        {
+                            selectedRecordToUpdate ? (
+                                <Fragment>
+                                    {this.props.updateUnverifiedRuleError ? <p style={{color:'red'}}>{this.props.updateUnverifiedRuleErrorMessage }</p>: null }
+                                    {this.props.updateUnverifiedRuleSuccess ? <p style={{color:'green'}}>{this.props.updateUnverifiedRuleSuccessMessage} </p>: null }
+                                    <Row type="flex" gutter={16}>
+                                        <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
+                                            <Statistic title="Source IP" value={selectedRecordToUpdate.source_ip} />
+                                        </Col>
+                                        <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
+                                            <Statistic title="Destination IP" value={selectedRecordToUpdate.destination_ip}/>
+                                        </Col>
+                                        <Col xs={24} sm={12} md={12} lg={24} xl={24} style={drawerInfoStyle}>
+                                            <Statistic title="Application" value={selectedRecordToUpdate.application}/>
+                                        </Col>
+                                    </Row>
+                                    <br />
+                                        <p style={{color:'red'}}>{this.props.error_message}</p>
+                                        <Row type="flex" gutter={16} style={{paddingTop: 10,paddingBottom: 10}}>
+                                            <Form style={{width:'100%'}} name={"updateRuleForm"}>
+                                            <Form.Item>
+                                                <label>Source IP</label>
+                                                <Input ref={node => (this.source_ip = node)} defaultValue={selectedRecordToUpdate.source_ip} />
+                                            </Form.Item>
+                                            <Form.Item>
+                                                <label>Destination IP</label>
+                                                <Input ref={node => (this.destination_ip = node)}defaultValue={selectedRecordToUpdate.destination_ip} />
+                                            </Form.Item>
+                                            <Form.Item>
+                                                <label>Application</label>
+                                                <Input ref={node => (this.application = node)} defaultValue={selectedRecordToUpdate.application} />
+                                            </Form.Item>
+                                            <Button
+                                                type="primary"
+                                                style={{width:'100%'}}
+                                                htmlType="submit"
+                                                className="login-form-button"
+                                                loading={this.props.acceptUnverifiedRuleLoading}
+                                                onClick={e =>this.handleUpdateRuleSubmit(e)}>Update this rule
+                                            </Button>
+                                            </Form>
+                                        </Row>
+                                </Fragment>
+                            ):null
+                        }
+                    </Spin>
+                </Drawer>
 
             </Fragment>
         )
@@ -182,11 +298,24 @@ const mapStateToProps = state => {
         acceptUnverifiedRuleError:state.unverifiedRule.acceptUnverifiedRuleError,
         acceptUnverifiedRuleSuccessMessage : state.unverifiedRule.acceptUnverifiedRuleSuccessMessage,
         acceptUnverifiedRuleErrorMessage: state.unverifiedRule.acceptUnverifiedRuleErrorMessage,
-
-
         selectedRecordToAccept : state.unverifiedRule.selectedRecordToAccept,
 
-        unverifiedRulesAcceptRecord : state.unverifiedRule.unverifiedRulesAcceptRecord,
+        rejectUnverifiedRuleLoading:state.unverifiedRule.rejectUnverifiedRuleLoading,
+        rejectUnverifiedRuleSuccess:state.unverifiedRule.rejectUnverifiedRuleSuccess,
+        rejectUnverifiedRuleError:state.unverifiedRule.rejectUnverifiedRuleError,
+        rejectUnverifiedRuleSuccessMessage : state.unverifiedRule.rejectUnverifiedRuleSuccessMessage,
+        rejectUnverifiedRuleErrorMessage: state.unverifiedRule.rejectUnverifiedRuleErrorMessage,
+        selectedRecordToReject : state.unverifiedRule.selectedRecordToReject,
+
+
+        updateUnverifiedRuleLoading:state.unverifiedRule.updateUnverifiedRuleLoading,
+        updateUnverifiedRuleSuccess:state.unverifiedRule.updateUnverifiedRuleSuccess,
+        updateUnverifiedRuleError:state.unverifiedRule.updateUnverifiedRuleError,
+        updateUnverifiedRuleSuccessMessage : state.unverifiedRule.updateUnverifiedRuleSuccessMessage,
+        updateUnverifiedRuleErrorMessage: state.unverifiedRule.updateUnverifiedRuleErrorMessage,
+        selectedRecordToUpdate : state.unverifiedRule.selectedRecordToUpdate,
+
+
 
         unverifiedRuleAcceptDrawerLoading: state.unverifiedRule.unverifiedRuleAcceptDrawerLoading,
         unverifiedRuleRejectDrawerLoading: state.unverifiedRule.unverifiedRuleRejectDrawerLoading,
@@ -203,7 +332,10 @@ const mapDispatchToProps = dispatch => {
         handleUnverifiedRuleReject : (auth_token,record) => dispatch(rejectUnverifiedRule(auth_token,record)),
         handleUnverifiedRuleUpdate : (auth_token,record) => dispatch(updateUnverifiedRule(auth_token,record)),
         dispatchHandleDrawerClose : () => dispatch(handleDrawerClose()),
-        dispatchAcceptRule : (auth_token,record) => dispatch(acceptRule(auth_token,record))
+        dispatchAcceptRule : (auth_token,record) => dispatch(acceptRule(auth_token,record)),
+        dispatchRejectRule : (auth_token,record) => dispatch(rejectRule(auth_token,record)),
+        dispatchUpdateRule : (auth_token,source_ip,destination_ip,application) => dispatch(updateRule(auth_token,source_ip,destination_ip,application))
+
     }
 }
 
