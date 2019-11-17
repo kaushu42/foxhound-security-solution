@@ -10,7 +10,10 @@ import UnverifiedRulesTable from "../components/tables/UnverifiedRulesTable";
 class Test extends Component {
     render() {
         return (
+            <Fragment>
             <UnverifiedRulesTable/>
+            <VerifiedRulesTable/>
+            </Fragment>
             )
     }
 
