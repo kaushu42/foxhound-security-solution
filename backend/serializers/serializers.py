@@ -129,6 +129,13 @@ class VirtualSystemSerializer(serializers.ModelSerializer):
 
 
 class RuleSerializer(serializers.ModelSerializer):
+    _count = 0
+    table_id = serializers.SerializerMethodField()
+
+    def get_table_id(self, obj):
+        self._count += 1
+        return self._count
+
     class Meta:
         model = Rule
         fields = '__all__'
