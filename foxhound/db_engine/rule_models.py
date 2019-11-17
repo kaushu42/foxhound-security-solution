@@ -27,3 +27,9 @@ class Rule(Base):
     is_verified_rule = Column(Boolean)
     is_anomalous_rule = Column(Boolean)
     verified_date_time = Column(DateTime)
+
+    def __str__(self):
+        return f'{self.firewall_rule_id}:{self.name}'
+
+    def __repr__(self):
+        return self.__str__()

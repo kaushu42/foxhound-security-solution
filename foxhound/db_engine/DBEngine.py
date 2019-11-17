@@ -359,3 +359,27 @@ class DBEngine(object):
     def _check_data_dir_valid(self, data_dir: str):
         if not os.path.isdir(data_dir):
             raise FileNotFoundError('Directory does not exist: ' + data_dir)
+
+    def clean(self):
+        BASE_QUERY = self._session.query(Rule).join(FirewallRule).filter(
+            FirewallRule.tenant_id == 2
+        )
+
+        for rule in BASE_QUERY.filter(Rule.name.like('%*%')):
+            # Fully generic fields are stored as .* in db
+            # So, we need to replace .* with %
+            # Further if fields are not fully generic
+            # We need to replace * with %
+            source_ip = rule.source_ip.replace('.*', '%').replace('*', '%')
+            destination_ip = rule.destination_ip.replace(
+                '.*', '%').replace('*', '%')
+            application = rule.application.replace('.*', '%').replace('*', '%')
+            for i in BASE_QUERY.filter(
+                Rule.id != rule.id,  # Do not get current item
+                Rule.source_ip.like(source_ip),
+                Rule.destination_ip.like(destination_ip),
+                Rule.application.like(application)
+            ):
+                print(i, 'deleted!')
+                self._session.delete(i)
+            self._session.commit()
