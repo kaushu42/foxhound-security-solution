@@ -14,6 +14,12 @@ class UnverifiedRulesTable extends Component {
     state = {
         columns: [
             {
+                title: 'Id',
+                dataIndex: 'id',
+                key: 'id',
+                render: text => <a>{text}</a>,
+            },
+            {
                 title: 'Created Date',
                 dataIndex: 'created_date_time',
                 key: 'created_date_time',
