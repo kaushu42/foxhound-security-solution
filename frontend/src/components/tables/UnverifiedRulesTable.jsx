@@ -15,8 +15,8 @@ class UnverifiedRulesTable extends Component {
         columns: [
             {
                 title: 'Id',
-                dataIndex: 'id',
-                key: 'id',
+                dataIndex: 'table_id',
+                key: 'table_id',
                 render: text => <a>{text}</a>,
             },
             {

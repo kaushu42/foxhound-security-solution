@@ -1,12 +1,10 @@
 import React, {Component, Fragment} from 'react';
 import {connect} from "react-redux";
-import {Avatar, Button, Col, Drawer, Form, List, Row, Select, Spin, Statistic, Table} from 'antd';
+import {Table} from 'antd';
 import {
-    fetchVerifiedRulesData, 
-    handleDrawerClose,
+    fetchVerifiedRulesData,
     updateVerifiedRule
 } from "../../actions/verifiedRulesAction";
-import {drawerInfoStyle} from "../../utils";
 
 
 class VerifiedRulesTable extends Component {
@@ -15,8 +13,8 @@ class VerifiedRulesTable extends Component {
         columns: [
             {
                 title: 'Id',
-                dataIndex: 'id',
-                key: 'id',
+                dataIndex: 'table_id',
+                key: 'table_id',
                 render: text => <a>{text}</a>,
             },
             {
@@ -54,18 +52,7 @@ class VerifiedRulesTable extends Component {
                 dataIndex: 'name',
                 key: 'name',
                 render: text => <a>{text}</a>,
-            },
-            // {
-            //     title : 'Actions',
-            //     dataIndex: 'actions',
-            //     render : (text,record) => {
-            //         return (
-            //             <Fragment>
-            //                 <a onClick={() => this.props.handleVerifiedRuleUpdate(this.props.auth_token,record)}>Update </a>
-            //             </Fragment>
-            //         )
-            //     }
-            // }
+            }
         ],
         data: []
 
@@ -97,7 +84,6 @@ class VerifiedRulesTable extends Component {
 const mapStateToProps = state => {
     return {
         auth_token : state.auth.auth_token,
-        // current_session_user_id : state.auth.current_session_user_id,
 
         verifiedRulesLoading : state.verifiedRule.verifiedRulesLoading,
         verifiedRulesData : state.verifiedRule.verifiedRulesData,

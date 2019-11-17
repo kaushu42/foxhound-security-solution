@@ -3,8 +3,6 @@ import {
     VERIFIED_RULES_DATA_FETCH_COMPLETE,
     VERIFIED_RULES_DATA_FETCH_ERROR,
     VERIFIED_RULES_DATA_FETCH_SUCCESS,
-    CLOSE_ALL_DRAWER,
-    RULE_SELECTED_TO_UPDATE
 } from "../actionTypes/verifiedRulesActionType";
 
 const initialState = {
@@ -12,8 +10,6 @@ const initialState = {
     verifiedRulesData : null,
     verifiedRulesSuccess : false,
     verifiedRulesError: false,
-
-    verifiedRuleUpdateDrawerLoading : false,
 }
 
 const verifiedRulesReducer = (state=initialState,action)=>{
@@ -40,13 +36,6 @@ const verifiedRulesReducer = (state=initialState,action)=>{
             return {
                 ...state,
                 verifiedRulesLoading: false
-            }
-        case CLOSE_ALL_DRAWER:
-            return{
-                ...state,
-                verifiedRuleAcceptDrawerLoading: false,
-                verifiedRuleRejectDrawerLoading: false,
-                verifiedRuleUpdateDrawerLoading: false
             }
         default:
             return state

@@ -5,8 +5,6 @@ import {
     VERIFIED_RULES_DATA_FETCH_COMPLETE,
     VERIFIED_RULES_DATA_FETCH_ERROR,
     VERIFIED_RULES_DATA_FETCH_SUCCESS,
-    CLOSE_ALL_DRAWER,
-    RULE_SELECTED_TO_UPDATE
 } from "../actionTypes/verifiedRulesActionType";
 
 const FETCH_API  = `${ROOT_URL}rules/verified/`;
@@ -35,17 +33,6 @@ export function fetchVerifiedRulesDataFailure(error) {
         type:VERIFIED_RULES_DATA_FETCH_ERROR,
         payload:error
     }
-}
-
-
-export function handleDrawerClose(){
-    return {
-        type: CLOSE_ALL_DRAWER
-    }
-}
-
-export function updateVerifiedRule(auth_token,record){
-
 }
 
 
