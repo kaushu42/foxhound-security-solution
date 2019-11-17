@@ -49,17 +49,17 @@ class VerifiedRulesTable extends Component {
                 key: 'name',
                 render: text => <a>{text}</a>,
             },
-            {
-                title : 'Actions',
-                dataIndex: 'actions',
-                render : (text,record) => {
-                    return (
-                        <Fragment>
-                            <a onClick={() => this.props.handleVerifiedRuleUpdate(this.props.auth_token,record)}>Update </a>
-                        </Fragment>
-                    )
-                }
-            }
+            // {
+            //     title : 'Actions',
+            //     dataIndex: 'actions',
+            //     render : (text,record) => {
+            //         return (
+            //             <Fragment>
+            //                 <a onClick={() => this.props.handleVerifiedRuleUpdate(this.props.auth_token,record)}>Update </a>
+            //             </Fragment>
+            //         )
+            //     }
+            // }
         ],
         data: []
 
@@ -70,7 +70,7 @@ class VerifiedRulesTable extends Component {
     }
 
     render(){
-        // const expandedRowRender = record => <p><b>Verified Data: </b>{record.verifiedDate} <br/><b>Verified By: </b> {record.verifiedBy} </p>;
+        const expandedRowRender = record => <p><b>Verified Data: </b>{record.verifiedDate} <br/><b>Verified By: </b> {record.verifiedBy} </p>;
         const title = () => <h3>Verified Rules</h3>
         return(
             <Fragment>
@@ -78,7 +78,7 @@ class VerifiedRulesTable extends Component {
                     bordered={true}
                     rowKey={record => record.id}
                     title = {title}
-                    // expandedRowRender={expandedRowRender}
+                    expandedRowRender={expandedRowRender}
                     columns={this.state.columns.map(item => ({ ...item, ellipsis: 'enable' }))}
                     dataSource = {this.props.verifiedRulesData}
                 />

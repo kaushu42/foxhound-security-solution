@@ -73,7 +73,7 @@ class UnverifiedRulesTable extends Component {
 
     render(){
         const {selectedRecordToAccept} = this.props;
-        const expandedRowRender = record => <p><b>Verified Data: </b>{record.verifiedDate} <br/><b>Verified By: </b> {record.verifiedBy} </p>;
+        // const expandedRowRender = record => <p><b>Verified Data: </b>{record.verifiedDate} <br/><b>Verified By: </b> {record.verifiedBy} </p>;
         const title = () => <h3>Unverified Rules</h3>
         return(
             <Fragment>
@@ -84,7 +84,7 @@ class UnverifiedRulesTable extends Component {
                         bordered={true}
                         rowKey={record => record.id}
                         title = {title}
-                        expandedRowRender={expandedRowRender}
+                        // expandedRowRender={expandedRowRender}
                         columns={this.state.columns.map(item => ({ ...item, ellipsis: 'enable' }))}
                         dataSource = {this.props.unverifiedRulesData}
                     />
