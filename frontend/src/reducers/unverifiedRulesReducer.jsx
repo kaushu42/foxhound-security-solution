@@ -109,19 +109,16 @@ const unverifiedRulesReducer = (state=initialState,action)=>{
                 ...state,
                 selectedRecordToAccept : action.payload
             }
-
         case RULE_SELECTED_TO_REJECT :
             return {
                 ...state,
                 selectedRecordToReject : action.payload
             }
-
         case RULE_SELECTED_TO_UPDATE :
             return {
                 ...state,
                 selectedRecordToUpdate : action.payload
             }
-
         case ACCEPT_UNVERFIED_RULE_BEGIN:
             return {
                 ...state,
@@ -149,7 +146,6 @@ const unverifiedRulesReducer = (state=initialState,action)=>{
                 selectedRecordToAccept:null,
                 acceptUnverifiedRuleLoading: false
             }
-
         case REJECT_UNVERFIED_RULE_BEGIN:
             return {
                 ...state,
@@ -177,7 +173,6 @@ const unverifiedRulesReducer = (state=initialState,action)=>{
                 selectedRecordToReject:null,
                 rejectUnverifiedRuleLoading: false
             }
-
         case UPDATE_UNVERFIED_RULE_BEGIN:
             return {
                 ...state,
@@ -226,11 +221,11 @@ const unverifiedRulesReducer = (state=initialState,action)=>{
                 updateUnverifiedRuleSuccessMessage : "Unknown Rule Update Successfully",
                 updateUnverifiedRuleErrorMessage: "Unknown Rule Update Error"
             }
-            case PAGINATION_UPDATE :
-            return {
-                ...state,
-                pagination: action.payload
-            }
+        case PAGINATION_UPDATE :
+        return {
+            ...state,
+            pagination: action.payload
+        }
         default:
             return state
     }
