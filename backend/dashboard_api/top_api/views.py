@@ -1,3 +1,4 @@
+import operator
 from collections import defaultdict
 
 from django.db.models import Sum
@@ -94,17 +95,24 @@ class ApplicationApiView(APIView):
         objects = groupby_date(
             objects,
             'logged_datetime',
-            'minute',
+            'hour',
             ['bytes_sent', 'bytes_received'],
             output_fields=['application__name']
         )
+        top_apps = {}
         response = defaultdict(list)
         for data in objects:
-            date = data['date']
+            date = data['date'].timestamp()
             application = data['application__name']
             bytes_total = data['bytes_sent'] + data['bytes_received']
+            top_apps[application] = top_apps.get(application, 0) + bytes_total
             response[application].append([date, bytes_total])
-        return Response({"data": response})
+        final_response = {}
+        for key, _ in sorted(top_apps.items(),
+                             key=operator.itemgetter(1), reverse=True)[:topcount]:
+            final_response[key] = response[key]
+
+        return Response({"data": final_response})
 
     def post(self, request):
         return self.get(request)
