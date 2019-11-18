@@ -18,29 +18,15 @@ class ApplicationLineChart extends Component {
             seconds: 0,
             loading : true,
             data : [],
-            top_count: 10,
-            basis : 'bytes_received'
         };
     }
 
-    componentDidMount = async () => {
+    componentDidMount = () => {
         this.handleFetchData();
         this.chart = this.refs.chart.chart;
-        this.chart.component = this;
-        if (document.addEventListener) {
-            document.addEventListener('webkitfullscreenchange', this.exitHandler, false);
-            document.addEventListener('mozfullscreenchange', this.exitHandler, false);
-            document.addEventListener('fullscreenchange', this.exitHandler, false);
-            document.addEventListener('MSFullscreenChange', this.exitHandler, false);
-        }
     }
 
     handleFetchData = () => {
-
-        this.setState({
-            loading : true
-        });
-
         const token = `Token ${this.props.auth_token}`;
         let headers = {
             Accept: "application/json",
@@ -48,156 +34,96 @@ class ApplicationLineChart extends Component {
             "Authorization" : token
         };
 
-        var bodyFormData = new FormData();
-        bodyFormData.set('topcount', this.state.top_count);
-        bodyFormData.set('basis', this.state.basis);
-        bodyFormData.set('start_date', this.props.date_range[0]);
-        bodyFormData.set('end_date', this.props.date_range[1]);
-        bodyFormData.set('firewall_rule', this.props.firewall_rule);
-        bodyFormData.set('application', this.props.application);
-        bodyFormData.set('protocol', this.props.protocol);
-        bodyFormData.set('source_zone', this.props.source_zone);
-        bodyFormData.set('destination_zone', this.props.destination_zone);
-
-        bodyFormData.set('start_date', this.props.date_range[0]);
-        bodyFormData.set('end_date', this.props.date_range[1]);
-        bodyFormData.set('firewall_rule', this.props.firewall_rule);
-        bodyFormData.set('application', this.props.application);
-        bodyFormData.set('protocol', this.props.protocol);
-        bodyFormData.set('source_zone', this.props.source_zone);
-        bodyFormData.set('destination_zone', this.props.destination_zone);
-
-
-        axios.post(FETCH_API,bodyFormData,{headers}).
-        then(res => {
-            const response = res.data;
-            let dataSeries = [];
-            Object.keys(response).forEach(key=>{
-                console.log(`${key} : ${response[key]}`);
-                let tempSeries = {
-                    name : key,
-                    type : 'spline',
-                    data : response[key]
-                }
-                dataSeries.push(tempSeries);
-            });
-            console.log('api data',response);
-            this.setState({
-                data : dataSeries
-            })
-
-        });
-
-    }
-
-    exitHandler = () => {
-        if (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement) {
-            console.log('Inside fullscreen. Doing chart stuff.');
-            this.chart = this.refs.chart.chart;
-            this.chart.update({
-                chart:{
-                    height: null
-                }
-            })
-        }
-
-        if (!document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
-            console.log('Exiting fullscreen. Doing chart stuff.');
-            this.chart = this.refs.chart.chart;
-            this.chart.update({
-                chart:{
-                    height:'400px'
-                }
-            })
-        }
+        axios.post(FETCH_API,null,{headers})
+            .then(res => this.setState({data:res.data.data}));
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if (
-            (String(prevState.top_count)!==String(this.state.top_count)) ||
-            (String(prevState.basis)!==String(this.state.basis)) ||
-            (String(prevProps.ip_address)!==String(this.props.ip_address)) ||
-            (String(prevProps.date_range[0])!==String(this.props.date_range[0])) ||
-            (String(prevProps.date_range[1])!==String(this.props.date_range[1])) ||
-            (String(prevProps.firewall_rule)!==String(this.props.firewall_rule)) ||
-            (String(prevProps.application)!==String(this.props.application)) ||
-            (String(prevProps.protocol)!==String(this.props.protocol)) ||
-            (String(prevProps.source_zone)!==String(this.props.source_zone)) ||
-            (String(prevProps.destination_zone)!==String(this.props.destination_zone))
-        ){
-            this.handleFetchData();
-        }
         if(prevState.data!==this.state.data){
-            this.updateChart();
+            let dataSeries = [];
+            Object.keys(this.state.data).forEach(key=>{
+                let tempSeries = {
+                    name : key,
+                    type : 'spline',
+                    data : this.state.data[key]
+                }
+                dataSeries.push(tempSeries)
+            });
+            this.updateChart(dataSeries);
         }
     }
 
-    updateChart = () => {
-        this.chart.update({
-            title: {
-                text: "title",
-                style : {
-                    fontSize: '15px'
-                }
-            },
-            series: this.state.data
-        });
-        this.setState({
-            loading : false
-        });
+    updateChart = (data) => {
+
+        console.log(this.chart);
+        for(var i = 0; i< data.length;i++){
+            this.chart.addSeries({
+                name: data[i].name,
+                type: 'spline',
+                data: data[i].data,
+                showInNavigator: true
+            });
+
+        }
+        this.chart.redraw();
+        // this.chart.update({
+        //     xAxis:{
+        //         type : 'datetime'
+        //     },
+        //     series : data
+        // });
+        // this.chart.redraw();
     }
 
     render(){
         const options = {
+
             title: {
-                text: 'Top Source Address | Bytes Received',
-                style : {
-                    fontSize: '15px'
+                text: 'Date vs Application '
+            },
+
+            yAxis: {
+                title: {
+                    text: 'Bytes Received'
                 }
             },
-            xAxis: {
-                type: 'datetime',
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                verticalAlign: 'middle'
             },
-        }
+            xAxis : {
+                type: 'datetime'
+            },
+            responsive: {
+                rules: [{
+                    condition: {
+                        maxWidth: 500
+                    },
+                    chartOptions: {
+                        legend: {
+                            layout: 'horizontal',
+                            align: 'center',
+                            verticalAlign: 'bottom'
+                        }
+                    }
+                }]
+            }
+
+        };
         return (
             <Fragment>
-                <div>
-                    <Card title={
-                        <Fragment>
-                            <div>
-                                <Select
-                                    onChange={(value) => this.setState({top_count:value})}
-                                    size={'default'}
-                                    style={{width:'50%',paddingRight:10,paddingLeft:10}}
-                                    defaultValue={"10"}>
-                                    <Option key="5">Top 5</Option>
-                                    <Option key="10">Top 10</Option>
-                                    <Option key="15">Top 15</Option>
-                                </Select>
-                                <Select
-                                    onChange={(value) => this.setState({basis:value})}
-                                    size={'default'}
-                                    style={{width:'50%',paddingRight:10,paddingLeft:10}}
-                                    defaultValue={'bytes_received'}>
-                                    <Option key={'bytes_sent'}>Bytes Sent</Option>
-                                    <Option key={'bytes_received'}>Bytes Received</Option>
-                                    <Option key={'packets_sent'}>Packets Sent</Option>
-                                    <Option key={'packets_received'}>Packets Received</Option>
-                                    <Option key={'repeat_count'}>Repeat Count</Option>
-                                </Select>
-                            </div>
-                        </Fragment>
-                    }>
-                        <Spin spinning = {this.state.loading}>
-                            <HighchartsReact
-                                highcharts={Highcharts}
-                                allowChartUpdate={false}
-                                ref = {'chart'}
-                                options = {options}
-                            />
-                        </Spin>
-                    </Card>
-                </div>
+                <Card>
+                    {this.state.data ?
+                        <HighchartsReact
+                            highcharts={Highcharts}
+                            allowChartUpdate={false}
+                            ref = {'chart'}
+                            options = {options}
+                        />
+                        :null
+                    }
+                </Card>
             </Fragment>
         )
     }
@@ -207,15 +133,6 @@ class ApplicationLineChart extends Component {
 const mapStateToProps = state => {
     return {
         auth_token : state.auth.auth_token,
-
-        ip_address : state.ipSearchBar.ip_address,
-
-        date_range : state.filter.date_range,
-        firewall_rule : state.filter.firewall_rule,
-        application : state.filter.application,
-        protocol : state.filter.protocol,
-        source_zone : state.filter.source_zone,
-        destination_zone : state.filter.destination_zone
     }
 }
 
