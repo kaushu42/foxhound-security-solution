@@ -45,6 +45,7 @@ class UnverifiedRulesApiView(RulePaginatedView):
         objects = Rule.objects.filter(
             firewall_rule__tenant__id=tenant_id,
             is_verified_rule=False,
+            is_anomalous_rule=False
         )
         page = self.paginate_queryset(objects)
         if page is not None:
