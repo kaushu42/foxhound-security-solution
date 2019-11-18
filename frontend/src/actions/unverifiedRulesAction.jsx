@@ -22,7 +22,9 @@ import {
     UNVERIFIED_RULES_DATA_FETCH_SUCCESS,
     UPDATE_RULE_DRAWER_TOGGLE,
     UPDATE_UNVERFIED_RULE_BEGIN, UPDATE_UNVERFIED_RULE_COMPLETE,
-    UPDATE_UNVERFIED_RULE_ERROR, UPDATE_UNVERFIED_RULE_SUCCESS
+    UPDATE_UNVERFIED_RULE_ERROR, UPDATE_UNVERFIED_RULE_SUCCESS,
+    PAGINATION_UPDATE, 
+    UPDATE_PAGINATION_PAGE_COUNT,
 } from "../actionTypes/unverifiedRulesActionType";
 
 
@@ -301,20 +303,38 @@ export function rejectRule(auth_token,record){
 
 
 
-export function fetchUnverifiedRulesData(auth_token){
+export function fetchUnverifiedRulesData(auth_token, params, pagination){
     return(dispatch)=>{
 
         let headers = axiosHeader(auth_token);
 
         dispatch(fetchUnverifiedRulesDataBegin());
-        axios.post(FETCH_API,null,{headers})
+        axios.post(FETCH_API,null,{headers, params})
             .then(res => {
                 const response = res.data;
                 console.log(response);
-                dispatch(fetchUnverifiedRulesDataSuccess(response));
+                const page = pagination;
+                page.total  = response.count;
+                updatePagination(page);
+                dispatch(fetchUnverifiedRulesDataSuccess(response.results));
+                dispatch(updatePaginationPageCount(response.count));
             })
             .then(res => dispatch(fetchUnverifiedRulesDataComplete()))
             .catch(error => dispatch(fetchUnverifiedRulesDataFailure(error)));
 
+    }
+}
+
+export function updatePagination(pagination){
+    return {
+        type : PAGINATION_UPDATE,
+        payload: pagination
+    }
+}
+
+export function updatePaginationPageCount(pageCount){
+    return {
+        type : UPDATE_PAGINATION_PAGE_COUNT,
+        payload: pageCount
     }
 }

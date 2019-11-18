@@ -12,7 +12,9 @@ import {
     ACCEPT_ANOMALOUS_RULE_SUCCESS,
     ACCEPT_ANOMALOUS_RULE_COMPLETE,
     ACCEPT_ANOMALOUS_RULE_ERROR,
-    CLEAN_ALL_STATE
+    CLEAN_ALL_STATE,
+    PAGINATION_UPDATE, 
+    UPDATE_PAGINATION_PAGE_COUNT,
 } from "../actionTypes/anomalousRulesActionType";
 
 const FETCH_API  = `${ROOT_URL}rules/anomalous/`;
@@ -127,33 +129,39 @@ export function acceptRule(auth_token,record){
 
 
 
-export function fetchAnomalousRulesData(auth_token){
+export function fetchAnomalousRulesData(auth_token, params, pagination){
     return(dispatch)=>{
 
         let headers = axiosHeader(auth_token);
 
         let bodyFormData = new FormData();
-        // bodyFormData.set('country', mapChartSelectedCountryCode);
-        // bodyFormData.set('except_countries', excludeCountries);
-        // bodyFormData.set('start_date', start_date);
-        // bodyFormData.set('end_date', end_date);
-        // bodyFormData.set('firewall_rule', firewall_rule);
-        // bodyFormData.set('application', application);
-        // bodyFormData.set('protocol', protocol);
-        // bodyFormData.set('source_zone', source_zone);
-        // bodyFormData.set('destination_zone', destination_zone);
-        // bodyFormData.set('page', params.page ? params.page : 1);
-        // bodyFormData.set('offset', 10);
-
 
         dispatch(fetchAnomalousRulesDataBegin());
-        axios.post(FETCH_API,bodyFormData,{headers})
+        axios.post(FETCH_API,bodyFormData,{headers, pagination})
             .then(res => {
                 const response = res.data;
-                console.log(response);
-                dispatch(fetchAnomalousRulesDataSuccess(response));
+                console.log("anomalous rules",response);
+                const page = pagination;
+                page.total  = response.count;
+                updatePagination(page);
+                dispatch(fetchAnomalousRulesDataSuccess(response.results));
+                dispatch(updatePaginationPageCount(response.count));
             })
             .then(res => dispatch(fetchAnomalousRulesDataComplete()))
             .catch(error => dispatch(fetchAnomalousRulesDataFailure(error)));
+    }
+}
+
+export function updatePagination(pagination){
+    return {
+        type : PAGINATION_UPDATE,
+        payload: pagination
+    }
+}
+
+export function updatePaginationPageCount(pageCount){
+    return {
+        type : UPDATE_PAGINATION_PAGE_COUNT,
+        payload: pageCount
     }
 }

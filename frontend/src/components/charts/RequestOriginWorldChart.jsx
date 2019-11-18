@@ -9,7 +9,8 @@ import {
     fetchRequestOriginMapData,
     updateMapAfterExcludingCountries,
     closeMapChartLogDrawer,
-    fetchSelectedCountryLog, updatePagination
+    fetchSelectedCountryLog, 
+    updatePagination
 } from "../../actions/requestOriginMapChartAction";
 import {Drawer, Select, Spin,Table,Card} from "antd";
 

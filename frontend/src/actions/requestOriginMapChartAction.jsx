@@ -14,7 +14,10 @@ import {
     MAP_CHART_COUNTRY_LOG_FETCH_ERROR,
     CLOSE_MAP_CHART_LOG_DRAWER,
     OPEN_MAP_CHART_LOG_DRAWER,
-    MAP_CHART_LOG_FETCH_SUCCESS, PAGINATION_UPDATE, UPDATE_PAGINATION_PAGE_COUNT, COUNTRY_LOG_DATA_FETCH_LOADING
+    MAP_CHART_LOG_FETCH_SUCCESS, 
+    PAGINATION_UPDATE, 
+    UPDATE_PAGINATION_PAGE_COUNT, 
+    COUNTRY_LOG_DATA_FETCH_LOADING
 } from "../actionTypes/RequestOriginChartActionType";
 
 const FETCH_API = `${ROOT_URL}dashboard/map/`;
@@ -235,5 +238,4 @@ export function updatePagination(pagination){
         type : PAGINATION_UPDATE,
         payload: pagination
     }
-
 }

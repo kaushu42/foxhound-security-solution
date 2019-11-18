@@ -3,20 +3,21 @@ import {connect} from "react-redux";
 import {Table} from 'antd';
 import {
     fetchVerifiedRulesData,
-    updateVerifiedRule
+    updatePagination
 } from "../../actions/verifiedRulesAction";
 
 
 class VerifiedRulesTable extends Component {
 
     state = {
+        params : {},
         columns: [
-            {
-                title: 'Id',
-                dataIndex: 'table_id',
-                key: 'table_id',
-                render: text => <a>{text}</a>,
-            },
+            // {
+            //     title: 'Id',
+            //     dataIndex: 'table_id',
+            //     key: 'table_id',
+            //     render: text => <a>{text}</a>,
+            // },
             {
                 title: 'Created Date',
                 dataIndex: 'created_date_time',
@@ -49,11 +50,32 @@ class VerifiedRulesTable extends Component {
             }
         ],
         data: []
+    }
 
+    handleTableChange = (pagination, filters, sorter) => {
+        console.log('pagination',pagination);
+        console.log('filter',filters)
+        console.log('sorter',sorter)
+        const pager = { ...this.props.pagination };
+        pager.current = pagination.current;
+        this.props.dispatchPaginationUpdate(pager);
+        this.handleFetchVerifiedRulesData({
+            // results: pagination.pageSize,
+            page: pagination.current,
+            sortField: sorter.field,
+            sortOrder: sorter.order,
+            ...filters
+        });
+    };
+
+    handleFetchVerifiedRulesData = (params={}) => {
+        const {auth_token,pagination} = this.props;
+        this.props.dispatchFetchVerifiedRulesData(auth_token,params,pagination);
     }
 
     componentDidMount() {
-        this.props.dispatchFetchVerifiedRulesData(this.props.auth_token);
+        // this.props.dispatchFetchVerifiedRulesData(this.props.auth_token);
+        this.handleFetchVerifiedRulesData(this.state.params)
     }
 
     render(){
@@ -68,6 +90,8 @@ class VerifiedRulesTable extends Component {
                     expandedRowRender={expandedRowRender}
                     columns={this.state.columns}
                     dataSource = {this.props.verifiedRulesData}
+                    pagination={this.props.pagination}
+                    onChange={this.handleTableChange}
                 />
             </Fragment>
         )
@@ -82,14 +106,16 @@ const mapStateToProps = state => {
         verifiedRulesLoading : state.verifiedRule.verifiedRulesLoading,
         verifiedRulesData : state.verifiedRule.verifiedRulesData,
         verifiedRulesSuccess : state.verifiedRule.verifiedRulesSuccess,
-        verifiedRulesError: state.verifiedRule.verifiedRulesError
+        verifiedRulesError: state.verifiedRule.verifiedRulesError,
+
+        pagination : state.verifiedRule.pagination
     }
 }
 
 const mapDispatchToProps = dispatch => {
     return {
-        dispatchFetchVerifiedRulesData : (auth_token) => dispatch(fetchVerifiedRulesData(auth_token)),
-        handleVerifiedRuleUpdate : (auth_token,record) => dispatch(updateVerifiedRule(auth_token,record)),
+        dispatchFetchVerifiedRulesData : (auth_token, params, pagination) => dispatch(fetchVerifiedRulesData(auth_token, params, pagination)),
+        dispatchPaginationUpdate : (pager) => dispatch(updatePagination(pager))
     }
 }
 

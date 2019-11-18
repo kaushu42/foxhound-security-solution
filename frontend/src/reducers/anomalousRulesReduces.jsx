@@ -3,6 +3,7 @@ import {
     ANOMALOUS_RULES_DATA_FETCH_COMPLETE,
     ANOMALOUS_RULES_DATA_FETCH_ERROR,
     ANOMALOUS_RULES_DATA_FETCH_SUCCESS,
+    PAGINATION_UPDATE
 } from "../actionTypes/anomalousRulesActionType";
 
 const initialState = {
@@ -10,6 +11,7 @@ const initialState = {
     anomalousRulesData : null,
     anomalousRulesSuccess : false,
     anomalousRulesError: false,
+    pagination: {}
 }
 
 const anomalousRulesReducer = (state=initialState,action)=>{
@@ -37,6 +39,11 @@ const anomalousRulesReducer = (state=initialState,action)=>{
                 ...state,
                 anomalousRulesLoading: false
             }
+        case PAGINATION_UPDATE :
+                return {
+                    ...state,
+                    pagination: action.payload
+                }
         default:
             return state
     }

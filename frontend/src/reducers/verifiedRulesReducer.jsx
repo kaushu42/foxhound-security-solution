@@ -3,6 +3,7 @@ import {
     VERIFIED_RULES_DATA_FETCH_COMPLETE,
     VERIFIED_RULES_DATA_FETCH_ERROR,
     VERIFIED_RULES_DATA_FETCH_SUCCESS,
+    PAGINATION_UPDATE
 } from "../actionTypes/verifiedRulesActionType";
 
 const initialState = {
@@ -10,6 +11,8 @@ const initialState = {
     verifiedRulesData : null,
     verifiedRulesSuccess : false,
     verifiedRulesError: false,
+
+    pagination : {},
 }
 
 const verifiedRulesReducer = (state=initialState,action)=>{
@@ -36,6 +39,11 @@ const verifiedRulesReducer = (state=initialState,action)=>{
             return {
                 ...state,
                 verifiedRulesLoading: false
+            }
+        case PAGINATION_UPDATE :
+            return {
+                ...state,
+                pagination: action.payload
             }
         default:
             return state

@@ -6,20 +6,16 @@ import {
     updateAnomalousRule,
     acceptRule,
     acceptAnomalousRule,
-    handleDrawerClose
+    handleDrawerClose,
+    updatePagination
 } from "../../actions/anomalousRulesAction";
 
 
 class AnomalousRulesTable extends Component {
 
     state = {
+        params : {},
         columns: [
-            {
-                title: 'Id',
-                dataIndex: 'table_id',
-                key: 'table_id',
-                render: text => <a>{text}</a>,
-            },
             {
                 title: 'Created Date',
                 dataIndex: 'created_date_time',
@@ -66,8 +62,30 @@ class AnomalousRulesTable extends Component {
 
     }
 
+    handleTableChange = (pagination, filters, sorter) => {
+        console.log('pagination',pagination);
+        console.log('filter',filters)
+        console.log('sorter',sorter)
+        const pager = { ...this.props.pagination };
+        pager.current = pagination.current;
+        this.props.dispatchPaginationUpdate(pager);
+        this.handleFetchAnomalousRulesData({
+            // results: pagination.pageSize,
+            page: pagination.current,
+            sortField: sorter.field,
+            sortOrder: sorter.order,
+            ...filters
+        });
+    };
+
+    handleFetchAnomalousRulesData = (params={}) => {
+        const {auth_token,pagination} = this.props;
+        this.props.dispatchFetchAnomalousRulesData(auth_token,params,pagination);
+    }
+
     componentDidMount() {
-        this.props.dispatchFetchAnomalousRulesData(this.props.auth_token);
+        // this.props.dispatchFetchAnomalousRulesData(this.props.auth_token);
+        this.handleFetchAnomalousRulesData(this.state.params)
     }
 
     render(){
@@ -82,6 +100,8 @@ class AnomalousRulesTable extends Component {
                     expandedRowRender={expandedRowRender}
                     columns={this.state.columns}
                     dataSource = {this.props.anomalousRulesData}
+                    pagination={this.props.pagination}
+                    onChange={this.handleTableChange}
                 />
             </Fragment>
         )
@@ -97,14 +117,17 @@ const mapStateToProps = state => {
         anomalousRulesData : state.anomalousRule.anomalousRulesData,
         anomalousRulesSuccess : state.anomalousRule.anomalousRulesSuccess,
         anomalousRulesError: state.anomalousRule.anomalousRulesError,
+
+        pagination : state.anomalousRule.pagination
     }
 }
 
 const mapDispatchToProps = dispatch => {
     return {
-        dispatchFetchAnomalousRulesData : (auth_token) => dispatch(fetchAnomalousRulesData(auth_token)),
+        dispatchFetchAnomalousRulesData : (auth_token, params, pagination) => dispatch(fetchAnomalousRulesData(auth_token, params, pagination)),
         handleAnomalousRuleUpdate : (auth_token,record) => dispatch(updateAnomalousRule(auth_token,record)),
         handleAnomalousRuleAccept : (auth_token,record) => dispatch(acceptAnomalousRule(auth_token,record)),
+        dispatchPaginationUpdate : (pager) => dispatch(updatePagination(pager))
     }
 }
 

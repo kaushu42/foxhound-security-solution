@@ -4,8 +4,13 @@ import {Alert, Avatar, Button, Col, Drawer, Form, Icon, Input, List, Row, Select
 import {
     acceptRule,
     acceptUnverifiedRule,
-    fetchUnverifiedRulesData, handleDrawerClose, rejectRule,
-    rejectUnverifiedRule, updateRule, updateUnverifiedRule
+    fetchUnverifiedRulesData, 
+    handleDrawerClose, 
+    rejectRule,
+    rejectUnverifiedRule, 
+    updateRule, 
+    updateUnverifiedRule,
+    updatePagination
 } from "../../actions/unverifiedRulesAction";
 import {contentLayout, drawerInfoStyle} from "../../utils";
 
@@ -13,13 +18,14 @@ import {contentLayout, drawerInfoStyle} from "../../utils";
 class UnverifiedRulesTable extends Component {
 
     state = {
+        params : {},
         columns: [
-            {
-                title: 'Id',
-                dataIndex: 'table_id',
-                key: 'table_id',
-                render: text => <a>{text}</a>,
-            },
+            // {
+            //     title: 'Id',
+            //     dataIndex: 'table_id',
+            //     key: 'table_id',
+            //     render: text => <a>{text}</a>,
+            // },
             {
                 title: 'Created Date',
                 dataIndex: 'created_date_time',
@@ -69,8 +75,30 @@ class UnverifiedRulesTable extends Component {
 
     }
 
+    handleTableChange = (pagination, filters, sorter) => {
+        console.log('pagination',pagination);
+        console.log('filter',filters)
+        console.log('sorter',sorter)
+        const pager = { ...this.props.pagination };
+        pager.current = pagination.current;
+        this.props.dispatchPaginationUpdate(pager);
+        this.handleFetchUnverifiedRulesData({
+            // results: pagination.pageSize,
+            page: pagination.current,
+            sortField: sorter.field,
+            sortOrder: sorter.order,
+            ...filters
+        });
+    };
+
+    handleFetchUnverifiedRulesData = (params={}) => {
+        const {auth_token,pagination} = this.props;
+        this.props.dispatchFetchUnverifiedRulesData(auth_token,params,pagination);
+    }
+
     componentDidMount() {
-        this.props.dispatchFetchUnverifiedRulesData(this.props.auth_token);
+        // this.props.dispatchFetchUnverifiedRulesData(this.props.auth_token, params, pagination);
+        this.handleFetchUnverifiedRulesData(this.state.params)
     }
 
     handleAcceptRuleSubmit = (e) => {
@@ -128,6 +156,8 @@ class UnverifiedRulesTable extends Component {
                         title = {title}
                         columns={this.state.columns}
                         dataSource = {this.props.unverifiedRulesData}
+                        pagination={this.props.pagination}
+                        onChange={this.handleTableChange}
                     />
                 </Spin>
                 <Drawer
@@ -273,7 +303,6 @@ class UnverifiedRulesTable extends Component {
                         }
                     </Spin>
                 </Drawer>
-
             </Fragment>
         )
     }
@@ -289,8 +318,6 @@ const mapStateToProps = state => {
         unverifiedRulesData : state.unverifiedRule.unverifiedRulesData,
         unverifiedRulesSuccess : state.unverifiedRule.unverifiedRulesSuccess,
         unverifiedRulesError: state.unverifiedRule.unverifiedRulesError,
-
-
 
         acceptUnverifiedRuleLoading:state.unverifiedRule.acceptUnverifiedRuleLoading,
         acceptUnverifiedRuleSuccess:state.unverifiedRule.acceptUnverifiedRuleSuccess,
@@ -320,21 +347,21 @@ const mapStateToProps = state => {
         unverifiedRuleRejectDrawerLoading: state.unverifiedRule.unverifiedRuleRejectDrawerLoading,
         unverifiedRuleUpdateDrawerLoading: state.unverifiedRule.unverifiedRuleUpdateDrawerLoading,
 
-
+        pagination : state.unverifiedRule.pagination,
     }
 }
 
 const mapDispatchToProps = dispatch => {
     return {
-        dispatchFetchUnverifiedRulesData : (auth_token) => dispatch(fetchUnverifiedRulesData(auth_token)),
+        dispatchFetchUnverifiedRulesData : (auth_token, params, pagination) => dispatch(fetchUnverifiedRulesData(auth_token, params, pagination)),
         handleUnverifiedRuleAccept : (auth_token,record) => dispatch(acceptUnverifiedRule(auth_token,record)),
         handleUnverifiedRuleReject : (auth_token,record) => dispatch(rejectUnverifiedRule(auth_token,record)),
         handleUnverifiedRuleUpdate : (auth_token,record) => dispatch(updateUnverifiedRule(auth_token,record)),
         dispatchHandleDrawerClose : () => dispatch(handleDrawerClose()),
         dispatchAcceptRule : (auth_token,record) => dispatch(acceptRule(auth_token,record)),
         dispatchRejectRule : (auth_token,record) => dispatch(rejectRule(auth_token,record)),
-        dispatchUpdateRule : (auth_token,source_ip,destination_ip,application) => dispatch(updateRule(auth_token,source_ip,destination_ip,application))
-
+        dispatchUpdateRule : (auth_token,source_ip,destination_ip,application) => dispatch(updateRule(auth_token,source_ip,destination_ip,application)),
+        dispatchPaginationUpdate : (pager) => dispatch(updatePagination(pager))
     }
 }
 
