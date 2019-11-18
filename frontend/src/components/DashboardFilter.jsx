@@ -7,7 +7,8 @@ import {
     updateApplicationFilter,
     updateProtocolFilter,
     updateSourceZoneFilter,
-    updateDestinationZoneFilter
+    updateDestinationZoneFilter,
+    updateIpAddressFilter
 } from "../actions/filterAction";
 import {filterSelectDataServiceAsync} from "../services/filterSelectDataService";
 
@@ -23,30 +24,35 @@ class DashboardFilter extends Component{
             protocol_select_data: [],
             source_zone_select_data: [],
             destination_zone_select_data : [],
+            ip_address_select_data: [],
             loading_firewall_rule_select: true,
             loading_application_select: true,
             loading_protocol_select : true,
             loading_source_zone_select: true,
-            loading_destination_zone_select: true
+            loading_destination_zone_select: true,
+            loading_ip_address_select: true
         }
    }
 
     componentDidMount() {
         filterSelectDataServiceAsync(this.props.auth_token)
             .then(response => {
-                const data = response.data;
-                console.log(data);
+                const filter_data = response[0].data;
+                const ip_data = response[1].data;
+                console.log("IPdata", ip_data);
                 this.setState({
-                    firewall_rule_select_data : data.firewall_rule,
-                    application_select_data : data.application,
-                    protocol_select_data : data.protocol,
-                    source_zone_select_data : data.source_zone,
-                    destination_zone_select_data : data.destination_zone,
+                    firewall_rule_select_data : filter_data.firewall_rule,
+                    application_select_data : filter_data.application,
+                    protocol_select_data : filter_data.protocol,
+                    source_zone_select_data : filter_data.source_zone,
+                    destination_zone_select_data : filter_data.destination_zone,
+                    ip_address_select_data : ip_data,
                     loading_firewall_rule_select : false,
                     loading_application_select : false,
                     loading_protocol_select : false,
                     loading_source_zone_select : false,
                     loading_destination_zone_select : false,
+                    loading_ip_address_select : false
                 });
 
             })
@@ -78,12 +84,17 @@ class DashboardFilter extends Component{
         this.props.dispatchDestinationZoneFilterUpdate(value);
     }
 
+    handleIpAddressRuleFilterChange = (value)  => {
+        this.props.dispatchIpAddressRuleFilterUpdate(value);
+    }
+
     render(){
         const applicationSelectListItem = this.state.application_select_data.map(data => <Option key={data[0]}>{data[1]}</Option>);
         const firewallRuleSelectListItem = this.state.firewall_rule_select_data.map(data => <Option key={data[0]}>{data[1]}</Option>);
         const protocolSelectListItem = this.state.protocol_select_data.map(data => <Option key={data[0]}>{data[1]}</Option>);
         const sourceZoneSelectListItem = this.state.source_zone_select_data.map(data => <Option key={data[0]}>{data[1]}</Option>);
         const destinationZoneSelectListItem = this.state.destination_zone_select_data.map(data => <Option key={data[0]}>{data[1]}</Option>);
+        const ipAddressSelectListItem = this.state.ip_address_select_data.map(data => <Option key={data["id"]}>{data["address"]}</Option>);
 
         return(
             <Fragment>
@@ -100,13 +111,13 @@ class DashboardFilter extends Component{
                             id="IpAddress"
                             size={"default"}
                             mode="multiple"
-                            loading={this.state.loading_firewall_rule_select}
+                            loading={this.state.loading_ip_address_select}
                             allowClear={true}
                             style={{ width: "100%" }}
                             placeholder="IP Address"
-                            onChange={(v)=> this.handleFirewallRuleFilterChange(v)}>
+                            onChange={(v)=> this.handleIpAddressRuleFilterChange(v)}>
                             {
-                                firewallRuleSelectListItem
+                                ipAddressSelectListItem
                             }
                         </Select>
                     </Col>
@@ -200,7 +211,8 @@ const mapStateToProps = state => {
         application : state.filter.application,
         protocol : state.filter.protocol,
         source_zone : state.filter.source_zone,
-        destination_zone : state.filter.destination_zone
+        destination_zone : state.filter.destination_zone,
+        ip_address : state.filter.ip_address
     }
 }
 
@@ -210,9 +222,9 @@ const mapDispatchToProps = dispatch => {
         dispatchRangePickerUpdate: value => dispatch(updateDateRangePickerFilter(value)),
         dispatchFirewallRuleFilterUpdate:value => dispatch(updateFirewallRuleFilter(value)),
         dispatchProtocolFilterUpdate:value => dispatch(updateProtocolFilter(value)),
-        dispatchApplicationFilterUpdate : value => dispatch(updateApplicationFilter(value)),
+        dispatchApplicationFilterUpdate: value => dispatch(updateApplicationFilter(value)),
         dispatchSourceZoneFilterUpdate:value => dispatch(updateSourceZoneFilter(value)),
-        dispatchDestinationZoneFilterUpdate :value => dispatch(updateDestinationZoneFilter(value)),
+        dispatchDestinationZoneFilterUpdate:value => dispatch(updateDestinationZoneFilter(value)),dispatchIpAddressRuleFilterUpdate:value => dispatch(updateIpAddressFilter(value)),
     };
 }
 

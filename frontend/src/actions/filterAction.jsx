@@ -4,7 +4,8 @@ import {
     APPLICATION_FILTER_UPDATED,
     PROTOCOL_FILTER_UPDATED,
     SOURCE_ZONE_FILTER_UPDATED,
-    DESTINATION_ZONE_FILTER_UPDATED
+    DESTINATION_ZONE_FILTER_UPDATED,
+    IP_ADDRESS_FILTER_UPDATED
 } from '../actionTypes/filterActionType'
 
 
@@ -49,11 +50,21 @@ export const updateSourceZoneFilter = (value) => {
         }
     }
 }
+
 export const updateDestinationZoneFilter = (value) => {
     return {
         type: DESTINATION_ZONE_FILTER_UPDATED,
         payload : {
             destination_zone: value
+        }
+    }
+}
+
+export const updateIpAddressFilter = (value) =>{
+    return {
+        type: IP_ADDRESS_FILTER_UPDATED,
+        payload: {
+            ip_address: value
         }
     }
 }
