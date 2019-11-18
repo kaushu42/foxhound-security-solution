@@ -2,12 +2,12 @@ import React, {Component, Fragment} from 'react';
 import {connect} from "react-redux";
 import {Table} from 'antd';
 import {
-    fetchVerifiedRulesData,
-    updateVerifiedRule
-} from "../../actions/verifiedRulesAction";
+    fetchAnomalousRulesData,
+    updateAnomalousRule
+} from "../../actions/anomalousRulesAction";
 
 
-class VerifiedRulesTable extends Component {
+class AnomalousRulesTable extends Component {
 
     state = {
         columns: [
@@ -46,6 +46,18 @@ class VerifiedRulesTable extends Component {
                 dataIndex: 'name',
                 key: 'name',
                 render: text => <a>{text}</a>,
+            },
+            {
+                title : 'Actions',
+                dataIndex: 'actions',
+                // render : (text,record) => {
+                //     return (
+                //         <Fragment>
+                //             <a onClick={() => this.props.handleAnomalousRuleAccept(this.props.auth_token,record)}><Icon type="check-circle" theme="filled" />&nbsp;&nbsp;</a>
+                //         </Fragment>
+                //     )
+                // }
+                render: text => <a>Follow Up</a>
             }
         ],
         data: []
@@ -53,12 +65,12 @@ class VerifiedRulesTable extends Component {
     }
 
     componentDidMount() {
-        this.props.dispatchFetchVerifiedRulesData(this.props.auth_token);
+        this.props.dispatchFetchAnomalousRulesData(this.props.auth_token);
     }
 
     render(){
         const expandedRowRender = record => <p><b>Verified Date: </b>{Date(record.verified_date_time)} <br/><b>Verified By: </b> {record.verified_by_user} </p>;
-        const title = () => <h3>Verified Rules</h3>
+        const title = () => <h3>Anomalous Rules</h3>
         return(
             <Fragment>
                 <Table
@@ -67,7 +79,7 @@ class VerifiedRulesTable extends Component {
                     title = {title}
                     expandedRowRender={expandedRowRender}
                     columns={this.state.columns}
-                    dataSource = {this.props.verifiedRulesData}
+                    dataSource = {this.props.anomalousRulesData}
                 />
             </Fragment>
         )
@@ -79,18 +91,18 @@ const mapStateToProps = state => {
     return {
         auth_token : state.auth.auth_token,
 
-        verifiedRulesLoading : state.verifiedRule.verifiedRulesLoading,
-        verifiedRulesData : state.verifiedRule.verifiedRulesData,
-        verifiedRulesSuccess : state.verifiedRule.verifiedRulesSuccess,
-        verifiedRulesError: state.verifiedRule.verifiedRulesError
+        anomalousRulesLoading : state.anomalousRule.anomalousRulesLoading,
+        anomalousRulesData : state.anomalousRule.anomalousRulesData,
+        anomalousRulesSuccess : state.anomalousRule.anomalousRulesSuccess,
+        anomalousRulesError: state.anomalousRule.anomalousRulesError,
     }
 }
 
 const mapDispatchToProps = dispatch => {
     return {
-        dispatchFetchVerifiedRulesData : (auth_token) => dispatch(fetchVerifiedRulesData(auth_token)),
-        handleVerifiedRuleUpdate : (auth_token,record) => dispatch(updateVerifiedRule(auth_token,record)),
+        dispatchFetchAnomalousRulesData : (auth_token) => dispatch(fetchAnomalousRulesData(auth_token)),
+        handleAnomalousRuleUpdate : (auth_token,record) => dispatch(updateAnomalousRule(auth_token,record)),
     }
 }
 
-export default connect(mapStateToProps,mapDispatchToProps)(VerifiedRulesTable)
+export default connect(mapStateToProps,mapDispatchToProps)(AnomalousRulesTable)

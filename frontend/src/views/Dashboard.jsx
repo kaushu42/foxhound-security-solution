@@ -12,6 +12,7 @@ import AnomalyBasedTroubleTicketTable from "../components/tables/AnomalyBasedTro
 import DashboardFilter from "../components/DashboardFilter";
 import RequestOriginWorldChart from "../components/charts/RequestOriginWorldChart";
 import UnverifiedRulesTable from "../components/tables/UnverifiedRulesTable";
+import VerifiedRulesTable from "../components/tables/VerifiedRulesTable";
 
 class Dashboard extends Component{
     render() {
@@ -42,7 +43,9 @@ class Dashboard extends Component{
                     <Row style={contentLayout}>
                         <UnverifiedRulesTable />
                     </Row>
-
+                    <Row style={contentLayout}>
+                        <VerifiedRulesTable />
+                    </Row>
                 </MasterLayout>
 
             </Fragment>

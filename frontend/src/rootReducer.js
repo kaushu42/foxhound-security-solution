@@ -7,6 +7,7 @@ import accountReducer from "./reducers/accountReducer";
 import requestOriginChartReducer from "./reducers/requestOriginChartReducer";
 import unverifiedRulesReducer from "./reducers/unverifiedRulesReducer";
 import verifiedRulesReducer from "./reducers/verifiedRulesReducer";
+import anomalousRulesReducer from "./reducers/anomalousRulesReduces";
 
 const rootReducer = combineReducers({
     auth : authReducer,
@@ -16,7 +17,8 @@ const rootReducer = combineReducers({
     account : accountReducer,
     requestOriginChart : requestOriginChartReducer,
     unverifiedRule : unverifiedRulesReducer,
-    verifiedRule : verifiedRulesReducer
+    verifiedRule : verifiedRulesReducer,
+    anomalousRule: anomalousRulesReducer
 })
 
 export default rootReducer;

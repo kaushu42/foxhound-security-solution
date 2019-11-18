@@ -4,6 +4,7 @@ import RequestOriginWorldChart from "../components/charts/RequestOriginWorldChar
 import VerifiedRulesTable from "../components/tables/VerifiedRulesTable";
 import ApplicationChart from "../components/charts/ApplicationChart";
 import UnverifiedRulesTable from "../components/tables/UnverifiedRulesTable";
+import AnomalousRulesTable from "../components/tables/AnomalousRulesTable";
 
 
 
@@ -11,8 +12,9 @@ class Test extends Component {
     render() {
         return (
             <Fragment>
-            <UnverifiedRulesTable/>
-            <VerifiedRulesTable/>
+            {/* <UnverifiedRulesTable/>
+            <VerifiedRulesTable/> */}
+            <AnomalousRulesTable/>
             </Fragment>
             )
     }
