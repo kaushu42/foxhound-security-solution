@@ -137,10 +137,10 @@ export function fetchAnomalousRulesData(auth_token, params, pagination){
         let bodyFormData = new FormData();
 
         dispatch(fetchAnomalousRulesDataBegin());
-        axios.post(FETCH_API,bodyFormData,{headers, pagination})
+        axios.post(FETCH_API,bodyFormData,{headers, params})
             .then(res => {
                 const response = res.data;
-                console.log("anomalous rules",response);
+                console.log("anomalous rules",response.results);
                 const page = pagination;
                 page.total  = response.count;
                 updatePagination(page);

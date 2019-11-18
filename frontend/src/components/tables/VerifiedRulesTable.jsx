@@ -102,6 +102,7 @@ class VerifiedRulesTable extends Component {
 const mapStateToProps = state => {
     return {
         auth_token : state.auth.auth_token,
+        current_session_user_id : state.auth.current_session_user_id,
 
         verifiedRulesLoading : state.verifiedRule.verifiedRulesLoading,
         verifiedRulesData : state.verifiedRule.verifiedRulesData,
