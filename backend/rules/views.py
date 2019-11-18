@@ -30,7 +30,7 @@ class RulesApiView(RulePaginatedView):
         objects = Rule.objects.filter(
             firewall_rule__tenant__id=tenant_id,
         ).order_by('id')
-        page = self.paginate_queryset(objects)
+        page = self.paginate_queryset(objects.order_by('id'))
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
@@ -47,7 +47,7 @@ class UnverifiedRulesApiView(RulePaginatedView):
             is_verified_rule=False,
             is_anomalous_rule=False
         )
-        page = self.paginate_queryset(objects)
+        page = self.paginate_queryset(objects.order_by('id'))
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
@@ -64,7 +64,7 @@ class VerifiedRulesApiView(RulePaginatedView):
             firewall_rule__tenant__id=tenant_id,
             is_verified_rule=True,
         )
-        page = self.paginate_queryset(objects)
+        page = self.paginate_queryset(objects.order_by('id'))
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
@@ -81,7 +81,7 @@ class AnomalousRulesApiView(RulePaginatedView):
             firewall_rule__tenant__id=tenant_id,
             is_anomalous_rule=True,
         )
-        page = self.paginate_queryset(objects)
+        page = self.paginate_queryset(objects.order_by('id'))
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
