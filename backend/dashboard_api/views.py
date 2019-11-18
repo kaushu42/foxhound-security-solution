@@ -242,12 +242,12 @@ class IPAddressApiView(APIView):
             firewall_rule__tenant__id=tenant_id)
         data = objects.values(
             'source_ip__id', 'source_ip__address',
-            'source_ip__alias'
+            'source_ip__alias', 'bytes_sent'
         ).distinct('source_ip__address').annotate(
             id=F('source_ip__id'),
             address=F('source_ip__address'),
             alias=F('source_ip__alias'),
-        ).values('id', 'address', 'alias')[:20]
+        ).values('id', 'address', 'alias', 'bytes_sent')[:20]
         return Response(data)
 
     def post(self, request):

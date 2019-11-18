@@ -4,9 +4,9 @@ from . import views
 
 urlpatterns = [
     path('all/', views.RulesApiView.as_view()),
-    path('verified/', views.verified_rules),
-    path('unverified/', views.unverified_rules),
-    path('anomalous/', views.anomalous_rules),
+    path('verified/', views.VerifiedRulesApiView.as_view()),
+    path('unverified/', views.UnverifiedRulesApiView.as_view()),
+    path('anomalous/', views.AnomalousRulesApiView.as_view()),
     path('verify/<int:id>/', views.verify_rule),
     path('flag/<int:id>/', views.flag_rule),
     path('edit/', views.edit_rule),
