@@ -12,6 +12,10 @@ import {
     ACCEPT_ANOMALOUS_RULE_SUCCESS,
     ACCEPT_ANOMALOUS_RULE_COMPLETE,
     ACCEPT_ANOMALOUS_RULE_ERROR,
+    TOGGLE_FLAGGED_RULE_BEGIN,
+    TOGGLE_FLAGGED_RULE_COMPLETE,
+    TOGGLE_FLAGGED_RULE_ERROR,
+    TOGGLE_FLAGGED_RULE_SUCCESS,
     CLEAN_ALL_STATE,
     PAGINATION_UPDATE, 
     UPDATE_PAGINATION_PAGE_COUNT,
@@ -109,10 +113,10 @@ export function cleanAllDrawerState(){
 
 export function acceptRule(auth_token,record){
     return (dispatch) => {
-        const url = VERIFY_RULE_API + record.id + '/';
+        const url_to_verify_flagged_rule = VERIFY_RULE_API + record.id + '/';
         let headers = axiosHeader(auth_token);
         dispatch(acceptRuleBegin());
-        axios.post(url,null,{headers})
+        axios.post(url_to_verify_flagged_rule,null,{headers})
             .then(res =>{
                 const response = res.data;
                 console.log(response);
@@ -124,6 +128,19 @@ export function acceptRule(auth_token,record){
                 setTimeout(()=>{dispatch(cleanAllDrawerState())},5000);
             })
             .catch(error => dispatch(acceptRuleError(error)));
+        
+        const url_to_toggle_flag = FLAG_RULE_API + record.id + '/';
+        dispatch(toggleRuleBegin());
+        axios.post(url_to_toggle_flag,null,{headers})
+            .then(res =>{
+                const response = res.data;
+                console.log(response);
+                dispatch(toggleRuleSuccess());
+            })
+            .then(res => {
+                dispatch(toggleRuleComplete(record));
+            })
+            .catch(error => dispatch(toggleRuleError(error)));
     }
 }
 
@@ -149,6 +166,32 @@ export function fetchAnomalousRulesData(auth_token, params, pagination){
             })
             .then(res => dispatch(fetchAnomalousRulesDataComplete()))
             .catch(error => dispatch(fetchAnomalousRulesDataFailure(error)));
+    }
+}
+
+export function toggleRuleSuccess(){
+    return {
+        type:TOGGLE_FLAGGED_RULE_SUCCESS
+    }
+}
+
+export function toggleRuleBegin(){
+    return {
+        type:TOGGLE_FLAGGED_RULE_BEGIN
+    }
+}
+
+export function toggleRuleComplete(record){
+    return{
+        type:TOGGLE_FLAGGED_RULE_COMPLETE,
+        payload:record
+    }
+}
+
+export function toggleRuleError(error){
+    return {
+        type:TOGGLE_FLAGGED_RULE_ERROR,
+        payload:error
     }
 }
 
