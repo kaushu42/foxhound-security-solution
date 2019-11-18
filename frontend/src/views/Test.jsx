@@ -12,8 +12,8 @@ class Test extends Component {
     render() {
         return (
             <Fragment>
-            {/* <UnverifiedRulesTable/>
-            <VerifiedRulesTable/> */}
+            <UnverifiedRulesTable/>
+            <VerifiedRulesTable/>
             <AnomalousRulesTable/>
             </Fragment>
             )

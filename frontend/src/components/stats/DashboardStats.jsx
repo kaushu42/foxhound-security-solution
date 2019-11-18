@@ -20,7 +20,9 @@ class DashboardStats extends Component {
             downlink : 0,
             opened_tt : 0,
             new_rules : 0,
-            unit : ""
+            unit : "",
+            new_source_ip : 0,
+            new_destination_ip : 0
         }
     }
 
@@ -70,13 +72,19 @@ class DashboardStats extends Component {
                     uplink :  parseFloat((data.uplink /(1024*1024*1024))).toFixed(2),
                     downlink : parseFloat(data.downlink /(1024*1024*1024)).toFixed(2),
                     unit : "GB",
-                    opened_tt : data.opened_tt
+                    opened_tt : data.opened_tt,
+                    new_rules: data.new_rules,
+                    new_source_ip: data.new_source_ip,
+                    new_destination_ip: data.new_destination_ip
                 })):
                 (this.setState({
                     uplink :  parseFloat((data.uplink /(1024*1024))).toFixed(2),
                     downlink : parseFloat(data.downlink /(1024*1024)).toFixed(2),
                     unit : "MB",
-                    opened_tt : data.opened_tt
+                    opened_tt : data.opened_tt,
+                    new_rules: data.new_rules,
+                    new_source_ip: data.new_source_ip,
+                    new_destination_ip: data.new_destination_ip
                 }))
                 this.setState({loading:false});
             })
@@ -100,10 +108,10 @@ class DashboardStats extends Component {
                             <Statistic title="New Rules" value={this.state.new_rules} />
                         </Card.Grid>
                         <Card.Grid style={gridStyle}>
-                            <Statistic title="New Source IP" value={10} />
+                            <Statistic title="New Source IP" value={this.state.new_source_ip} />
                         </Card.Grid>
                         <Card.Grid style={gridStyle}>
-                            <Statistic title="New Destination IP" value={10} />
+                            <Statistic title="New Destination IP" value={this.state.new_destination_ip} />
                         </Card.Grid>
                     </Spin>
             </Fragment>
