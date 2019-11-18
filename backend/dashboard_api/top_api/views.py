@@ -94,13 +94,13 @@ class ApplicationApiView(APIView):
         objects = groupby_date(
             objects,
             'logged_datetime',
-            'hour',
+            'minute',
             ['bytes_sent', 'bytes_received'],
             output_fields=['application__name']
         )
         response = defaultdict(list)
-        for data in objects[:topcount]:
-            date = data['date'].timestamp()
+        for data in objects:
+            date = data['date']
             application = data['application__name']
             bytes_total = data['bytes_sent'] + data['bytes_received']
             response[application].append([date, bytes_total])
