@@ -5,9 +5,19 @@ import {
     ANOMALOUS_RULES_DATA_FETCH_COMPLETE,
     ANOMALOUS_RULES_DATA_FETCH_ERROR,
     ANOMALOUS_RULES_DATA_FETCH_SUCCESS,
+    ACCEPT_RULE_DRAWER_TOGGLE,
+    CLOSE_ALL_DRAWER,
+    RULE_SELECTED_TO_ACCEPT,
+    ACCEPT_ANOMALOUS_RULE_BEGIN,
+    ACCEPT_ANOMALOUS_RULE_SUCCESS,
+    ACCEPT_ANOMALOUS_RULE_COMPLETE,
+    ACCEPT_ANOMALOUS_RULE_ERROR,
 } from "../actionTypes/anomalousRulesActionType";
 
 const FETCH_API  = `${ROOT_URL}rules/anomalous/`;
+const VERIFY_RULE_API = `${ROOT_URL}rules/verify/`;
+const FLAG_RULE_API = `${ROOT_URL}rules/flag/`;
+const UPDATE_API = `${ROOT_URL}rules/edit/`;
 
 export function fetchAnomalousRulesDataBegin(){
     return {

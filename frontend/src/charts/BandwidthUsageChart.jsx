@@ -92,6 +92,7 @@ class BandwidthUsageChart extends Component{
         let bodyFormData = new FormData();
         bodyFormData.set('start_date', this.props.date_range[0]);
         bodyFormData.set('end_date', this.props.date_range[1]);
+        bodyFormData.set('ip_address', this.props.ip_address);
         bodyFormData.set('firewall_rule', this.props.firewall_rule);
         bodyFormData.set('application', this.props.application);
         bodyFormData.set('protocol', this.props.protocol);

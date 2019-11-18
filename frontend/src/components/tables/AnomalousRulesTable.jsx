@@ -1,9 +1,12 @@
 import React, {Component, Fragment} from 'react';
 import {connect} from "react-redux";
-import {Table} from 'antd';
+import {Alert, Avatar, Button, Col, Drawer, Form, Icon, Input, List, Row, Select, Spin, Statistic, Table} from 'antd';
 import {
     fetchAnomalousRulesData,
-    updateAnomalousRule
+    updateAnomalousRule,
+    acceptRule,
+    acceptAnomalousRule,
+    handleDrawerClose
 } from "../../actions/anomalousRulesAction";
 
 
@@ -50,14 +53,13 @@ class AnomalousRulesTable extends Component {
             {
                 title : 'Actions',
                 dataIndex: 'actions',
-                // render : (text,record) => {
-                //     return (
-                //         <Fragment>
-                //             <a onClick={() => this.props.handleAnomalousRuleAccept(this.props.auth_token,record)}><Icon type="check-circle" theme="filled" />&nbsp;&nbsp;</a>
-                //         </Fragment>
-                //     )
-                // }
-                render: text => <a>Follow Up</a>
+                render : (text,record) => {
+                    return (
+                        <Fragment>
+                            <a onClick={() => this.props.handleAnomalousRuleAccept(this.props.auth_token,record)}><Icon type="check-circle" theme="filled" />&nbsp;&nbsp;</a>
+                        </Fragment>
+                    )
+                }
             }
         ],
         data: []
@@ -102,6 +104,7 @@ const mapDispatchToProps = dispatch => {
     return {
         dispatchFetchAnomalousRulesData : (auth_token) => dispatch(fetchAnomalousRulesData(auth_token)),
         handleAnomalousRuleUpdate : (auth_token,record) => dispatch(updateAnomalousRule(auth_token,record)),
+        handleAnomalousRuleAccept : (auth_token,record) => dispatch(acceptAnomalousRule(auth_token,record)),
     }
 }
 

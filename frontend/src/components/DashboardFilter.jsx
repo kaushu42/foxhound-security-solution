@@ -39,7 +39,6 @@ class DashboardFilter extends Component{
             .then(response => {
                 const filter_data = response[0].data;
                 const ip_data = response[1].data;
-                console.log("IPdata", ip_data);
                 this.setState({
                     firewall_rule_select_data : filter_data.firewall_rule,
                     application_select_data : filter_data.application,
@@ -178,7 +177,7 @@ class DashboardFilter extends Component{
                                 style={{ width: "100%" }}
                                 placeholder="Source Zone"
                                 onChange={(v)=>this.handleSourceZoneFilterChange(v)}>
-                        {
+                            {
                                 sourceZoneSelectListItem
                             }
                         </Select>
@@ -192,7 +191,7 @@ class DashboardFilter extends Component{
                                 style={{ width: "100%" }}
                                 placeholder="Destination Zone"
                                 onChange={(v)=>this.handleDestinationZoneFilterChange(v)}>
-                        {
+                            {
                                 destinationZoneSelectListItem
                             }
                         </Select>
@@ -206,7 +205,7 @@ class DashboardFilter extends Component{
 const mapStateToProps = state => {
     return {
         auth_token : state.auth.auth_token,
-        date_range : state.filter.date_range,
+        date_range : state.ipSearchBar.date_range,
         firewall_rule : state.filter.firewall_rule,
         application : state.filter.application,
         protocol : state.filter.protocol,
