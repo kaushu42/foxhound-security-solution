@@ -247,7 +247,7 @@ class IPAddressApiView(APIView):
             id=F('source_ip__id'),
             address=F('source_ip__address'),
             alias=F('source_ip__alias'),
-        ).values('id', 'address', 'alias')
+        ).values('id', 'address', 'alias')[:20]
         return Response(data)
 
     def post(self, request):
