@@ -205,7 +205,7 @@ class DashboardFilter extends Component{
 const mapStateToProps = state => {
     return {
         auth_token : state.auth.auth_token,
-        date_range : state.ipSearchBar.date_range,
+        date_range : state.filter.date_range,
         firewall_rule : state.filter.firewall_rule,
         application : state.filter.application,
         protocol : state.filter.protocol,

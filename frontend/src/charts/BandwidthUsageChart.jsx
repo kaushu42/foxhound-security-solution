@@ -201,7 +201,7 @@ const mapStateToProps = state => {
     return {
         auth_token : state.auth.auth_token,
 
-        ip_address : state.ipSearchBar.ip_address,
+        ip_address : state.filter.ip_address,
 
         date_range : state.filter.date_range,
         firewall_rule : state.filter.firewall_rule,
