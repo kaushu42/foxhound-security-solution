@@ -98,7 +98,7 @@ def get_filters(request):
     protocol = request.POST.get('protocol', None)
     source_zone = request.POST.get('source_zone', None)
     destination_zone = request.POST.get('destination_zone', None)
-
+    ip_address = request.POST.get('ip_address', None)
     response = {
         "start_date": (start_date),
         "end_date": (end_date),
@@ -107,6 +107,7 @@ def get_filters(request):
         "protocol": (protocol),
         "source_zone": (source_zone),
         "destination_zone": (destination_zone),
+        "ip_address": (ip_address),
     }
     return response
 
@@ -160,6 +161,7 @@ def _get_queries_except_date(filters):
     protocol = filters['protocol']
     source_zone = filters['source_zone']
     destination_zone = filters['destination_zone']
+    ip_address = filters['ip_address']
     queries = []
 
     if firewall_rule:
@@ -182,6 +184,13 @@ def _get_queries_except_date(filters):
         destination_zone_query = _get_query(
             'destination_zone', destination_zone)
         queries.append(destination_zone_query)
+
+    if ip_address:
+        ip_query_source = _get_query('source_ip', ip_address)
+        ip_query_destination = _get_query('destination_ip', ip_address)
+        ip_query = Q(ip_query_source | ip_query_destination)
+        queries.append(ip_query)
+
     return queries
 
 

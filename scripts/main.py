@@ -37,7 +37,7 @@ try:
         import tarfile
         import shutil
 
-        print('Downloading IP database....')
+        logging.info('Downloading IP database....')
 
         wget.download(config.DATABASE_URL)
         tar = tarfile.open(os.path.join(
@@ -74,12 +74,12 @@ try:
     mle = MLEngine(config.IP_PROFILE_OUTPUT_DIR, config.IP_MODEL_OUTPUT_DIR,
                    config.TRAFFIC_LOGS_INPUT_DIR, config.ANOMALY_LOGS_OUTPUT_DIR)
     mle.run(create_model=True, predict=True)
-    print('DC Engine running...')
+    logging.info('DC Engine running')
     pa = fh.dc_engine.PaloAltoEngine(
         config.TRAFFIC_LOGS_INPUT_DIR, config.TRAFFIC_LOGS_OUTPUT_DIR)
     pa.run(verbose=True)
 
-    print('DB Engine running...')
+    logging.info('DB Engine running')
     db = fh.db_engine.DBEngine(
         config.TRAFFIC_LOGS_OUTPUT_DIR,
         db_engine=db_engine,
@@ -94,7 +94,7 @@ try:
                     for f in os.listdir(config.ANOMALY_LOGS_OUTPUT_DIR)]
     for log in anomaly_logs:
         os.remove(log)
-        print(f'{log} deleted!')
+        logging.info(f'{log} deleted!')
 except Exception as e:
     logging.exception(f'An error occured on {datetime.datetime.now()}')
     raise(e)
