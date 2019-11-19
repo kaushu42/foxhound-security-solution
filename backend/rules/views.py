@@ -101,6 +101,7 @@ def verify_rule(request, id):
             "error": "Bad id"
         }, status=HTTP_400_BAD_REQUEST)
     rule.is_verified_rule = True
+    rule.is_anomalous_rule = False
     rule.save()
     return Response({
         "status": "Rule verified"
