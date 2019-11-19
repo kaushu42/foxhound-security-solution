@@ -1,3 +1,4 @@
+from django.db.models import Sum, F
 from rest_framework.response import Response
 from rest_framework.status import (
     HTTP_200_OK,
@@ -26,8 +27,13 @@ class TrafficLogApiView(PaginatedView):
     def get(self, request):
         tenant_id = get_tenant_id_from_token(request)
         objects = ProcessedLogDetail.objects.filter(
-            tenant__id=tenant_id
-        )
+            firewall_rule__tenant__id=tenant_id
+        ).values('log__log_name').annotate(
+            size=Sum('size'),
+            rows=Sum('n_rows'),
+            log_name=F('log__log_name')
+        ).values('size', 'rows', 'log_name')
+
         page = self.paginate_queryset(objects)
         if page is not None:
             serializer = self.serializer_class(page, many=True)

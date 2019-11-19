@@ -141,9 +141,7 @@ class CountrySerializer(serializers.ModelSerializer):
         fields = ('id', 'iso_code', 'name')
 
 
-class ProcessedLogDetailSerializer(serializers.ModelSerializer):
-    log = TrafficLogSerializer()
-
-    class Meta:
-        model = ProcessedLogDetail
-        fields = '__all__'
+class ProcessedLogDetailSerializer(serializers.Serializer):
+    log_name = serializers.CharField()
+    rows = serializers.IntegerField()
+    size = serializers.IntegerField()

@@ -12,5 +12,6 @@ admin.site.register(models.Country)
 admin.site.register(models.Protocol)
 admin.site.register(models.TrafficLog)
 admin.site.register(models.TrafficLogDetail)
+admin.site.register(models.ProcessedLogDetail)
 admin.site.site_title = 'FoxHound Security Solutions'
 admin.site.site_header = 'FoxHound'
