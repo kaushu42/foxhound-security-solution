@@ -32,7 +32,7 @@ class BlacklistAddress extends Component {
                             <List
                                 style={{height:"150px", overflow:"scroll"}}
                                 dataSource={this.state.data.request_from_blacklisted_ip}
-                                renderItem={item => <List.Item>{item}</List.Item>}
+                                renderItem={item => <List.Item>{item[0]}-{item[1]}</List.Item>}
                             />
                         </Fragment>
                     ) : null}
@@ -43,7 +43,7 @@ class BlacklistAddress extends Component {
                             <List
                                 style={{height:"150px", overflow:"scroll"}}
                                 dataSource={this.state.data.request_to_blacklisted_ip}
-                                renderItem={item => <List.Item>{item}</List.Item>}
+                                renderItem={item => <List.Item>{item[0]}-{item[1]}</List.Item>}
                             />
                         </Fragment>
                     ) : null}
