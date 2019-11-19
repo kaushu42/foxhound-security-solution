@@ -6,7 +6,8 @@ from core.models import (
     VirtualSystem,
     IPAddress,
     Application,
-    Country
+    Country,
+    ProcessedLogDetail
 )
 from troubleticket.models import (
     TroubleTicketAnomaly,
@@ -138,3 +139,11 @@ class CountrySerializer(serializers.ModelSerializer):
     class Meta:
         model = Country
         fields = ('id', 'iso_code', 'name')
+
+
+class ProcessedLogDetailSerializer(serializers.ModelSerializer):
+    log = TrafficLogSerializer()
+
+    class Meta:
+        model = ProcessedLogDetail
+        fields = '__all__'

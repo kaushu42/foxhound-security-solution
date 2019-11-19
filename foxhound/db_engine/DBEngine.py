@@ -18,11 +18,13 @@ from .core_models import (
     IPAddress, FirewallRule,
     Tenant, Application, Protocol,
     Zone, TenantIPAddressInfo,
-    TenantApplicationInfo
+    TenantApplicationInfo,
+    ProcessedLogDetail
 )
 from .troubleticket_models import TroubleTicketRule
 from .rule_models import Rule
 TENANT_ID_DEFAULT = 1
+SIZE_PER_LOG = 468
 
 
 class DBEngine(object):
@@ -294,7 +296,7 @@ class DBEngine(object):
                 )
                 self._session.add(appl)
 
-    def _write_info(self, data):
+    def _write_info(self, data, traffic_log_id):
         ip_in_db = pd.read_sql_table(
             'core_tenantipaddressinfo',
             self._db_engine,
@@ -305,8 +307,27 @@ class DBEngine(object):
             self._db_engine,
             index_col='id'
         ).application.unique()
+        # Write log info: size and row count
         firewall_rules = pd.read_sql_table(
             'core_firewallrule', self._db_engine, index_col='id')
+        print(data.columns)
+        log_info = data[['firewall_rule_id', 'source_port']]
+        log_info = pd.merge(
+            log_info, firewall_rules,
+            left_on='firewall_rule_id', right_on='name'
+        )[['tenant_id', 'source_port']].groupby(
+            'tenant_id'
+        ).count()
+        for i, j in log_info.iterrows():
+            processed_log_detail = ProcessedLogDetail(
+                tenant_id=int(i),
+                log_id=int(traffic_log_id),
+                n_rows=int(j.source_port),
+                size=int(j.source_port*SIZE_PER_LOG)
+            )
+            self._session.add(processed_log_detail)
+            self._session.commit()
+
         data.firewall_rule_id = data.firewall_rule_id.map(
             firewall_rules.reset_index().set_index('name').id)
         grouped = data.groupby('firewall_rule_id')
@@ -335,9 +356,8 @@ class DBEngine(object):
         self._map_to_foreign_key(data, dfs)
         traffic_log_id = self._write_traffic_log(csv)
         self._write_traffic_log_detail(data, traffic_log_id)
-        data = self._read_csv(csv)
         self._write_rules(_data)
-        self._write_info(_data)
+        self._write_info(_data, traffic_log_id)
 
     def _get_date_from_filename(self, string):
         date = re.findall(r'[0-9]{4}_[0-9]{2}_[0-9]{2}',

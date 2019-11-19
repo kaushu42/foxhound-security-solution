@@ -80,6 +80,28 @@ class TrafficLog(Base):
         return self.log_name
 
 
+class ProcessedLogDetail(Base):
+    __tablename__ = 'core_processedlogdetail'
+
+    id = Column(Integer, primary_key=True)
+    tenant_id = Column(ForeignKey(
+        Tenant.id,
+        ondelete='CASCADE'
+    ))
+    log_id = Column(ForeignKey(
+        TrafficLog.id,
+        ondelete='CASCADE'
+    ))
+    n_rows = Column(Integer())
+    size = Column(BigInteger())
+
+    def __repr__(self):
+        return f'{self.tenant}-{self.n_rows}-{self.size}'
+
+    def __str__(self):
+        return self.__repr__()
+
+
 class IPAddress(Base):
     __tablename__ = 'core_ipaddress'
 
