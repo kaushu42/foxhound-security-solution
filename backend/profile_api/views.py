@@ -1,3 +1,4 @@
+import pytz
 import json
 from collections import defaultdict, OrderedDict
 
@@ -121,8 +122,8 @@ class AverageDailyApiView(APIView):
     def post(self, request, format=None):
         tenant_id = get_tenant_id_from_token(request)
         ip = get_ip_from_request(request)
-        query = get_query_from_request(request)
-        objects = get_objects_from_query(query).filter(
+        # query = get_query_from_request(request)
+        objects = TrafficLogDetail.objects.filter(
             firewall_rule__tenant__id=tenant_id
         )
         response = self._get_usage(ip, objects)
