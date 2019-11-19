@@ -131,42 +131,28 @@ class IpUsageTimeSeriesChart extends Component {
         series: []
       });
     }
-    else if (bytesReceived == undefined){
-      Highcharts.setOptions({
-        lang: {
-          noData: 'No data is available in the chart'
-        }
-      });
-      this.chart.update({
-        series: []
-      });
+    bytesReceived.sort(function(a, b) {
+      return a[0] > b[0] ? 1 : -1;
+    });
+    this.chart.update({
+        title : {
+          text : `Average Daily Trend for Bytes Received of ${this.props.ip_address}`
+        },
+        xAxis: {
 
-    }
-    else {
-      console.log(new Date(bytesReceived[0][0]));
-      bytesReceived = bytesReceived.map(e => [new Date(e[0]),e[1]/1024/1024]);
-      bytesReceived.sort(function(a, b) {
-        return a[0] > b[0] ? 1 : -1;
-      });
-      console.log('final data for ip time series',bytesReceived);
-      this.chart.update({
-        xAxis : {
-          type:'datetime',
-          categories : bytesReceived.map(e => moment(new Date(e[0])).format("MM/DD/YYYY hh:mm"))
-
+            type:"string",
+            categories : bytesReceived.map(d=> d[0])
         },
         series: [
-          {
-            id: 'bytes',
-            type: 'spline',
-            name : 'Bytes Received(MB)',
-            data: bytesReceived.map(e => e[1])
-          }
+            {
+                name : 'Bytes Received',
+                type : 'spline',
+                data : bytesReceived.map(d=> d[1]/1024/1024)
+            }
         ]
-      });
-    }
+    })
     this.setState({
-      loading : false
+        loading : false
     });
   }
 
