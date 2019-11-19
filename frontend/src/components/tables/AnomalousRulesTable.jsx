@@ -47,17 +47,17 @@ class AnomalousRulesTable extends Component {
                 key: 'name',
                 render: text => <a>{text}</a>,
             },
-            // {
-            //     title : 'Actions',
-            //     dataIndex: 'actions',
-            //     render : (text,record) => {
-            //         return (
-            //             <Fragment>
-            //                 <a onClick={() => this.props.handleAnomalousRuleAccept(this.props.auth_token,record)}><Icon type="check-circle" theme="filled" />&nbsp;&nbsp;</a>
-            //             </Fragment>
-            //         )
-            //     }
-            // }
+            {
+                title : 'Actions',
+                dataIndex: 'actions',
+                render : (text,record) => {
+                    return (
+                        <Fragment>
+                            <a onClick={() => this.props.handleAnomalousRuleAccept(this.props.auth_token,record)}><Icon type="check-circle" theme="filled" />&nbsp;&nbsp;</a>
+                        </Fragment>
+                    )
+                }
+            }
         ],
         data: [],
         quickIpView: false
