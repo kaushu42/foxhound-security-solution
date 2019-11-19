@@ -102,7 +102,7 @@ class ApplicationApiView(APIView):
         top_apps = {}
         response = defaultdict(list)
         for data in objects:
-            date = data['date']
+            date = data['date'].timestamp()
             application = data['application__name']
             bytes_total = data['bytes_sent'] + data['bytes_received']
             top_apps[application] = top_apps.get(application, 0) + bytes_total
