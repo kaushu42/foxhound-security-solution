@@ -32,7 +32,7 @@ class UnverifiedRulesTable extends Component {
                 title: 'Source Address',
                 dataIndex: 'source_ip',
                 key: 'source_ip',
-                render: (text,record) => <a onClick={()=> this.handleShowIpDashboard(record)}>{text}</a>,
+                render: (text,record) => <a onClick={()=> this.handleShowUnverifiedIpDashboard(record)}>{text}</a>,
             },
             {
                 title: 'Destination Address',
@@ -119,13 +119,12 @@ class UnverifiedRulesTable extends Component {
         this.props.dispatchUpdateRule(auth_token,source_ip,destination_ip,application);
     }
 
-    handleShowIpDashboard(record){
-        this.props.dispatchIpSearchValueUpdate(record.source_ip);
+    handleShowUnverifiedIpDashboard(record){
+        this.props.dispatchUnverifiedIpSearchValueUpdate(record.source_ip);
         this.setState({quickIpView : true})
     }
 
     closeQuickIpView  = () => {
-        console.log("closing drawer for unverified log")
         this.setState({quickIpView: false})
     }
 
@@ -377,7 +376,7 @@ const mapDispatchToProps = dispatch => {
         dispatchPaginationUpdate : (pager) => dispatch(updatePagination(pager)),
 
 
-        dispatchIpSearchValueUpdate : value => dispatch(search(value))
+        dispatchUnverifiedIpSearchValueUpdate : value => dispatch(search(value))
     }
 }
 

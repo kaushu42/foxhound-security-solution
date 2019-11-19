@@ -9,6 +9,8 @@ import {
     updatePagination
 } from "../../actions/anomalousRulesAction";
 import {contentLayout, drawerInfoStyle} from "../../utils";
+import {search} from "../../actions/ipSearchAction";
+import QuickIpView from "../../views/QuickIpView";
 
 class AnomalousRulesTable extends Component {
 
@@ -25,7 +27,7 @@ class AnomalousRulesTable extends Component {
                 title: 'Source IP',
                 dataIndex: 'source_ip',
                 key: 'source_ip',
-                render: text => <a>{text}</a>,
+                render: (text,record) => <a onClick={()=> this.handleShowAnomalousIpDashboard(record)}>{text}</a>,
             },
             {
                 title: 'Destination IP',
@@ -57,7 +59,8 @@ class AnomalousRulesTable extends Component {
             //     }
             // }
         ],
-        data: []
+        data: [],
+        quickIpView: false
     }
 
     handleTableChange = (pagination, filters, sorter) => {
@@ -90,6 +93,15 @@ class AnomalousRulesTable extends Component {
         e.preventDefault();
         const {auth_token,selectedRecordToAccept} = this.props;
         this.props.dispatchAcceptRule(auth_token,selectedRecordToAccept);
+    }
+
+    handleShowAnomalousIpDashboard(record){
+        this.props.dispatchAnomalousIpSearchValueUpdate(record.source_ip);
+        this.setState({quickIpView : true})
+    }
+
+    closeQuickIpView  = () => {
+        this.setState({quickIpView: false})
     }
 
     render(){
@@ -161,6 +173,14 @@ class AnomalousRulesTable extends Component {
                         }
                     </Spin>
                 </Drawer>
+                <Drawer
+                    closable={true}
+                    width={800}
+                    placement={"right"}
+                    onClose={this.closeQuickIpView}
+                    visible={this.state.quickIpView}>
+                    <QuickIpView/>
+                </Drawer>
             </Fragment>
         )
     }
@@ -196,7 +216,9 @@ const mapDispatchToProps = dispatch => {
         handleAnomalousRuleAccept : (auth_token,record) => dispatch(acceptAnomalousRule(auth_token,record)),
         dispatchHandleDrawerClose : () => dispatch(handleDrawerClose()),
         dispatchAcceptRule : (auth_token,record) => dispatch(acceptRule(auth_token,record)),
-        dispatchPaginationUpdate : (pager) => dispatch(updatePagination(pager))
+        dispatchPaginationUpdate : (pager) => dispatch(updatePagination(pager)),
+
+        dispatchAnomalousIpSearchValueUpdate : value => dispatch(search(value))
     }
 }
 
