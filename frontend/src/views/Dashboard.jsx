@@ -13,6 +13,7 @@ import DashboardFilter from "../components/DashboardFilter";
 import RequestOriginWorldChart from "../components/charts/RequestOriginWorldChart";
 import UnverifiedRulesTable from "../components/tables/UnverifiedRulesTable";
 import VerifiedRulesTable from "../components/tables/VerifiedRulesTable";
+import ApplicationLineChart from "../components/charts/ApplicationLineChart";
 
 class Dashboard extends Component{
     render() {
@@ -36,9 +37,11 @@ class Dashboard extends Component{
                         <Col xs={24} sm={24} md={24} lg={24} xl={12}>
                             <Card>
                                 <BandwidthUsageChart />
-
                             </Card>
                         </Col>
+                    </Row>
+                    <Row style={contentLayout}>
+                        <ApplicationLineChart />
                     </Row>
                     <Row style={contentLayout}>
                         <UnverifiedRulesTable />
