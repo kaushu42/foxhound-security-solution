@@ -50,7 +50,7 @@ class VerifiedRulesTable extends Component {
         console.log('pagination',pagination);
         console.log('filter',filters)
         console.log('sorter',sorter)
-        const pager = { ...this.props.pagination };
+        const pager = { ...this.props.verifiedRulePagination };
         pager.current = pagination.current;
         this.props.dispatchPaginationUpdate(pager);
         this.handleFetchVerifiedRulesData({
@@ -63,8 +63,8 @@ class VerifiedRulesTable extends Component {
     };
 
     handleFetchVerifiedRulesData = (params={}) => {
-        const {auth_token,pagination} = this.props;
-        this.props.dispatchFetchVerifiedRulesData(auth_token,params,pagination);
+        const {auth_token,verifiedRulePagination} = this.props;
+        this.props.dispatchFetchVerifiedRulesData(auth_token,params,verifiedRulePagination);
     }
 
     componentDidMount() {
@@ -84,7 +84,7 @@ class VerifiedRulesTable extends Component {
                     expandedRowRender={expandedRowRender}
                     columns={this.state.columns}
                     dataSource = {this.props.verifiedRulesData}
-                    pagination={this.props.pagination}
+                    pagination={this.props.verifiedRulePagination}
                     onChange={this.handleTableChange}
                 />
             </Fragment>
@@ -103,7 +103,7 @@ const mapStateToProps = state => {
         verifiedRulesSuccess : state.verifiedRule.verifiedRulesSuccess,
         verifiedRulesError: state.verifiedRule.verifiedRulesError,
 
-        pagination : state.verifiedRule.pagination
+        verifiedRulePagination : state.verifiedRule.verifiedRulePagination
     }
 }
 

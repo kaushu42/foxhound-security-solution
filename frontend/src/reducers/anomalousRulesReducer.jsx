@@ -15,7 +15,7 @@ import {
     TOGGLE_FLAGGED_RULE_ERROR,
     TOGGLE_FLAGGED_RULE_SUCCESS,
     CLEAN_ALL_STATE,
-    PAGINATION_UPDATE
+    ANOMALOUS_RULE_PAGINATION_UPDATE
 } from "../actionTypes/anomalousRulesActionType";
 
 const initialState = {
@@ -38,7 +38,7 @@ const initialState = {
     toggleFlaggedRuleSuccess:false,
     toggleFlaggedRuleError:false,
 
-    pagination: {}
+    anomalousRulePagination: {}
 }
 
 const anomalousRulesReducer = (state=initialState,action)=>{
@@ -145,10 +145,10 @@ const anomalousRulesReducer = (state=initialState,action)=>{
                 acceptAnomalousRuleSuccessMessage : "Anomalous Rule Verified Successfully",
                 acceptAnomalousRuleErrorMessage: "Anomalous Rule Verify Error",
             }
-        case PAGINATION_UPDATE :
+        case ANOMALOUS_RULE_PAGINATION_UPDATE :
                 return {
                     ...state,
-                    pagination: action.payload
+                    anomalousRulePagination: action.payload
                 }
         default:
             return state

@@ -3,7 +3,7 @@ import {
     VERIFIED_RULES_DATA_FETCH_COMPLETE,
     VERIFIED_RULES_DATA_FETCH_ERROR,
     VERIFIED_RULES_DATA_FETCH_SUCCESS,
-    PAGINATION_UPDATE
+    VERIFIED_RULE_PAGINATION_UPDATE
 } from "../actionTypes/verifiedRulesActionType";
 
 const initialState = {
@@ -12,7 +12,7 @@ const initialState = {
     verifiedRulesSuccess : false,
     verifiedRulesError: false,
 
-    pagination : {},
+    verifiedRulePagination : {},
 }
 
 const verifiedRulesReducer = (state=initialState,action)=>{
@@ -40,10 +40,10 @@ const verifiedRulesReducer = (state=initialState,action)=>{
                 ...state,
                 verifiedRulesLoading: false
             }
-        case PAGINATION_UPDATE :
+        case VERIFIED_RULE_PAGINATION_UPDATE :
             return {
                 ...state,
-                pagination: action.payload
+                verifiedRulePagination: action.payload
             }
         default:
             return state

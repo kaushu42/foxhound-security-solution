@@ -5,8 +5,8 @@ import {
     VERIFIED_RULES_DATA_FETCH_COMPLETE,
     VERIFIED_RULES_DATA_FETCH_ERROR,
     VERIFIED_RULES_DATA_FETCH_SUCCESS,
-    PAGINATION_UPDATE, 
-    UPDATE_PAGINATION_PAGE_COUNT,
+    VERIFIED_RULE_PAGINATION_UPDATE, 
+    VERIFIED_RULE_UPDATE_PAGINATION_PAGE_COUNT,
 } from "../actionTypes/verifiedRulesActionType";
 
 const FETCH_API  = `${ROOT_URL}rules/verified/`;
@@ -63,14 +63,14 @@ export function fetchVerifiedRulesData(auth_token, params, pagination){
 
 export function updatePagination(pagination){
     return {
-        type : PAGINATION_UPDATE,
+        type : VERIFIED_RULE_PAGINATION_UPDATE,
         payload: pagination
     }
 }
 
 export function updatePaginationPageCount(pageCount){
     return {
-        type : UPDATE_PAGINATION_PAGE_COUNT,
+        type : VERIFIED_RULE_UPDATE_PAGINATION_PAGE_COUNT,
         payload: pageCount
     }
 }
