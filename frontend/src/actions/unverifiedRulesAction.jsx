@@ -1,12 +1,12 @@
 import {axiosHeader, ROOT_URL} from "../utils";
 import axios from 'axios';
 import {
-    ACCEPT_RULE_DRAWER_OPEN,
     ACCEPT_RULE_DRAWER_TOGGLE,
     ACCEPT_UNVERFIED_RULE_BEGIN,
     ACCEPT_UNVERFIED_RULE_COMPLETE,
     ACCEPT_UNVERFIED_RULE_ERROR,
-    ACCEPT_UNVERFIED_RULE_SUCCESS, CLEAN_ALL_STATE,
+    ACCEPT_UNVERFIED_RULE_SUCCESS,
+    CLEAN_ALL_STATE,
     CLOSE_ALL_DRAWER,
     REJECT_RULE_DRAWER_TOGGLE,
     REJECT_UNVERFIED_RULE_BEGIN,
@@ -21,10 +21,12 @@ import {
     UNVERIFIED_RULES_DATA_FETCH_ERROR,
     UNVERIFIED_RULES_DATA_FETCH_SUCCESS,
     UPDATE_RULE_DRAWER_TOGGLE,
-    UPDATE_UNVERFIED_RULE_BEGIN, UPDATE_UNVERFIED_RULE_COMPLETE,
-    UPDATE_UNVERFIED_RULE_ERROR, UPDATE_UNVERFIED_RULE_SUCCESS,
-    PAGINATION_UPDATE, 
-    UPDATE_PAGINATION_PAGE_COUNT,
+    UPDATE_UNVERFIED_RULE_BEGIN,
+    UPDATE_UNVERFIED_RULE_COMPLETE,
+    UPDATE_UNVERFIED_RULE_ERROR,
+    UPDATE_UNVERFIED_RULE_SUCCESS,
+    UNVERIFIED_RULES_TABLE_UPDATE_PAGINATION_PAGE_COUNT,
+    UNVERIFIED_RULES_TABLE_PAGINATION_UPDATE,
 } from "../actionTypes/unverifiedRulesActionType";
 
 
@@ -301,8 +303,6 @@ export function rejectRule(auth_token,record){
 }
 
 
-
-
 export function fetchUnverifiedRulesData(auth_token, params, pagination){
     return(dispatch)=>{
 
@@ -327,14 +327,14 @@ export function fetchUnverifiedRulesData(auth_token, params, pagination){
 
 export function updatePagination(pagination){
     return {
-        type : PAGINATION_UPDATE,
+        type : UNVERIFIED_RULES_TABLE_PAGINATION_UPDATE,
         payload: pagination
     }
 }
 
 export function updatePaginationPageCount(pageCount){
     return {
-        type : UPDATE_PAGINATION_PAGE_COUNT,
+        type : UNVERIFIED_RULES_TABLE_UPDATE_PAGINATION_PAGE_COUNT,
         payload: pageCount
     }
 }

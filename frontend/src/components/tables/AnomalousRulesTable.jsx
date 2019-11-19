@@ -106,6 +106,7 @@ class AnomalousRulesTable extends Component {
                     : null }
                 <Spin spinning={this.props.anomalousRulesLoading}>
                 <Table
+                    id={"AnomalousTable"}
                     bordered={true}
                     rowKey={record => record.id}
                     title = {title}

@@ -82,7 +82,7 @@ class ApplicationLineChart extends Component {
         bodyFormData.set('source_zone', this.props.source_zone);
         bodyFormData.set('destination_zone', this.props.destination_zone);
 
-        axios.post(FETCH_API,null,{headers})
+        axios.post(FETCH_API,bodyFormData,{headers})
             .then(res => this.setState({data:res.data.data}));
     }
 
@@ -135,6 +135,7 @@ class ApplicationLineChart extends Component {
         this.setState({
             loading : false
         });
+        console.log('newSeriesdata',data);
 
     }
 
@@ -188,6 +189,8 @@ class ApplicationLineChart extends Component {
                                     <Option key="5">Top 5</Option>
                                     <Option key="10">Top 10</Option>
                                     <Option key="15">Top 15</Option>
+                                    <Option key="0">All</Option>
+
                                 </Select>
                                 <Select
                                     onChange={(value) => this.setState({basis:value})}

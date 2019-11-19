@@ -16,7 +16,7 @@ class VerifiedRulesTable extends Component {
                 title: 'Created Date',
                 dataIndex: 'created_date_time',
                 key: 'created_date_time',
-                render: text => Date(text),
+                render: text => text,
             },
             {
                 title: 'Source IP',

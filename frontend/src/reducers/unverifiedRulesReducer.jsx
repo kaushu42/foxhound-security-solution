@@ -20,7 +20,7 @@ import {
     UPDATE_RULE_DRAWER_TOGGLE,
     UPDATE_UNVERFIED_RULE_BEGIN, UPDATE_UNVERFIED_RULE_COMPLETE, UPDATE_UNVERFIED_RULE_ERROR,
     UPDATE_UNVERFIED_RULE_SUCCESS,
-    PAGINATION_UPDATE,
+    PAGINATION_UPDATE, UNVERIFIED_RULES_TABLE_PAGINATION_UPDATE,
 } from "../actionTypes/unverifiedRulesActionType";
 
 const initialState = {
@@ -53,7 +53,7 @@ const initialState = {
     updateUnverifiedRuleSuccessMessage : "Unknown Rule Update Successfully",
     updateUnverifiedRuleErrorMessage: "Unknown Rule Update Error",
 
-    pagination : {},
+    unverifiedRulePagination : {},
 
 }
 
@@ -221,11 +221,11 @@ const unverifiedRulesReducer = (state=initialState,action)=>{
                 updateUnverifiedRuleSuccessMessage : "Unknown Rule Update Successfully",
                 updateUnverifiedRuleErrorMessage: "Unknown Rule Update Error"
             }
-        case PAGINATION_UPDATE :
-        return {
-            ...state,
-            pagination: action.payload
-        }
+        case UNVERIFIED_RULES_TABLE_PAGINATION_UPDATE :
+            return {
+                ...state,
+                unverifiedRulePagination: action.payload
+            }
         default:
             return state
     }

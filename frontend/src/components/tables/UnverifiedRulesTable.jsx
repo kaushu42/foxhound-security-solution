@@ -24,7 +24,7 @@ class UnverifiedRulesTable extends Component {
                 title: 'Created Date',
                 dataIndex: 'created_date_time',
                 key: 'created_date_time',
-                render: text => Date(text),
+                render: text => text,
             },
             {
                 title: 'Source Address',
@@ -73,7 +73,7 @@ class UnverifiedRulesTable extends Component {
         console.log('pagination',pagination);
         console.log('filter',filters)
         console.log('sorter',sorter)
-        const pager = { ...this.props.pagination };
+        const pager = { ...this.props.unverifiedRulePagination };
         pager.current = pagination.current;
         this.props.dispatchPaginationUpdate(pager);
         this.handleFetchUnverifiedRulesData({
@@ -86,12 +86,11 @@ class UnverifiedRulesTable extends Component {
     };
 
     handleFetchUnverifiedRulesData = (params={}) => {
-        const {auth_token,pagination} = this.props;
-        this.props.dispatchFetchUnverifiedRulesData(auth_token,params,pagination);
+        const {auth_token,unverifiedRulePagination} = this.props;
+        this.props.dispatchFetchUnverifiedRulesData(auth_token,params,unverifiedRulePagination);
     }
 
     componentDidMount() {
-        // this.props.dispatchFetchUnverifiedRulesData(this.props.auth_token, params, pagination);
         this.handleFetchUnverifiedRulesData(this.state.params)
     }
 
@@ -150,7 +149,7 @@ class UnverifiedRulesTable extends Component {
                         title = {title}
                         columns={this.state.columns}
                         dataSource = {this.props.unverifiedRulesData}
-                        pagination={this.props.pagination}
+                        pagination={this.props.unverifiedRulePagination}
                         onChange={this.handleTableChange}
                     />
                 </Spin>
@@ -341,7 +340,7 @@ const mapStateToProps = state => {
         unverifiedRuleRejectDrawerLoading: state.unverifiedRule.unverifiedRuleRejectDrawerLoading,
         unverifiedRuleUpdateDrawerLoading: state.unverifiedRule.unverifiedRuleUpdateDrawerLoading,
 
-        pagination : state.unverifiedRule.pagination,
+        unverifiedRulePagination : state.unverifiedRule.unverifiedRulePagination,
     }
 }
 

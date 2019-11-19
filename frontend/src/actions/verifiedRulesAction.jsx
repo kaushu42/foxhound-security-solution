@@ -52,7 +52,7 @@ export function fetchVerifiedRulesData(auth_token, params, pagination){
                 console.log("verified rules data", response.results);
                 const page = pagination;
                 page.total  = response.count;
-                updatePagination(page);
+                dispatch(updatePagination(page));
                 dispatch(fetchVerifiedRulesDataSuccess(response.results));
                 dispatch(updatePaginationPageCount(response.count));
             })

@@ -35,14 +35,14 @@ class NavBar extends Component {
         return (
             <Fragment>
                 <Header style={{ background: '#fff', paddingLeft: '20px'   }}>
-                    <img src="assets/fox-blue.png" alt="foxhound-logo" style={{height:50,width:50,marginLeft:10,marginTop:0,marginRight:10}}/>
+                    <img src="/assets/fox-blue.png" alt="foxhound-logo" style={{height:50,width:50,marginLeft:10,marginTop:0,marginRight:10}}/>
                     <span style={{fontSize:20}}><b>Foxhound | {this.props.current_session_tenant_name}</b></span>
                     <Icon
                         style={{fontSize:20,float:"left",marginTop:20,paddingLeft:10,paddingRight:10, paddingTop:1}}
                         type={sideBarCollapsed ? 'menu-unfold' : 'menu-fold'}
                         onClick={()=>{this.props.dispatchToggleSideBar()}}
                     />
-                    <span style={{float:'right',backgroundColor:"#fcfcfc",marginRight:-35}}>&nbsp;&nbsp;&nbsp;<img src="assets/logo.png" alt="foxhound-logo" style={{height:'40px',width:'220px'}}/></span>
+                    <span style={{float:'right',backgroundColor:"#fcfcfc",marginRight:-35}}>&nbsp;&nbsp;&nbsp;<img src="/assets/logo.png" alt="foxhound-logo" style={{height:'40px',width:'220px'}}/></span>
                     <span style={{float:'right',fontSize:20}}><b>{this.props.current_session_user_full_name}</b></span>
 
                     <Dropdown overlay={accountDropdownMenu} placement={"bottomCenter"}>
