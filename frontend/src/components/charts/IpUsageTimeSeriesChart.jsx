@@ -136,12 +136,12 @@ class IpUsageTimeSeriesChart extends Component {
     });
     this.chart.update({
         title : {
-          text : `Average Daily Trend for Bytes Received of ${this.props.ip_address}`
+          text : `Time Series Chart for Bytes Received of ${this.props.ip_address}`
         },
         xAxis: {
 
             type:"string",
-            categories : bytesReceived.map(d=> d[0])
+            categories : bytesReceived.map(d=> moment(new Date(d[0])).format("MM-DD-YYYY hh:mm:ss"))
         },
         series: [
             {
