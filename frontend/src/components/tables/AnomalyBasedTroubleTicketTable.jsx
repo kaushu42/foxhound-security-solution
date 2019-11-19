@@ -34,20 +34,26 @@ class AnomalyBasedTroubleTicketTable extends Component {
                     dataIndex: 'id',
                     key: 'id',
                 },
+                // {
+                //     title: 'Created Date',
+                //     dataIndex: 'created_datetime',
+                //     key: 'created_datetime',
+                //     render: text => text,
+                // },
                 {
                     title: 'Source Address',
-                    dataIndex: 'source_ip.address',
-                    key: 'source_ip.address',
+                    dataIndex: 'source_ip',
+                    key: 'source_ip',
                 },
                 {
                     title: 'Destination Address',
-                    dataIndex: 'destination_ip.address',
-                    key: 'destination_ip.address',
+                    dataIndex: 'destination_ip',
+                    key: 'destination_ip',
                 },
                 {
                     title: 'Application',
-                    dataIndex: 'application.name',
-                    key: 'application.name',
+                    dataIndex: 'application',
+                    key: 'application',
                 },
                 {
                     title: 'Source Port',
@@ -59,21 +65,21 @@ class AnomalyBasedTroubleTicketTable extends Component {
                     dataIndex: 'destination_port',
                     key: 'destination_port',
                 },
-                {
-                    title: 'Bytes Sent',
-                    dataIndex: 'bytes_sent',
-                    key: 'bytes_sent',
-                },
-                {
-                    title: 'Bytes Received',
-                    dataIndex: 'bytes_received',
-                    key: 'bytes_received',
-                },
                 // {
-                //     title: 'Log Name',
-                //     dataIndex: 'log.log_name',
-                //     key: 'log.log_name',
+                //     title: 'Bytes Sent',
+                //     dataIndex: 'bytes_sent',
+                //     key: 'bytes_sent',
                 // },
+                // {
+                //     title: 'Bytes Received',
+                //     dataIndex: 'bytes_received',
+                //     key: 'bytes_received',
+                // },
+                {
+                    title: 'Log Name',
+                    dataIndex: 'log_name',
+                    key: 'log_name',
+                },
                 {
                     title: 'Action',
                     dataIndex: '',
@@ -241,10 +247,12 @@ class AnomalyBasedTroubleTicketTable extends Component {
 
 
     render() {
+        const title = () => <h3>Anomaly Based Trouble Tickets</h3>
         return (
             <Fragment>
                 <Table
                     columns={this.state.columns}
+                    title={title}
                     rowKey={record => record.id}
                     dataSource={this.state.data}
                     pagination={this.state.pagination}
@@ -263,30 +271,30 @@ class AnomalyBasedTroubleTicketTable extends Component {
                             <Spin tip={"loading..."} spinning={this.state.loadingFollowUp}>
                                 <Fragment>
                                     <Row type="flex" gutter={16}>
-                                        <Col xs={24} sm={12} md={12} lg={8} xl={8} style={drawerInfoStyle}>
-                                            <Statistic title="Source IP" value={this.state.record.source_ip.address} />
+                                        <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
+                                            <Statistic title="Source IP" value={this.state.record.source_ip} />
+                                        </Col>
+                                        <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
+                                            <Statistic title="Destination IP" value={this.state.record.destination_ip}/>
                                         </Col>
                                         <Col xs={24} sm={12} md={12} lg={8} xl={8} style={drawerInfoStyle}>
-                                            <Statistic title="Destination IP" value={this.state.record.destination_ip.address}/>
+                                            <Statistic title="Application" value={this.state.record.application}/>
                                         </Col>
                                         <Col xs={24} sm={12} md={12} lg={8} xl={8} style={drawerInfoStyle}>
-                                            <Statistic title="Application" value={this.state.record.application.name}/>
-                                        </Col>
-                                        <Col xs={24} sm={12} md={12} lg={6} xl={6} style={drawerInfoStyle}>
                                             <Statistic title="Source Port" value={this.state.record.source_port}/>
                                         </Col>
-                                        <Col xs={24} sm={12} md={12} lg={6} xl={6} style={drawerInfoStyle}>
+                                        <Col xs={24} sm={12} md={12} lg={8} xl={8} style={drawerInfoStyle}>
                                             <Statistic title="Destination Port" value={this.state.record.destination_port}/>
                                         </Col>
-                                        <Col xs={24} sm={12} md={12} lg={6} xl={6} style={drawerInfoStyle}>
+                                        {/* <Col xs={24} sm={12} md={12} lg={6} xl={6} style={drawerInfoStyle}>
                                             <Statistic title="Bytes Sent" value={this.state.record.bytes_sent}/>
                                         </Col>
                                         <Col xs={24} sm={12} md={12} lg={6} xl={6} style={drawerInfoStyle}>
                                             <Statistic title="Bytes Received" value={this.state.record.bytes_received}/>
-                                        </Col>
-                                        {/* <Col xs={24} sm={24} md={24} lg={24} xl={24} style={drawerInfoStyle}>
-                                            <Statistic title="Log Name" value={this.state.record.log.log_name}/>
                                         </Col> */}
+                                        <Col xs={24} sm={24} md={24} lg={24} xl={24} style={drawerInfoStyle}>
+                                            <Statistic title="Log Name" value={this.state.record.log_name}/>
+                                        </Col>
                                     </Row>
                                     <br />
 

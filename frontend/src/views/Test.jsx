@@ -6,6 +6,7 @@ import ApplicationChart from "../components/charts/ApplicationChart";
 import UnverifiedRulesTable from "../components/tables/UnverifiedRulesTable";
 import AnomalousRulesTable from "../components/tables/AnomalousRulesTable";
 import ApplicationLineChart from "../components/charts/ApplicationLineChart";
+import AnomalyBasedTroubleTicketTable from "../components/tables/AnomalyBasedTroubleTicketTable"
 
 
 
@@ -14,9 +15,10 @@ class Test extends Component {
         return (
             <Fragment>
                 {/* <ApplicationLineChart/> */}
-                <UnverifiedRulesTable/>
-                <VerifiedRulesTable/>
-                <AnomalousRulesTable/>
+                {/* // <UnverifiedRulesTable/>
+                // <VerifiedRulesTable/>
+                // <AnomalousRulesTable/> */}
+                <AnomalyBasedTroubleTicketTable/>
             </Fragment>
             )
     }

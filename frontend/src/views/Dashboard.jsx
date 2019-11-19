@@ -56,6 +56,9 @@ class Dashboard extends Component{
                     <Row style={contentLayout}>
                         <AnomalousRulesTable />
                     </Row>
+                    <Row style={contentLayout}>
+                        <AnomalyBasedTroubleTicketTable />
+                    </Row>
                 </MasterLayout>
 
             </Fragment>
