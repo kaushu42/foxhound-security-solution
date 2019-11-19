@@ -198,7 +198,7 @@ class BlacklistedIP(models.Model):
     ip_address = models.CharField(max_length=15)
 
     def __repr__(self):
-        return slef.ip_address
+        return self.ip_address
 
     def __str__(self):
         return self.__repr__()
