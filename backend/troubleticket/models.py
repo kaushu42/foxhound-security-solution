@@ -70,3 +70,12 @@ class TroubleTicketRule(TroubleTicket):
 
     def __repr__(self):
         return self.__str__()
+
+
+class TroubleTicketAnomalyTrafficLog(models.Model):
+    row_number = models.BigIntegerField()
+    log = models.ForeignKey(TrafficLog, on_delete=models.CASCADE, null=True)
+    ticket = models.ForeignKey(
+        TroubleTicketAnomaly, on_delete=models.CASCADE, null=True)
+    # log_detail = models.ForeignKey(
+    #     TrafficLogDetail, on_delete=models.CASCADE, null=True)

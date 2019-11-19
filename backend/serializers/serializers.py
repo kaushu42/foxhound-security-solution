@@ -145,3 +145,14 @@ class ProcessedLogDetailSerializer(serializers.Serializer):
     log_name = serializers.CharField()
     rows = serializers.IntegerField()
     size = serializers.IntegerField()
+
+
+class TroubleTicketAnomalyLogDetailSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    log_name = serializers.CharField()
+    created_datetime = serializers.DateTimeField()
+    source_ip = serializers.CharField()
+    destination_ip = serializers.CharField()
+    application = serializers.CharField()
+    source_port = serializers.CharField()
+    destination_port = serializers.CharField()

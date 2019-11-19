@@ -23,38 +23,55 @@ from serializers.serializers import (
     TroubleTicketAnomalySerializer,
     TroubleTicketFollowUpAnomalySerializer,
     UserNameSerializer,
-    TrafficLogDetailSerializer
+    TrafficLogDetailSerializer,
+    TroubleTicketAnomalyLogDetailSerializer
 )
 
 from globalutils.utils import get_tenant_id_from_token
 
 
 class TroubleTicketAnomalyApiView(PaginatedView):
-    serializer_class = TrafficLogDetailSerializer
+    serializer_class = TroubleTicketAnomalyLogDetailSerializer
 
     def get(self, request):
         # Get the tenant id to filter the TTs
         tenant_id = get_tenant_id_from_token(request)
 
-        # Get all the log details belonging to the tenant
-        log_details = TrafficLogDetail.objects.filter(
-            firewall_rule__tenant__id=tenant_id
-        )
+        # # Get all the log details belonging to the tenant
+        # log_details = TrafficLogDetail.objects.filter(
+        #     firewall_rule__tenant__id=tenant_id
+        # )
 
-        # Get a list of all logs which have anomaly tts
-        logs = TroubleTicketAnomaly.objects.values('log').distinct()
-        # Get the row numbers for each log
-        row_numbers = TroubleTicketAnomaly.objects.values(
-            'row_number').distinct()
+        # # # Get a list of all logs which have anomaly tts
+        # logs = TrafficLogDetail.objects.values('traffic_log').distinct()
+        # # Get the row numbers for each log
+        # row_numbers = TrafficLogDetail.objects.values(
+        #     'row_number').distinct()
 
-        # Using the log name and row_number get all the records which
-        # are anomalous
-        anomalous_logs = log_details.filter(
-            traffic_log__in=logs,
-            row_number__in=row_numbers
-        ).order_by('-id')
-        print(anomalous_logs.count())
-        page = self.paginate_queryset(anomalous_logs)
+        # # Using the log name and row_number get all the records which
+        # # are anomalous
+        # anomalous_logs = log_details.filter(
+        #     traffic_log__in=logs,
+        #     row_number__in=row_numbers
+        # ).order_by('-id')[:1000]
+        anomalous_logs = TroubleTicketAnomaly.objects.filter(
+            firewall_rule__tenant_id=tenant_id, is_closed=False)[:1000].select_related('log')
+        items = []
+        for log in anomalous_logs:
+            detail = TrafficLogDetail.objects.select_related('source_ip', 'destination_ip', 'application').get(
+                traffic_log=log.log, row_number=log.row_number)
+            item = {
+                "id": log.id,
+                "log_name": log.log.log_name,
+                "created_datetime": log.created_datetime,
+                "source_ip": detail.source_ip,
+                "destination_ip": detail.destination_ip,
+                "application": detail.application,
+                "source_port": detail.source_port,
+                "destination_port": detail.destination_port,
+            }
+            items.append(item)
+        page = self.paginate_queryset(items)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
@@ -77,7 +94,6 @@ class TroubleTicketFollowUpAnomalyApiView(PaginatedView):
             return self.get_paginated_response(serializer.data)
 
     def post(self, request, id):
-        print(id)
         try:
             tt_anomaly = TroubleTicketAnomaly.objects.get(id=id)
         except Exception as e:
