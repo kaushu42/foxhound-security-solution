@@ -33,7 +33,7 @@ class AnomalousRulesTable extends Component {
                 title: 'Destination IP',
                 dataIndex: 'destination_ip',
                 key: 'destination_ip',
-                render: text => <a>{text}</a>,
+                render: (text,record) => <a onClick={()=> this.handleShowAnomalousIpDashboardDestinationIP(record)}>{text}</a>,
             },
             {
                 title: 'Application',
@@ -97,6 +97,11 @@ class AnomalousRulesTable extends Component {
 
     handleShowAnomalousIpDashboard(record){
         this.props.dispatchAnomalousIpSearchValueUpdate(record.source_ip);
+        this.setState({quickIpView : true})
+    }
+
+    handleShowAnomalousIpDashboardDestinationIP(record){
+        this.props.dispatchAnomalousIpSearchValueUpdate(record.destination_ip);
         this.setState({quickIpView : true})
     }
 

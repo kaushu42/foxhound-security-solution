@@ -38,7 +38,7 @@ class UnverifiedRulesTable extends Component {
                 title: 'Destination Address',
                 dataIndex: 'destination_ip',
                 key: 'destination_ip',
-                render: text => <a>{text}</a>,
+                render: (text,record) => <a onClick={()=> this.handleShowUnverifiedIpDashboardDestinationIP(record)}>{text}</a>,
             },
             {
                 title: 'Application',
@@ -121,6 +121,11 @@ class UnverifiedRulesTable extends Component {
 
     handleShowUnverifiedIpDashboard(record){
         this.props.dispatchUnverifiedIpSearchValueUpdate(record.source_ip);
+        this.setState({quickIpView : true})
+    }
+
+    handleShowUnverifiedIpDashboardDestinationIP(record){
+        this.props.dispatchUnverifiedIpSearchValueUpdate(record.destination_ip);
         this.setState({quickIpView : true})
     }
 
