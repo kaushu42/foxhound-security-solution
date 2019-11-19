@@ -109,6 +109,9 @@ class ApplicationLineChart extends Component {
                     type : 'spline',
                     data : this.state.data[key]
                 }
+                tempSeries.data.sort(function(a, b) {
+                    return a[0] > b[0] ? 1 : -1;
+                });
                 dataSeries.push(tempSeries)
             });
             this.updateChart(dataSeries);

@@ -13,6 +13,8 @@ import {
     updatePagination
 } from "../../actions/unverifiedRulesAction";
 import {contentLayout, drawerInfoStyle} from "../../utils";
+import {search} from "../../actions/ipSearchAction";
+import QuickIpView from "../../views/QuickIpView";
 
 
 class UnverifiedRulesTable extends Component {
@@ -30,7 +32,7 @@ class UnverifiedRulesTable extends Component {
                 title: 'Source Address',
                 dataIndex: 'source_ip',
                 key: 'source_ip',
-                render: text => <a>{text}</a>,
+                render: (text,record) => <a onClick={()=> this.handleShowIpDashboard(record)}>{text}</a>,
             },
             {
                 title: 'Destination Address',
@@ -65,6 +67,7 @@ class UnverifiedRulesTable extends Component {
             }
         ],
         data: [],
+        quickIpView : false
 
 
     }
@@ -116,6 +119,14 @@ class UnverifiedRulesTable extends Component {
         this.props.dispatchUpdateRule(auth_token,source_ip,destination_ip,application);
     }
 
+    handleShowIpDashboard(record){
+        this.props.dispatchIpSearchValueUpdate(record.source_ip);
+        this.setState({quickIpView : true})
+    }
+
+    closeQuickIpView(){
+        this.setState({quickIpView: false})
+    }
 
     render(){
         const {selectedRecordToAccept,selectedRecordToReject,selectedRecordToUpdate} = this.props;
@@ -296,6 +307,14 @@ class UnverifiedRulesTable extends Component {
                         }
                     </Spin>
                 </Drawer>
+                <Drawer
+                    visible={this.state.quickIpView}
+                    closable={true}
+                    width={800}
+                    onClose={this.closeQuickIpView}
+                    placement={"right"}>
+                    <QuickIpView/>
+                </Drawer>
             </Fragment>
         )
     }
@@ -354,7 +373,10 @@ const mapDispatchToProps = dispatch => {
         dispatchAcceptRule : (auth_token,record) => dispatch(acceptRule(auth_token,record)),
         dispatchRejectRule : (auth_token,record) => dispatch(rejectRule(auth_token,record)),
         dispatchUpdateRule : (auth_token,source_ip,destination_ip,application) => dispatch(updateRule(auth_token,source_ip,destination_ip,application)),
-        dispatchPaginationUpdate : (pager) => dispatch(updatePagination(pager))
+        dispatchPaginationUpdate : (pager) => dispatch(updatePagination(pager)),
+
+
+        dispatchIpSearchValueUpdate : value => dispatch(search(value))
     }
 }
 

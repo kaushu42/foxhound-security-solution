@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, Fragment} from 'react';
 import Highcharts from 'highcharts/highstock';
 import HighchartsReact from 'highcharts-react-official';
 import {Card, Row, Spin} from "antd";
@@ -186,13 +186,18 @@ class BandwidthUsageChart extends Component{
 
     render() {
         return (
-            <Spin tip={"loading..."} spinning={this.state.loading}>
+            <Fragment>
+                <Card>
+                    <Spin tip={"loading..."} spinning={this.state.loading}>
                         <HighchartsReact
                             highcharts={Highcharts}
                             options={this.state.options}
                             ref={'chart'}
                         />
-            </Spin>
+                    </Spin>
+
+                </Card>
+            </Fragment>
         )
     }
 }

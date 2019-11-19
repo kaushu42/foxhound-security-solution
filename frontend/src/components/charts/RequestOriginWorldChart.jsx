@@ -159,7 +159,7 @@ class RequestOriginWorldChart extends Component {
                                 ) : null}
                             </Fragment>
 
-                    }>
+                    } className={{height:450}}>
                         <HighchartsReact
                             constructorType={"mapChart"}
                             allowChartUpdate={true}

@@ -2,3 +2,12 @@
     max-width: 100vw;
     height: 400px;
 }
+
+.row [class*="col-"]{
+    margin-bottom: -99999px;
+    padding-bottom: 99999px;
+}
+
+.row{
+    overflow: hidden;
+}

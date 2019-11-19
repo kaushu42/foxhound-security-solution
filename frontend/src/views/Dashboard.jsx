@@ -15,6 +15,8 @@ import UnverifiedRulesTable from "../components/tables/UnverifiedRulesTable";
 import VerifiedRulesTable from "../components/tables/VerifiedRulesTable";
 import ApplicationLineChart from "../components/charts/ApplicationLineChart";
 import AnomalousRulesTable from "../components/tables/AnomalousRulesTable";
+import BlacklistAddress from "../components/BlacklistAddress";
+import '../charts/chart.css';
 
 class Dashboard extends Component{
     render() {
@@ -35,14 +37,18 @@ class Dashboard extends Component{
                         <Col xs={24} sm={24} md={24} lg={24} xl={12}>
                             <RequestOriginWorldChart/>
                         </Col>
-                        <Col xs={24} sm={24} md={24} lg={24} xl={12}>
-                            <Card>
-                                <BandwidthUsageChart />
-                            </Card>
+                        <Col xs={24} sm={24} md={24} lg={24} xl={12} >
+                            <BandwidthUsageChart />
                         </Col>
                     </Row>
                     <Row style={contentLayout}>
-                        <ApplicationLineChart />
+                        <Col xs={24} sm={24} md={24} lg={24} xl={18}>
+                            <ApplicationLineChart />
+                        </Col>
+                        <Col xs={24} sm={24} md={24} lg={24} xl={6}>
+                            <BlacklistAddress />
+                        </Col>
+
                     </Row>
                     <Row style={contentLayout}>
                         <UnverifiedRulesTable />
