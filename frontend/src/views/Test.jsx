@@ -14,11 +14,11 @@ class Test extends Component {
     render() {
         return (
             <Fragment>
-                {/* <ApplicationLineChart/> */}
-                from to
+                <ApplicationLineChart/>
+                {/* from to
                 <UnverifiedRulesTable/>
                 <VerifiedRulesTable/>
-                <AnomalousRulesTable/>
+                <AnomalousRulesTable/> */}
                 {/* <AnomalyBasedTroubleTicketTable/> */}
             </Fragment>
             )

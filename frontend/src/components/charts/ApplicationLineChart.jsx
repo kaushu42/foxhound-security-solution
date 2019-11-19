@@ -5,6 +5,7 @@ import {connect} from "react-redux";
 import axios from "axios";
 import {ROOT_URL} from "../../utils";
 import Highcharts from "highcharts";
+import moment from "moment";
 const { Option } = Select;
 
 
@@ -23,6 +24,8 @@ class ApplicationLineChart extends Component {
 
         };
     }
+
+    
 
     componentDidMount = () => {
         this.handleFetchData();
@@ -107,7 +110,8 @@ class ApplicationLineChart extends Component {
                 let tempSeries = {
                     name : key,
                     type : 'spline',
-                    data : this.state.data[key]
+                    data : this.state.data[key].map(e => [((e[0]*1000)),e[1]])
+
                 }
                 tempSeries.data.sort(function(a, b) {
                     return a[0] > b[0] ? 1 : -1;
@@ -160,7 +164,14 @@ class ApplicationLineChart extends Component {
                 verticalAlign: 'bottom'
             },
             xAxis : {
-                type: 'datetime'
+                type: 'datetime',
+                dateTimeLabelFormats: {
+                    day: '%Y-%b-%d',
+                    
+                 }
+            },
+            time: {
+                timezoneOffset: -6 * 60
             },
             responsive: {
                 rules: [{
