@@ -14,6 +14,7 @@ import RequestOriginWorldChart from "../components/charts/RequestOriginWorldChar
 import UnverifiedRulesTable from "../components/tables/UnverifiedRulesTable";
 import VerifiedRulesTable from "../components/tables/VerifiedRulesTable";
 import ApplicationLineChart from "../components/charts/ApplicationLineChart";
+import AnomalousRulesTable from "../components/tables/AnomalousRulesTable";
 
 class Dashboard extends Component{
     render() {
@@ -47,7 +48,7 @@ class Dashboard extends Component{
                         <UnverifiedRulesTable />
                     </Row>
                     <Row style={contentLayout}>
-                        <VerifiedRulesTable />
+                        <AnomalousRulesTable />
                     </Row>
                 </MasterLayout>
 

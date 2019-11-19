@@ -11,7 +11,7 @@ class SideBar extends Component {
         return(
             <Fragment>
                 <Sider trigger={null} collapsible collapsed={sideBarCollapsed} collapsedWidth={0}>
-                    <img src="assets/fox-white.png" alt="foxhound-logo" style={{height:64,width:64,marginLeft:50,marginTop:5}}/>
+                    <img src="/assets/fox-white.png" alt="foxhound-logo" style={{height:64,width:64,marginLeft:50,marginTop:5}}/>
                     <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']}>
                         <Menu.Item key="dashboard">
                             <a href={"/"}>
