@@ -19,7 +19,7 @@ class AnomalousRulesTable extends Component {
                 title: 'Created Date',
                 dataIndex: 'created_date_time',
                 key: 'created_date_time',
-                render: text => Date(text),
+                render: text => text,
             },
             {
                 title: 'Source IP',
@@ -94,7 +94,7 @@ class AnomalousRulesTable extends Component {
 
     render(){
         const selectedRecordToAccept = this.props;
-        const expandedRowRender = record => <p><b>Verified Date: </b>{Date(record.verified_date_time)} <br/><b>Verified By: </b> {record.verified_by_user} </p>;
+        const expandedRowRender = record => <p><b>Verified Date: </b>{record.verified_date_time} <br/><b>Verified By: </b> {record.verified_by_user} </p>;
         const title = () => <h3>Anomalous Rules</h3>
         return(
             <Fragment>

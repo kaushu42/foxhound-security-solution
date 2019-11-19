@@ -15,8 +15,8 @@ import {
     CLOSE_MAP_CHART_LOG_DRAWER,
     OPEN_MAP_CHART_LOG_DRAWER,
     MAP_CHART_LOG_FETCH_SUCCESS, 
-    PAGINATION_UPDATE, 
-    UPDATE_PAGINATION_PAGE_COUNT, 
+    REQUEST_ORIGIN_MAP_PAGINATION_UPDATE, 
+    REQUEST_ORIGIN_MAP_UPDATE_PAGINATION_PAGE_COUNT, 
     COUNTRY_LOG_DATA_FETCH_LOADING
 } from "../actionTypes/RequestOriginChartActionType";
 
@@ -121,7 +121,7 @@ export function fetchSelectedCountryLogSuccess(response){
 
 export function updatePaginationPageCount(pageCount){
     return {
-        type : UPDATE_PAGINATION_PAGE_COUNT,
+        type : REQUEST_ORIGIN_MAP_UPDATE_PAGINATION_PAGE_COUNT,
         payload: pageCount
     }
 }
@@ -235,7 +235,7 @@ export function fetchSelectedCountryLog(auth_token,start_date,end_date,firewall_
 
 export function updatePagination(pagination){
     return {
-        type : PAGINATION_UPDATE,
+        type : REQUEST_ORIGIN_MAP_PAGINATION_UPDATE,
         payload: pagination
     }
 }
