@@ -124,7 +124,8 @@ class UnverifiedRulesTable extends Component {
         this.setState({quickIpView : true})
     }
 
-    closeQuickIpView(){
+    closeQuickIpView  = () => {
+        console.log("closing drawer for unverified log")
         this.setState({quickIpView: false})
     }
 
@@ -308,11 +309,11 @@ class UnverifiedRulesTable extends Component {
                     </Spin>
                 </Drawer>
                 <Drawer
-                    visible={this.state.quickIpView}
                     closable={true}
                     width={800}
+                    placement={"right"}
                     onClose={this.closeQuickIpView}
-                    placement={"right"}>
+                    visible={this.state.quickIpView}>
                     <QuickIpView/>
                 </Drawer>
             </Fragment>
