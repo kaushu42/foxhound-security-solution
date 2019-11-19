@@ -93,38 +93,34 @@ class FiltersApiView(APIView):
     def get(self, request, format=None):
         tenant_id = get_tenant_id_from_token(request)
         objects = TrafficLogDetail.objects.filter(
-            firewall_rule__tenant__id=tenant_id)
-        import operator
-        firewall_rule = sorted(list(
-            objects.values_list(
-                'firewall_rule',
-                'firewall_rule__name'
-            ).distinct()
-        ), key=operator.itemgetter(1))
-        application = sorted(list(
-            objects.values_list(
-                'application',
-                'application__name'
-            ).distinct()
-        ), key=operator.itemgetter(1))
-        protocol = sorted(list(
-            objects.values_list(
-                'protocol',
-                'protocol__name'
-            ).distinct()
-        ), key=operator.itemgetter(1))
-        source_zone = sorted(list(
-            objects.values_list(
-                'source_zone',
-                'source_zone__name'
-            ).distinct()
-        ), key=operator.itemgetter(1))
-        destination_zone = sorted(list(
-            objects.values_list(
-                'destination_zone',
-                'destination_zone__name'
-            ).distinct()
-        ), key=operator.itemgetter(1))
+            firewall_rule__tenant__id=tenant_id).prefetch_related(
+                'firewall_rule', 'application', 'protocol', 'source_zone', 'destination_zone'
+        )
+
+        firewall_rule = objects.values_list(
+            'firewall_rule',
+            'firewall_rule__name'
+        ).distinct().order_by('firewall_rule__name')
+
+        application = objects.values_list(
+            'application',
+            'application__name'
+        ).distinct().order_by('application__name')
+
+        protocol = objects.values_list(
+            'protocol',
+            'protocol__name'
+        ).distinct().order_by('protocol__name')
+
+        source_zone = objects.values_list(
+            'source_zone',
+            'source_zone__name'
+        ).distinct().order_by('source_zone__name')
+
+        destination_zone = objects.values_list(
+            'destination_zone',
+            'destination_zone__name'
+        ).distinct().order_by('destination_zone__name')
 
         response = {
             "firewall_rule": firewall_rule,

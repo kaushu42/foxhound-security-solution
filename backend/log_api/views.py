@@ -5,11 +5,12 @@ from rest_framework.status import (
 )
 from core.models import (
     TrafficLog, TrafficLogDetail,
-    Country
+    Country,
+    ProcessedLogDetail
 )
 from views.views import PaginatedView
 from serializers.serializers import (
-    TrafficLogSerializer,
+    ProcessedLogDetailSerializer,
     TrafficLogDetailSerializer
 )
 from globalutils.utils import (
@@ -20,11 +21,14 @@ from globalutils.utils import (
 
 
 class TrafficLogApiView(PaginatedView):
-    queryset = TrafficLog.objects.all()
-    serializer_class = TrafficLogSerializer
+    serializer_class = ProcessedLogDetailSerializer
 
     def get(self, request):
-        page = self.paginate_queryset(self.queryset)
+        tenant_id = get_tenant_id_from_token(request)
+        objects = ProcessedLogDetail.objects.filter(
+            tenant__id=tenant_id
+        )
+        page = self.paginate_queryset(objects)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
