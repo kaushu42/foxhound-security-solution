@@ -237,8 +237,8 @@ class TenantApplicationInfo(TenantInfo):
 
 
 class ProcessedLogDetail(models.Model):
-    tenant = models.ForeignKey(
-        Tenant,
+    firewall_rule = models.ForeignKey(
+        FirewallRule,
         on_delete=models.CASCADE,
         null=True
     )
@@ -251,7 +251,7 @@ class ProcessedLogDetail(models.Model):
     size = models.BigIntegerField(default=0)
 
     def __repr__(self):
-        return f'{self.tenant}-{self.n_rows}-{self.size}'
+        return f'{self.firewall_rule}-{self.n_rows}-{self.size}'
 
     def __str__(self):
         return self.__repr__()

@@ -309,18 +309,18 @@ class DBEngine(object):
         ).application.unique()
         # Write log info: size and row count
         firewall_rules = pd.read_sql_table(
-            'core_firewallrule', self._db_engine, index_col='id')
-        print(data.columns)
+            'core_firewallrule', self._db_engine)
         log_info = data[['firewall_rule_id', 'source_port']]
+        log_info = log_info.groupby('firewall_rule_id').count().reset_index()
         log_info = pd.merge(
             log_info, firewall_rules,
             left_on='firewall_rule_id', right_on='name'
-        )[['tenant_id', 'source_port']].groupby(
-            'tenant_id'
-        ).count()
+        )
+        print(log_info.columns)
+        #[['id', 'source_port']]
         for i, j in log_info.iterrows():
             processed_log_detail = ProcessedLogDetail(
-                tenant_id=int(i),
+                firewall_rule_id=int(j.id),
                 log_id=int(traffic_log_id),
                 n_rows=int(j.source_port),
                 size=int(j.source_port*SIZE_PER_LOG)

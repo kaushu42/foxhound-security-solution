@@ -2,17 +2,17 @@ import {axiosHeader, ROOT_URL} from "../utils";
 import axios from 'axios';
 import {
     ACCEPT_RULE_DRAWER_TOGGLE,
-    ACCEPT_UNVERFIED_RULE_BEGIN,
-    ACCEPT_UNVERFIED_RULE_COMPLETE,
-    ACCEPT_UNVERFIED_RULE_ERROR,
-    ACCEPT_UNVERFIED_RULE_SUCCESS,
+    ACCEPT_UNVERIFIED_RULE_BEGIN,
+    ACCEPT_UNVERIFIED_RULE_COMPLETE,
+    ACCEPT_UNVERIFIED_RULE_ERROR,
+    ACCEPT_UNVERIFIED_RULE_SUCCESS,
     CLEAN_ALL_STATE,
     CLOSE_ALL_DRAWER,
     REJECT_RULE_DRAWER_TOGGLE,
-    REJECT_UNVERFIED_RULE_BEGIN,
-    REJECT_UNVERFIED_RULE_COMPLETE,
-    REJECT_UNVERFIED_RULE_ERROR,
-    REJECT_UNVERFIED_RULE_SUCCESS,
+    REJECT_UNVERIFIED_RULE_BEGIN,
+    REJECT_UNVERIFIED_RULE_COMPLETE,
+    REJECT_UNVERIFIED_RULE_ERROR,
+    REJECT_UNVERIFIED_RULE_SUCCESS,
     RULE_SELECTED_TO_ACCEPT,
     RULE_SELECTED_TO_REJECT,
     RULE_SELECTED_TO_UPDATE,
@@ -21,10 +21,10 @@ import {
     UNVERIFIED_RULES_DATA_FETCH_ERROR,
     UNVERIFIED_RULES_DATA_FETCH_SUCCESS,
     UPDATE_RULE_DRAWER_TOGGLE,
-    UPDATE_UNVERFIED_RULE_BEGIN,
-    UPDATE_UNVERFIED_RULE_COMPLETE,
-    UPDATE_UNVERFIED_RULE_ERROR,
-    UPDATE_UNVERFIED_RULE_SUCCESS,
+    UPDATE_UNVERIFIED_RULE_BEGIN,
+    UPDATE_UNVERIFIED_RULE_COMPLETE,
+    UPDATE_UNVERIFIED_RULE_ERROR,
+    UPDATE_UNVERIFIED_RULE_SUCCESS,
     UNVERIFIED_RULES_TABLE_UPDATE_PAGINATION_PAGE_COUNT,
     UNVERIFIED_RULES_TABLE_PAGINATION_UPDATE,
 } from "../actionTypes/unverifiedRulesActionType";
@@ -113,26 +113,26 @@ export function selectRecordToUpdate(record){
 
 export function acceptRuleSuccess(){
     return {
-        type:ACCEPT_UNVERFIED_RULE_SUCCESS
+        type:ACCEPT_UNVERIFIED_RULE_SUCCESS
     }
 }
 
 export function acceptRuleBegin(){
     return {
-        type:ACCEPT_UNVERFIED_RULE_BEGIN
+        type:ACCEPT_UNVERIFIED_RULE_BEGIN
     }
 }
 
 export function acceptRuleComplete(record){
     return{
-        type:ACCEPT_UNVERFIED_RULE_COMPLETE,
+        type:ACCEPT_UNVERIFIED_RULE_COMPLETE,
         payload:record
     }
 }
 
 export function acceptRuleError(error){
     return {
-        type:ACCEPT_UNVERFIED_RULE_ERROR,
+        type:ACCEPT_UNVERIFIED_RULE_ERROR,
         payload:error
     }
 }
@@ -140,26 +140,26 @@ export function acceptRuleError(error){
 
 export function rejectRuleSuccess(){
     return {
-        type:REJECT_UNVERFIED_RULE_SUCCESS
+        type:REJECT_UNVERIFIED_RULE_SUCCESS
     }
 }
 
 export function rejectRuleBegin(){
     return {
-        type:REJECT_UNVERFIED_RULE_BEGIN
+        type:REJECT_UNVERIFIED_RULE_BEGIN
     }
 }
 
 export function rejectRuleComplete(record){
     return{
-        type:REJECT_UNVERFIED_RULE_COMPLETE,
+        type:REJECT_UNVERIFIED_RULE_COMPLETE,
         payload:record
     }
 }
 
 export function rejectRuleError(error){
     return {
-        type:REJECT_UNVERFIED_RULE_ERROR,
+        type:REJECT_UNVERIFIED_RULE_ERROR,
         payload:error
     }
 }
@@ -168,26 +168,26 @@ export function rejectRuleError(error){
 
 export function updateRuleSuccess(){
     return {
-        type:UPDATE_UNVERFIED_RULE_SUCCESS
+        type:UPDATE_UNVERIFIED_RULE_SUCCESS
     }
 }
 
 export function updateRuleBegin(){
     return {
-        type:UPDATE_UNVERFIED_RULE_BEGIN
+        type:UPDATE_UNVERIFIED_RULE_BEGIN
     }
 }
 
 export function updateRuleComplete(record){
     return{
-        type:UPDATE_UNVERFIED_RULE_COMPLETE,
+        type:UPDATE_UNVERIFIED_RULE_COMPLETE,
         payload:record
     }
 }
 
 export function updateRuleError(error){
     return {
-        type:UPDATE_UNVERFIED_RULE_ERROR,
+        type:UPDATE_UNVERIFIED_RULE_ERROR,
         payload:error
     }
 }

@@ -1,15 +1,15 @@
 import {
     ACCEPT_RULE_DRAWER_TOGGLE,
-    ACCEPT_UNVERFIED_RULE_BEGIN,
-    ACCEPT_UNVERFIED_RULE_COMPLETE,
-    ACCEPT_UNVERFIED_RULE_ERROR,
-    ACCEPT_UNVERFIED_RULE_SUCCESS, CLEAN_ALL_STATE,
+    ACCEPT_UNVERIFIED_RULE_BEGIN,
+    ACCEPT_UNVERIFIED_RULE_COMPLETE,
+    ACCEPT_UNVERIFIED_RULE_ERROR,
+    ACCEPT_UNVERIFIED_RULE_SUCCESS, CLEAN_ALL_STATE,
     CLOSE_ALL_DRAWER,
     REJECT_RULE_DRAWER_TOGGLE,
-    REJECT_UNVERFIED_RULE_BEGIN,
-    REJECT_UNVERFIED_RULE_COMPLETE,
-    REJECT_UNVERFIED_RULE_ERROR,
-    REJECT_UNVERFIED_RULE_SUCCESS,
+    REJECT_UNVERIFIED_RULE_BEGIN,
+    REJECT_UNVERIFIED_RULE_COMPLETE,
+    REJECT_UNVERIFIED_RULE_ERROR,
+    REJECT_UNVERIFIED_RULE_SUCCESS,
     RULE_SELECTED_TO_ACCEPT,
     RULE_SELECTED_TO_REJECT,
     RULE_SELECTED_TO_UPDATE,
@@ -18,8 +18,8 @@ import {
     UNVERIFIED_RULES_DATA_FETCH_ERROR,
     UNVERIFIED_RULES_DATA_FETCH_SUCCESS,
     UPDATE_RULE_DRAWER_TOGGLE,
-    UPDATE_UNVERFIED_RULE_BEGIN, UPDATE_UNVERFIED_RULE_COMPLETE, UPDATE_UNVERFIED_RULE_ERROR,
-    UPDATE_UNVERFIED_RULE_SUCCESS,
+    UPDATE_UNVERIFIED_RULE_BEGIN, UPDATE_UNVERIFIED_RULE_COMPLETE, UPDATE_UNVERIFIED_RULE_ERROR,
+    UPDATE_UNVERIFIED_RULE_SUCCESS,
     PAGINATION_UPDATE, UNVERIFIED_RULES_TABLE_PAGINATION_UPDATE,
 } from "../actionTypes/unverifiedRulesActionType";
 
@@ -119,25 +119,25 @@ const unverifiedRulesReducer = (state=initialState,action)=>{
                 ...state,
                 selectedRecordToUpdate : action.payload
             }
-        case ACCEPT_UNVERFIED_RULE_BEGIN:
+        case ACCEPT_UNVERIFIED_RULE_BEGIN:
             return {
                 ...state,
                 acceptUnverifiedRuleLoading : true
             }
-        case ACCEPT_UNVERFIED_RULE_SUCCESS:
+        case ACCEPT_UNVERIFIED_RULE_SUCCESS:
             return{
                 ...state,
                 acceptUnverifiedRuleSuccess: true,
                 acceptUnverifiedRuleError: false
             }
-        case ACCEPT_UNVERFIED_RULE_ERROR :
+        case ACCEPT_UNVERIFIED_RULE_ERROR :
             return {
                 ...state,
                 acceptUnverifiedRuleError: true,
                 acceptUnverifiedRuleSuccess: false,
                 acceptUnverifiedRuleLoading: false
             }
-        case ACCEPT_UNVERFIED_RULE_COMPLETE:
+        case ACCEPT_UNVERIFIED_RULE_COMPLETE:
             return{
                 ...state,
                 unverifiedRulesData: state.unverifiedRulesData.filter(function(value, index, arr){
@@ -146,25 +146,25 @@ const unverifiedRulesReducer = (state=initialState,action)=>{
                 selectedRecordToAccept:null,
                 acceptUnverifiedRuleLoading: false
             }
-        case REJECT_UNVERFIED_RULE_BEGIN:
+        case REJECT_UNVERIFIED_RULE_BEGIN:
             return {
                 ...state,
                 rejectUnverifiedRuleLoading : true
             }
-        case REJECT_UNVERFIED_RULE_SUCCESS:
+        case REJECT_UNVERIFIED_RULE_SUCCESS:
             return{
                 ...state,
                 rejectUnverifiedRuleSuccess: true,
                 rejectUnverifiedRuleError: false
             }
-        case REJECT_UNVERFIED_RULE_ERROR :
+        case REJECT_UNVERIFIED_RULE_ERROR :
             return {
                 ...state,
                 rejectUnverifiedRuleError: true,
                 rejectUnverifiedRuleSuccess: false,
                 rejectUnverifiedRuleLoading: false
             }
-        case REJECT_UNVERFIED_RULE_COMPLETE:
+        case REJECT_UNVERIFIED_RULE_COMPLETE:
             return{
                 ...state,
                 unverifiedRulesData: state.unverifiedRulesData.filter(function(value, index, arr){
@@ -173,25 +173,25 @@ const unverifiedRulesReducer = (state=initialState,action)=>{
                 selectedRecordToReject:null,
                 rejectUnverifiedRuleLoading: false
             }
-        case UPDATE_UNVERFIED_RULE_BEGIN:
+        case UPDATE_UNVERIFIED_RULE_BEGIN:
             return {
                 ...state,
                 updateUnverifiedRuleLoading : true
             }
-        case UPDATE_UNVERFIED_RULE_SUCCESS:
+        case UPDATE_UNVERIFIED_RULE_SUCCESS:
             return{
                 ...state,
                 updateUnverifiedRuleSuccess: true,
                 updateUnverifiedRuleError: false
             }
-        case UPDATE_UNVERFIED_RULE_ERROR :
+        case UPDATE_UNVERIFIED_RULE_ERROR :
             return {
                 ...state,
                 updateUnverifiedRuleError: true,
                 updateUnverifiedRuleSuccess: false,
                 updateUnverifiedRuleLoading: false
             }
-        case UPDATE_UNVERFIED_RULE_COMPLETE:
+        case UPDATE_UNVERIFIED_RULE_COMPLETE:
             return{
                 ...state,
                 selectedRecordToUpdate:null,

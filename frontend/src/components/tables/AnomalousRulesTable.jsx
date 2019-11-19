@@ -19,7 +19,7 @@ class AnomalousRulesTable extends Component {
                 title: 'Created Date',
                 dataIndex: 'created_date_time',
                 key: 'created_date_time',
-                render: text => Date(text),
+                render: text => text,
             },
             {
                 title: 'Source IP',
@@ -45,17 +45,17 @@ class AnomalousRulesTable extends Component {
                 key: 'name',
                 render: text => <a>{text}</a>,
             },
-            {
-                title : 'Actions',
-                dataIndex: 'actions',
-                render : (text,record) => {
-                    return (
-                        <Fragment>
-                            <a onClick={() => this.props.handleAnomalousRuleAccept(this.props.auth_token,record)}><Icon type="check-circle" theme="filled" />&nbsp;&nbsp;</a>
-                        </Fragment>
-                    )
-                }
-            }
+            // {
+            //     title : 'Actions',
+            //     dataIndex: 'actions',
+            //     render : (text,record) => {
+            //         return (
+            //             <Fragment>
+            //                 <a onClick={() => this.props.handleAnomalousRuleAccept(this.props.auth_token,record)}><Icon type="check-circle" theme="filled" />&nbsp;&nbsp;</a>
+            //             </Fragment>
+            //         )
+            //     }
+            // }
         ],
         data: []
     }
@@ -64,7 +64,7 @@ class AnomalousRulesTable extends Component {
         console.log('pagination',pagination);
         console.log('filter',filters)
         console.log('sorter',sorter)
-        const pager = { ...this.props.pagination };
+        const pager = { ...this.props.anomalousRulePagination };
         pager.current = pagination.current;
         this.props.dispatchPaginationUpdate(pager);
         this.handleFetchAnomalousRulesData({
@@ -77,8 +77,8 @@ class AnomalousRulesTable extends Component {
     };
 
     handleFetchAnomalousRulesData = (params={}) => {
-        const {auth_token,pagination} = this.props;
-        this.props.dispatchFetchAnomalousRulesData(auth_token,params,pagination);
+        const {auth_token,anomalousRulePagination} = this.props;
+        this.props.dispatchFetchAnomalousRulesData(auth_token,params,anomalousRulePagination);
     }
 
     componentDidMount() {
@@ -94,7 +94,7 @@ class AnomalousRulesTable extends Component {
 
     render(){
         const selectedRecordToAccept = this.props;
-        const expandedRowRender = record => <p><b>Verified Date: </b>{Date(record.verified_date_time)} <br/><b>Verified By: </b> {record.verified_by_user} </p>;
+        const expandedRowRender = record => <p><b>Verified Date: </b>{record.verified_date_time} <br/><b>Verified By: </b> {record.verified_by_user} </p>;
         const title = () => <h3>Anomalous Rules</h3>
         return(
             <Fragment>
@@ -113,7 +113,7 @@ class AnomalousRulesTable extends Component {
                     expandedRowRender={expandedRowRender}
                     columns={this.state.columns}
                     dataSource = {this.props.anomalousRulesData}
-                    pagination={this.props.pagination}
+                    pagination={this.props.anomalousRulePagination}
                     onChange={this.handleTableChange}
                 />
                 </Spin>
@@ -186,7 +186,7 @@ const mapStateToProps = state => {
 
         anomalousRuleAcceptDrawerLoading: state.anomalousRule.anomalousRuleAcceptDrawerLoading,
 
-        pagination : state.anomalousRule.pagination
+        anomalousRulePagination : state.anomalousRule.anomalousRulePagination
     }
 }
 

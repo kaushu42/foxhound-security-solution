@@ -71,7 +71,7 @@ class RequestOriginWorldChart extends Component {
         console.log('pagination',pagination);
         console.log('filter',filters)
         console.log('sorter',sorter)
-        const pager = { ...this.props.pagination };
+        const pager = { ...this.props.requestOriginMapPagination };
         pager.current = pagination.current;
         this.props.dispatchPaginationUpdate(pager);
         this.handlefetchSelectedCountryLog({
@@ -84,8 +84,8 @@ class RequestOriginWorldChart extends Component {
     };
   
     handlefetchSelectedCountryLog = (params={}) => {
-        const {auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,pagination,mapChartSelectedCountryCode} = this.props;
-        this.props.dispatchFetchSelectedCountryLog(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,params,pagination,mapChartSelectedCountryCode);
+        const {auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,requestOriginMapPagination,mapChartSelectedCountryCode} = this.props;
+        this.props.dispatchFetchSelectedCountryLog(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,params,requestOriginMapPagination,mapChartSelectedCountryCode);
     }
 
     componentDidMount = async () => {
@@ -105,8 +105,8 @@ class RequestOriginWorldChart extends Component {
     }
 
     handleMapChartLogView(e){
-        const {auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,pagination} = this.props;
-        this.props.dispatchCountrySelectedInMapChart(e,auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,{},pagination);
+        const {auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,requestOriginMapPagination} = this.props;
+        this.props.dispatchCountrySelectedInMapChart(e,auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,{},requestOriginMapPagination);
     }
 
     render() {
@@ -182,7 +182,7 @@ class RequestOriginWorldChart extends Component {
                             rowKey={record => record.id}
                             dataSource={mapSelectedCountryLogData}
                             loading={this.props.countryLogDataLoading}
-                            pagination={this.props.pagination}
+                            pagination={this.props.requestOriginMapPagination}
                             onChange={this.handleTableChange}
                         />
                     </Spin>
@@ -208,7 +208,7 @@ const mapStateToProps = state => {
         mapChartSelectedCountryName :state.requestOriginChart.mapChartSelectedCountryName,
         mapSelectedCountryLogData : state.requestOriginChart.mapSelectedCountryLogData,
         mapChartLogDrawerVisible: state.requestOriginChart.mapChartLogDrawerVisible,
-        pagination : state.requestOriginChart.pagination,
+        requestOriginMapPagination : state.requestOriginChart.requestOriginMapPagination,
 
         date_range : state.filter.date_range,
         firewall_rule : state.filter.firewall_rule,
