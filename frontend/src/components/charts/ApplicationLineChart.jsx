@@ -111,11 +111,10 @@ class ApplicationLineChart extends Component {
                     name : key,
                     type : 'spline',
                     data : this.state.data[key].map(e => [((e[0]*1000)),e[1]/1024/1024])
-
                 }
-                tempSeries.data.sort(function(a, b) {
-                    return a[0] > b[0] ? 1 : -1;
-                });
+                // tempSeries.data.sort(function(a, b) {
+                //     return a[0] > b[0] ? 1 : -1;
+                // });
                 dataSeries.push(tempSeries)
             });
             this.updateChart(dataSeries);
@@ -167,8 +166,7 @@ class ApplicationLineChart extends Component {
                 type: 'datetime',
                 dateTimeLabelFormats: {
                     day: '%Y-%b-%d',
-                    
-                 }
+                }
             },
             time: {
                 timezoneOffset: -6 * 60

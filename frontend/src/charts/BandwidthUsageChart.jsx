@@ -31,17 +31,25 @@ class BandwidthUsageChart extends Component{
                                 e.yAxis[0].value
                             );
                         },
-
                     }
                 },
-                xAxis:{
-                    tickInterval : 5,
-                    labels :{
-                        formatter: function () {
-                            return this.value;
-                        }
-                    }
+                // xAxis:{
+                //     tickInterval : 5,
+                //     labels :{
+                //         formatter: function () {
+                //             return this.value;
+                //         }
+                //     }
 
+                // },
+                xAxis : {
+                    type: 'datetime',
+                    dateTimeLabelFormats: {
+                        day: '%Y-%b-%d',
+                    }
+                },
+                time: {
+                    timezoneOffset: -6 * 60
                 },
                 yAxis:{
                     labels :{
@@ -149,31 +157,35 @@ class BandwidthUsageChart extends Component{
             this.handleFetchData();
         }
         if(prevState.data!==this.state.data){
-            this.updateChart();
+            let dataSeries = [];
+            let tempSeries = this.state.data["bytes_sent"].map(e => [((e[0]*1000)),e[1]/1024/1024])
+            dataSeries.push(tempSeries)
+            console.log("Bandwidth chart dataseries", dataSeries)
+            this.updateChart(tempSeries);
         }
     }
 
 
-    updateChart = () => {
-        let data = this.state.data.bytes_received;
-        console.log(typeof(data));
+    updateChart = (data) => {
+        // let data = this.state.data.bytes_received;
+        console.log("Bandwidth chart data", data)
         if (data!=undefined){
             data = data.map(e => [new Date(e[0]),e[1]/1024/1024]);
-            data.sort(function(a, b) {
-                return a[0] > b[0] ? 1 : -1;
-            });
+            // data.sort(function(a, b) {
+            //     return a[0] > b[0] ? 1 : -1;
+            // });
             console.log('final data',data);
             this.chart.update({
-                xAxis : {
-                    type:'datetime',
-                    categories : data.map(e => moment(new Date(e[0])).format("MM/DD/YYYY hh:mm"))
-                },
+                // xAxis : {
+                //     type:'datetime',
+                //     categories : data.map(e => moment(new Date(e[0])).format("MM/DD/YYYY hh:mm"))
+                // },
                 series: [
                     {
                         id: 'bytes',
                         type: 'spline',
                         name : 'Bytes Received(MB)',
-                        data: data.map(e => e[1])
+                        data: data
                     }
                 ]
             });

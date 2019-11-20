@@ -7,19 +7,20 @@ import UnverifiedRulesTable from "../components/tables/UnverifiedRulesTable";
 import AnomalousRulesTable from "../components/tables/AnomalousRulesTable";
 import ApplicationLineChart from "../components/charts/ApplicationLineChart";
 import AnomalyBasedTroubleTicketTable from "../components/tables/AnomalyBasedTroubleTicketTable"
-
+import BandwidthUsageChart from "../charts/BandwidthUsageChart";
 
 
 class Test extends Component {
     render() {
         return (
             <Fragment>
-                <ApplicationLineChart/>
+                {/* <ApplicationLineChart/> */}
                 {/* from to
                 <UnverifiedRulesTable/>
                 <VerifiedRulesTable/>
                 <AnomalousRulesTable/> */}
                 {/* <AnomalyBasedTroubleTicketTable/> */}
+                <BandwidthUsageChart/>
             </Fragment>
             )
     }
