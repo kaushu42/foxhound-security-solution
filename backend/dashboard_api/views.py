@@ -148,7 +148,7 @@ class UsageApiView(APIView):
                     firewall_rule__tenant__id=tenant_id
                 ),
                 'logged_datetime',
-                'minute',
+                'hour',
                 ['bytes_sent', 'bytes_received']
             )
         else:
@@ -157,7 +157,7 @@ class UsageApiView(APIView):
             objects = groupby_date(
                 objects,
                 'logged_datetime',
-                'minute',
+                'hour',
                 ['bytes_sent', 'bytes_received']
             )
         bytes_sent, bytes_received = get_usage(objects)
