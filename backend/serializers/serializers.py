@@ -147,6 +147,8 @@ class ProcessedLogDetailSerializer(serializers.Serializer):
     log_name = serializers.CharField()
     rows = serializers.IntegerField()
     size = serializers.IntegerField()
+    processed_date = serializers.DateField()
+    log_date = serializers.DateField()
 
 
 class TroubleTicketAnomalyLogDetailSerializer(serializers.Serializer):

@@ -31,9 +31,10 @@ class TrafficLogApiView(PaginatedView):
         ).values('log__log_name').annotate(
             size=Sum('size'),
             rows=Sum('n_rows'),
-            log_name=F('log__log_name')
-        ).values('size', 'rows', 'log_name')
-
+            log_name=F('log__log_name'),
+            processed_date=F('log__processed_datetime'),
+            log_date=F('log__log_date')
+        ).values('size', 'rows', 'log_name', 'processed_date', 'log_date').order_by('-id')
         page = self.paginate_queryset(objects)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
