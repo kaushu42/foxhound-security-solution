@@ -112,7 +112,7 @@ class AnomalousRulesTable extends Component {
 
     render(){
         const selectedRecordToAccept = this.props;
-        const expandedRowRender = record => <p><b>Flagged Date: </b>{moment(record.verified_date_time).format("YYYY-MM-DD, HH:MM:SS")} <br/><b>Flagged By: </b> {record.verified_by_user} </p>;
+        const expandedRowRender = record => <p><b>Flagged Date: </b>{moment(record.verified_date_time).format("YYYY-MM-DD, HH:MM:SS")} <br/><b>Flagged By: </b> {record.verified_by_user.username} </p>;
         const title = () => <h3>Anomalous Rules</h3>
         return(
             <Fragment>

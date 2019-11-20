@@ -73,7 +73,7 @@ class VerifiedRulesTable extends Component {
     }
 
     render(){
-        const expandedRowRender = record => <p><b>Verified Date: </b>{moment(record.verified_date_time).format("YYYY-MM-DD, HH:MM:SS")} <br/><b>Verified By: </b> {record.verified_by_user} </p>;
+        const expandedRowRender = record => <p><b>Verified Date: </b>{moment(record.verified_date_time).format("YYYY-MM-DD, HH:MM:SS")} <br/><b>Verified By: </b> {record.verified_by_user.username} </p>;
         const title = () => <h3>Verified Rules</h3>
         return(
             <Fragment>
