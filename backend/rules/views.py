@@ -102,6 +102,7 @@ def verify_rule(request, id):
         }, status=HTTP_400_BAD_REQUEST)
     rule.is_verified_rule = True
     rule.is_anomalous_rule = False
+    rule.verified_by_user = get_user_from_token(request)
     rule.save()
     return Response({
         "status": "Rule verified"
@@ -118,6 +119,7 @@ def flag_rule(request, id):
             "error": "Bad id"
         }, status=HTTP_400_BAD_REQUEST)
     rule.is_anomalous_rule = True
+    rule.verified_by_user = get_user_from_token(request)
     rule.save()
     return Response({
         "status": "Rule marked as an anomaly"
