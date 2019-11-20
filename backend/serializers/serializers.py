@@ -130,6 +130,8 @@ class VirtualSystemSerializer(serializers.ModelSerializer):
 
 
 class RuleSerializer(serializers.ModelSerializer):
+    verified_by_user = UserSerializer()
+
     class Meta:
         model = Rule
         fields = '__all__'
