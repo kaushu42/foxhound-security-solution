@@ -10,6 +10,7 @@ import {
 
 
 export const updateDateRangePickerFilter = (value) => {
+    console.log("date range values", value)
     return {
         type: DATE_RANGE_PICKER_FILTER_UPDATED,
         payload : {

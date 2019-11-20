@@ -91,15 +91,25 @@ class RequestOriginWorldChart extends Component {
     componentDidMount = async () => {
         this.chart = this.refs.chart.chart;
         this.chart.component = this;
-        const {auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,dispatchFetchRequestOriginMapData,excludeCountries,dispatchFetchCountryListData} = this.props;
-        dispatchFetchRequestOriginMapData(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries);
-        dispatchFetchCountryListData(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries);
+        const {auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,dispatchFetchRequestOriginMapData,excludeCountries,ip_address,dispatchFetchCountryListData} = this.props;
+        dispatchFetchRequestOriginMapData(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,ip_address);
+        dispatchFetchCountryListData(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,ip_address);
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        const {auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,dispatchFetchRequestOriginMapData,excludeCountries} = this.props;
-        if(prevProps.excludeCountries!=this.props.excludeCountries){
-            dispatchFetchRequestOriginMapData(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries);
+        const {auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,dispatchFetchRequestOriginMapData,excludeCountries,ip_address} = this.props;
+        if(
+            prevProps.excludeCountries!=this.props.excludeCountries ||
+            (String(prevProps.ip_address)!==String(this.props.ip_address)) ||
+            (String(prevProps.start_date)!==String(this.props.start_date)) ||
+            (String(prevProps.end_date)!==String(this.props.end_date)) ||
+            (String(prevProps.firewall_rule)!==String(this.props.firewall_rule)) ||
+            (String(prevProps.application)!==String(this.props.application)) ||
+            (String(prevProps.protocol)!==String(this.props.protocol)) ||
+            (String(prevProps.source_zone)!==String(this.props.source_zone)) ||
+            (String(prevProps.destination_zone)!==String(this.props.destination_zone))
+            ){
+            dispatchFetchRequestOriginMapData(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries, ip_address);
 
         }
     }
@@ -210,18 +220,20 @@ const mapStateToProps = state => {
         mapChartLogDrawerVisible: state.requestOriginChart.mapChartLogDrawerVisible,
         requestOriginMapPagination : state.requestOriginChart.requestOriginMapPagination,
 
-        date_range : state.filter.date_range,
+        start_date : state.filter.date_range[0],
+        end_date : state.filter.date_range[1],
         firewall_rule : state.filter.firewall_rule,
         application : state.filter.application,
         protocol : state.filter.protocol,
         source_zone : state.filter.source_zone,
         destination_zone : state.filter.destination_zone,
+        ip_address : state.filter.ip_address
     }
 }
 const mapDispatchToProps = dispatch => {
     return {
-        dispatchFetchRequestOriginMapData : (auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries) => dispatch(fetchRequestOriginMapData(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries)),
-        dispatchFetchCountryListData : (auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries) => dispatch(fetchCountryListData(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries)),
+        dispatchFetchRequestOriginMapData : (auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries, ip_address) => dispatch(fetchRequestOriginMapData(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries, ip_address)),
+        dispatchFetchCountryListData : (auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries,ip_address) => dispatch(fetchCountryListData(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries,ip_address)),
         dispatchUpdateMapAfterCountryExcluding : (exclude_countries) => dispatch(updateMapAfterExcludingCountries(exclude_countries)),
         dispatchCountrySelectedInMapChart : (event,auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries,params,pagination) => dispatch(countrySelectedInMapChart(event,auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries,params,pagination)),
         dispatchCloseMapChartLogDrawer : () => dispatch(closeMapChartLogDrawer()),
