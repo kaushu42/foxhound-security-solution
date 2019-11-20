@@ -15,6 +15,7 @@ import {
 import {contentLayout, drawerInfoStyle} from "../../utils";
 import {search} from "../../actions/ipSearchAction";
 import QuickIpView from "../../views/QuickIpView";
+import moment from "moment";
 
 
 class UnverifiedRulesTable extends Component {
@@ -26,7 +27,7 @@ class UnverifiedRulesTable extends Component {
                 title: 'Created Date',
                 dataIndex: 'created_date_time',
                 key: 'created_date_time',
-                render: text => text,
+                render: text => moment(text).format("YYYY-MM-DD, HH:MM:SS"),
             },
             {
                 title: 'Source Address',

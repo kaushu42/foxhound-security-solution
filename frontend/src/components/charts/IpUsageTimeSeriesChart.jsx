@@ -22,15 +22,6 @@ class IpUsageTimeSeriesChart extends Component {
           },
           chart :{
             zoomType : 'x',
-            // events :{
-            //   click: function(e) {
-            //     console.log(
-            //         Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', e.xAxis[0].value),
-            //         e.yAxis[0].value
-            //     )
-            //   },
-
-            // }
           },
           xAxis : {
               type: 'datetime',
