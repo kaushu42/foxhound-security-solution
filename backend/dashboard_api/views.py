@@ -48,6 +48,9 @@ class StatsApiView(APIView):
     def get(self, request, format=None):
         tenant_id = get_tenant_id_from_token(request)
         query = get_query_from_request(request)
+        filters = get_filters(request)
+        start_date = filters.get('start_date', None)
+        end_date = filters.get('end_date', None)
         objects = get_objects_from_query(query).filter(
             firewall_rule__tenant__id=tenant_id)
         uplink = objects.aggregate(
@@ -66,9 +69,7 @@ class StatsApiView(APIView):
         destination_ips = objects.values('destination_ip__address').distinct()
         ips = TenantIPAddressInfo.objects.filter(
             firewall_rule__tenant_id=tenant_id)
-        filters = get_filters(request)
-        start_date = filters.get('start_date', None)
-        end_date = filters.get('end_date', None)
+
         if start_date:
             ips = ips.filter(created_date__gte=start_date,
                              created_date__lte=end_date)
@@ -213,7 +214,11 @@ class WorldMapApiView(APIView):
         )
         objects = objects[:]
         objects = pd.DataFrame(objects)
-        objects.columns = ['ip_address_id', 'count']
+        try:
+            objects.columns = ['ip_address_id', 'count']
+        except Exception as e:
+            print(e)
+            return Response({'data': []})
         countries = pd.read_sql('core_country', db_engine, index_col='id')
         data = objects.merge(countries, on='ip_address_id', how='inner')[
             ['iso_code', 'count']]
