@@ -79,7 +79,7 @@ def get_usage(queryset):
     bytes_received = []
     for obj in queryset:
         # Correction for time
-        time = obj['date']
+        time = obj['date'].timestamp()
         bytes_sent.append([time, obj['bytes_sent']])
         bytes_received.append([time, obj['bytes_received']])
 
