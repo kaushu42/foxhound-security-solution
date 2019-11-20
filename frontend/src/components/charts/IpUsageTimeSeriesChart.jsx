@@ -139,15 +139,18 @@ class IpUsageTimeSeriesChart extends Component {
           text : `Time Series Chart for Bytes Received of ${this.props.ip_address}`
         },
         xAxis: {
+          type: 'datetime',
+          dateTimeLabelFormats: {
+              day: '%Y-%b-%d',
 
-            type:"string",
-            categories : bytesReceived.map(d=> moment(new Date(d[0])).format("MM-DD-YYYY hh:mm:ss"))
+          },
+            //categories : bytesReceived.map(d=> moment(new Date(d[0])).format("MM-DD-YYYY hh:mm:ss"))
         },
         series: [
             {
                 name : 'Bytes Received',
                 type : 'spline',
-                data : bytesReceived.map(d=> d[1]/1024/1024)
+                data : bytesReceived.map(e => [((e[0]*1000)),e[1]/1024/1024])
             }
         ]
     })
