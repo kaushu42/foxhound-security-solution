@@ -33,15 +33,6 @@ class BandwidthUsageChart extends Component{
                         },
                     }
                 },
-                // xAxis:{
-                //     tickInterval : 5,
-                //     labels :{
-                //         formatter: function () {
-                //             return this.value;
-                //         }
-                //     }
-
-                // },
                 xAxis : {
                     type: 'datetime',
                     dateTimeLabelFormats: {
@@ -157,29 +148,17 @@ class BandwidthUsageChart extends Component{
             this.handleFetchData();
         }
         if(prevState.data!==this.state.data){
-            let dataSeries = [];
-            let tempSeries = this.state.data["bytes_sent"].map(e => [((e[0]*1000)),e[1]/1024/1024])
-            dataSeries.push(tempSeries)
+            let dataSeries = this.state.data["bytes_sent"].map(e => [((e[0]*1000)),e[1]/1024/1024])
             console.log("Bandwidth chart dataseries", dataSeries)
-            this.updateChart(tempSeries);
+            this.updateChart(dataSeries);
         }
     }
 
 
     updateChart = (data) => {
-        // let data = this.state.data.bytes_received;
-        console.log("Bandwidth chart data", data)
         if (data!=undefined){
-            data = data.map(e => [new Date(e[0]),e[1]/1024/1024]);
-            // data.sort(function(a, b) {
-            //     return a[0] > b[0] ? 1 : -1;
-            // });
             console.log('final data',data);
             this.chart.update({
-                // xAxis : {
-                //     type:'datetime',
-                //     categories : data.map(e => moment(new Date(e[0])).format("MM/DD/YYYY hh:mm"))
-                // },
                 series: [
                     {
                         id: 'bytes',

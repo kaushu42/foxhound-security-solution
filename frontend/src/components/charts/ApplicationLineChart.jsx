@@ -147,6 +147,9 @@ class ApplicationLineChart extends Component {
 
     render(){
         const options = {
+            chart :{
+                zoomType : 'x',
+              },
 
             title: {
                 text: 'Applications Used'

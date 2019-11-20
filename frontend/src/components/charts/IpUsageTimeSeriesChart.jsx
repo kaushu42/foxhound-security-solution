@@ -22,15 +22,21 @@ class IpUsageTimeSeriesChart extends Component {
           },
           chart :{
             zoomType : 'x',
-            events :{
-              click: function(e) {
-                console.log(
-                    Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', e.xAxis[0].value),
-                    e.yAxis[0].value
-                )
-              },
+            // events :{
+            //   click: function(e) {
+            //     console.log(
+            //         Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', e.xAxis[0].value),
+            //         e.yAxis[0].value
+            //     )
+            //   },
 
-            }
+            // }
+          },
+          xAxis : {
+              type: 'datetime',
+              dateTimeLabelFormats: {
+                  day: '%Y-%b-%d',
+              }
           },
           yAxis:{
             labels :{
@@ -116,10 +122,12 @@ class IpUsageTimeSeriesChart extends Component {
       this.handleFetchData();
     }
     if(prevState.data!==this.state.data){
-      this.updateChart();
+        let dataSeries = this.state.data["bytes_sent"].map(e => [((e[0]*1000)),e[1]/1024/1024])
+        console.log("Bandwidth chart dataseries", dataSeries)
+        this.updateChart(dataSeries);
     }
   }
-  updateChart = () => {
+  updateChart = (data) => {
     let bytesReceived = this.state.data.bytes_received;
     if (bytesReceived.length == 0){
       Highcharts.setOptions({
@@ -138,16 +146,11 @@ class IpUsageTimeSeriesChart extends Component {
         title : {
           text : `Time Series Chart for Bytes Received of ${this.props.ip_address}`
         },
-        xAxis: {
-
-            type:"string",
-            categories : bytesReceived.map(d=> moment(new Date(d[0])).format("MM-DD-YYYY hh:mm:ss"))
-        },
         series: [
             {
                 name : 'Bytes Received',
                 type : 'spline',
-                data : bytesReceived.map(d=> d[1]/1024/1024)
+                data : data
             }
         ]
     })
