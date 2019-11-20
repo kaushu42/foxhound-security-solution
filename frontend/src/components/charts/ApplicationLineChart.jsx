@@ -110,7 +110,7 @@ class ApplicationLineChart extends Component {
                 let tempSeries = {
                     name : key,
                     type : 'spline',
-                    data : this.state.data[key].map(e => [((e[0]*1000)),e[1]])
+                    data : this.state.data[key].map(e => [((e[0]*1000)),e[1]/1024/1024])
 
                 }
                 tempSeries.data.sort(function(a, b) {
@@ -155,7 +155,7 @@ class ApplicationLineChart extends Component {
 
             yAxis: {
                 title: {
-                    text: 'Bytes Received'
+                    text: 'Bytes Received in (MB)'
                 }
             },
             legend: {

@@ -251,6 +251,7 @@ class AnomalyBasedTroubleTicketTable extends Component {
         return (
             <Fragment>
                 <Table
+                    bordered
                     columns={this.state.columns}
                     title={title}
                     rowKey={record => record.id}
