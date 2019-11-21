@@ -9,10 +9,10 @@ import csv
 import pickle
 
 from .variables import features_list
-from .model import pca
+from .model import AutoEncoder
 
 
-class MLEngine():
+class MLEngine(AutoEncoder):
     """MLEngine class
 
     Returns
@@ -21,7 +21,7 @@ class MLEngine():
         MLEngine class object to create model for ip profile and predict anomaly
     """
 
-    def __init__(self, ip_profile_dir, ip_model_dir, daily_csv_path, anomalies_csv_output_path):
+    def __init__(self, tenant_profile_dir, tenant_model_dir, daily_csv_path, anomalies_csv_output_path, verbose=0):
         """Constructor for MLEngine class
 
         Parameters
@@ -46,10 +46,10 @@ class MLEngine():
         TypeError
             if anomalies_csv_output_path is not a string
         """
-        if isinstance(ip_profile_dir, str) is not True:
+        if isinstance(tenant_profile_dir, str) is not True:
             raise TypeError('IP profile dir parameter must be a string')
 
-        if isinstance(ip_model_dir, str) is not True:
+        if isinstance(tenant_model_dir, str) is not True:
             raise TypeError("IP model dir parameter must be a string")
 
         if isinstance(daily_csv_path, str) is not True:
@@ -59,16 +59,18 @@ class MLEngine():
             raise TypeError("Anomalies csv dir parameter must be a string")
 
         assert os.path.exists(
-            ip_profile_dir) is True, "Initialize the system first."
+            tenant_profile_dir) is True, "Initialize the system first."
 
         if os.path.exists(anomalies_csv_output_path) is not True:
             os.makedirs(anomalies_csv_output_path)
 
-        self._IP_PROFILE_DIR = ip_profile_dir
-        self._IP_MODEL_DIR = ip_model_dir
+        self._TENANT_PROFILE_DIR = tenant_profile_dir
+        self._TENANT_MODEL_DIR = tenant_model_dir
         self._FEATURES = features_list
         self._DAILY_CSV_DIR = daily_csv_path
         self._ANOMALIES_CSV_OUTPUT_DIR = anomalies_csv_output_path
+
+        super(MLEngine, self).__init__(len(self._FEATURES)-1, verbose=verbose)
 
     def _preprocess(self, df):
         """Method to preprocess dataframe
@@ -115,7 +117,7 @@ class MLEngine():
                         c.writerow(df.columns)
                     c.writerow(row.values)
 
-    def _save_model_params(self, model, params_dict, model_path):
+    def _save_model_params(self, params_dict, model_path):
         """Method to save parameters of ml model
 
         Parameters
@@ -125,7 +127,7 @@ class MLEngine():
         model_path : str
             Location to save model's parameters to
         """
-        autoencoder.save_model(model_path)
+        self.save_model(model_path)
         pickle.dump(params_dict, open(f'{model_path}/params.pkl', 'wb'))
 
     def _load_model_params(self, model_path):
@@ -141,10 +143,31 @@ class MLEngine():
         dictionary
             Contains model's parameters
         """
-        model = load_model(model_path)
+        model = self.load_model(model_path)
         params = pickle.load(open(f'{model_path}/params.pkl', 'rb'))
 
         return model, params
+
+    def _create_tenant_models(self):
+        if os.path.exists(self._TENANT_MODEL_DIR) is not True:
+            os.makedirs(self._TENANT_MODEL_DIR)
+
+        if os.path.exists(self._TENANT_PROFILE_DIR) is True:
+            for tenant in sorted(os.listdir(self._TENANT_PROFILE_DIR)):
+                tenant_profile_dir = os.path.join(self._TENANT_PROFILE_DIR, tenant)
+                tenant_model_dir = os.path.join(self._TENANT_MODEL_DIR, tenant)
+
+                if os.path.exists(tenant_model_dir) is not True:
+                    os.makedirs(tenant_model_dir)
+
+                for profile_csv in sorted(os.listdir(tenant_profile_dir)):
+                    tenant_csv_path = os.path.join(tenant_profile_dir, profile_csv)
+                    tenant_df = pd.read_csv(tenant_csv_path)
+                    tenant_df, mean, std = self.normalize_data(tenant_df)
+                    print(f'**************** Training model for {tenant_profile_dir}****************')
+                    self.train_model(tenant_df)
+                    print(f'**************** Training model for {tenant_profile_dir}****************')
+                    self._save_model_params({'mean': mean, 'std': std}, tenant_model_dir)
 
     def _create_models(self):
         """Method to create models for ips in ip profile directory
@@ -283,7 +306,7 @@ class MLEngine():
         """
         if create_model:
             print("Creating models")
-            self._create_models()
+            self._create_tenant_models()
             print("Model created")
         if predict:
             self._predict_anomalies()
