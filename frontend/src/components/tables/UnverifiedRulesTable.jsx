@@ -112,12 +112,12 @@ class UnverifiedRulesTable extends Component {
 
     handleUpdateRuleSubmit = (e) => {
         e.preventDefault();
-        const {auth_token} = this.props;
+        const {auth_token,unverifiedRulePagination} = this.props;
         const source_ip = this.source_ip.state.value;
         const destination_ip = this.destination_ip.state.value;
         const application = this.application.state.value;
-        console.log(this.source_ip.state.value);
-        this.props.dispatchUpdateRule(auth_token,source_ip,destination_ip,application);
+        const description = this.description.state.value;
+        this.props.dispatchUpdateRule(auth_token,source_ip,destination_ip,application,description,{}, unverifiedRulePagination);
     }
 
     handleShowUnverifiedIpDashboard(record){
@@ -298,12 +298,16 @@ class UnverifiedRulesTable extends Component {
                                                 <label>Application</label>
                                                 <Input ref={node => (this.application = node)} defaultValue={selectedRecordToUpdate.application} />
                                             </Form.Item>
+                                                <Form.Item>
+                                                    <label>Description</label>
+                                                    <Input.TextArea ref={node => (this.description = node)} defaultValue={selectedRecordToUpdate.description} />
+                                                </Form.Item>
                                             <Button
                                                 type="primary"
                                                 style={{width:'100%'}}
                                                 htmlType="submit"
                                                 className="login-form-button"
-                                                loading={this.props.acceptUnverifiedRuleLoading}
+                                                loading={this.props.updateUnverifiedRuleLoading}
                                                 onClick={e =>this.handleUpdateRuleSubmit(e)}>Update this rule
                                             </Button>
                                             </Form>
@@ -378,7 +382,7 @@ const mapDispatchToProps = dispatch => {
         dispatchHandleDrawerClose : () => dispatch(handleDrawerClose()),
         dispatchAcceptRule : (auth_token,record) => dispatch(acceptRule(auth_token,record)),
         dispatchRejectRule : (auth_token,record) => dispatch(rejectRule(auth_token,record)),
-        dispatchUpdateRule : (auth_token,source_ip,destination_ip,application) => dispatch(updateRule(auth_token,source_ip,destination_ip,application)),
+        dispatchUpdateRule : (auth_token,source_ip,destination_ip,application,description,params, pagination) => dispatch(updateRule(auth_token,source_ip,destination_ip,application,description,params, pagination)),
         dispatchPaginationUpdate : (pager) => dispatch(updatePagination(pager)),
 
 

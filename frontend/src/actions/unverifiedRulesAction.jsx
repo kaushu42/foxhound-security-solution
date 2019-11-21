@@ -235,13 +235,12 @@ export function acceptRule(auth_token,record){
         axios.post(url,null,{headers})
             .then(res =>{
                 const response = res.data;
-                console.log(response);
                 dispatch(acceptRuleSuccess());
             })
             .then(res => {
                 dispatch(acceptRuleComplete(record));
                 dispatch(toggleAcceptDrawer());
-                setTimeout(()=>{dispatch(cleanAllDrawerState())},5000);
+                setTimeout(()=>{dispatch(cleanAllDrawerState())},2500);
             })
             .catch(error => dispatch(acceptRuleError(error)));
 
@@ -250,7 +249,7 @@ export function acceptRule(auth_token,record){
 
 
 
-export function updateRule(auth_token,source_ip,destination_ip,application){
+export function updateRule(auth_token,source_ip,destination_ip,application,description,params,pagination){
     return (dispatch) => {
        //console.log(auth_token,source_ip,destination_ip,application);
         let headers = axiosHeader(auth_token);
@@ -259,23 +258,25 @@ export function updateRule(auth_token,source_ip,destination_ip,application){
         formData.set('source_ip', source_ip);
         formData.set('destination_ip', destination_ip);
         formData.set('application', application);
+        formData.set('description', description);
 
         dispatch(updateRuleBegin());
-        axios.post(UPDATE_API,formData,{headers})
-            .then(res =>{
-                const response = res.data;
-                console.log(response);
-                dispatch(updateRuleSuccess());
-            })
-            .then(res => {
-                dispatch(updateRuleComplete());
-                dispatch(fetchUnverifiedRulesData(auth_token));
-                dispatch(toggleUpdateDrawer());
-                setTimeout(()=>{dispatch(cleanAllDrawerState())},5000);
+        setTimeout(()=>{
+            axios.post(UPDATE_API,formData,{headers})
+                .then(res =>{
+                    const response = res.data;
+                    console.log(response);
+                    dispatch(updateRuleSuccess());
+                })
+                .then(res => {
+                    dispatch(updateRuleComplete());
+                    dispatch(fetchUnverifiedRulesData(auth_token,params,pagination));
+                    dispatch(toggleUpdateDrawer());
+                    setTimeout(()=>{dispatch(cleanAllDrawerState())},5000);
 
-            })
-            .catch(error => dispatch(updateRuleError(error)));
-
+                })
+                .catch(error => dispatch(updateRuleError(error)));
+        },2500);
     }
 }
 
