@@ -3,7 +3,10 @@ from rest_framework.decorators import api_view
 from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
 from rest_framework import serializers
-from serializers.serializers import RuleSerializer
+from serializers.serializers import (
+    RuleSerializer,
+    RuleEditSerializer
+)
 
 from core.models import FirewallRule
 from globalutils.utils import (
@@ -12,13 +15,6 @@ from globalutils.utils import (
 )
 from views.views import PaginatedView
 from .models import Rule
-
-
-class RuleEditSerializer(serializers.Serializer):
-    source_ip = serializers.CharField(required=True)
-    destination_ip = serializers.CharField(required=True)
-    application = serializers.CharField(required=True)
-    description = serializers.CharField(required=False)
 
 
 class RulePaginatedView(PaginatedView):
@@ -104,6 +100,7 @@ def verify_rule(request, id):
     rule.is_verified_rule = True
     rule.is_anomalous_rule = False
     rule.verified_by_user = get_user_from_token(request)
+    rule.description = request.data.get('description', '')
     rule.save()
     return Response({
         "status": "Rule verified"
@@ -121,6 +118,7 @@ def flag_rule(request, id):
         }, status=HTTP_400_BAD_REQUEST)
     rule.is_anomalous_rule = True
     rule.verified_by_user = get_user_from_token(request)
+    rule.description = request.data.get('description', '')
     rule.save()
     return Response({
         "status": "Rule marked as an anomaly"
@@ -141,7 +139,7 @@ def edit_rule(request):
     source_ip = handle_empty_regex(serializer.data['source_ip'])
     destination_ip = handle_empty_regex(serializer.data['destination_ip'])
     application = handle_empty_regex(serializer.data['application'])
-    description = serializer.data.get('description', 'Generic Rule Created')
+    description = serializer.data.get('description', '')
     query = {
         'firewall_rule__tenant__id': tenant_id,
         'source_ip__regex': source_ip,
