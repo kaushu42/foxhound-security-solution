@@ -28,7 +28,7 @@ class Initialize():
             Provide the location where individual ip profile needs to be stored
         """
         self._dir_to_parse = dir_to_parse
-        self._ip_profile_dir = ip_profile_dir
+        self._TENANT_PROFILE_DIR = tenant_profile_dir
         self._features = features_list
 
     def _preprocess(self, df):
@@ -134,10 +134,10 @@ class Initialize():
     def parse_all_csv(self):
         """Method to parse all history csv to create ip profile
         """
-        if os.path.exists(self._ip_profile_dir) is not True:
-            os.makedirs(self._ip_profile_dir)
+        if os.path.exists(self._TENANT_PROFILE_DIR) is not True:
+            os.makedirs(self._TENANT_PROFILE_DIR)
             print(
-                f'**********Directory {self._ip_profile_dir} created **********')
+                f'**********Directory {self._TENANT_PROFILE_DIR} created **********')
 
         if os.path.exists(self._dir_to_parse):
             files = os.listdir(self._dir_to_parse)
@@ -148,7 +148,7 @@ class Initialize():
                 print(
                     f'[{count}/{total}]**********Processing {csv_file_path} file **********')
                 self._create_tenant_profile(
-                    csv_file_path, self._ip_profile_dir, self._features)
+                    csv_file_path, self._TENANT_PROFILE_DIR, self._features)
                 count = count+1
         else:
             print(f'{self._dir_to_parse} doesnt exist')
