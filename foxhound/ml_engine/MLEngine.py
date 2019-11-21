@@ -115,7 +115,7 @@ class MLEngine():
                         c.writerow(df.columns)
                     c.writerow(row.values)
 
-    def _save_model_params(self, params_dict, model_path):
+    def _save_model_params(self, model, params_dict, model_path):
         """Method to save parameters of ml model
 
         Parameters
@@ -125,7 +125,8 @@ class MLEngine():
         model_path : str
             Location to save model's parameters to
         """
-        pickle.dump(params_dict, open(model_path, 'wb'))
+        autoencoder.save_model(model_path)
+        pickle.dump(params_dict, open(f'{model_path}/params.pkl', 'wb'))
 
     def _load_model_params(self, model_path):
         """Method to load ml model's parameters
@@ -140,7 +141,10 @@ class MLEngine():
         dictionary
             Contains model's parameters
         """
-        return pickle.load(open(model_path, 'rb'))
+        model = load_model(model_path)
+        params = pickle.load(open(f'{model_path}/params.pkl', 'rb'))
+
+        return model, params
 
     def _create_models(self):
         """Method to create models for ips in ip profile directory
