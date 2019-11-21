@@ -5,7 +5,7 @@ import {
     fetchVerifiedRulesData,
     updatePagination
 } from "../../actions/verifiedRulesAction";
-
+import moment from "moment";
 
 class VerifiedRulesTable extends Component {
 
@@ -16,7 +16,7 @@ class VerifiedRulesTable extends Component {
                 title: 'Created Date',
                 dataIndex: 'created_date_time',
                 key: 'created_date_time',
-                render: text => text,
+                render: text => moment(text).format("YYYY-MM-DD, HH:MM:SS"),
             },
             {
                 title: 'Source IP',
@@ -73,7 +73,7 @@ class VerifiedRulesTable extends Component {
     }
 
     render(){
-        const expandedRowRender = record => <p><b>Verified Date: </b>{record.verified_date_time} <br/><b>Verified By: </b> {record.verified_by_user} </p>;
+        const expandedRowRender = record => <p><b>Verified Date: </b>{moment(record.verified_date_time).format("YYYY-MM-DD, HH:MM:SS")} <br/><b>Verified By: </b> {record.verified_by_user.username} </p>;
         const title = () => <h3>Verified Rules</h3>
         return(
             <Fragment>

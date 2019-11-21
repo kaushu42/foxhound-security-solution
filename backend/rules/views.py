@@ -18,6 +18,7 @@ class RuleEditSerializer(serializers.Serializer):
     source_ip = serializers.CharField(required=True)
     destination_ip = serializers.CharField(required=True)
     application = serializers.CharField(required=True)
+    description = serializers.CharField(required=False)
 
 
 class RulePaginatedView(PaginatedView):
@@ -102,6 +103,7 @@ def verify_rule(request, id):
         }, status=HTTP_400_BAD_REQUEST)
     rule.is_verified_rule = True
     rule.is_anomalous_rule = False
+    rule.verified_by_user = get_user_from_token(request)
     rule.save()
     return Response({
         "status": "Rule verified"
@@ -118,6 +120,7 @@ def flag_rule(request, id):
             "error": "Bad id"
         }, status=HTTP_400_BAD_REQUEST)
     rule.is_anomalous_rule = True
+    rule.verified_by_user = get_user_from_token(request)
     rule.save()
     return Response({
         "status": "Rule marked as an anomaly"
@@ -138,7 +141,7 @@ def edit_rule(request):
     source_ip = handle_empty_regex(serializer.data['source_ip'])
     destination_ip = handle_empty_regex(serializer.data['destination_ip'])
     application = handle_empty_regex(serializer.data['application'])
-
+    description = serializer.data.get('description', 'Generic Rule Created')
     query = {
         'firewall_rule__tenant__id': tenant_id,
         'source_ip__regex': source_ip,
@@ -164,7 +167,7 @@ def edit_rule(request):
             source_ip=source_ip,
             destination_ip=destination_ip,
             application=application,
-            description='Generic Rule',
+            description=description,
             is_verified_rule=True,
             is_anomalous_rule=False,
             verified_by_user=user
