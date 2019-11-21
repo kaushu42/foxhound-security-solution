@@ -126,7 +126,7 @@ export function updatePaginationPageCount(pageCount){
     }
 }
 
-export function fetchCountryListData(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries){
+export function fetchCountryListData(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries,ip_address){
     return (dispatch) => {
 
         let headers = axiosHeader(auth_token);
@@ -135,6 +135,7 @@ export function fetchCountryListData(auth_token,start_date,end_date,firewall_rul
         bodyFormData.set('except_countries', except_countries);
         bodyFormData.set('start_date', start_date);
         bodyFormData.set('end_date', end_date);
+        bodyFormData.set('ip_address', ip_address);
         bodyFormData.set('firewall_rule', firewall_rule);
         bodyFormData.set('application', application);
         bodyFormData.set('protocol', protocol);
@@ -157,7 +158,7 @@ export function updateMapAfterExcludingCountries(excluding_countries){
  }
 }
 
-export function fetchRequestOriginMapData(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries){
+export function fetchRequestOriginMapData(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries,ip_address){
  return (dispatch) => {
 
     let headers = axiosHeader(auth_token);
@@ -166,6 +167,7 @@ export function fetchRequestOriginMapData(auth_token,start_date,end_date,firewal
      bodyFormData.set('except_countries', except_countries);
      bodyFormData.set('start_date', start_date);
      bodyFormData.set('end_date', end_date);
+     bodyFormData.set('ip_address', ip_address);
      bodyFormData.set('firewall_rule', firewall_rule);
      bodyFormData.set('application', application);
      bodyFormData.set('protocol', protocol);

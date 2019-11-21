@@ -14,10 +14,10 @@ class Test extends Component {
     render() {
         return (
             <Fragment>
-                {/* <ApplicationLineChart/> */}
-                <UnverifiedRulesTable/>
+                <ApplicationLineChart/>
+                {/* <UnverifiedRulesTable/>
                 <VerifiedRulesTable/>
-                <AnomalousRulesTable/>
+                <AnomalousRulesTable/> */}
                 {/* <AnomalyBasedTroubleTicketTable/> */}
                 {/* <BandwidthUsageChart/> */}
             </Fragment>

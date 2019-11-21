@@ -112,9 +112,8 @@ class ApplicationLineChart extends Component {
                     type : 'spline',
                     data : this.state.data[key].map(e => [((e[0]*1000)),e[1]/1024/1024])
                 }
-                // tempSeries.data.sort(function(a, b) {
-                //     return a[0] > b[0] ? 1 : -1;
-                // });
+                // let unitOfData = ""
+                console.log(this.state.data[key])
                 dataSeries.push(tempSeries)
             });
             this.updateChart(dataSeries);
@@ -123,6 +122,11 @@ class ApplicationLineChart extends Component {
 
     updateChart = (data) => {
         const seriesLength = this.chart.series.length;
+        // this.chart.yAxis[0].update({
+        //     title:{
+        //         text: "new title"
+        //     }
+        // });
         for(let i = seriesLength - 1; i > -1; i--)
         {
             this.chart.series[i].remove()
@@ -154,7 +158,6 @@ class ApplicationLineChart extends Component {
             title: {
                 text: 'Applications Used'
             },
-
             yAxis: {
                 title: {
                     text: 'Bytes Received in (MB)'
