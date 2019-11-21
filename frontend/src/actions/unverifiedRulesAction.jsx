@@ -240,8 +240,8 @@ export function acceptRule(auth_token,record){
             })
             .then(res => {
                 dispatch(acceptRuleComplete(record));
-                dispatch(toggleAcceptDrawer());
                 setTimeout(()=>{dispatch(cleanAllDrawerState())},2500);
+                dispatch(toggleAcceptDrawer());
             })
             .catch(error => dispatch(acceptRuleError(error)));
 
@@ -272,8 +272,8 @@ export function updateRule(auth_token,source_ip,destination_ip,application,descr
                 .then(res => {
                     dispatch(updateRuleComplete());
                     dispatch(fetchUnverifiedRulesData(auth_token,params,pagination));
-                    dispatch(toggleUpdateDrawer());
                     setTimeout(()=>{dispatch(cleanAllDrawerState())},5000);
+                    dispatch(toggleUpdateDrawer());
 
                 })
                 .catch(error => dispatch(updateRuleError(error)));
@@ -295,9 +295,9 @@ export function rejectRule(auth_token,record){
             })
             .then(res => {
                 dispatch(rejectRuleComplete(record));
-                dispatch(toggleRejectDrawer());
                 dispatch(fetchAnomalousRulesData(auth_token,{},{}));
                 setTimeout(()=>{dispatch(cleanAllDrawerState())},5000);
+                dispatch(toggleRejectDrawer());
 
             })
             .catch(error => dispatch(rejectRuleError(error)));
