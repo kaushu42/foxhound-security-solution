@@ -24,8 +24,9 @@ from foxhound.tt_engine.TTAnomaly import TTAnomaly
 import config
 import seedutils
 
+LOG_FILE = os.path.join(config.LOG_PATH, f'{__file__}.log')
 logging.basicConfig(
-    filename=config.LOG_FILE,
+    filename=LOG_FILE,
     level=logging.DEBUG
 )
 logging.info(f'Script ran on {datetime.datetime.now()}')

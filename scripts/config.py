@@ -1,5 +1,11 @@
 import os
 
+
+def create_directory(path):
+    if not os.path.exists(path):
+        os.mkdir(path)
+
+
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 DATABASE_URL = 'https://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz'
@@ -17,4 +23,14 @@ IP_PROFILE_OUTPUT_DIR = os.path.join(BASE_PATH, "../outputs/ip_profile")
 IP_MODEL_OUTPUT_DIR = os.path.join(BASE_PATH, "../outputs/ip_model")
 ANOMALY_LOGS_OUTPUT_DIR = os.path.join(BASE_PATH, "../outputs/anomaly_logs")
 
-LOG_FILE = os.path.join(BASE_PATH, 'main.log')
+LOG_PATH = os.path.join(BASE_PATH, 'logs')
+
+GRANULARIZED_LOG_PATH = os.path.join(BASE_PATH, '../outputs/granularized_logs')
+
+create_directory(TRAFFIC_LOGS_INPUT_DIR)
+create_directory(TRAFFIC_LOGS_OUTPUT_DIR)
+create_directory(IP_PROFILE_OUTPUT_DIR)
+create_directory(IP_MODEL_OUTPUT_DIR)
+create_directory(ANOMALY_LOGS_OUTPUT_DIR)
+create_directory(LOG_PATH)
+create_directory(GRANULARIZED_LOG_PATH)
