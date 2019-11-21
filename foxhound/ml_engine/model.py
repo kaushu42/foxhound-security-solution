@@ -22,34 +22,43 @@ def pca(X, output_path):
 
 
 class AutoEncoder:
-    def __init__(self, input_size, verbose):
-        self.model = None
-        self.input_size = input_size
-        self._create_architecture(input_size)
+    def __init__(self, input_size=17, verbose=0):
+        self._model = None
+        self._call_backs = None
+        self._verbose = verbose
+        self._input_size = input_size
+        self._create_architecture()
 
     def _create_architecture(self):
-        clear_session()
-        self.model = Sequential()
-        self.model.add(Dense(16, activation='tanh', activity_regularizer=regularizers.l1(10e-5), input_shape=(self.input_size,)))
-        self.model.add(Dense(12, activation='tanh', activity_regularizer=regularizers.l1(10e-5)))
-        self.model.add(Dense(8, activation='tanh', activity_regularizer=regularizers.l1(10e-5)))
-        self.model.add(Dense(4, activation='tanh', activity_regularizer=regularizers.l1(10e-5)))
-        self.model.add(Dense(10, activation='tanh', activity_regularizer=regularizers.l1(10e-5)))
-        self.model.add(Dense(16, activation='tanh', activity_regularizer=regularizers.l1(10e-5)))
+        self._model = Sequential()
+        self._model.add(Dense(16, activation='tanh', activity_regularizer=regularizers.l1(10e-5), input_shape=(self._input_size,)))
+        self._model.add(Dense(12, activation='tanh', activity_regularizer=regularizers.l1(10e-5)))
+        self._model.add(Dense(8, activation='tanh', activity_regularizer=regularizers.l1(10e-5)))
+        self._model.add(Dense(4, activation='tanh', activity_regularizer=regularizers.l1(10e-5)))
+        self._model.add(Dense(10, activation='tanh', activity_regularizer=regularizers.l1(10e-5)))
+        self._model.add(Dense(self._input_size, activation='tanh', activity_regularizer=regularizers.l1(10e-5)))
 
-        checkpointer = EarlyStopping(
-            monitor='val_loss', patience=3,
-            restore_best_weights=True, verbose=verbose)
+        self._call_backs = [
+            EarlyStopping(
+                monitor='val_loss', patience=3,
+                restore_best_weights=True, verbose=self._verbose)
+            ]
+
+    def normalize_data(self, X):
+        standarizer = StandardScaler()
+        X = standarizer.fit_transform(X)
+        return X, standarizer.mean_, np.sqrt(standarizer.var_)
 
     def train_model(self, X):
-        self.model.compile(
+        clear_session()
+        self._model.compile(
             optimizer='adam', loss='mean_squared_error', metrics=['accuracy'])
-        self.model.fit(
+        self._model.fit(
             X, X, epochs=100, batch_size=32, shuffle=True,
-            validation_split=0.2, verbose=verbose, callbacks=[checkpointer])
+            validation_split=0.2, verbose=self._verbose, callbacks=self._call_backs)
 
     def save_model(self, model_path):
-        self.model.save(f'{model_path}/model.h5')
+        self._model.save(f'{model_path}/model.h5')
 
     def load_model(self, model_path):
         return load_model(f'{model_path}/model.h5')
