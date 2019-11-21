@@ -17,7 +17,7 @@ class Initialize():
         Object to parse all history data to create ip profile
     """
 
-    def __init__(self, dir_to_parse, ip_profile_dir):
+    def __init__(self, dir_to_parse, tenant_profile_dir):
         """Constructor for Initialize class
 
         Parameters
