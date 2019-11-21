@@ -28,6 +28,7 @@ import {
     UNVERIFIED_RULES_TABLE_UPDATE_PAGINATION_PAGE_COUNT,
     UNVERIFIED_RULES_TABLE_PAGINATION_UPDATE,
 } from "../actionTypes/unverifiedRulesActionType";
+import {fetchAnomalousRulesData} from "./anomalousRulesAction";
 
 
 const FETCH_API  = `${ROOT_URL}rules/unverified/`;
@@ -295,6 +296,7 @@ export function rejectRule(auth_token,record){
             .then(res => {
                 dispatch(rejectRuleComplete(record));
                 dispatch(toggleRejectDrawer());
+                dispatch(fetchAnomalousRulesData(auth_token,{},{}));
                 setTimeout(()=>{dispatch(cleanAllDrawerState())},5000);
 
             })
