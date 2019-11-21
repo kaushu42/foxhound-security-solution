@@ -11,7 +11,7 @@ class Rule(models.Model):
     source_ip = models.CharField(max_length=50, null=True)
     destination_ip = models.CharField(max_length=50, null=True)
     application = models.CharField(max_length=50, null=True)
-    description = models.CharField(max_length=250)
+    description = models.CharField(max_length=250, null=True, blank=True)
     is_verified_rule = models.BooleanField(default=False)
     is_anomalous_rule = models.BooleanField(default=False)
     verified_by_user = models.ForeignKey(

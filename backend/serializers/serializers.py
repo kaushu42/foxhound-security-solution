@@ -160,3 +160,10 @@ class TroubleTicketAnomalyLogDetailSerializer(serializers.Serializer):
     application = serializers.CharField()
     source_port = serializers.CharField()
     destination_port = serializers.CharField()
+
+
+class RuleEditSerializer(serializers.Serializer):
+    source_ip = serializers.CharField(required=True)
+    destination_ip = serializers.CharField(required=True)
+    application = serializers.CharField(required=True)
+    description = serializers.CharField(required=False)
