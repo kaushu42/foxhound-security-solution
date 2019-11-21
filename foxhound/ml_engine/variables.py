@@ -1,5 +1,6 @@
 features_list = ['Receive Time',
                  'Virtual System',
+                 'Rule',
                  'Source address',
                  'Destination address',
                  'Application',
