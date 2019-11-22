@@ -163,11 +163,11 @@ class MLEngine(AutoEncoder):
                 for profile_csv in sorted(os.listdir(tenant_profile_dir)):
                     tenant_csv_path = os.path.join(tenant_profile_dir, profile_csv)
                     tenant_df = pd.read_csv(tenant_csv_path)
-                    tenant_df, mean, std = self.normalize_data(tenant_df)
+                    tenant_df, standarizer = self.normalize_data(tenant_df)
                     print(f'**************** Training model for {tenant_profile_dir}****************')
                     self.train_model(tenant_df)
                     print(f'**************** Training model for {tenant_profile_dir}****************')
-                    self._save_model_params({'mean': mean, 'std': std}, tenant_model_dir)
+                    self._save_model_params({'standarizer': standarizer}, tenant_model_dir)
 
     def _create_models(self):
         """Method to create models for ips in ip profile directory
