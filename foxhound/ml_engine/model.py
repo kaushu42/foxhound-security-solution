@@ -47,7 +47,7 @@ class AutoEncoder:
     def normalize_data(self, X):
         standarizer = StandardScaler()
         X = standarizer.fit_transform(X)
-        return X, standarizer.mean_, np.sqrt(standarizer.var_)
+        return X, standarizer
 
     def train_model(self, X):
         clear_session()
