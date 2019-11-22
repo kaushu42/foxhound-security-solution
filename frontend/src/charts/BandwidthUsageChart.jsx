@@ -18,6 +18,7 @@ class BandwidthUsageChart extends Component{
         this.state = {
             loading : true,
             data : [],
+            unit : "",
             options : {
                 title: {
                     text: 'Bandwidth Usage View | Bytes Received'
@@ -41,13 +42,6 @@ class BandwidthUsageChart extends Component{
                 },
                 time: {
                     timezoneOffset: -6 * 60
-                },
-                yAxis:{
-                    labels :{
-                        formatter: function () {
-                            return this.value + ' MB';
-                        }
-                    }
                 },
                 series: [
                     {
@@ -103,11 +97,33 @@ class BandwidthUsageChart extends Component{
         then(res => {
             const response = res.data;
             console.log('api data',response);
-            this.setState({
-                data : response
-            })
-
-
+            if(response["bytes_sent_max"]>1000000000){
+                response["bytes_sent"] = response["bytes_sent"].map(e => [((e[0]*1000)),e[1]/(1024*1024*1024)])
+                this.setState({
+                    data : response,
+                    unit: "GB"
+                })
+            }
+            if(response["bytes_sent_max"]>1000000 && response["bytes_sent_max"]<1000000000){
+                response["bytes_sent"] = response["bytes_sent"].map(e => [((e[0]*1000)),e[1]/(1024*1024)])
+                this.setState({
+                    data : response,
+                    unit: "MB"
+                })
+            }
+            if(response["bytes_sent_max"]>1000 && response["bytes_sent_max"]<1000000){
+                response["bytes_sent"] = response["bytes_sent"].map(e => [((e[0]*1000)),e[1]/(1024)])
+                this.setState({
+                    data : response,
+                    unit: "KB"
+                })
+            }
+            else{
+                this.setState({
+                    data : response,
+                    unit: "Bytes"
+                })
+            }
         });
 
     }
@@ -148,14 +164,15 @@ class BandwidthUsageChart extends Component{
             this.handleFetchData();
         }
         if(prevState.data!==this.state.data){
-            let dataSeries = this.state.data["bytes_sent"].map(e => [((e[0]*1000)),e[1]/1024/1024])
+            let dataSeries = this.state.data["bytes_sent"]
+            // .map(e => [((e[0]*1000)),e[1]/1024/1024])
             console.log("Bandwidth chart dataseries", dataSeries)
-            this.updateChart(dataSeries);
+            this.updateChart(dataSeries, this.state.unit);
         }
     }
 
 
-    updateChart = (data) => {
+    updateChart = (data, unit) => {
         if (data!=undefined){
             console.log('final data',data);
             this.chart.update({
@@ -163,10 +180,20 @@ class BandwidthUsageChart extends Component{
                     {
                         id: 'bytes',
                         type: 'spline',
-                        name : 'Bytes Received(MB)',
+                        name : 'Bytes Received' + '(' + unit + ')',
                         data: data
                     }
-                ]
+                ],
+                yAxis:{
+                    title:{
+                        text:"Bytes Received",
+                    },
+                    labels :{
+                        formatter: function () {
+                            return this.value + " " + unit;
+                        }
+                    }
+                },
             });
             this.setState({
                 loading : false
