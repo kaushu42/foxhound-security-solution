@@ -162,11 +162,17 @@ class UsageApiView(APIView):
                 ['bytes_sent', 'bytes_received']
             )
         bytes_sent, bytes_received = get_usage(objects)
+        import operator
+
+        bytes_sent_max = max(bytes_sent, key=operator.itemgetter(1))[1]
+        bytes_received_max = max(bytes_received, key=operator.itemgetter(1))[1]
 
         return Response({
             "n_items": len(bytes_sent),
             "bytes_sent": bytes_sent,
             "bytes_received": bytes_received,
+            "bytes_sent_max": bytes_sent_max,
+            "bytes_received_max": bytes_received_max,
         }, status=HTTP_200_OK)
 
     def post(self, request, format=None):
