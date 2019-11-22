@@ -41,6 +41,12 @@ class VerifiedRulesTable extends Component {
                 dataIndex: 'name',
                 key: 'name',
                 render: text => <a>{text}</a>,
+            },
+            {
+                title: 'Description',
+                dataIndex: 'description',
+                key: 'description',
+                render: text => <a>{text}</a>,
             }
         ],
         data: []
