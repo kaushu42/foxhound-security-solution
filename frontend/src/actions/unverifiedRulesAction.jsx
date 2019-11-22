@@ -227,24 +227,29 @@ export function cleanAllDrawerState(){
     }
 }
 
-export function acceptRule(auth_token,record){
+export function acceptRule(auth_token,description,record){
     return (dispatch) => {
 
         const url = VERIFY_RULE_API + record.id + '/';
         let headers = axiosHeader(auth_token);
-        dispatch(acceptRuleBegin());
-        axios.post(url,null,{headers})
-            .then(res =>{
-                const response = res.data;
-                dispatch(acceptRuleSuccess());
-            })
-            .then(res => {
-                dispatch(acceptRuleComplete(record));
-                setTimeout(()=>{dispatch(cleanAllDrawerState())},2500);
-                dispatch(toggleAcceptDrawer());
-            })
-            .catch(error => dispatch(acceptRuleError(error)));
 
+        const formData = new FormData();
+        formData.set('description', description);
+        
+        dispatch(acceptRuleBegin());
+        setTimeout(()=>{
+            axios.post(url,formData,{headers})
+                .then(res =>{
+                    const response = res.data;
+                    dispatch(acceptRuleSuccess());
+                })
+                .then(res => {
+                    dispatch(acceptRuleComplete(record));
+                    setTimeout(()=>{dispatch(cleanAllDrawerState())},2500);
+                    dispatch(toggleAcceptDrawer());
+                })
+                .catch(error => dispatch(acceptRuleError(error)));
+        },2500);
     }
 }
 
@@ -280,13 +285,17 @@ export function updateRule(auth_token,source_ip,destination_ip,application,descr
     }
 }
 
-export function rejectRule(auth_token,record){
+export function rejectRule(auth_token,description,record){
     return (dispatch) => {
 
         const url = FLAG_RULE_API + record.id + '/';
         let headers = axiosHeader(auth_token);
+
+        const formData = new FormData();
+        formData.set('description', description);
+
         dispatch(rejectRuleBegin());
-        axios.post(url,null,{headers})
+        axios.post(url,formData,{headers})
             .then(res =>{
                 const response = res.data;
                 console.log(response);

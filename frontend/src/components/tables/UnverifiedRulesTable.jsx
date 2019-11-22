@@ -107,13 +107,15 @@ class UnverifiedRulesTable extends Component {
     handleAcceptRuleSubmit = (e) => {
         e.preventDefault();
         const {auth_token,selectedRecordToAccept} = this.props;
-        this.props.dispatchAcceptRule(auth_token,selectedRecordToAccept);
+        const description = this.description.state.value;
+        this.props.dispatchAcceptRule(auth_token,description, selectedRecordToAccept);
     }
 
     handleRejectRuleSubmit = (e) => {
         e.preventDefault();
         const {auth_token,selectedRecordToReject} = this.props;
-        this.props.dispatchRejectRule(auth_token,selectedRecordToReject);
+        const description = this.description.state.value;
+        this.props.dispatchRejectRule(auth_token,description,selectedRecordToReject);
     }
 
     handleUpdateRuleSubmit = (e) => {
@@ -202,8 +204,12 @@ class UnverifiedRulesTable extends Component {
                                         </Col>
                                     </Row>
                                     <br />
-                                    <Form>
+                                    <Form style={{width:'100%'}} name={"rejectRuleForm"}>
                                         <Row type="flex" gutter={16} style={{paddingTop: 10,paddingBottom: 10}}>
+                                            <Form.Item>
+                                                <label>Description</label>
+                                                <Input ref={node => (this.description = node)} defaultValue={selectedRecordToReject.description} />
+                                            </Form.Item>
                                             <Button
                                                 type="primary"
                                                 style={{width:'100%'}}
@@ -245,19 +251,23 @@ class UnverifiedRulesTable extends Component {
                                     </Col>
                                 </Row>
                                 <br />
-                                <Form>
                                     <p style={{color:'red'}}>{this.props.error_message}</p>
+                                    <Form style={{width:'100%'}} name={"acceptRuleForm"}>
                                     <Row type="flex" gutter={16} style={{paddingTop: 10,paddingBottom: 10}}>
-                                        <Button
-                                            type="primary"
-                                            style={{width:'100%'}}
-                                            htmlType="submit"
-                                            className="login-form-button"
-                                            loading={this.props.acceptUnverifiedRuleLoading}
-                                            onClick={e =>this.handleAcceptRuleSubmit(e)}>Accept this rule
-                                        </Button>
-                                    </Row>
-                                </Form>
+                                            <Form.Item>
+                                                <label>Description</label>
+                                                <Input ref={node => (this.description = node)} defaultValue={selectedRecordToAccept.description} />
+                                            </Form.Item>
+                                            <Button
+                                                type="primary"
+                                                style={{width:'100%'}}
+                                                htmlType="submit"
+                                                className="login-form-button"
+                                                loading={this.props.acceptUnverifiedRuleLoading}
+                                                onClick={e =>this.handleAcceptRuleSubmit(e)}>Accept this rule
+                                            </Button>
+                                        </Row>
+                                    </Form>
                             </Fragment>
                             ):null
                         }
@@ -386,8 +396,8 @@ const mapDispatchToProps = dispatch => {
         handleUnverifiedRuleReject : (auth_token,record) => dispatch(rejectUnverifiedRule(auth_token,record)),
         handleUnverifiedRuleUpdate : (auth_token,record) => dispatch(updateUnverifiedRule(auth_token,record)),
         dispatchHandleDrawerClose : () => dispatch(handleDrawerClose()),
-        dispatchAcceptRule : (auth_token,record) => dispatch(acceptRule(auth_token,record)),
-        dispatchRejectRule : (auth_token,record) => dispatch(rejectRule(auth_token,record)),
+        dispatchAcceptRule : (auth_token,description,record) => dispatch(acceptRule(auth_token,description,record)),
+        dispatchRejectRule : (auth_token,description,record) => dispatch(rejectRule(auth_token,description,record)),
         dispatchUpdateRule : (auth_token,source_ip,destination_ip,application,description,params, pagination) => dispatch(updateRule(auth_token,source_ip,destination_ip,application,description,params, pagination)),
         dispatchPaginationUpdate : (pager) => dispatch(updatePagination(pager)),
 
