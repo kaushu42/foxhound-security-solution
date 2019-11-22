@@ -306,7 +306,7 @@ class UnverifiedRulesTable extends Component {
                                             </Form.Item>
                                                 <Form.Item>
                                                     <label>Description</label>
-                                                    <Input.TextArea ref={node => (this.description = node)} defaultValue={selectedRecordToUpdate.description} />
+                                                    <Input ref={node => (this.description = node)} defaultValue={selectedRecordToUpdate.description} />
                                                 </Form.Item>
                                             <Button
                                                 type="primary"

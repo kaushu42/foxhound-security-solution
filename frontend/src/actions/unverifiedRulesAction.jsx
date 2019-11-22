@@ -260,7 +260,6 @@ export function updateRule(auth_token,source_ip,destination_ip,application,descr
         formData.set('destination_ip', destination_ip);
         formData.set('application', application);
         formData.set('description', description);
-
         dispatch(updateRuleBegin());
         setTimeout(()=>{
             axios.post(UPDATE_API,formData,{headers})
