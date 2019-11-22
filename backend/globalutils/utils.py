@@ -1,3 +1,4 @@
+import operator
 import datetime
 import pytz
 
@@ -82,8 +83,9 @@ def get_usage(queryset):
         time = obj['date'].timestamp()
         bytes_sent.append([time, obj['bytes_sent']])
         bytes_received.append([time, obj['bytes_received']])
-
-    return bytes_sent, bytes_received
+    bytes_sent_max = max(bytes_sent, key=operator.itemgetter(1))[1]
+    bytes_received_max = max(bytes_received, key=operator.itemgetter(1))[1]
+    return bytes_sent, bytes_received, bytes_sent_max, bytes_received_max
 
 
 def get_filters(request):
