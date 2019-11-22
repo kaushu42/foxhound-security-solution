@@ -15,11 +15,11 @@ class Test extends Component {
         return (
             <Fragment>
                 {/* <ApplicationLineChart/> */}
-                <UnverifiedRulesTable/>
-                <VerifiedRulesTable/>
+                {/* <UnverifiedRulesTable/> */}
+                {/* <VerifiedRulesTable/> */}
                 {/* <AnomalousRulesTable/> */}
                 {/* <AnomalyBasedTroubleTicketTable/> */}
-                {/* <BandwidthUsageChart/> */}
+                <BandwidthUsageChart/>
             </Fragment>
             )
     }

@@ -15,6 +15,7 @@ class IpUsageTimeSeriesChart extends Component {
     this.state = {
       loading: true,
       data: [],
+      unit: "",
       options: {
         title: {
           text: "Bandwidth Usage View | Bytes Received"
@@ -64,12 +65,35 @@ class IpUsageTimeSeriesChart extends Component {
 
     const { auth_token, ip_address } = this.props;
     ipUsageDataService(auth_token, ip_address, this.props).then(res => {
-      console.log("fetching data for ip", ip_address);
+      console.log("fetching current data for ip", ip_address);
       const data = res.data;
-      this.setState({
-        data: data
-      });
-      console.log("fetched data ", data);
+      if(data["bytes_sent_max"]>1000000000){
+        data["bytes_sent"] = data["bytes_sent"].map(e => [((e[0]*1000)),e[1]/(1024*1024*1024)])
+        this.setState({
+            data : data,
+            unit: "GB"
+        })
+      }
+      if(data["bytes_sent_max"]>1000000 && data["bytes_sent_max"]<1000000000){
+          data["bytes_sent"] = data["bytes_sent"].map(e => [((e[0]*1000)),e[1]/(1024*1024)])
+          this.setState({
+              data : data,
+              unit: "MB"
+          })
+      }
+      if(data["bytes_sent_max"]>1000 && data["bytes_sent_max"]<1000000){
+          data["bytes_sent"] = data["bytes_sent"].map(e => [((e[0]*1000)),e[1]/(1024)])
+          this.setState({
+              data : data,
+              unit: "KB"
+          })
+      }
+      else{
+          this.setState({
+              data : data,
+              unit: "Bytes"
+          })
+      }
     });
   };
 
@@ -109,12 +133,12 @@ class IpUsageTimeSeriesChart extends Component {
       this.handleFetchData();
     }
     if (prevState.data !== this.state.data) {
-      let dataSeries = this.state.data["bytes_sent"].map(e => [e[0] * 1000, e[1] / 1024 / 1024]);
+      let dataSeries = this.state.data["bytes_sent"]
       console.log("Bandwidth chart dataseries", dataSeries);
-      this.updateChart(dataSeries);
+      this.updateChart(dataSeries, this.state.unit);
     }
   }
-  updateChart = data => {
+  updateChart = (data, unit) => {
     let bytesReceived = this.state.data.bytes_received;
     if (bytesReceived.length == 0) {
       Highcharts.setOptions({
@@ -137,9 +161,20 @@ class IpUsageTimeSeriesChart extends Component {
         {
           name: "Bytes Received",
           type: "spline",
+          name : 'Bytes Received' + '(' + unit + ')',
           data: data
         }
-      ]
+      ],
+      yAxis:{
+        title:{
+            text:"Bytes Received",
+          },
+          labels :{
+              formatter: function () {
+                  return this.value + " " + unit;
+              }
+          }
+      },
     });
     this.setState({
       loading: false

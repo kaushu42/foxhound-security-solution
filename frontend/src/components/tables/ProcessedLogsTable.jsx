@@ -107,7 +107,7 @@ class ProcessedLogsTable extends Component {
           size = (data.results[0].size/(1024)).toFixed(2),
           data.results[0].size = `${size} KB`
         }
-      else if (data.results[0].size < 1000)
+      else
         {
           size = data.results[0].size,
           data.results[0].size = `${size} Bytes`

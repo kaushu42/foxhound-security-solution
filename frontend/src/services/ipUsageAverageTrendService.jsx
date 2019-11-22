@@ -13,7 +13,7 @@ export const ipUsageAverageTrendDataService = (auth_token,ip_address,props) => {
     };
 
     let bodyFormData = new FormData();
-    bodyFormData.set('ip', props.ip_address);
+    bodyFormData.set('ip', ip_address);
     bodyFormData.set('start_date', props.date_range[0]);
     bodyFormData.set('end_date', props.date_range[1]);
     bodyFormData.set('firewall_rule', props.firewall_rule);
