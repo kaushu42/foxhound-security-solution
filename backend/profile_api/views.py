@@ -248,11 +248,14 @@ class TimeSeriesApiView(APIView):
                 'hour',
                 ['bytes_sent', 'bytes_received']
             )
-        bytes_sent, bytes_received = get_usage(objects)
+        (bytes_sent, bytes_received, bytes_sent_max,
+         bytes_received_max) = get_usage(objects)
 
         return Response({
             "bytes_sent": bytes_sent,
             "bytes_received": bytes_received,
+            "bytes_sent_max": bytes_sent_max,
+            "bytes_received_max": bytes_received_max,
         }, status=HTTP_200_OK)
 
     def get(self, request, format=None):
