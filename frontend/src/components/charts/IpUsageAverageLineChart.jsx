@@ -61,7 +61,7 @@ class IpUsageAverageDailyTrendChart extends Component {
 
         const {auth_token,ip_address} = this.props;
         ipUsageAverageTrendDataService(auth_token,ip_address,this.props).then(res => {
-            console.log('fetching data for ip',ip_address)
+            console.log('fetching average data for ip',ip_address)
             const data = res.data;
             this.setState({
                 data : data
