@@ -91,6 +91,27 @@ class ProcessedLogsTable extends Component {
       console.log("data fetched", this.data);
       const { pagination } = this.state;
       pagination.total = data.count;
+      let size = ''
+      if (data.results[0].size > 1000000000)
+        {
+          size = (data.results[0].size/(1024*1024*1024)).toFixed(2),
+          data.results[0].size = `${size} GB`
+        }
+      else if (data.results[0].size < 1000000000 && data.results[0].size > 1000000)
+        {
+          size = (data.results[0].size/(1024*1024)).toFixed(2),
+          data.results[0].size = `${size} MB`
+        }
+      else if (data.results[0].size < 1000000 && data.results[0].size > 1000)
+        {
+          size = (data.results[0].size/(1024)).toFixed(2),
+          data.results[0].size = `${size} KB`
+        }
+      else if (data.results[0].size < 1000)
+        {
+          size = data.results[0].size,
+          data.results[0].size = `${size} Bytes`
+        }
       this.setState({
         loading: false,
         data: data.results,
