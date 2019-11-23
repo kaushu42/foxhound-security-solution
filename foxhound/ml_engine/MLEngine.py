@@ -202,8 +202,8 @@ class MLEngine(AutoEncoder):
             print(f'IP profile path {self._IP_PROFILE_DIR} doesnot exist')
 
     def _get_anomaly_reasons(self, anomalies):
-        reasons = anomalies > 3*std
-        reasons = np.array(self._FEATURES)[reasons[0]]
+        truth_table = anomalies > 3*std
+        reasons = [', '.join(list(np.array(self._FEATURES)[row])) for row in truth_table]
 
         return reasons
 
@@ -237,6 +237,8 @@ class MLEngine(AutoEncoder):
         truncated_df = df[self._FEATURES]
         anomalous_df = df.head(0)
         anomalous_without_model_count = 0
+        anomalous_features = []
+
         for tenant in df['Rule'].unique():
             csv_path = os.path.join(
                 self._TENANT_PROFILE_DIR, tenant, f'{tenant}.csv')
@@ -248,15 +250,22 @@ class MLEngine(AutoEncoder):
             tenant_df = self._preprocess(tenant_df)
 
             if os.path.exists(model_path) is True:
-                indices = self._predict(tenant_df, model_path)
+                indices, reasons = self._predict(tenant_df, model_path)
+                anomalous_features.extend(reasons)
                 anomalous_df = pd.concat(
                     [anomalous_df, df.iloc[tenant_df.index[indices]]], axis=0
                     )
             else:
                 anomalous_without_model_count += len(tenant_df.index)
+                anomalous_features.extend(['No model']*len(tenant_df.index))
                 anomalous_df = pd.concat(
                     anomalous_df, df.iloc[tenant_df.index]
                 )
+
+            anomalous_features_df = pd.DataFrame(
+                data=np.array(anomalous_features), columns=['Reasons']
+                )
+            anomalous_df = pd.concat([anomalous_df, anomalous_features_df], axis=1)
 
             if save_data_for_ip_profile is True:
                 self._save_to_csv(tenant_df, csv_path)
