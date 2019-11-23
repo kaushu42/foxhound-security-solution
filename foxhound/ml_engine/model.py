@@ -27,9 +27,10 @@ class AutoEncoder:
         self._call_backs = None
         self._verbose = verbose
         self._input_size = input_size
-        self._create_architecture()
+        #self._create_architecture()
 
     def _create_architecture(self):
+        clear_session()
         self._model = Sequential()
         self._model.add(Dense(16, activation='tanh', activity_regularizer=regularizers.l1(10e-5), input_shape=(self._input_size,)))
         self._model.add(Dense(12, activation='tanh', activity_regularizer=regularizers.l1(10e-5)))
@@ -50,7 +51,7 @@ class AutoEncoder:
         return X, standarizer
 
     def train_model(self, X):
-        clear_session()
+        self._create_architecture()
         self._model.compile(
             optimizer='adam', loss='mean_squared_error', metrics=['accuracy'])
         self._model.fit(
