@@ -37,14 +37,15 @@ class App extends Component {
             auth_token={this.props.auth_token}
             exact
             path="/"
-            component={Dashboard}
-          />
+          >
+            <Dashboard activePageKey={"dashboard"}/>
+          </AuthenticatedRoute>
           <AuthenticatedRoute
             auth_token={this.props.auth_token}
             path="/ip"
             component={IpAddressProfile}
           />
-          <AuthenticatedRoute path="/logs" component={ProcessedLogs} />
+          <AuthenticatedRoute path="/logs"><ProcessedLogs activePageKey={"logs"}/></AuthenticatedRoute>
         </Switch>
       </BrowserRouter>
     );

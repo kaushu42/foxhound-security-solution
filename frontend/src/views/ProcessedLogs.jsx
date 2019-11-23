@@ -11,7 +11,7 @@ class ProcessedLogs extends  Component {
     render() {
         return (
             <Fragment>
-                <MasterLayout>
+                <MasterLayout activePageKey={this.props.activePageKey}>
                     <PageHeader title={"Processed Logs"} />
                     <Row style={contentLayout}>
                         <ProcessedLogsTable />

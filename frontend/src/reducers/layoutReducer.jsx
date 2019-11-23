@@ -1,7 +1,7 @@
 import {TOGGLE_SIDEBAR} from "../actionTypes/layoutActionType";
 
 const initialState = {
-    sideBarCollapsed : true
+    sideBarCollapsed : true,
 }
 
 

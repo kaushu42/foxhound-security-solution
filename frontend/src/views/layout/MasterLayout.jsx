@@ -17,7 +17,7 @@ class MasterLayout extends Component {
     render(){
         return (
             <Layout className="Fade">
-                <SideBar />
+                <SideBar activePageKey={this.props.activePageKey}/>
                 <Layout>
                     <NavBar />
                     <Content style={LayoutStyle}>
