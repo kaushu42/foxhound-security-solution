@@ -64,11 +64,39 @@ class SideBar extends Component {
                                 </a>
                             </Menu.Item>
                         </Menu.ItemGroup>
+                        <Menu.ItemGroup key={"TroubleTickets"} title={"Trouble Tickets"}>
+                            <Menu.Item key="my-tt">
+                                <a href={"/tt/my"}>
+                                    <Icon type="snippets" />
+                                    <span>My TT</span>
+                                </a>
+                            </Menu.Item>
+                                <Menu.Item key="active-tt">
+                                <a href={"/tt/active"}>
+                                    <Icon type="snippets" />
+                                    <span>Active TT</span>
+                                </a>
+                            </Menu.Item>
+                            <Menu.Item key="closed-logs">
+                                <a href={"/tt/closed"}>
+                                    <Icon type="snippets" />
+                                    <span>Closed TT</span>
+                                </a>
+                            </Menu.Item>
+                        </Menu.ItemGroup>
                         <Menu.ItemGroup key={"Account"} title="Account">
                             <Menu.Item key="change-password">
                                 <a href={"/auth/changepassword"}>
                                     <Icon type="snippets" />
                                     <span>Change Password</span>
+                                </a>
+                            </Menu.Item>
+                        </Menu.ItemGroup>
+                        <Menu.ItemGroup key={"Documentation"} title="Documentation">
+                            <Menu.Item key="user-manual">
+                                <a href={"/usermanual"}>
+                                    <Icon type="snippets" />
+                                    <span>User Manual</span>
                                 </a>
                             </Menu.Item>
                         </Menu.ItemGroup>

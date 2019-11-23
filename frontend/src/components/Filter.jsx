@@ -86,12 +86,13 @@ class Filter extends Component{
 
         return(
             <Fragment>
-                <Row>
-                    <Col xs={24} sm={24} md={8} lg={4} xl={4}>
-                        <RangePicker id="RangePicker" onChange={(e,v)=>this.handleRangePickerChange(e,v)}/>
-                    </Col>
-                    <Col xs={24} sm={24} md={8} lg={4} xl={4}>
-                        <Select
+                <div style={{padding:24,background:'#fbfbfb',border: '1px solid #d9d9d9',borderRadius: 6}}>
+                    <Row>
+                        <Col xs={24} sm={24} md={8} lg={4} xl={4}>
+                            <RangePicker id="RangePicker" onChange={(e,v)=>this.handleRangePickerChange(e,v)}/>
+                        </Col>
+                        <Col xs={24} sm={24} md={8} lg={4} xl={4}>
+                            <Select
                                 id="FirewallRule"
                                 mode="multiple"
                                 loading={this.state.loading_firewall_rule_select}
@@ -99,13 +100,13 @@ class Filter extends Component{
                                 style={{ width: "100%" }}
                                 placeholder="Firewall Rule"
                                 onChange={(v)=> this.handleFirewallRuleFilterChange(v)}>
-                            {
-                                firewallRuleSelectListItem
-                            }
-                        </Select>
-                    </Col>
-                    <Col xs={24} sm={24} md={8} lg={4} xl={4}>
-                        <Select
+                                {
+                                    firewallRuleSelectListItem
+                                }
+                            </Select>
+                        </Col>
+                        <Col xs={24} sm={24} md={8} lg={4} xl={4}>
+                            <Select
                                 id="Application"
                                 mode="multiple"
                                 loading={this.state.loading_application_select}
@@ -113,52 +114,53 @@ class Filter extends Component{
                                 style={{ width: "100%" }}
                                 placeholder="Application"
                                 onChange={(v)=>this.handleApplicationFilterChange(v)} >
-                            {
-                                applicationSelectListItem
-                            }
-                        </Select>
-                    </Col>
-                    <Col xs={24} sm={24} md={8} lg={4} xl={4}>
-                        <Select
-                            id="Protocol"
-                            mode="multiple"
-                            loading={this.state.loading_protocol_select}
-                            allowClear={true}
-                            style={{ width: "100%" }}
-                            placeholder="Protocol"
-                            onChange={(v)=>this.handleProtocolFilterChange(v)}>
-                            {
-                                protocolSelectListItem
-                            }
-                        </Select>
-                    </Col>
-                    <Col xs={24} sm={24} md={8} lg={4} xl={4}>
-                        <Select id="SourceZone"
+                                {
+                                    applicationSelectListItem
+                                }
+                            </Select>
+                        </Col>
+                        <Col xs={24} sm={24} md={8} lg={4} xl={4}>
+                            <Select
+                                id="Protocol"
                                 mode="multiple"
-                                loading={this.state.loading_source_zone_select}
+                                loading={this.state.loading_protocol_select}
                                 allowClear={true}
                                 style={{ width: "100%" }}
-                                placeholder="Source Zone"
-                                onChange={(v)=>this.handleSourceZoneFilterChange(v)}>
-                        {
-                                sourceZoneSelectListItem
-                            }
-                        </Select>
-                    </Col>
-                    <Col xs={24} sm={24} md={8} lg={4} xl={4}>
-                        <Select id="DestinationZone"
-                                mode="multiple"
-                                loading={this.state.loading_destination_zone_select}
-                                allowClear={true}
-                                style={{ width: "100%" }}
-                                placeholder="Destination Zone"
-                                onChange={(v)=>this.handleDestinationZoneFilterChange(v)}>
-                        {
-                                destinationZoneSelectListItem
-                            }
-                        </Select>
-                    </Col>
-                </Row>
+                                placeholder="Protocol"
+                                onChange={(v)=>this.handleProtocolFilterChange(v)}>
+                                {
+                                    protocolSelectListItem
+                                }
+                            </Select>
+                        </Col>
+                        <Col xs={24} sm={24} md={8} lg={4} xl={4}>
+                            <Select id="SourceZone"
+                                    mode="multiple"
+                                    loading={this.state.loading_source_zone_select}
+                                    allowClear={true}
+                                    style={{ width: "100%" }}
+                                    placeholder="Source Zone"
+                                    onChange={(v)=>this.handleSourceZoneFilterChange(v)}>
+                                {
+                                    sourceZoneSelectListItem
+                                }
+                            </Select>
+                        </Col>
+                        <Col xs={24} sm={24} md={8} lg={4} xl={4}>
+                            <Select id="DestinationZone"
+                                    mode="multiple"
+                                    loading={this.state.loading_destination_zone_select}
+                                    allowClear={true}
+                                    style={{ width: "100%" }}
+                                    placeholder="Destination Zone"
+                                    onChange={(v)=>this.handleDestinationZoneFilterChange(v)}>
+                                {
+                                    destinationZoneSelectListItem
+                                }
+                            </Select>
+                        </Col>
+                    </Row>
+                </div>
             </Fragment>
         )
     }

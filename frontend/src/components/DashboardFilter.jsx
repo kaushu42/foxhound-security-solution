@@ -1,5 +1,5 @@
 import React, {Component, Fragment} from 'react';
-import {Row, Col, Select, DatePicker, Divider} from 'antd';
+import {Row, Col, Select, DatePicker, Divider, Button} from 'antd';
 import {connect} from 'react-redux';
 import {
     updateDateRangePickerFilter,
@@ -97,31 +97,32 @@ class DashboardFilter extends Component{
 
         return(
             <Fragment>
-                <Row gutter={16}>
-                    <Col xs={24} sm={24} md={24} lg={8} xl={8}>
-                        <RangePicker
-                            style={{width:"100%"}}
-                            size={"default"}
-                            id="RangePicker"
-                            onChange={(e,v)=>this.handleRangePickerChange(e,v)}/>
-                    </Col>
-                    <Col xs={24} sm={24} md={24} lg={8} xl={8}>
-                        <Select
-                            id="IpAddress"
-                            size={"default"}
-                            mode="multiple"
-                            loading={this.state.loading_ip_address_select}
-                            allowClear={true}
-                            style={{ width: "100%" }}
-                            placeholder="IP Address"
-                            onChange={(v)=> this.handleIpAddressRuleFilterChange(v)}>
-                            {
-                                ipAddressSelectListItem
-                            }
-                        </Select>
-                    </Col>
-                    <Col xs={24} sm={24} md={8} lg={8} xl={8}>
-                        <Select
+                <div style={{padding:24,background:'#fbfbfb',border: '1px solid #d9d9d9',borderRadius: 6}}>
+                    <Row gutter={[16,16]}>
+                        <Col xs={24} sm={24} md={24} lg={8} xl={8}>
+                            <RangePicker
+                                style={{width:"100%"}}
+                                size={"default"}
+                                id="RangePicker"
+                                onChange={(e,v)=>this.handleRangePickerChange(e,v)}/>
+                        </Col>
+                        <Col xs={24} sm={24} md={24} lg={8} xl={8}>
+                            <Select
+                                id="IpAddress"
+                                size={"default"}
+                                mode="multiple"
+                                loading={this.state.loading_ip_address_select}
+                                allowClear={true}
+                                style={{ width: "100%" }}
+                                placeholder="IP Address"
+                                onChange={(v)=> this.handleIpAddressRuleFilterChange(v)}>
+                                {
+                                    ipAddressSelectListItem
+                                }
+                            </Select>
+                        </Col>
+                        <Col xs={24} sm={24} md={8} lg={8} xl={8}>
+                            <Select
                                 id="FirewallRule"
                                 mode="multiple"
                                 size={"default"}
@@ -130,16 +131,13 @@ class DashboardFilter extends Component{
                                 style={{ width: "100%" }}
                                 placeholder="Firewall Rule"
                                 onChange={(v)=> this.handleFirewallRuleFilterChange(v)}>
-                            {
-                                firewallRuleSelectListItem
-                            }
-                        </Select>
-                    </Col>
-                </Row>
-                <br />
-                <Row gutter={16}>
-                    <Col xs={24} sm={24} md={8} lg={6} xl={6}>
-                        <Select
+                                {
+                                    firewallRuleSelectListItem
+                                }
+                            </Select>
+                        </Col>
+                        <Col xs={24} sm={24} md={8} lg={6} xl={6}>
+                            <Select
                                 id="Application"
                                 mode="multiple"
                                 size={"default"}
@@ -148,55 +146,61 @@ class DashboardFilter extends Component{
                                 style={{ width: "100%" }}
                                 placeholder="Application"
                                 onChange={(v)=>this.handleApplicationFilterChange(v)} >
-                            {
-                                applicationSelectListItem
-                            }
-                        </Select>
-                    </Col>
-                    <Col xs={24} sm={24} md={8} lg={6} xl={6}>
-                        <Select
-                            id="Protocol"
-                            mode="multiple"
-                            size={"default"}
-                            loading={this.state.loading_protocol_select}
-                            allowClear={true}
-                            style={{ width: "100%" }}
-                            placeholder="Protocol"
-                            onChange={(v)=>this.handleProtocolFilterChange(v)}>
-                            {
-                                protocolSelectListItem
-                            }
-                        </Select>
-                    </Col>
-                    <Col xs={24} sm={24} md={8} lg={6} xl={6}>
-                        <Select id="SourceZone"
+                                {
+                                    applicationSelectListItem
+                                }
+                            </Select>
+                        </Col>
+                        <Col xs={24} sm={24} md={8} lg={6} xl={6}>
+                            <Select
+                                id="Protocol"
                                 mode="multiple"
                                 size={"default"}
-                                loading={this.state.loading_source_zone_select}
+                                loading={this.state.loading_protocol_select}
                                 allowClear={true}
                                 style={{ width: "100%" }}
-                                placeholder="Source Zone"
-                                onChange={(v)=>this.handleSourceZoneFilterChange(v)}>
-                            {
-                                sourceZoneSelectListItem
-                            }
-                        </Select>
-                    </Col>
-                    <Col xs={24} sm={24} md={8} lg={6} xl={6}>
-                        <Select id="DestinationZone"
-                                mode="multiple"
-                                size={"default"}
-                                loading={this.state.loading_destination_zone_select}
-                                allowClear={true}
-                                style={{ width: "100%" }}
-                                placeholder="Destination Zone"
-                                onChange={(v)=>this.handleDestinationZoneFilterChange(v)}>
-                            {
-                                destinationZoneSelectListItem
-                            }
-                        </Select>
-                    </Col>
-                </Row>
+                                placeholder="Protocol"
+                                onChange={(v)=>this.handleProtocolFilterChange(v)}>
+                                {
+                                    protocolSelectListItem
+                                }
+                            </Select>
+                        </Col>
+                        <Col xs={24} sm={24} md={8} lg={6} xl={6}>
+                            <Select id="SourceZone"
+                                    mode="multiple"
+                                    size={"default"}
+                                    loading={this.state.loading_source_zone_select}
+                                    allowClear={true}
+                                    style={{ width: "100%" }}
+                                    placeholder="Source Zone"
+                                    onChange={(v)=>this.handleSourceZoneFilterChange(v)}>
+                                {
+                                    sourceZoneSelectListItem
+                                }
+                            </Select>
+                        </Col>
+                        <Col xs={24} sm={24} md={8} lg={6} xl={6}>
+                            <Select id="DestinationZone"
+                                    mode="multiple"
+                                    size={"default"}
+                                    loading={this.state.loading_destination_zone_select}
+                                    allowClear={true}
+                                    style={{ width: "100%" }}
+                                    placeholder="Destination Zone"
+                                    onChange={(v)=>this.handleDestinationZoneFilterChange(v)}>
+                                {
+                                    destinationZoneSelectListItem
+                                }
+                            </Select>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col sm={{span:24}} md={{span:12,push:12}} lg={{span:4, push:20}} xl={{span:4, push:20}}>
+                            <Button type={"primary"} style={{width:'100%'}}>Apply Filter</Button>
+                        </Col>
+                    </Row>
+                </div>
             </Fragment>
         )
     }
