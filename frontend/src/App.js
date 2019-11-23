@@ -25,14 +25,16 @@ class App extends Component {
               auth_token={this.props.auth_token}
               exact
               path="/auth/changepassword"
-              component={ChangePassword}
-          />
+          >
+            <ChangePassword activePageKey={"change-password"}></ChangePassword>
+          </AuthenticatedRoute>
           <AuthenticatedRoute
               auth_token={this.props.auth_token}
               exact
               path="/rules/verified"
-              component={VerifiedRules}
-          />
+          >
+            <VerifiedRules activePageKey={"verified-rules"}/>
+          </AuthenticatedRoute>
           <AuthenticatedRoute
             auth_token={this.props.auth_token}
             exact
@@ -44,8 +46,10 @@ class App extends Component {
             auth_token={this.props.auth_token}
             path="/ip"
             component={IpAddressProfile}
-          />
-          <AuthenticatedRoute path="/logs"><ProcessedLogs activePageKey={"logs"}/></AuthenticatedRoute>
+          >
+            <IpAddressProfile activePageKey={"ip"}/>
+          </AuthenticatedRoute>
+          <AuthenticatedRoute path="/logs"><ProcessedLogs activePageKey={"traffic-logs"}/></AuthenticatedRoute>
         </Switch>
       </BrowserRouter>
     );
