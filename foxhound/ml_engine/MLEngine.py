@@ -201,6 +201,12 @@ class MLEngine(AutoEncoder):
         else:
             print(f'IP profile path {self._IP_PROFILE_DIR} doesnot exist')
 
+    def _get_anomaly_reasons(self, anomalies):
+        reasons = anomalies > 3*std
+        reasons = np.array(self._FEATURES)[reasons[0]]
+
+        return reasons
+
     def _predict(self, df, model_path):
         """Method to predict anomaly from ip's dataframe using respective model
 
@@ -216,12 +222,50 @@ class MLEngine(AutoEncoder):
         list of int
             List of indices that are anomalous
         """
-        params = self._load_model_params(model_path)
+        model, params = self._load_model_params(model_path)
         x = params['standarizer'].transform(df)
-        out = params['model'].transform(x)
+        preds = model.predict(x)
+        mse = np.mean(np.power(x - preds, 2), axis=1)
         #plt.plot(out, 'ro')
-        indices = np.where(np.abs(out) > params['std']*3)[0]
-        return indices
+        indices = np.where(mse > 50)[0]
+        reasons = self._get_anomaly_reasons(x[indices])
+
+        return indices, reasons
+
+    def get_tenant_anomalies(self, input_csv, save_data_for_ip_profile=False):
+        df = pd.read_csv(input_csv)
+        truncated_df = df[self._FEATURES]
+        anomalous_df = df.head(0)
+        anomalous_without_model_count = 0
+        for tenant in df['Rule'].unique():
+            csv_path = os.path.join(
+                self._TENANT_PROFILE_DIR, tenant, f'{tenant}.csv')
+            model_path = os.path.join(
+                self._TENANT_MODEL_DIR, tenant)
+
+            tenant_df = truncated_df[truncated_df['Rule'] == tenant]
+            tenant_df = tenant_df.drop(columns=['Rule'])
+            tenant_df = self._preprocess(tenant_df)
+
+            if os.path.exists(model_path) is True:
+                indices = self._predict(tenant_df, model_path)
+                anomalous_df = pd.concat(
+                    [anomalous_df, df.iloc[tenant_df.index[indices]]], axis=0
+                    )
+            else:
+                anomalous_without_model_count += len(tenant_df.index)
+                anomalous_df = pd.concat(
+                    anomalous_df, df.iloc[tenant_df.index]
+                )
+
+            if save_data_for_ip_profile is True:
+                self._save_to_csv(tenant_df, csv_path)
+                #print(f'Saved data for ip {ip}')
+
+        anomalous_df['log_name'] = input_csv.split('/')[-1]
+        print(
+            f'{anomalous_without_model_count}/{len(anomalous_df.index)} : Anomalous without model')
+        return anomalous_df
 
     def get_anomalies(self, input_csv, save_data_for_ip_profile=False):
         """Method to get anomaly from input csv
