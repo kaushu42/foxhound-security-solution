@@ -98,7 +98,7 @@ class Engine(ABC):
             log_detail_granular_hour,
             self._LOG_GRANULAR_HOUR_OUTPUT_PATH
         )
-        # os.remove(csv_path)
+        os.remove(csv_path)
         print(f'Log file at {csv_path} deleted.')
 
     def run(self, verbose=False):

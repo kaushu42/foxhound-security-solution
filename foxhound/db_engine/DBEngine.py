@@ -58,7 +58,7 @@ class DBEngine(object):
         self._check_data_dir_valid(self._GRANULAR_HOUR_INPUT_DIR)
         self._log_detail_csvs = self._get_csv_paths(self._LOG_DETAIL_INPUT_DIR)
         self._granular_hour_csvs = self._get_csv_paths(
-            self._LOG_DETAIL_INPUT_DIR)
+            self._GRANULAR_HOUR_INPUT_DIR)
         self._session = sessionmaker(bind=db_engine, autoflush=False)()
         self._reader = geoip2.database.Reader(db_path)
         self._cols = [
@@ -266,9 +266,9 @@ class DBEngine(object):
         data.firewall_rule_id = data.firewall_rule_id.map(
             dfs['core_firewallrule'].reset_index().set_index('name').id)
         data.inbound_interface_id = data.inbound_interface_id.map(
-            dfs['core_interface'].reset_index().set_index('name').id)
+            dfs['core_interface'].drop_duplicates('name').reset_index().set_index('name').id)
         data.outbound_interface_id = data.outbound_interface_id.map(
-            dfs['core_interface'].reset_index().set_index('name').id)
+            dfs['core_interface'].drop_duplicates('name').reset_index().set_index('name').id)
         data.action_id = data.action_id.map(
             dfs['core_action'].reset_index().set_index('name').id)
         data.category_id = data.category_id.map(
@@ -280,22 +280,20 @@ class DBEngine(object):
     def _get_filename_from_full_path(self, path):
         return os.path.basename(path)
 
-    def _write_traffic_log(self, filename):
-        log_date = self._get_date_from_filename(filename)
-        traffic_log = TrafficLog(log_name=filename, log_date=log_date,
+    def _write_traffic_log(self, log_name):
+        log_date = self._get_date_from_filename(log_name)
+        traffic_log = TrafficLog(log_name=log_name, log_date=log_date,
                                  processed_datetime=datetime.datetime.now())
         self._session.add(traffic_log)
         self._session.flush()
         self._session.commit()
-        return traffic_log.id
+        return traffic_log
 
-    def _write_traffic_log_detail(self, data, traffic_log_id):
+    def _write_log(self, data, traffic_log_id, *, table_name):
         data['traffic_log_id'] = traffic_log_id
         data.drop(['virtual_system_id'], axis=1).to_sql(
-            'core_trafficlogdetail', self._db_engine, if_exists='append', index=True)
-
-    def _write_traffic_log_granular_hour(self, data, traffic_log_id):
-        pass
+            table_name, self._db_engine,
+            if_exists='append', index=True)
 
     def _write_rules(self, data):
         data = data[['firewall_rule_id', 'source_ip_id',
@@ -338,7 +336,6 @@ class DBEngine(object):
                 print(
                     f'Created Rule: {(source_ip)}--{destination_ip}--{application}'
                 )
-        self._session.commit()
 
     def _write_ip_info(self, id, data, ip_in_db):
         for date, ip_address in data:
@@ -392,7 +389,6 @@ class DBEngine(object):
                 size=int(j.source_port*SIZE_PER_LOG)
             )
             self._session.add(processed_log_detail)
-            self._session.commit()
 
         data.firewall_rule_id = data.firewall_rule_id.map(
             firewall_rules.reset_index().set_index('name').id)
@@ -410,36 +406,40 @@ class DBEngine(object):
                              ].drop_duplicates().values
             self._write_ip_info(index, ip, ip_in_db)
             self._write_application_info(index, application, application_in_db)
-        self._session.commit()
 
-    def _is_log_processed(self, csv, dfs):
-        filename = os.path.basename(csv)
-        print(dfs['core_trafficlog'].values)
-        if filename in dfs['core_trafficlog'].values:
-            return True
-        return False
+    def _write_granular(self, csv, traffic_log):
+        if not traffic_log.is_granular_hour_written:
+            data = self._read_csv(csv)
+            dfs = self._read_tables_from_db()
+            mapped_data = self._map_to_foreign_key(data, dfs)
+            self._write_log(mapped_data, traffic_log.id,
+                            table_name='core_trafficlogdetailgranularhour')
+            traffic_log.is_granular_hour_written = True
+            self._session.commit()
 
-    def _write_to_db(self, csv: str, traffic_log_id, *, log_type: LOG_TYPE):
+    def _write_to_db(self, csv: str, traffic_log):
         dfs = self._read_tables_from_db()
-        # Check if log is processed here
-        print(self._is_log_processed(csv, dfs))
-
         data = self._read_csv(csv)
         params = self._get_unique(data, dfs)
 
-        self._write_new_items_to_db(params)
-        dfs = self._read_tables_from_db()
+        if not traffic_log.is_log_detail_written:
+            self._write_new_items_to_db(params)
+            dfs = self._read_tables_from_db()
+            mapped_data = self._map_to_foreign_key(data, dfs)
+            self._write_log(mapped_data, traffic_log.id,
+                            table_name='core_trafficlogdetail')
+            traffic_log.is_log_detail_written = True
+            self._session.commit()
 
-        mapped_data = self._map_to_foreign_key(data, dfs)
+        if not traffic_log.is_rule_written:
+            self._write_rules(data)
+            traffic_log.is_rule_written = True
+            self._session.commit()
 
-        if log_type == LOG_TYPE.DETAIL:
-            self._write_traffic_log_detail(mapped_data, traffic_log_id)
-        elif log_type == LOG_TYPE.GRANULAR_HOUR:
-            self._write_traffic_log_granular_hour(mapped_data, traffic_log_id)
-
-        self._write_rules(data)
-
-        self._write_info(data, traffic_log_id)
+        if not traffic_log.is_info_written:
+            self._write_info(data, traffic_log.id)
+            traffic_log.is_info_written = True
+            self._session.commit()
 
     def _get_date_from_filename(self, string):
         date = re.findall(r'[0-9]{4}_[0-9]{2}_[0-9]{2}',
@@ -451,23 +451,34 @@ class DBEngine(object):
         csvs = [os.path.join(path, f) for f in files if f.endswith('.csv')]
         return sorted(csvs)
 
-    def run(self, verbose=False):
-        for (log_detail_csv, granular_hour_csv) in zip(self._log_detail_csvs, self._granular_hour_csvs):
-            if verbose:
-                print('Writing to db: ', log_detail_csv)
-                print('Writing to db: ', granular_hour_csv)
-            filename_detail = os.path.basename(log_detail_csv)
-            filename_granular_hour = os.path.basename(granular_hour_csv)
-            assert(filename_detail ==
-                   filename_granular_hour), 'Different files being used'
-            traffic_log_id = self._write_traffic_log(filename_detail)
-            self._write_to_db(log_detail_csv, traffic_log_id,
-                              log_type=LOG_TYPE.DETAIL)
-            self._write_to_db(granular_hour_csv,
-                              log_type=LOG_TYPE.GRANULAR_HOUR)
+    def _get_traffic_log(self, log_name):
+        log = self._session.query(TrafficLog).filter_by(log_name=log_name)
+        if not log.count():
+            return self._write_traffic_log(log_name)
+        return log[0]
 
-            # os.remove(log_detail_csv)
-            # os.remove(granular_hour_csv)
+    # TODO: Write functions using decorators
+    def _run_for_detail(self, verbose=False):
+        for csv in self._log_detail_csvs:
+            if verbose:
+                print('Writing to db: ', csv)
+            filename = os.path.basename(csv)
+            traffic_log = self._get_traffic_log(filename)
+            self._write_to_db(csv, traffic_log)
+            os.remove(csv)
+
+    def _run_for_granular_hour(self, verbose=False):
+        for csv in self._granular_hour_csvs:
+            if verbose:
+                print('Writing to db: ', csv)
+            filename = os.path.basename(csv)
+            traffic_log = self._get_traffic_log(filename)
+            self._write_granular(csv, traffic_log)
+            os.remove(csv)
+
+    def run(self, verbose=False):
+        self._run_for_detail(verbose=verbose)
+        self._run_for_granular_hour(verbose=verbose)
 
     def _check_data_dir_valid(self, data_dir: str):
         if not os.path.isdir(data_dir):

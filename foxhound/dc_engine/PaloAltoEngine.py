@@ -75,10 +75,8 @@ class PaloAltoEngine(Engine):
         data = data.groupby(group_columns)
         data = data.agg({
             'Repeat Count': 'mean',
-            'Bytes': 'sum',
             'Bytes Sent': 'sum',
             'Bytes Received': 'sum',
-            'Packets': 'sum',
             'Elapsed Time (sec)': 'sum',
             'Packets Sent': 'sum',
             'Packets Received': 'sum'
@@ -100,14 +98,10 @@ class PaloAltoEngine(Engine):
             'Category': 'category_id',
             'Session End Reason': 'session_end_reason_id',
             'Repeat Count': 'repeat_count',
-            'Bytes': 'bytes',
             'Bytes Sent': 'bytes_sent',
             'Bytes Received': 'bytes_received',
-            'Packets': 'packets',
-            'Elapsed Time (sec)': 'elapsed_time',
+            'Elapsed Time (sec)': 'time_elapsed',
             'Packets Sent': 'packets_sent',
             'Packets Received': 'packets_received'
         }, axis=1, inplace=True)
-        data.logged_datetime = data.logged_datetime.values.astype(
-            np.int64) // 10 ** 9
         return data

@@ -204,7 +204,7 @@ class TrafficLogDetail(models.Model):
     packets_received = models.BigIntegerField()
     packets_sent = models.BigIntegerField()
     time_elapsed = models.BigIntegerField()
-    logged_datetime = models.DateTimeField()
+    logged_datetime = models.DateTimeField(auto_now_add=True)
 
     def __repr__(self):
         return f'Log-{self.traffic_log}:{self.row_number}'
@@ -345,7 +345,6 @@ class TrafficLogDetailGranularHour(models.Model):
         related_name='granular_hour_session_end_reason'
     )
     row_number = models.BigIntegerField()
-    source_port = models.PositiveIntegerField()
     destination_port = models.PositiveIntegerField()
     bytes_sent = models.BigIntegerField()
     bytes_received = models.BigIntegerField()
