@@ -69,10 +69,12 @@ class StatsApiView(APIView):
         destination_ips = objects.values('destination_ip__address').distinct()
         ips = TenantIPAddressInfo.objects.filter(
             firewall_rule__tenant_id=tenant_id)
-
+        latest_date = objects.latest('logged_datetime').logged_datetime.date()
         if start_date:
             ips = ips.filter(created_date__gte=start_date,
                              created_date__lte=end_date)
+        else:
+            ips = ips.filter(created_date=latest_date)
         sources = ips.filter(ip_address__in=source_ips)
         destinations = ips.filter(ip_address__in=destination_ips)
         return Response(
