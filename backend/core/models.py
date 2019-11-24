@@ -58,6 +58,9 @@ class TrafficLog(models.Model):
     processed_datetime = models.DateField(auto_now_add=True)
     log_date = models.DateField()
     log_name = models.CharField(max_length=200)
+    is_log_detail_written = models.BooleanField(null=True, default=False)
+    is_rule_written = models.BooleanField(null=True, default=False)
+    is_info_written = models.BooleanField(null=True, default=False)
 
     def __repr__(self):
         return self.log_name
@@ -77,8 +80,11 @@ class IPAddress(models.Model):
         return self.address
 
 
-class Application(models.Model):
-    name = models.CharField(max_length=50)
+class ModelWithName(models.Model):
+    class Meta:
+        abstract = True
+
+    name = models.CharField(max_length=100)
 
     def __str__(self):
         return self.name
@@ -87,25 +93,16 @@ class Application(models.Model):
         return self.name
 
 
-class Protocol(models.Model):
-    name = models.CharField(max_length=50)
-
-    def __str__(self):
-        return self.name
-
-    def __repr__(self):
-        return self.name
+class Application(ModelWithName):
+    pass
 
 
-class Zone(models.Model):
-    name = models.CharField(max_length=50)
-    type = models.BooleanField()
+class Protocol(ModelWithName):
+    pass
 
-    def __str__(self):
-        return f'{self.name}'
 
-    def __repr__(self):
-        return self.__str__()
+class Zone(ModelWithName):
+    pass
 
 
 class FirewallRuleZone(models.Model):
@@ -126,6 +123,22 @@ class FirewallRuleZone(models.Model):
 
     def __repr__(self):
         return self.__str__()
+
+
+class SessionEndReason(ModelWithName):
+    pass
+
+
+class Category(ModelWithName):
+    pass
+
+
+class Action(ModelWithName):
+    pass
+
+
+class Interface(ModelWithName):
+    pass
 
 
 class TrafficLogDetail(models.Model):
@@ -160,6 +173,26 @@ class TrafficLogDetail(models.Model):
     firewall_rule = models.ForeignKey(
         FirewallRule, on_delete=models.CASCADE, null=True,
         related_name='firewall_rule'
+    )
+    inbound_interface = models.ForeignKey(
+        Interface, on_delete=models.CASCADE, null=True,
+        related_name='inbound_interface'
+    )
+    outbound_interface = models.ForeignKey(
+        Interface, on_delete=models.CASCADE, null=True,
+        related_name='outbound_interface'
+    )
+    action = models.ForeignKey(
+        Action, on_delete=models.CASCADE, null=True,
+        related_name='action'
+    )
+    category = models.ForeignKey(
+        Category, on_delete=models.CASCADE, null=True,
+        related_name='category'
+    )
+    session_end_reason = models.ForeignKey(
+        SessionEndReason, on_delete=models.CASCADE, null=True,
+        related_name='session_end_reason'
     )
     row_number = models.BigIntegerField()
     source_port = models.PositiveIntegerField()
@@ -252,6 +285,77 @@ class ProcessedLogDetail(models.Model):
 
     def __repr__(self):
         return f'{self.firewall_rule}-{self.n_rows}-{self.size}'
+
+    def __str__(self):
+        return self.__repr__()
+
+
+class TrafficLogDetailGranularHour(models.Model):
+    traffic_log = models.ForeignKey(
+        TrafficLog,
+        on_delete=models.CASCADE, null=True
+    )
+    source_ip = models.ForeignKey(
+        IPAddress, on_delete=models.CASCADE, null=True,
+        related_name='granular_hour_source_ip'
+    )
+    destination_ip = models.ForeignKey(
+        IPAddress, on_delete=models.CASCADE, null=True,
+        related_name='granular_hour_destination_ip'
+    )
+    application = models.ForeignKey(
+        Application, on_delete=models.CASCADE, null=True,
+        related_name='granular_hour_application'
+    )
+    protocol = models.ForeignKey(
+        Protocol, on_delete=models.CASCADE, null=True,
+        related_name='granular_hour_protocol'
+    )
+    source_zone = models.ForeignKey(
+        Zone, on_delete=models.CASCADE, null=True,
+        related_name='granular_hour_source_zone'
+    )
+    destination_zone = models.ForeignKey(
+        Zone, on_delete=models.CASCADE, null=True,
+        related_name='granular_hour_destination_zone'
+    )
+    firewall_rule = models.ForeignKey(
+        FirewallRule, on_delete=models.CASCADE, null=True,
+        related_name='granular_hour_firewall_rule'
+    )
+    inbound_interface = models.ForeignKey(
+        Interface, on_delete=models.CASCADE, null=True,
+        related_name='granular_hour_inbound_interface'
+    )
+    outbound_interface = models.ForeignKey(
+        Interface, on_delete=models.CASCADE, null=True,
+        related_name='granular_hour_outbound_interface'
+    )
+    action = models.ForeignKey(
+        Action, on_delete=models.CASCADE, null=True,
+        related_name='granular_hour_action'
+    )
+    category = models.ForeignKey(
+        Category, on_delete=models.CASCADE, null=True,
+        related_name='granular_hour_category'
+    )
+    session_end_reason = models.ForeignKey(
+        SessionEndReason, on_delete=models.CASCADE, null=True,
+        related_name='granular_hour_session_end_reason'
+    )
+    row_number = models.BigIntegerField()
+    source_port = models.PositiveIntegerField()
+    destination_port = models.PositiveIntegerField()
+    bytes_sent = models.BigIntegerField()
+    bytes_received = models.BigIntegerField()
+    repeat_count = models.PositiveIntegerField()
+    packets_received = models.BigIntegerField()
+    packets_sent = models.BigIntegerField()
+    time_elapsed = models.BigIntegerField()
+    logged_datetime = models.DateTimeField()
+
+    def __repr__(self):
+        return f'Log-{self.traffic_log}:{self.row_number}'
 
     def __str__(self):
         return self.__repr__()
