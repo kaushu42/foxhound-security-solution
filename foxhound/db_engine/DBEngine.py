@@ -1,6 +1,7 @@
 import os
 import re
 import datetime
+import enum
 
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
@@ -27,30 +28,54 @@ TENANT_ID_DEFAULT = 1
 SIZE_PER_LOG = 468
 
 
+class LOG_TYPE(enum.IntEnum):
+    DETAIL = 0
+    GRANULAR_HOUR = 1
+
+
 class DBEngine(object):
-    def __init__(self, input_dir: str, *, db_engine, db_path):
-        if not isinstance(input_dir, str):
-            raise TypeError('Input_dir must be a string')
+
+    def __init__(
+            self,
+            log_input_dir: str,
+            granular_hour_input_dir: str,
+            *, db_engine, db_path
+    ):
+        if not isinstance(log_input_dir, str):
+            raise TypeError('Log input directory must be a string')
+
+        if not isinstance(granular_hour_input_dir, str):
+            raise TypeError('Granular input directory must be a string')
 
         if not isinstance(db_engine, sqlalchemy.engine.base.Engine):
             raise TypeError('db_engine must be an sqlalchemy engine instance')
 
-        self._INPUT_DIR = input_dir
+        self._LOG_DETAIL_INPUT_DIR = log_input_dir
+        self._GRANULAR_HOUR_INPUT_DIR = granular_hour_input_dir
+
         self._db_engine = db_engine
-        self._check_data_dir_valid(self._INPUT_DIR)
-        self._csvs = self._get_csv_paths(self._INPUT_DIR)
+        self._check_data_dir_valid(self._LOG_DETAIL_INPUT_DIR)
+        self._check_data_dir_valid(self._GRANULAR_HOUR_INPUT_DIR)
+        self._log_detail_csvs = self._get_csv_paths(self._LOG_DETAIL_INPUT_DIR)
+        self._granular_hour_csvs = self._get_csv_paths(
+            self._GRANULAR_HOUR_INPUT_DIR)
         self._session = sessionmaker(bind=db_engine, autoflush=False)()
         self._reader = geoip2.database.Reader(db_path)
         self._cols = [
             'core_virtualsystem',
             'core_tenant',
+            'core_trafficlog',
             'core_firewallrule',
             'core_domain',
             'core_ipaddress',
             'core_application',
             'core_protocol',
             'core_zone',
-            'core_firewallrulezone'
+            'core_firewallrulezone',
+            'core_interface',
+            'core_category',
+            'core_sessionendreason',
+            'core_action'
         ]
 
     def _read_csv(self, csv: str):
@@ -120,6 +145,26 @@ class DBEngine(object):
             i for i in data['destination_zone_id'].unique(
             ) if i not in dfs['core_zone'].name.values
         ]
+        inbound_interface = [
+            i for i in data['inbound_interface_id'].unique(
+            ) if i not in dfs['core_interface'].name.values
+        ]
+        outbound_interface = [
+            i for i in data['outbound_interface_id'].unique(
+            ) if i not in dfs['core_interface'].name.values
+        ]
+        action = [
+            i for i in data['action_id'].unique(
+            ) if i not in dfs['core_action'].name.values
+        ]
+        category = [
+            i for i in data['category_id'].unique(
+            ) if i not in dfs['core_category'].name.values
+        ]
+        session_end_reason = [
+            i for i in data['session_end_reason_id'].unique(
+            ) if i not in dfs['core_sessionendreason'].name.values
+        ]
         return {
             'vsys': vsys,
             'firewall_rule': firewall_rule,
@@ -129,6 +174,11 @@ class DBEngine(object):
             'protocol': protocol,
             'source_zone': source_zone,
             'destination_zone': destination_zone,
+            'inbound_interface': inbound_interface,
+            'outbound_interface': outbound_interface,
+            'action': action,
+            'category': category,
+            'session_end_reason': session_end_reason,
         }
 
     def _get_country(self, ip_address):
@@ -198,6 +248,7 @@ class DBEngine(object):
                 f"INSERT INTO core_firewallrule VALUES({next_id}, '{i}', {TENANT_ID_DEFAULT});")
 
     def _map_to_foreign_key(self, data, dfs):
+        data = data.copy()
         data.virtual_system_id = data.virtual_system_id.map(
             dfs['core_virtualsystem'].reset_index().set_index('code').id)
         data.source_ip_id = data.source_ip_id.map(
@@ -214,24 +265,35 @@ class DBEngine(object):
             dfs['core_protocol'].reset_index().set_index('name').id)
         data.firewall_rule_id = data.firewall_rule_id.map(
             dfs['core_firewallrule'].reset_index().set_index('name').id)
+        data.inbound_interface_id = data.inbound_interface_id.map(
+            dfs['core_interface'].drop_duplicates('name').reset_index().set_index('name').id)
+        data.outbound_interface_id = data.outbound_interface_id.map(
+            dfs['core_interface'].drop_duplicates('name').reset_index().set_index('name').id)
+        data.action_id = data.action_id.map(
+            dfs['core_action'].reset_index().set_index('name').id)
+        data.category_id = data.category_id.map(
+            dfs['core_category'].reset_index().set_index('name').id)
+        data.session_end_reason_id = data.session_end_reason_id.map(
+            dfs['core_sessionendreason'].reset_index().set_index('name').id)
+        return data
 
     def _get_filename_from_full_path(self, path):
-        return path.split('/')[-1]
+        return os.path.basename(path)
 
-    def _write_traffic_log(self, filename):
-        filename = self._get_filename_from_full_path(filename)
-        log_date = self._get_date_from_filename(filename)
-        traffic_log = TrafficLog(log_name=filename, log_date=log_date,
+    def _write_traffic_log(self, log_name):
+        log_date = self._get_date_from_filename(log_name)
+        traffic_log = TrafficLog(log_name=log_name, log_date=log_date,
                                  processed_datetime=datetime.datetime.now())
         self._session.add(traffic_log)
         self._session.flush()
         self._session.commit()
-        return traffic_log.id
+        return traffic_log
 
-    def _write_traffic_log_detail(self, data, traffic_log_id):
+    def _write_log(self, data, traffic_log_id, *, table_name):
         data['traffic_log_id'] = traffic_log_id
         data.drop(['virtual_system_id'], axis=1).to_sql(
-            'core_trafficlogdetail', self._db_engine, if_exists='append', index=True)
+            table_name, self._db_engine,
+            if_exists='append', index=True)
 
     def _write_rules(self, data):
         data = data[['firewall_rule_id', 'source_ip_id',
@@ -274,7 +336,6 @@ class DBEngine(object):
                 print(
                     f'Created Rule: {(source_ip)}--{destination_ip}--{application}'
                 )
-        self._session.commit()
 
     def _write_ip_info(self, id, data, ip_in_db):
         for date, ip_address in data:
@@ -302,22 +363,24 @@ class DBEngine(object):
             self._db_engine,
             index_col='id'
         ).ip_address.unique()
+
         application_in_db = pd.read_sql_table(
             'core_tenantapplicationinfo',
             self._db_engine,
             index_col='id'
         ).application.unique()
+
         # Write log info: size and row count
         firewall_rules = pd.read_sql_table(
             'core_firewallrule', self._db_engine)
+
         log_info = data[['firewall_rule_id', 'source_port']]
         log_info = log_info.groupby('firewall_rule_id').count().reset_index()
         log_info = pd.merge(
             log_info, firewall_rules,
             left_on='firewall_rule_id', right_on='name'
         )
-        print(log_info.columns)
-        #[['id', 'source_port']]
+
         for i, j in log_info.iterrows():
             processed_log_detail = ProcessedLogDetail(
                 firewall_rule_id=int(j.id),
@@ -326,7 +389,6 @@ class DBEngine(object):
                 size=int(j.source_port*SIZE_PER_LOG)
             )
             self._session.add(processed_log_detail)
-            self._session.commit()
 
         data.firewall_rule_id = data.firewall_rule_id.map(
             firewall_rules.reset_index().set_index('name').id)
@@ -344,20 +406,40 @@ class DBEngine(object):
                              ].drop_duplicates().values
             self._write_ip_info(index, ip, ip_in_db)
             self._write_application_info(index, application, application_in_db)
-        self._session.commit()
 
-    def _write_to_db(self, csv: str):
+    def _write_granular(self, csv, traffic_log):
+        if not traffic_log.is_granular_hour_written:
+            data = self._read_csv(csv)
+            dfs = self._read_tables_from_db()
+            mapped_data = self._map_to_foreign_key(data, dfs)
+            self._write_log(mapped_data, traffic_log.id,
+                            table_name='core_trafficlogdetailgranularhour')
+            traffic_log.is_granular_hour_written = True
+            self._session.commit()
+
+    def _write_to_db(self, csv: str, traffic_log):
+        dfs = self._read_tables_from_db()
         data = self._read_csv(csv)
-        _data = data.copy()
-        dfs = self._read_tables_from_db()
         params = self._get_unique(data, dfs)
-        self._write_new_items_to_db(params)
-        dfs = self._read_tables_from_db()
-        self._map_to_foreign_key(data, dfs)
-        traffic_log_id = self._write_traffic_log(csv)
-        self._write_traffic_log_detail(data, traffic_log_id)
-        self._write_rules(_data)
-        self._write_info(_data, traffic_log_id)
+
+        if not traffic_log.is_log_detail_written:
+            self._write_new_items_to_db(params)
+            dfs = self._read_tables_from_db()
+            mapped_data = self._map_to_foreign_key(data, dfs)
+            self._write_log(mapped_data, traffic_log.id,
+                            table_name='core_trafficlogdetail')
+            traffic_log.is_log_detail_written = True
+            self._session.commit()
+
+        if not traffic_log.is_rule_written:
+            self._write_rules(data)
+            traffic_log.is_rule_written = True
+            self._session.commit()
+
+        if not traffic_log.is_info_written:
+            self._write_info(data, traffic_log.id)
+            traffic_log.is_info_written = True
+            self._session.commit()
 
     def _get_date_from_filename(self, string):
         date = re.findall(r'[0-9]{4}_[0-9]{2}_[0-9]{2}',
@@ -369,12 +451,34 @@ class DBEngine(object):
         csvs = [os.path.join(path, f) for f in files if f.endswith('.csv')]
         return sorted(csvs)
 
-    def run(self, verbose=False):
-        for csv in self._csvs:
+    def _get_traffic_log(self, log_name):
+        log = self._session.query(TrafficLog).filter_by(log_name=log_name)
+        if not log.count():
+            return self._write_traffic_log(log_name)
+        return log[0]
+
+    # TODO: Write functions using decorators
+    def _run_for_detail(self, verbose=False):
+        for csv in self._log_detail_csvs:
             if verbose:
                 print('Writing to db: ', csv)
-            self._write_to_db(csv)
+            filename = os.path.basename(csv)
+            traffic_log = self._get_traffic_log(filename)
+            self._write_to_db(csv, traffic_log)
             os.remove(csv)
+
+    def _run_for_granular_hour(self, verbose=False):
+        for csv in self._granular_hour_csvs:
+            if verbose:
+                print('Writing to db: ', csv)
+            filename = os.path.basename(csv)
+            traffic_log = self._get_traffic_log(filename)
+            self._write_granular(csv, traffic_log)
+            os.remove(csv)
+
+    def run(self, verbose=False):
+        self._run_for_detail(verbose=verbose)
+        self._run_for_granular_hour(verbose=verbose)
 
     def _check_data_dir_valid(self, data_dir: str):
         if not os.path.isdir(data_dir):
