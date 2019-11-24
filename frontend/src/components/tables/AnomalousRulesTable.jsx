@@ -60,7 +60,7 @@ class AnomalousRulesTable extends Component {
                 render : (text,record) => {
                     return (
                         <Fragment>
-                            <a onClick={() => this.props.handleAnomalousRuleAccept(this.props.auth_token,record)}><Icon type="check-circle" theme="filled" />&nbsp;&nbsp;</a>
+                            <a onClick={() => this.props.handleAnomalousRuleAccept(this.props.auth_token,record)}><Icon type="check-circle" theme="filled" style={{fontSize:24}}/>&nbsp;&nbsp;</a>
                         </Fragment>
                     )
                 }
@@ -117,9 +117,8 @@ class AnomalousRulesTable extends Component {
     }
 
     render(){
-        const selectedRecordToAccept = this.props;
+        const {selectedRecordToAccept} = this.props;
         const expandedRowRender = record => <p><b>Flagged Date: </b>{moment(record.verified_date_time).format("YYYY-MM-DD, HH:MM:SS")} <br/><b>Flagged By: </b> {record.verified_by_user.username} </p>;
-        const title = () => <h3>Anomalous Rules</h3>
         return(
             <Fragment>
                 {this.props.acceptAnomalousRuleError ?
@@ -129,17 +128,17 @@ class AnomalousRulesTable extends Component {
                     <Alert message="Success" type="success" closeText="Close Now" showIcon description={this.props.acceptAnomalousRuleSuccessMessage} />
                     : null }
                 <Spin spinning={this.props.anomalousRulesLoading}>
-                <Table
-                    id={"AnomalousTable"}
-                    bordered={true}
-                    rowKey={record => record.id}
-                    title = {title}
-                    expandedRowRender={expandedRowRender}
-                    columns={this.state.columns}
-                    dataSource = {this.props.anomalousRulesData}
-                    pagination={this.props.anomalousRulePagination}
-                    onChange={this.handleTableChange}
-                />
+                    <div style={{marginBottom:24,padding:24,background:'#fbfbfb',border: '1px solid #d9d9d9',borderRadius: 6}}>
+                        <Table
+                            id={"AnomalousTable"}
+                            rowKey={record => record.id}
+                            expandedRowRender={expandedRowRender}
+                            columns={this.state.columns}
+                            dataSource = {this.props.anomalousRulesData}
+                            pagination={this.props.anomalousRulePagination}
+                            onChange={this.handleTableChange}
+                        />
+                    </div>
                 </Spin>
                 <Drawer
                     id={"AcceptDrawer"}

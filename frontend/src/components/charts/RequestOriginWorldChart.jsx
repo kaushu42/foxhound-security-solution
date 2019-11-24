@@ -12,7 +12,8 @@ import {
     fetchSelectedCountryLog, 
     updatePagination
 } from "../../actions/requestOriginMapChartAction";
-import {Drawer, Select, Spin,Table,Card} from "antd";
+import {Drawer, Select, Spin, Table, Card, Row, Col, Statistic, Icon} from "antd";
+import ApplicationLineChart from "./ApplicationLineChart";
 
 class RequestOriginWorldChart extends Component {
 
@@ -126,7 +127,7 @@ class RequestOriginWorldChart extends Component {
 
             },
             title: {
-                text: "Request Origin"
+                text: "Request Origin Map View"
             },
             mapNavigation: {
                 enabled: true,
@@ -187,14 +188,55 @@ class RequestOriginWorldChart extends Component {
                         visible={this.props.mapChartLogDrawerVisible}
                     >
                     <Spin spinning={this.props.countryLogDataLoading}>
-                        <Table
-                            columns={this.state.columns}
-                            rowKey={record => record.id}
-                            dataSource={mapSelectedCountryLogData}
-                            loading={this.props.countryLogDataLoading}
-                            pagination={this.props.requestOriginMapPagination}
-                            onChange={this.handleTableChange}
-                        />
+                         <div style={{ background: '#fbfbfb', padding: '24px', border: '1px solid #d9d9d9',borderRadius: 6 }}>
+                            <Row gutter={16}>
+                                <Col span={8}>
+                                    <Card>
+                                        <Statistic
+                                            title={<b>Total Events</b>}
+                                            value={36063}
+                                            precision={0}
+                                            valueStyle={{ color: '#cf1322' }}
+                                        />
+                                    </Card>
+                                </Col>
+                                <Col span={8}>
+                                    <Card>
+                                        <Statistic
+                                            title={<b>Total Bytes Sent</b>}
+                                            value={45}
+                                            precision={2}
+                                            valueStyle={{ color: '#cf1322' }}
+                                            suffix="MB"
+                                        />
+                                    </Card>
+                                </Col>
+                                <Col span={8}>
+                                    <Card>
+                                        <Statistic
+                                            title={<b>Total Bytes Received</b>}
+                                            value={45}
+                                            precision={2}
+                                            valueStyle={{ color: '#cf1322' }}
+                                            suffix="GB"
+                                        />
+                                    </Card>
+                                </Col>
+                            </Row>
+                        </div>
+                        <div style={{ background: '#fbfbfb', padding: '24px', border: '1px solid #d9d9d9',borderRadius: 6 }}>
+                            <ApplicationLineChart selectedCountry={this.props.mapChartSelectedCountryCode}/>
+                        </div>
+                        <div style={{ background: '#fbfbfb', padding: '24px', border: '1px solid #d9d9d9',borderRadius: 6 }}>
+                            <Table
+                                columns={this.state.columns}
+                                rowKey={record => record.id}
+                                dataSource={mapSelectedCountryLogData}
+                                loading={this.props.countryLogDataLoading}
+                                pagination={this.props.requestOriginMapPagination}
+                                onChange={this.handleTableChange}
+                            />
+                        </div>
                     </Spin>
                 </Drawer>
             </Fragment>

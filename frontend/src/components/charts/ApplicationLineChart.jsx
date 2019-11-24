@@ -1,6 +1,6 @@
 import React, {Component, Fragment} from 'react';
 import HighchartsReact from "highcharts-react-official";
-import { Card, Select, Spin} from "antd";
+import {Card, Drawer, Select, Spin} from "antd";
 import {connect} from "react-redux";
 import axios from "axios";
 import {ROOT_URL} from "../../utils";
@@ -20,7 +20,11 @@ class ApplicationLineChart extends Component {
             loading : true,
             data : [],
             top_count: 5,
-            basis : 'bytes_received'
+            basis : 'bytes_received',
+            selectedApplicationLogData : null,
+            selectedApplicationLogDrawerVisible : false,
+            selectedApplication : null,
+            selectedTimeStamp : null
 
         };
     }
@@ -30,6 +34,7 @@ class ApplicationLineChart extends Component {
     componentDidMount = () => {
         this.handleFetchData();
         this.chart = this.refs.chart.chart;
+        this.chart.component = this;
         if (document.addEventListener) {
             document.addEventListener('webkitfullscreenchange', this.exitHandler, false);
             document.addEventListener('mozfullscreenchange', this.exitHandler, false);
@@ -75,6 +80,7 @@ class ApplicationLineChart extends Component {
         };
 
         let bodyFormData = new FormData();
+        bodyFormData.set('selected_country', this.props.selectedCountry);
         bodyFormData.set('topcount', this.state.top_count);
         bodyFormData.set('basis', this.state.basis);
         bodyFormData.set('start_date', this.props.date_range[0]);
@@ -112,7 +118,6 @@ class ApplicationLineChart extends Component {
                     type : 'spline',
                     data : this.state.data[key].map(e => [((e[0]*1000)),e[1]/1024/1024])
                 }
-                // let unitOfData = ""
                 console.log(this.state.data[key])
                 dataSeries.push(tempSeries)
             });
@@ -122,11 +127,6 @@ class ApplicationLineChart extends Component {
 
     updateChart = (data) => {
         const seriesLength = this.chart.series.length;
-        // this.chart.yAxis[0].update({
-        //     title:{
-        //         text: "new title"
-        //     }
-        // });
         for(let i = seriesLength - 1; i > -1; i--)
         {
             this.chart.series[i].remove()
@@ -137,7 +137,13 @@ class ApplicationLineChart extends Component {
                 name: data[i].name,
                 type: 'spline',
                 data: data[i].data,
-                showInNavigator: true
+                showInNavigator: true,
+                events: {
+                    click: function (e) {
+                        const self = this.chart.component;
+                        self.handleApplicationLineChartLogView(e.point.x,this.name);
+                    }
+                }
             });
 
         }
@@ -146,6 +152,18 @@ class ApplicationLineChart extends Component {
             loading : false
         });
         console.log('newSeriesdata',data);
+
+    }
+
+    handleApplicationLineChartLogView = (selectedTimeStamp,selectedApplication) => {
+        console.log('timestamp ',selectedTimeStamp,'application ',selectedApplication);
+        this.setState({
+            selectedApplication : selectedApplication,
+            selectedTimeStamp : selectedTimeStamp,
+            selectedApplicationLogDrawerVisible : true
+        })
+
+        // axios.post("");
 
     }
 
@@ -177,6 +195,19 @@ class ApplicationLineChart extends Component {
             time: {
                 timezoneOffset: -6 * 60
             },
+            // plotOptions: {
+            //     series: {
+            //         cursor: 'pointer',
+            //         point: {
+            //             events: {
+            //                 click: function() {
+            //                     const self = this.chart.component;
+            //                     self.handleApplicationLineChartLogView(this.category,this.series.name);
+            //                 }
+            //             }
+            //         }
+            //     }
+            // },
             responsive: {
                 rules: [{
                     condition: {
@@ -234,6 +265,15 @@ class ApplicationLineChart extends Component {
                         </Spin>
                     </Card>
                 </div>
+                <Drawer
+                    title={`Event Logs for Application ${this.state.selectedApplication} in time ${new Date(this.state.selectedTimeStamp)}`}
+                    width={1100}
+                    visible={this.state.selectedApplicationLogDrawerVisible}
+                    closable={true}
+                    onClose={this.handleCloseApplicationLogDrawer}
+                >
+
+                </Drawer>
             </Fragment>
         )
     }

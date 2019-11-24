@@ -1,6 +1,6 @@
 import React, {Component, Fragment} from 'react';
 import {connect} from "react-redux";
-import {Table} from 'antd';
+import {Spin, Table} from 'antd';
 import {
     fetchVerifiedRulesData,
     updatePagination
@@ -83,16 +83,16 @@ class VerifiedRulesTable extends Component {
         const title = () => <h3>Verified Rules</h3>
         return(
             <Fragment>
-                <Table
-                    bordered={true}
-                    rowKey={record => record.id}
-                    title = {title}
-                    expandedRowRender={expandedRowRender}
-                    columns={this.state.columns}
-                    dataSource = {this.props.verifiedRulesData}
-                    pagination={this.props.verifiedRulePagination}
-                    onChange={this.handleTableChange}
-                />
+                <div style={{marginBottom:24,padding:24,background:'#fbfbfb',border: '1px solid #d9d9d9',borderRadius: 6}}>
+                    <Table
+                        rowKey={record => record.id}
+                        expandedRowRender={expandedRowRender}
+                        columns={this.state.columns}
+                        dataSource = {this.props.verifiedRulesData}
+                        pagination={this.props.verifiedRulePagination}
+                        onChange={this.handleTableChange}
+                    />
+                </div>
             </Fragment>
         )
     }

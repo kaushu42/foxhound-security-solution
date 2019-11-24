@@ -12,7 +12,7 @@ import {
     updateUnverifiedRule,
     updatePagination
 } from "../../actions/unverifiedRulesAction";
-import {contentLayout, drawerInfoStyle} from "../../utils";
+import {drawerInfoStyle} from "../../utils";
 import {search} from "../../actions/ipSearchAction";
 import QuickIpView from "../../views/QuickIpView";
 import moment from "moment";
@@ -65,9 +65,9 @@ class UnverifiedRulesTable extends Component {
                 render : (text,record) => {
                     return (
                         <Fragment>
-                            <a onClick={() => this.props.handleUnverifiedRuleAccept(this.props.auth_token,record)}><Icon type="check-circle" theme="filled" />&nbsp;&nbsp;</a>
-                            <a onClick={() => this.props.handleUnverifiedRuleReject(this.props.auth_token,record)}><Icon type="close-circle" theme="filled" />&nbsp;&nbsp;</a>
-                            <a onClick={() => this.props.handleUnverifiedRuleUpdate(this.props.auth_token,record)}><Icon type="edit" theme="filled" />&nbsp;&nbsp;</a>
+                            <a onClick={() => this.props.handleUnverifiedRuleAccept(this.props.auth_token,record)}><Icon type="check-circle" theme="filled" style={{fontSize:24}}/>&nbsp;&nbsp;</a>
+                            <a onClick={() => this.props.handleUnverifiedRuleReject(this.props.auth_token,record)}><Icon type="close-circle" theme="filled" style={{fontSize:24}}/>&nbsp;&nbsp;</a>
+                            <a onClick={() => this.props.handleUnverifiedRuleUpdate(this.props.auth_token,record)}><Icon type="edit" theme="filled" style={{fontSize:24}}/>&nbsp;&nbsp;</a>
                         </Fragment>
                     )
                 }
@@ -145,7 +145,6 @@ class UnverifiedRulesTable extends Component {
     render(){
         const {selectedRecordToAccept,selectedRecordToReject,selectedRecordToUpdate} = this.props;
         const expandedRowRender = record => <p><b>Verified Data: </b>{record.verifiedDate} <br/><b>Verified By: </b> {record.verifiedBy} </p>;
-        const title = () => <h3>Unverified Rules</h3>
         return(
             <Fragment>
                 {this.props.acceptUnverifiedRuleError ?
@@ -168,15 +167,16 @@ class UnverifiedRulesTable extends Component {
                     : null }
 
                 <Spin spinning={this.props.unverifiedRulesLoading}>
-                    <Table
-                        bordered={true}
-                        rowKey={record => record.id}
-                        title = {title}
-                        columns={this.state.columns}
-                        dataSource = {this.props.unverifiedRulesData}
-                        pagination={this.props.unverifiedRulePagination}
-                        onChange={this.handleTableChange}
-                    />
+                    <div style={{marginBottom:24,padding:24,background:'#fbfbfb',border: '1px solid #d9d9d9',borderRadius: 6}}>
+                        <Table
+                            rowKey={record => record.id}
+                            expandedRowRender = {expandedRowRender}
+                            columns={this.state.columns}
+                            dataSource = {this.props.unverifiedRulesData}
+                            pagination={this.props.unverifiedRulePagination}
+                            onChange={this.handleTableChange}
+                        />
+                    </div>
                 </Spin>
                 <Drawer
                     id={"RejectDrawer"}
@@ -204,11 +204,11 @@ class UnverifiedRulesTable extends Component {
                                         </Col>
                                     </Row>
                                     <br />
+                                    <Row type="flex" gutter={16} style={{paddingTop: 10,paddingBottom: 10}}>
                                     <Form style={{width:'100%'}} name={"rejectRuleForm"}>
-                                        <Row type="flex" gutter={16} style={{paddingTop: 10,paddingBottom: 10}}>
                                             <Form.Item>
                                                 <label>Description</label>
-                                                <Input ref={node => (this.description = node)} defaultValue={selectedRecordToReject.description} />
+                                                <Input.TextArea ref={node => (this.description = node)} defaultValue={selectedRecordToReject.description} />
                                             </Form.Item>
                                             <Button
                                                 type="primary"
@@ -218,8 +218,8 @@ class UnverifiedRulesTable extends Component {
                                                 loading={this.props.rejectUnverifiedRuleLoading}
                                                 onClick={e =>this.handleRejectRuleSubmit(e)}>Reject this rule
                                             </Button>
-                                        </Row>
                                     </Form>
+                                </Row>
                                 </Fragment>
                             ):null
                         }
@@ -252,11 +252,12 @@ class UnverifiedRulesTable extends Component {
                                 </Row>
                                 <br />
                                     <p style={{color:'red'}}>{this.props.error_message}</p>
-                                    <Form style={{width:'100%'}} name={"acceptRuleForm"}>
                                     <Row type="flex" gutter={16} style={{paddingTop: 10,paddingBottom: 10}}>
-                                            <Form.Item>
+                                        <Form style={{width:'100%'}} name={"acceptRuleForm"}>
+
+                                        <Form.Item>
                                                 <label>Description</label>
-                                                <Input ref={node => (this.description = node)} defaultValue={selectedRecordToAccept.description} />
+                                                <Input.TextArea ref={node => (this.description = node)} defaultValue={selectedRecordToAccept.description} />
                                             </Form.Item>
                                             <Button
                                                 type="primary"
@@ -266,8 +267,8 @@ class UnverifiedRulesTable extends Component {
                                                 loading={this.props.acceptUnverifiedRuleLoading}
                                                 onClick={e =>this.handleAcceptRuleSubmit(e)}>Accept this rule
                                             </Button>
-                                        </Row>
-                                    </Form>
+                                        </Form>
+                                    </Row>
                             </Fragment>
                             ):null
                         }
@@ -316,7 +317,7 @@ class UnverifiedRulesTable extends Component {
                                             </Form.Item>
                                                 <Form.Item>
                                                     <label>Description</label>
-                                                    <Input ref={node => (this.description = node)} defaultValue={selectedRecordToUpdate.description} />
+                                                    <Input.TextArea ref={node => (this.description = node)} defaultValue={selectedRecordToUpdate.description} />
                                                 </Form.Item>
                                             <Button
                                                 type="primary"

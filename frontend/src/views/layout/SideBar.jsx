@@ -11,7 +11,7 @@ class SideBar extends Component {
         const {sideBarCollapsed,activePageKey } = this.props;
         return(
             <Fragment>
-                <Sider trigger={null} collapsible collapsed={sideBarCollapsed} collapsedWidth={0}>
+                <Sider trigger={null} collapsible collapsed={!sideBarCollapsed} collapsedWidth={0}>
                     <img src="/assets/fox-white.png" alt="foxhound-logo" style={{height:64,width:64,marginLeft:50,marginTop:5}}/>
                     <Menu theme="dark" mode="inline" defaultSelectedKeys={[activePageKey]}>
 
@@ -46,7 +46,7 @@ class SideBar extends Component {
                             <Menu.Item key="anomalous-rules">
                                 <a href={"/rules/anomalous"}>
                                     <Icon type="snippets" />
-                                    <span>anomalous Rules</span>
+                                    <span>Anomalous Rules</span>
                                 </a>
                             </Menu.Item>
                         </Menu.ItemGroup>
@@ -77,7 +77,7 @@ class SideBar extends Component {
                                     <span>Active TT</span>
                                 </a>
                             </Menu.Item>
-                            <Menu.Item key="closed-logs">
+                            <Menu.Item key="closed-tt">
                                 <a href={"/tt/closed"}>
                                     <Icon type="snippets" />
                                     <span>Closed TT</span>
@@ -97,6 +97,12 @@ class SideBar extends Component {
                                 <a href={"/usermanual"}>
                                     <Icon type="snippets" />
                                     <span>User Manual</span>
+                                </a>
+                            </Menu.Item>
+                            <Menu.Item key="change-log">
+                                <a href={"/changelog"}>
+                                    <Icon type="snippets" />
+                                    <span>Change Log</span>
                                 </a>
                             </Menu.Item>
                         </Menu.ItemGroup>

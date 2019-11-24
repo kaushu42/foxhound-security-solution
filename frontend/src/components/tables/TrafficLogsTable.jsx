@@ -4,7 +4,7 @@ import { Divider, PageHeader, Row, Spin, Table, Tag } from "antd";
 import reqwest from "reqwest";
 import { ROOT_URL } from "../../utils";
 
-class ProcessedLogsTable extends Component {
+class TrafficLogsTable extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -144,4 +144,4 @@ const mapStateToProps = state => {
   };
 };
 
-export default connect(mapStateToProps, null)(ProcessedLogsTable);
+export default connect(mapStateToProps, null)(TrafficLogsTable);

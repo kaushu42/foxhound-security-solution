@@ -1,19 +1,17 @@
 import React, {Component} from 'react';
-import MasterLayout from "./layout/MasterLayout";
-import VerifiedRulesTable from "../components/tables/VerifiedRulesTable";
+import MasterLayout from "../layout/MasterLayout";
+import VerifiedRulesTable from "../../components/tables/VerifiedRulesTable";
 import {PageHeader, Row} from "antd";
-import {contentLayout} from "../utils";
-import DashboardFilter from "../components/DashboardFilter";
+import {contentLayout} from "../../utils";
 import {connect} from "react-redux";
 
 class VerifiedRules extends Component {
     render() {
         return (
-            <MasterLayout>
+            <MasterLayout activePageKey={this.props.activePageKey}>
                 <PageHeader
                     style={{background: '#fff'}}
-                    title={"Verified Rules"}
-                    onBack={() => window.history.back()} />
+                    title={"Verified Rules"} />
                 <Row style={contentLayout}>
                     <VerifiedRulesTable />
                 </Row>
@@ -24,6 +22,7 @@ class VerifiedRules extends Component {
 
 const mapStateToProps = state => {
     return {
+
 
     }
 }
