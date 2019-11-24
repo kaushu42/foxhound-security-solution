@@ -61,6 +61,7 @@ class TrafficLog(models.Model):
     is_log_detail_written = models.BooleanField(null=True, default=False)
     is_rule_written = models.BooleanField(null=True, default=False)
     is_info_written = models.BooleanField(null=True, default=False)
+    is_granular_hour_written = models.BooleanField(null=True, default=False)
 
     def __repr__(self):
         return self.log_name

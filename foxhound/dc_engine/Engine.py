@@ -34,7 +34,9 @@ class Engine(ABC):
             'application_id', 'packets_received', 'packets_sent',
             'protocol_id', 'time_elapsed',
             'source_zone_id', 'destination_zone_id',
-            'firewall_rule_id', 'logged_datetime'
+            'firewall_rule_id', 'logged_datetime',
+            'inbound_interface_id', 'outbound_interface_id',
+            'action_id', 'category_id', 'session_end_reason_id'
         )
 
         self._INPUT_TO_OUTPUT_MAP = {}
