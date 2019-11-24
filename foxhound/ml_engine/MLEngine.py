@@ -24,27 +24,20 @@ class MLEngine(AutoEncoder):
     def __init__(self, tenant_profile_dir, tenant_model_dir, daily_csv_path, anomalies_csv_output_path, verbose=0):
         """Constructor for MLEngine class
 
-        Parameters
-        ----------
-        ip_profile_dir : str
-            Location of csv files where individual ip's profile is stored
-        ip_model_dir : str
-            Location of model files where individual ip's model is stored
-        daily_csv_path : str
-            Location of csv files where daily transactions is stored
-        anomalies_csv_output_path : str
-            Location of files where anomaly csv file is to be stored
+        Arguments:
+            tenant_profile_dir {str} -- Location of csv files where tenant's profile is stored
+            tenant_model_dir {str} -- Location of model files where tenant's model is stored
+            daily_csv_path {str} -- Location of csv files where daily transactions is stored
+            anomalies_csv_output_path {str} -- Location of files where anomaly csv file is to be stored
 
-        Raises
-        ------
-        TypeError
-            if ip_profile_dir parameter is not a string
-        TypeError
-            if ip_model_dir parameter is not a string
-        TypeError
-            if daily_csv_path parameter is not a string
-        TypeError
-            if anomalies_csv_output_path is not a string
+        Keyword Arguments:
+            verbose {int} -- Verbose (default: {0})
+
+        Raises:
+            TypeError: if tenant_profile_dir parameter is not a string
+            TypeError: if tenant_model_dir parameter is not a string
+            TypeError: if daily_csv_path parameter is not a string
+            TypeError: if anomalies_csv_output_path is not a string
         """
         if isinstance(tenant_profile_dir, str) is not True:
             raise TypeError('IP profile dir parameter must be a string')
@@ -123,7 +116,7 @@ class MLEngine(AutoEncoder):
         Parameters
         ----------
         params_dict : dictionary
-            Contains model's parameters to save
+            Contains model's parameters to save eg. standarizer
         model_path : str
             Location to save model's parameters to
         """
@@ -140,7 +133,7 @@ class MLEngine(AutoEncoder):
 
         Returns
         -------
-        dictionary
+        model and dictionary
             Contains model's parameters
         """
         model = self.load_model(model_path)
@@ -149,6 +142,8 @@ class MLEngine(AutoEncoder):
         return model, params
 
     def _create_tenant_models(self):
+        """Method to create models for tenant in tenant profile directory
+        """
         if os.path.exists(self._TENANT_MODEL_DIR) is not True:
             os.makedirs(self._TENANT_MODEL_DIR)
 
@@ -201,10 +196,20 @@ class MLEngine(AutoEncoder):
         else:
             print(f'IP profile path {self._IP_PROFILE_DIR} doesnot exist')
 
-    def _get_anomaly_reasons(self, anomalies):
-        truth_table = anomalies > 3*std
-        reasons = [', '.join(list(np.array(self._FEATURES)[row])) for row in truth_table]
+    def _get_anomaly_reasons(self, anomalies, features, mean, std):
+        """Method to get reasons for anomaly
 
+        Arguments:
+            anomalies {Pandas DataFrame} -- Contains anomalies
+            features {str} -- Contains array of features to use for extracting reasons
+            mean {float} -- Contains array of means of each features
+            std {float} -- Contains array of standard deviation of each features
+
+        Returns:
+            str -- Array of features as reason
+        """
+        truth_table = np.abs(anomalies-mean) > 3*std
+        reasons = [', '.join(features[row]) for index, row in truth_table.iterrows()]
         return reasons
 
     def _predict(self, df, model_path):
@@ -213,26 +218,47 @@ class MLEngine(AutoEncoder):
         Parameters
         ----------
         df : Pandas Dataframe
-            Dataframe of ip to find whether each transaction is an anomaly or not
+            Dataframe of tenant to find whether each transaction is an anomaly or not
         model_path : str
-            Location of ip's model
+            Location of tenant's model
 
         Returns
         -------
-        list of int
-            List of indices that are anomalous
+        Boolean, list of int, array of str
+            True if anomaly found, List of indices that are anomalous, Reasons of anomaly
         """
         model, params = self._load_model_params(model_path)
         x = params['standarizer'].transform(df)
+        mean = params['standarizer'].mean_
+        std = np.sqrt(params['standarizer'].var_)
         preds = model.predict(x)
         mse = np.mean(np.power(x - preds, 2), axis=1)
         #plt.plot(out, 'ro')
         indices = np.where(mse > 50)[0]
-        reasons = self._get_anomaly_reasons(x[indices])
 
-        return indices, reasons
+        if len(indices) is not 0:
+            reasons = self._get_anomaly_reasons(
+                df.iloc[indices], df.columns.values, mean, std
+                )
+            return True, indices, reasons
+        else:
+            return False, None, None
 
     def get_tenant_anomalies(self, input_csv, save_data_for_ip_profile=False):
+        """Method to get anomaly from input csv
+
+        Parameters
+        ----------
+        input_csv : str
+            Location of input csv to find anomaly from
+        save_data_for_ip_profile : bool, optional
+            Set it to True in order to save this new data for tenant profile, by default False
+
+        Returns
+        -------
+        Pandas Dataframe
+            Dataframe containing anomalous entries from the input csv
+        """
         df = pd.read_csv(input_csv)
         truncated_df = df[self._FEATURES]
         anomalous_df = df.head(0)
@@ -246,15 +272,17 @@ class MLEngine(AutoEncoder):
                 self._TENANT_MODEL_DIR, tenant)
 
             tenant_df = truncated_df[truncated_df['Rule'] == tenant]
-            tenant_df = tenant_df.drop(columns=['Rule'])
+            tenant_df.reset_index(inplace=True)
+            tenant_df = tenant_df.drop(columns=['index', 'Rule'])
             tenant_df = self._preprocess(tenant_df)
 
             if os.path.exists(model_path) is True:
-                indices, reasons = self._predict(tenant_df, model_path)
-                anomalous_features.extend(reasons)
-                anomalous_df = pd.concat(
-                    [anomalous_df, df.iloc[tenant_df.index[indices]]], axis=0
-                    )
+                has_anomaly, indices, reasons = self._predict(tenant_df, model_path)
+                if has_anomaly:
+                    anomalous_features.extend(reasons)
+                    anomalous_df = pd.concat(
+                        [anomalous_df, df.iloc[tenant_df.index[indices]]], axis=0, ignore_index=True
+                        )
             else:
                 anomalous_without_model_count += len(tenant_df.index)
                 anomalous_features.extend(['No model']*len(tenant_df.index))
@@ -262,71 +290,20 @@ class MLEngine(AutoEncoder):
                     anomalous_df, df.iloc[tenant_df.index]
                 )
 
-            anomalous_features_df = pd.DataFrame(
-                data=np.array(anomalous_features), columns=['Reasons']
-                )
-            anomalous_df = pd.concat([anomalous_df, anomalous_features_df], axis=1)
-
             if save_data_for_ip_profile is True:
                 self._save_to_csv(tenant_df, csv_path)
                 #print(f'Saved data for ip {ip}')
 
-        anomalous_df['log_name'] = input_csv.split('/')[-1]
-        print(
-            f'{anomalous_without_model_count}/{len(anomalous_df.index)} : Anomalous without model')
-        return anomalous_df
-
-    def get_anomalies(self, input_csv, save_data_for_ip_profile=False):
-        """Method to get anomaly from input csv
-
-        Parameters
-        ----------
-        input_csv : str
-            Location of input csv to find anomaly from
-        save_data_for_ip_profile : bool, optional
-            Set it to True in order to save this new data for ip profile, by default False
-
-        Returns
-        -------
-        Pandas Dataframe
-            Dataframe containing anomalous entries from the input csv
-        """
-        df = pd.read_csv(input_csv)
-        truncated_df = df[self._FEATURES]
-        anomalous_df = df.head(0)
-        anomalous_without_model_count = 0
-        for zone in df['Source Zone'].unique():
-            zone_df = truncated_df[truncated_df['Source Zone'] == zone]
-
-            ips = zone_df['Source address'].unique()
-            private_ips = ips[[ipaddress.ip_address(
-                ip).is_private for ip in ips]]
-
-            for ip in private_ips:
-                ip_csv_path = os.path.join(
-                    self._IP_PROFILE_DIR, zone, f'{ip}.csv')
-                model_path = os.path.join(
-                    self._IP_MODEL_DIR, zone, f'{ip}.pkl')
-
-                ip_df = zone_df[zone_df['Source address'] == ip].copy()
-                ip_df = self._preprocess(ip_df)
-
-                if os.path.exists(model_path) is True:
-                    indices = self._predict(ip_df, model_path)
-                    anomalous_df = pd.concat(
-                        [anomalous_df, df.iloc[ip_df.index[indices]]], axis=0)
-                else:
-                    anomalous_without_model_count += len(ip_df.index)
-                    anomalous_df = pd.concat(
-                        [anomalous_df, df.iloc[ip_df.index]], axis=0)
-
-                if save_data_for_ip_profile is True:
-                    self._save_to_csv(ip_df, ip_csv_path)
-                    #print(f'Saved data for ip {ip}')
+        anomalous_features_df = pd.DataFrame(
+            data=np.array(anomalous_features), columns=['Reasons']
+            )
+        anomalous_df = pd.concat([anomalous_df, anomalous_features_df], axis=1)
+        # anomalous_df.reset_index(inplace=True)
 
         anomalous_df['log_name'] = input_csv.split('/')[-1]
         print(
             f'{anomalous_without_model_count}/{len(anomalous_df.index)} : Anomalous without model')
+
         return anomalous_df
 
     def _predict_anomalies(self):
@@ -337,8 +314,9 @@ class MLEngine(AutoEncoder):
             for csv in sorted(os.listdir(self._DAILY_CSV_DIR)):
                 print(f'**********Processing {csv} **********')
                 csv_file_path = os.path.join(self._DAILY_CSV_DIR, csv)
-                anomalous_df.append(self.get_anomalies(
-                    csv_file_path, save_data_for_ip_profile=True))
+                anomalous_df.append(self.get_tenant_anomalies(
+                    csv_file_path, save_data_for_ip_profile=False))
+                # print(anomalous_df)
 
             anomalous_df = pd.concat(anomalous_df)
             anomalous_df.to_csv(os.path.join(
