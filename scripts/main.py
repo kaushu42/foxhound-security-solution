@@ -68,10 +68,10 @@ try:
 
     seedutils.seed(session)
     init = Initialize(config.TRAFFIC_LOGS_INPUT_DIR,
-                      config.IP_PROFILE_OUTPUT_DIR)
+                      config.TENANT_PROFILE_OUTPUT_DIR)
     init.parse_all_csv()
 
-    mle = MLEngine(config.IP_PROFILE_OUTPUT_DIR, config.IP_MODEL_OUTPUT_DIR,
+    mle = MLEngine(config.TENANT_PROFILE_OUTPUT_DIR, config.TENANT_MODEL_OUTPUT_DIR,
                    config.TRAFFIC_LOGS_INPUT_DIR, config.ANOMALY_LOGS_OUTPUT_DIR)
     mle.run(create_model=True, predict=True)
     logging.info('DC Engine running')
