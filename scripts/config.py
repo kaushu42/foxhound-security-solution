@@ -19,8 +19,8 @@ PORT = 5432
 
 TRAFFIC_LOGS_INPUT_DIR = os.path.join(BASE_PATH, '../inputs/traffic_logs')
 TRAFFIC_LOGS_OUTPUT_DIR = os.path.join(BASE_PATH, '../outputs/traffic_logs')
-IP_PROFILE_OUTPUT_DIR = os.path.join(BASE_PATH, "../outputs/ip_profile")
-IP_MODEL_OUTPUT_DIR = os.path.join(BASE_PATH, "../outputs/ip_model")
+TENANT_PROFILE_OUTPUT_DIR = os.path.join(BASE_PATH, "../outputs/tenant_profile")
+TENANT_MODEL_OUTPUT_DIR = os.path.join(BASE_PATH, "../outputs/tenant_model")
 ANOMALY_LOGS_OUTPUT_DIR = os.path.join(BASE_PATH, "../outputs/anomaly_logs")
 
 LOG_PATH = os.path.join(BASE_PATH, 'logs')
