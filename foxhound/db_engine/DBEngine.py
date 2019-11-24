@@ -183,13 +183,13 @@ class DBEngine(object):
             print(f'Created {i}')
             next_id = self._get_next_id('core_zone')
             self._db_engine.execute(
-                f"INSERT INTO core_zone VALUES({next_id}, '{i}', false);")
+                f"INSERT INTO core_zone VALUES({next_id}, '{i}');")
 
         for i in params['destination_zone']:
             print(f'Created {i}')
             next_id = self._get_next_id('core_zone')
             self._db_engine.execute(
-                f"INSERT INTO core_zone VALUES({next_id}, '{i}', true);")
+                f"INSERT INTO core_zone VALUES({next_id}, '{i}');")
 
         for i in params['firewall_rule']:
             print(f'Created {i}')

@@ -7,7 +7,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from core.models import (
-    TrafficLogDetail
+    TrafficLogDetail,
+    Country
 )
 
 from globalutils.utils import (
@@ -89,8 +90,13 @@ class ApplicationApiView(APIView):
         query = get_query_from_request(request)
         # Get all the tenant logs
         objects = get_objects_from_query(query).filter(
-            firewall_rule__tenant__id=tenant_id,
+            firewall_rule__tenant__id=tenant_id
         )
+        country = request.data.get('country', None)
+        if country is not None:
+            ips = Country.objects.filter(iso_code=country).values('ip_address')
+            objects = objects.filter(source_ip__in=ips)
+
         # Group by minute
         objects = groupby_date(
             objects,
@@ -108,8 +114,10 @@ class ApplicationApiView(APIView):
             top_apps[application] = top_apps.get(application, 0) + bytes_total
             response[application].append([date, bytes_total])
         final_response = {}
-        for key, _ in sorted(top_apps.items(),
-                             key=operator.itemgetter(1), reverse=True)[:topcount]:
+        for key, _ in sorted(
+                top_apps.items(),
+                key=operator.itemgetter(1),
+                reverse=True)[:topcount]:
             final_response[key] = response[key]
 
         return Response({"data": final_response})

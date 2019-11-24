@@ -74,7 +74,6 @@ class RequestOriginLogApiView(PaginatedView):
             })
         ips = Country.objects.filter(iso_code=country).values('ip_address')
         tenant_id = get_tenant_id_from_token(request)
-        tenant_id = get_tenant_id_from_token(request)
         query = get_query_from_request(request)
         objects = get_objects_from_query(query).filter(
             firewall_rule__tenant__id=tenant_id,
