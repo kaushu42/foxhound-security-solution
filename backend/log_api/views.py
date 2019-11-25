@@ -79,10 +79,19 @@ class RequestOriginLogApiView(PaginatedView):
             firewall_rule__tenant__id=tenant_id,
             source_ip__in=ips
         ).order_by('-id')
+
+        bytes_sent = objects.aggregate(Sum('bytes_sent'))['bytes_sent__sum']
+        bytes_received = objects.aggregate(Sum('bytes_received'))[
+            'bytes_received__sum']
+
         page = self.paginate_queryset(objects)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
-            return self.get_paginated_response(serializer.data)
+            response = self.get_paginated_response(serializer.data)
+            response.data['bytes_sent'] = bytes_sent
+            response.data['bytes_received'] = bytes_received
+            response.data['rows'] = response.data['count']
+            return response
         return Response({})
 
     def post(self, request):
