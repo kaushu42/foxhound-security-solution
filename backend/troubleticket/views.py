@@ -67,7 +67,6 @@ class TroubleTicketAnomalyApiView(PaginatedView):
                 "source_ip": detail.source_ip,
                 "destination_ip": detail.destination_ip,
                 "application": detail.application,
-                "source_port": detail.source_port,
                 "destination_port": detail.destination_port,
             }
             items.append(item)
