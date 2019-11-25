@@ -97,6 +97,7 @@ class ApplicationLineChart extends Component {
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if(
+            (String(prevProps.country)!==String(this.props.country)) ||
             (String(prevState.top_count)!==String(this.state.top_count)) ||
             (String(prevState.basis)!==String(this.state.basis)) ||
             (String(prevProps.ip_address)!==String(this.props.ip_address)) ||
