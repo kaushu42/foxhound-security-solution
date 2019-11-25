@@ -159,7 +159,6 @@ class IpUsageTimeSeriesChart extends Component {
       },
       series: [
         {
-          name: "Bytes Received",
           type: "spline",
           name : 'Bytes Received' + '(' + unit + ')',
           data: data
