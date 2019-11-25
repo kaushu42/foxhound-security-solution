@@ -120,6 +120,8 @@ class MLEngine(AutoEncoder):
         model_path : str
             Location to save model's parameters to
         """
+        if os.path.exists(model_path) is not True:
+            os.makedirs(model_path)
         self.save_model(model_path)
         pickle.dump(params_dict, open(f'{model_path}/params.pkl', 'wb'))
 
@@ -155,14 +157,18 @@ class MLEngine(AutoEncoder):
                 if os.path.exists(tenant_model_dir) is not True:
                     os.makedirs(tenant_model_dir)
 
-                for profile_csv in sorted(os.listdir(tenant_profile_dir)):
-                    tenant_csv_path = os.path.join(tenant_profile_dir, profile_csv)
-                    tenant_df = pd.read_csv(tenant_csv_path)
-                    tenant_df, standarizer = self.normalize_data(tenant_df)
-                    print(f'**************** Training model for {tenant_profile_dir}****************')
-                    self.train_model(tenant_df)
-                    print(f'**************** Training model for {tenant_profile_dir}****************')
-                    self._save_model_params({'standarizer': standarizer}, tenant_model_dir)
+                for ip_csv_file in sorted(os.listdir(tenant_profile_dir)):
+                    ip_csv_path = os.path.join(tenant_profile_dir, ip_csv_file)
+                    ip_model_path = os.path.join(tenant_model_dir, ip_csv_file[:-3])
+                    ip_df = pd.read_csv(ip_csv_path)
+                    if len(ip_df.index) > 100:
+                        ip_df, standarizer = self.normalize_data(ip_df)
+                        print(f'**************** Training model for {ip_csv_path}****************')
+                        self.train_model(ip_df)
+                        print(f'**************** Training model for {ip_csv_path}****************')
+                        self._save_model_params({'standarizer': standarizer}, ip_model_path)
+                    else:
+                        pass
 
     def _get_anomaly_reasons(self, anomalies, features, mean, std):
         """Method to get reasons for anomaly
