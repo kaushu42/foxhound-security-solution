@@ -80,7 +80,7 @@ class ApplicationLineChart extends Component {
         };
 
         let bodyFormData = new FormData();
-        bodyFormData.set('selected_country', this.props.selectedCountry);
+        bodyFormData.set('application', this.props.selectedApplication);
         bodyFormData.set('topcount', this.state.top_count);
         bodyFormData.set('basis', this.state.basis);
         bodyFormData.set('start_date', this.props.date_range[0]);
@@ -193,6 +193,9 @@ class ApplicationLineChart extends Component {
                 dateTimeLabelFormats: {
                     day: '%Y-%b-%d',
                 }
+            },
+            tooltip: {
+                valueDecimals: 2
             },
             time: {
                 timezoneOffset: -6 * 60

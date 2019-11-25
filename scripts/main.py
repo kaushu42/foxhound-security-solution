@@ -72,6 +72,7 @@ try:
                       config.TENANT_PROFILE_OUTPUT_DIR)
     init.parse_all_csv()
 
+<<<<<<< HEAD
     # mle = MLEngine(config.TENANT_PROFILE_OUTPUT_DIR, config.TENANT_MODEL_OUTPUT_DIR,
     #                config.TRAFFIC_LOGS_INPUT_DIR, config.ANOMALY_LOGS_OUTPUT_DIR)
     # mle.run(create_model=True, predict=True)
@@ -80,24 +81,34 @@ try:
         config.TRAFFIC_LOGS_INPUT_DIR, config.TRAFFIC_LOGS_OUTPUT_DIR,
         config.GRANULARIZED_LOG_PATH)
     pa.run(verbose=False)
+=======
+    mle = MLEngine(config.TENANT_PROFILE_OUTPUT_DIR, config.TENANT_MODEL_OUTPUT_DIR,
+                   config.TRAFFIC_LOGS_INPUT_DIR, config.ANOMALY_LOGS_OUTPUT_DIR)
+    mle.run(create_model=True, predict=True)
+    # logging.info('DC Engine running')
+    # pa = fh.dc_engine.PaloAltoEngine(
+    #     config.TRAFFIC_LOGS_INPUT_DIR, config.TRAFFIC_LOGS_OUTPUT_DIR,
+    #     config.GRANULARIZED_LOG_PATH)
+    # pa.run(verbose=False)
+>>>>>>> 8091f89524d518ba02fad44447403b9a8780a046
 
-    logging.info('DB Engine running')
-    db = fh.db_engine.DBEngine(
-        config.TRAFFIC_LOGS_OUTPUT_DIR,
-        config.GRANULARIZED_LOG_PATH,
-        db_engine=db_engine,
-        db_path=os.path.join(config.BASE_PATH, 'GeoLite2-City.mmdb')
-    )
-    db.run(verbose=False)
-    db.clean()
-    tt_anomaly = TTAnomaly(config.ANOMALY_LOGS_OUTPUT_DIR, db_engine)
-    tt_anomaly.run()
+    # logging.info('DB Engine running')
+    # db = fh.db_engine.DBEngine(
+    #     config.TRAFFIC_LOGS_OUTPUT_DIR,
+    #     config.GRANULARIZED_LOG_PATH,
+    #     db_engine=db_engine,
+    #     db_path=os.path.join(config.BASE_PATH, 'GeoLite2-City.mmdb')
+    # )
+    # db.run(verbose=False)
+    # db.clean()
+    # tt_anomaly = TTAnomaly(config.ANOMALY_LOGS_OUTPUT_DIR, db_engine)
+    # tt_anomaly.run()
 
-    anomaly_logs = [os.path.join(config.ANOMALY_LOGS_OUTPUT_DIR, f)
-                    for f in os.listdir(config.ANOMALY_LOGS_OUTPUT_DIR)]
-    for log in anomaly_logs:
-        os.remove(log)
-        logging.info(f'{log} deleted!')
+    # anomaly_logs = [os.path.join(config.ANOMALY_LOGS_OUTPUT_DIR, f)
+    #                 for f in os.listdir(config.ANOMALY_LOGS_OUTPUT_DIR)]
+    # for log in anomaly_logs:
+    #     os.remove(log)
+    #     logging.info(f'{log} deleted!')
 except Exception as e:
     logging.exception(f'An error occured on {datetime.datetime.now()}')
     raise(e)

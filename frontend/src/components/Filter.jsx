@@ -1,5 +1,5 @@
 import React, {Component, Fragment} from 'react';
-import {Row,Col,Select,DatePicker} from 'antd';
+import {Row, Col, Select, DatePicker, Button} from 'antd';
 import {connect} from 'react-redux';
 import {
     updateDateRangePickerFilter,
@@ -27,12 +27,12 @@ class Filter extends Component{
             loading_protocol_select : true,
             loading_source_zone_select: true,
             loading_destination_zone_select: true,
-            date_range_value : null,
-            firewall_rule_value : null,
-            application_value :null,
-            protocol_value:null,
-            source_zone_value : null,
-            destination_zone_value : null
+            date_range_value : [],
+            firewall_rule_value : [],
+            application_value :[],
+            protocol_value:[],
+            source_zone_value : [],
+            destination_zone_value : []
         }
    }
 
@@ -59,28 +59,57 @@ class Filter extends Component{
     }
 
     handleRangePickerChange = (event,value) => {
-        this.props.dispatchRangePickerUpdate(value);
+        this.setState({
+            date_range_value : value
+        });
     }
 
     handleFirewallRuleFilterChange = (value) => {
-        this.props.dispatchFirewallRuleFilterUpdate(value);
+        this.setState({
+            firewall_rule_value : value
+        })
+
     }
 
     handleApplicationFilterChange = (value) => {
-        this.props.dispatchApplicationFilterUpdate(value);
+        this.setState({
+            application_value : value
+        })
+
     }
 
     handleProtocolFilterChange = (value) => {
-        this.props.dispatchProtocolFilterUpdate(value);
+        this.setState({
+            protocol_value : value
+        })
+
     }
 
     handleSourceZoneFilterChange = (value) => {
-        this.props.dispatchSourceZoneFilterUpdate(value);
+        this.setState({
+            source_zone_value : value
+        })
+
 
     }
 
     handleDestinationZoneFilterChange = (value)  => {
-        this.props.dispatchDestinationZoneFilterUpdate(value);
+        this.setState({
+            destination_zone_value : value
+        })
+
+    }
+
+    handleFilterApplyChanges = (event) => {
+        const {date_range_value,firewall_rule_value,application_value,protocol_value,source_zone_value,destination_zone_value} = this.state;
+        event.preventDefault();
+        this.props.dispatchRangePickerUpdate(date_range_value);
+        this.props.dispatchDestinationZoneFilterUpdate(application_value);
+        this.props.dispatchSourceZoneFilterUpdate(protocol_value);
+        this.props.dispatchProtocolFilterUpdate(source_zone_value);
+        this.props.dispatchApplicationFilterUpdate(destination_zone_value);
+        this.props.dispatchFirewallRuleFilterUpdate(firewall_rule_value);
+
     }
 
     render(){
@@ -93,11 +122,11 @@ class Filter extends Component{
         return(
             <Fragment>
                 <div style={{padding:24,background:'#fbfbfb',border: '1px solid #d9d9d9',borderRadius: 6}}>
-                    <Row>
-                        <Col xs={24} sm={24} md={8} lg={4} xl={4}>
+                    <Row gutter={[16,16]}>
+                        <Col xs={24} sm={24} md={12} lg={4} xl={4}>
                             <RangePicker id="RangePicker" onChange={(e,v)=>this.handleRangePickerChange(e,v)}/>
                         </Col>
-                        <Col xs={24} sm={24} md={8} lg={4} xl={4}>
+                        <Col xs={24} sm={24} md={12} lg={8} xl={4}>
                             <Select
                                 id="FirewallRule"
                                 mode="multiple"
@@ -111,7 +140,7 @@ class Filter extends Component{
                                 }
                             </Select>
                         </Col>
-                        <Col xs={24} sm={24} md={8} lg={4} xl={4}>
+                        <Col xs={24} sm={24} md={12} lg={8} xl={4}>
                             <Select
                                 id="Application"
                                 mode="multiple"
@@ -125,7 +154,7 @@ class Filter extends Component{
                                 }
                             </Select>
                         </Col>
-                        <Col xs={24} sm={24} md={8} lg={4} xl={4}>
+                        <Col xs={24} sm={24} md={12} lg={8} xl={4}>
                             <Select
                                 id="Protocol"
                                 mode="multiple"
@@ -139,7 +168,7 @@ class Filter extends Component{
                                 }
                             </Select>
                         </Col>
-                        <Col xs={24} sm={24} md={8} lg={4} xl={4}>
+                        <Col xs={24} sm={24} md={12} lg={8} xl={4}>
                             <Select id="SourceZone"
                                     mode="multiple"
                                     loading={this.state.loading_source_zone_select}
@@ -152,7 +181,7 @@ class Filter extends Component{
                                 }
                             </Select>
                         </Col>
-                        <Col xs={24} sm={24} md={8} lg={4} xl={4}>
+                        <Col xs={24} sm={24} md={12} lg={8} xl={4}>
                             <Select id="DestinationZone"
                                     mode="multiple"
                                     loading={this.state.loading_destination_zone_select}
@@ -164,6 +193,11 @@ class Filter extends Component{
                                     destinationZoneSelectListItem
                                 }
                             </Select>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col sm={{span:24}} md={{span:12,push:12}} lg={{span:8, push:16}} xl={{span:4, push:16}}>
+                            <Button type={"primary"} style={{width:'100%'}} onClick={this.handleFilterApplyChanges}>Apply Filter</Button>
                         </Col>
                     </Row>
                 </div>
