@@ -1,6 +1,6 @@
 import React, {Component, Fragment} from 'react';
 import HighchartsReact from "highcharts-react-official";
-import {Card, Drawer, Select, Spin} from "antd";
+import {Card, Drawer, Select, Spin, Table} from "antd";
 import {connect} from "react-redux";
 import axios from "axios";
 import {ROOT_URL} from "../../utils";
@@ -167,6 +167,8 @@ class ApplicationLineChart extends Component {
 
     }
 
+    handleCloseApplicationLogDrawer = () => this.setState({selectedApplicationLogDrawerVisible:false})
+
     render(){
         const options = {
             chart :{
@@ -195,19 +197,6 @@ class ApplicationLineChart extends Component {
             time: {
                 timezoneOffset: -6 * 60
             },
-            // plotOptions: {
-            //     series: {
-            //         cursor: 'pointer',
-            //         point: {
-            //             events: {
-            //                 click: function() {
-            //                     const self = this.chart.component;
-            //                     self.handleApplicationLineChartLogView(this.category,this.series.name);
-            //                 }
-            //             }
-            //         }
-            //     }
-            // },
             responsive: {
                 rules: [{
                     condition: {
@@ -272,7 +261,14 @@ class ApplicationLineChart extends Component {
                     closable={true}
                     onClose={this.handleCloseApplicationLogDrawer}
                 >
-
+                    {
+                        this.state.selectedApplicationLogData ? (
+                            <Table
+                            columns={this.state.applicationlogColumns}
+                            dataSource={this.state.selectedApplicationLogData}
+                            />
+                        ) : null
+                    }
                 </Drawer>
             </Fragment>
         )
