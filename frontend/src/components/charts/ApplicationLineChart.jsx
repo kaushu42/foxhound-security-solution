@@ -1,6 +1,6 @@
 import React, {Component, Fragment} from 'react';
 import HighchartsReact from "highcharts-react-official";
-import {Card, Drawer, Select, Spin} from "antd";
+import {Card, Drawer, Select, Spin, Table} from "antd";
 import {connect} from "react-redux";
 import axios from "axios";
 import {ROOT_URL} from "../../utils";
@@ -80,7 +80,7 @@ class ApplicationLineChart extends Component {
         };
 
         let bodyFormData = new FormData();
-        bodyFormData.set('selected_country', this.props.selectedCountry);
+        bodyFormData.set('application', this.props.selectedApplication);
         bodyFormData.set('topcount', this.state.top_count);
         bodyFormData.set('basis', this.state.basis);
         bodyFormData.set('start_date', this.props.date_range[0]);
@@ -135,7 +135,7 @@ class ApplicationLineChart extends Component {
         for(let i = 0; i< data.length;i++){
             this.chart.addSeries({
                 name: data[i].name,
-                type: 'spline',
+                type: 'areaspline',
                 data: data[i].data,
                 showInNavigator: true,
                 events: {
@@ -166,6 +166,8 @@ class ApplicationLineChart extends Component {
         // axios.post("");
 
     }
+
+    handleCloseApplicationLogDrawer = () => this.setState({selectedApplicationLogDrawerVisible:false})
 
     render(){
         const options = {
@@ -198,19 +200,6 @@ class ApplicationLineChart extends Component {
             time: {
                 timezoneOffset: -6 * 60
             },
-            // plotOptions: {
-            //     series: {
-            //         cursor: 'pointer',
-            //         point: {
-            //             events: {
-            //                 click: function() {
-            //                     const self = this.chart.component;
-            //                     self.handleApplicationLineChartLogView(this.category,this.series.name);
-            //                 }
-            //             }
-            //         }
-            //     }
-            // },
             responsive: {
                 rules: [{
                     condition: {
@@ -275,7 +264,14 @@ class ApplicationLineChart extends Component {
                     closable={true}
                     onClose={this.handleCloseApplicationLogDrawer}
                 >
-
+                    {
+                        this.state.selectedApplicationLogData ? (
+                            <Table
+                            columns={this.state.applicationlogColumns}
+                            dataSource={this.state.selectedApplicationLogData}
+                            />
+                        ) : null
+                    }
                 </Drawer>
             </Fragment>
         )

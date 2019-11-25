@@ -18,7 +18,7 @@ from foxhound.db_engine.core_models import (
 )
 
 from foxhound.ml_engine.Initialize import Initialize
-from foxhound.ml_engine.MLEngine import MLEngine
+##from foxhound.ml_engine.MLEngine import MLEngine
 from foxhound.tt_engine.TTAnomaly import TTAnomaly
 
 import config
@@ -72,6 +72,16 @@ try:
                       config.TENANT_PROFILE_OUTPUT_DIR)
     init.parse_all_csv()
 
+<<<<<<< HEAD
+    # mle = MLEngine(config.TENANT_PROFILE_OUTPUT_DIR, config.TENANT_MODEL_OUTPUT_DIR,
+    #                config.TRAFFIC_LOGS_INPUT_DIR, config.ANOMALY_LOGS_OUTPUT_DIR)
+    # mle.run(create_model=True, predict=True)
+    logging.info('DC Engine running')
+    pa = fh.dc_engine.PaloAltoEngine(
+        config.TRAFFIC_LOGS_INPUT_DIR, config.TRAFFIC_LOGS_OUTPUT_DIR,
+        config.GRANULARIZED_LOG_PATH)
+    pa.run(verbose=False)
+=======
     mle = MLEngine(config.TENANT_PROFILE_OUTPUT_DIR, config.TENANT_MODEL_OUTPUT_DIR,
                    config.TRAFFIC_LOGS_INPUT_DIR, config.ANOMALY_LOGS_OUTPUT_DIR)
     mle.run(create_model=True, predict=True)
@@ -80,6 +90,7 @@ try:
     #     config.TRAFFIC_LOGS_INPUT_DIR, config.TRAFFIC_LOGS_OUTPUT_DIR,
     #     config.GRANULARIZED_LOG_PATH)
     # pa.run(verbose=False)
+>>>>>>> 8091f89524d518ba02fad44447403b9a8780a046
 
     # logging.info('DB Engine running')
     # db = fh.db_engine.DBEngine(

@@ -24,9 +24,6 @@ class QuickIpView extends Component{
         return(
             <Fragment>
                 <Row style={contentLayout}>
-                    <Filter />
-                </Row>
-                <Row style={contentLayout}>
                     <Col xs={24} sm={24} md={24} lg={24} xl={24}>
                         <IpUsageAverageDailyTrendChart/>
                     </Col>
