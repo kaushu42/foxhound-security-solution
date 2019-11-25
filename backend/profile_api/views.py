@@ -118,7 +118,6 @@ class AverageDailyApiView(APIView):
         s = str(latest_date.date())
         timestamp = time.mktime(
             datetime.datetime.strptime(s, "%Y-%m-%d").timetuple())
-        print(timestamp)
 
         for i, j in zip(bytes_sent, bytes_received):
             ts_sent = timestamp + int(i.split(':')[0]) * 3600
