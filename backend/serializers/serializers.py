@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from core.models import (
     TrafficLog, TrafficLogDetail,
+    TrafficLogDetailGranularHour,
     Tenant, Domain,
     VirtualSystem,
     IPAddress,
@@ -102,6 +103,16 @@ class TrafficLogDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TrafficLogDetail
+        fields = '__all__'
+
+
+class TrafficLogDetailGranularHourSerializer(serializers.ModelSerializer):
+    source_ip = IPAddressSerializer()
+    destination_ip = IPAddressSerializer()
+    application = ApplicationSerializer()
+
+    class Meta:
+        model = TrafficLogDetailGranularHour
         fields = '__all__'
 
 

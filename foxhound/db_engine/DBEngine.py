@@ -15,7 +15,7 @@ import geoip2.errors
 
 from .core_models import (
     VirtualSystem, TrafficLog,
-    TrafficLogDetail, Country,
+    Country,
     IPAddress, FirewallRule,
     Tenant, Application, Protocol,
     Zone, TenantIPAddressInfo,

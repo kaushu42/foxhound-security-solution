@@ -13,7 +13,7 @@ import pandas as pd
 
 import foxhound as fh
 from foxhound.db_engine.core_models import (
-    VirtualSystem, TrafficLogDetail, Country,
+    VirtualSystem, Country,
     TrafficLog
 )
 

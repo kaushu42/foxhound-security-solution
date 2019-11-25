@@ -14,8 +14,8 @@ import AnomalousRules from "./views/rules/AnomalousRules";
 import ActiveTickets from "./views/troubletickets/ActiveTickets";
 import ClosedTickets from "./views/troubletickets/ClosedTickets";
 import MyTickets from "./views/troubletickets/MyTickets";
-import TrafficLogs from "./views/logs/TrafficLogs";
-import ThreatLogs from "./views/logs/ThreatLogs";
+// import TrafficLogs from "./views/logs/TrafficLogs";
+// import ThreatLogs from "./views/logs/ThreatLogs";
 import VerifiedRules from "./views/rules/VerifiedRules";
 import ChangePassword from "./views/layout/ChangePassword";
 
@@ -44,56 +44,64 @@ class App extends Component {
 
           {/*Processed Logs*/}
 
+          {/* <AuthenticatedRoute
+            auth_token={this.props.auth_token}
+            path="/logs/traffic"
+            component={TrafficLogs}
+            activePageKey={"traffic-logs"}
+          />
           <AuthenticatedRoute
-              auth_token={this.props.auth_token}
-              path="/logs/traffic"
-              component={TrafficLogs}
-              activePageKey={"traffic-logs"} />
-          <AuthenticatedRoute
-              auth_token={this.props.auth_token}
-              path="/logs/threat"
-              component={ThreatLogs}
-              activePageKey={"threat-logs"} />
+            auth_token={this.props.auth_token}
+            path="/logs/threat"
+            component={ThreatLogs}
+            activePageKey={"threat-logs"}
+          /> */}
 
           {/*Rules*/}
           <AuthenticatedRoute
-              auth_token={this.props.auth_token}
-              path="/rules/verified"
-              component={VerifiedRules}
-              activePageKey={"verified-rules"}/>
+            auth_token={this.props.auth_token}
+            path="/rules/verified"
+            component={VerifiedRules}
+            activePageKey={"verified-rules"}
+          />
           <AuthenticatedRoute
-              auth_token={this.props.auth_token}
-              path="/rules/unverified"
-              component={UnverifiedRules}
-              activePageKey={"unverified-rules"} />
+            auth_token={this.props.auth_token}
+            path="/rules/unverified"
+            component={UnverifiedRules}
+            activePageKey={"unverified-rules"}
+          />
           <AuthenticatedRoute
-              auth_token={this.props.auth_token}
-              path="/rules/anomalous"
-              component={AnomalousRules}
-              activePageKey={"anomalous-rules"} />
+            auth_token={this.props.auth_token}
+            path="/rules/anomalous"
+            component={AnomalousRules}
+            activePageKey={"anomalous-rules"}
+          />
 
           {/*Trouble Tickets*/}
           <AuthenticatedRoute
-              auth_token={this.props.auth_token}
-              path="/tt/active"
-              component={ActiveTickets}
-              activePageKey={"active-tt"}/>
+            auth_token={this.props.auth_token}
+            path="/tt/active"
+            component={ActiveTickets}
+            activePageKey={"active-tt"}
+          />
           <AuthenticatedRoute
-              auth_token={this.props.auth_token}
-              path="/tt/closed"
-              component={ClosedTickets}
-              activePageKey={"closed-tt"} />
+            auth_token={this.props.auth_token}
+            path="/tt/closed"
+            component={ClosedTickets}
+            activePageKey={"closed-tt"}
+          />
           <AuthenticatedRoute
-              auth_token={this.props.auth_token}
-              path="/tt/my"
-              component={MyTickets}
-              activePageKey={"my-tt"} />
+            auth_token={this.props.auth_token}
+            path="/tt/my"
+            component={MyTickets}
+            activePageKey={"my-tt"}
+          />
           {/*Account*/}
           <AuthenticatedRoute
-              auth_token={this.props.auth_token}
-              path="/auth/changepassword"
-              activePageKey={"change-password"}
-              component={ChangePassword}
+            auth_token={this.props.auth_token}
+            path="/auth/changepassword"
+            activePageKey={"change-password"}
+            component={ChangePassword}
           />
         </Switch>
       </BrowserRouter>
@@ -111,7 +119,4 @@ const mapDispatchToProps = dispatch => {
   return {};
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(App);
+export default connect(mapStateToProps, mapDispatchToProps)(App);

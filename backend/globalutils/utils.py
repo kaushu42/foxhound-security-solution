@@ -8,7 +8,7 @@ from django.db.models.functions import (
     TruncDay, TruncMinute, TruncMonth, TruncHour)
 from django.db.models import Sum
 from django.db.models import Q
-from core.models import TrafficLogDetail
+from core.models import TrafficLogDetailGranularHour
 
 
 def _get_day_index(date):
@@ -234,7 +234,7 @@ def get_query_from_request(
     return query
 
 
-def get_objects_from_query(queries, model=TrafficLogDetail):
+def get_objects_from_query(queries, model=TrafficLogDetailGranularHour):
     if queries:
         result = queries.pop(0)
         for query in queries:

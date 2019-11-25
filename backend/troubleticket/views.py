@@ -11,7 +11,7 @@ from rest_framework.status import (
 
 from users.models import FoxhoundUser
 
-from core.models import TrafficLogDetail
+from core.models import TrafficLogDetailGranularHour
 
 from troubleticket.models import (
     TroubleTicketAnomaly,
@@ -23,7 +23,7 @@ from serializers.serializers import (
     TroubleTicketAnomalySerializer,
     TroubleTicketFollowUpAnomalySerializer,
     UserNameSerializer,
-    TrafficLogDetailSerializer,
+    TrafficLogDetailGranularHourSerializer,
     TroubleTicketAnomalyLogDetailSerializer
 )
 
@@ -38,14 +38,14 @@ class TroubleTicketAnomalyApiView(PaginatedView):
         tenant_id = get_tenant_id_from_token(request)
 
         # # Get all the log details belonging to the tenant
-        # log_details = TrafficLogDetail.objects.filter(
+        # log_details = TrafficLogDetailGranularHour.objects.filter(
         #     firewall_rule__tenant__id=tenant_id
         # )
 
         # # # Get a list of all logs which have anomaly tts
-        # logs = TrafficLogDetail.objects.values('traffic_log').distinct()
+        # logs = TrafficLogDetailGranularHour.objects.values('traffic_log').distinct()
         # # Get the row numbers for each log
-        # row_numbers = TrafficLogDetail.objects.values(
+        # row_numbers = TrafficLogDetailGranularHour.objects.values(
         #     'row_number').distinct()
 
         # # Using the log name and row_number get all the records which
@@ -58,7 +58,7 @@ class TroubleTicketAnomalyApiView(PaginatedView):
             firewall_rule__tenant_id=tenant_id, is_closed=False)[:1000].select_related('log')
         items = []
         for log in anomalous_logs:
-            detail = TrafficLogDetail.objects.select_related('source_ip', 'destination_ip', 'application').get(
+            detail = TrafficLogDetailGranularHour.objects.select_related('source_ip', 'destination_ip', 'application').get(
                 traffic_log=log.log, row_number=log.row_number)
             item = {
                 "id": log.id,
