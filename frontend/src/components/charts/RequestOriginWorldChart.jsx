@@ -149,7 +149,7 @@ class RequestOriginWorldChart extends Component {
                 }
             ]
         };
-        const {excludeCountries,mapChartLoading,countrySelectListData,dispatchUpdateMapAfterCountryExcluding,mapSelectedCountryLogData} = this.props;
+        const {excludeCountries,mapChartLoading,countrySelectListData,dispatchUpdateMapAfterCountryExcluding,mapSelectedCountryLogData,mapSelectedCountryTotalBytesReceived,mapSelectedCountryTotalBytesSent,mapSelectedCountryTotalBytesEvents,mapSelectedCountryTotalBytesSentUnit,mapSelectedCountryTotalBytesReceivedUnit} = this.props;
         return (
             <Fragment>
                 <Spin spinning={mapChartLoading}>
@@ -194,7 +194,7 @@ class RequestOriginWorldChart extends Component {
                                     <Card>
                                         <Statistic
                                             title={<b>Total Events</b>}
-                                            value={36063}
+                                            value={mapSelectedCountryTotalBytesEvents}
                                             precision={0}
                                             valueStyle={{ color: '#cf1322' }}
                                         />
@@ -204,10 +204,10 @@ class RequestOriginWorldChart extends Component {
                                     <Card>
                                         <Statistic
                                             title={<b>Total Bytes Sent</b>}
-                                            value={45}
+                                            value={mapSelectedCountryTotalBytesSent}
                                             precision={2}
                                             valueStyle={{ color: '#cf1322' }}
-                                            suffix="MB"
+                                            suffix={mapSelectedCountryTotalBytesSentUnit}
                                         />
                                     </Card>
                                 </Col>
@@ -215,10 +215,10 @@ class RequestOriginWorldChart extends Component {
                                     <Card>
                                         <Statistic
                                             title={<b>Total Bytes Received</b>}
-                                            value={45}
+                                            value={mapSelectedCountryTotalBytesReceived}
                                             precision={2}
                                             valueStyle={{ color: '#cf1322' }}
-                                            suffix="GB"
+                                            suffix={mapSelectedCountryTotalBytesReceivedUnit}
                                         />
                                     </Card>
                                 </Col>
@@ -269,7 +269,14 @@ const mapStateToProps = state => {
         protocol : state.filter.protocol,
         source_zone : state.filter.source_zone,
         destination_zone : state.filter.destination_zone,
-        ip_address : state.filter.ip_address
+        ip_address : state.filter.ip_address,
+
+        mapSelectedCountryTotalBytesReceived: state.requestOriginChart.mapSelectedCountryTotalBytesReceived,
+        mapSelectedCountryTotalBytesSent: state.requestOriginChart.mapSelectedCountryTotalBytesSent,
+        mapSelectedCountryTotalBytesEvents: state.requestOriginChart.mapSelectedCountryTotalBytesEvents,
+
+        mapSelectedCountryTotalBytesSentUnit: state.requestOriginChart.mapSelectedCountryTotalBytesSentUnit,
+        mapSelectedCountryTotalBytesReceivedUnit: state.requestOriginChart.mapSelectedCountryTotalBytesReceivedUnit,
     }
 }
 const mapDispatchToProps = dispatch => {

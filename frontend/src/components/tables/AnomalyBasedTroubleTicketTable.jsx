@@ -55,11 +55,11 @@ class AnomalyBasedTroubleTicketTable extends Component {
                     dataIndex: 'application',
                     key: 'application',
                 },
-                {
-                    title: 'Source Port',
-                    dataIndex: 'source_port',
-                    key: 'source_port',
-                },
+                // {
+                //     title: 'Source Port',
+                //     dataIndex: 'source_port',
+                //     key: 'source_port',
+                // },
                 {
                     title: 'Destination Port',
                     dataIndex: 'destination_port',
