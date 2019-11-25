@@ -30,7 +30,15 @@ class DashboardFilter extends Component{
             loading_protocol_select : true,
             loading_source_zone_select: true,
             loading_destination_zone_select: true,
-            loading_ip_address_select: true
+            loading_ip_address_select: true,
+            date_range_value : [],
+            firewall_rule_value : [],
+            application_value :[],
+            protocol_value:[],
+            source_zone_value : [],
+            destination_zone_value : [],
+            ip_value:[]
+
         }
    }
 
@@ -59,32 +67,65 @@ class DashboardFilter extends Component{
     }
 
     handleRangePickerChange = (event,value) => {
-        this.props.dispatchRangePickerUpdate(value);
+       this.setState({
+           date_range_value : value
+       });
     }
 
     handleFirewallRuleFilterChange = (value) => {
-        this.props.dispatchFirewallRuleFilterUpdate(value);
+        this.setState({
+            firewall_rule_value : value
+        })
+
     }
 
     handleApplicationFilterChange = (value) => {
-        this.props.dispatchApplicationFilterUpdate(value);
+        this.setState({
+            application_value : value
+        })
+
     }
 
     handleProtocolFilterChange = (value) => {
-        this.props.dispatchProtocolFilterUpdate(value);
+        this.setState({
+            protocol_value : value
+        })
+
     }
 
     handleSourceZoneFilterChange = (value) => {
-        this.props.dispatchSourceZoneFilterUpdate(value);
+        this.setState({
+            source_zone_value : value
+        })
+
 
     }
 
     handleDestinationZoneFilterChange = (value)  => {
-        this.props.dispatchDestinationZoneFilterUpdate(value);
+        this.setState({
+            destination_zone_value : value
+        })
+
     }
 
     handleIpAddressRuleFilterChange = (value)  => {
-        this.props.dispatchIpAddressRuleFilterUpdate(value);
+        this.setState({
+            ip_value : value
+        })
+
+    }
+
+    handleFilterApplyChanges = (event) => {
+       const {date_range_value,firewall_rule_value,application_value,protocol_value,source_zone_value,destination_zone_value,ip_value} = this.state;
+       event.preventDefault();
+       this.props.dispatchRangePickerUpdate(date_range_value);
+       this.props.dispatchIpAddressRuleFilterUpdate(firewall_rule_value);
+       this.props.dispatchDestinationZoneFilterUpdate(application_value);
+       this.props.dispatchSourceZoneFilterUpdate(protocol_value);
+       this.props.dispatchProtocolFilterUpdate(source_zone_value);
+       this.props.dispatchApplicationFilterUpdate(destination_zone_value);
+       this.props.dispatchFirewallRuleFilterUpdate(ip_value);
+
     }
 
     render(){
@@ -197,7 +238,7 @@ class DashboardFilter extends Component{
                     </Row>
                     <Row>
                         <Col sm={{span:24}} md={{span:12,push:12}} lg={{span:4, push:20}} xl={{span:4, push:20}}>
-                            <Button type={"primary"} style={{width:'100%'}}>Apply Filter</Button>
+                            <Button type={"primary"} style={{width:'100%'}} onClick={this.handleFilterApplyChanges}>Apply Filter</Button>
                         </Col>
                     </Row>
                 </div>

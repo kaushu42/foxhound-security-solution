@@ -135,7 +135,7 @@ class ApplicationLineChart extends Component {
         for(let i = 0; i< data.length;i++){
             this.chart.addSeries({
                 name: data[i].name,
-                type: 'spline',
+                type: 'areaspline',
                 data: data[i].data,
                 showInNavigator: true,
                 events: {

@@ -179,7 +179,7 @@ class BandwidthUsageChart extends Component{
                 series: [
                     {
                         id: 'bytes',
-                        type: 'spline',
+                        type: 'areaspline',
                         name : 'Bytes Received' + '(' + unit + ')',
                         data: data
                     }

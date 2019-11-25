@@ -26,7 +26,13 @@ class Filter extends Component{
             loading_application_select: true,
             loading_protocol_select : true,
             loading_source_zone_select: true,
-            loading_destination_zone_select: true
+            loading_destination_zone_select: true,
+            date_range_value : null,
+            firewall_rule_value : null,
+            application_value :null,
+            protocol_value:null,
+            source_zone_value : null,
+            destination_zone_value : null
         }
    }
 
