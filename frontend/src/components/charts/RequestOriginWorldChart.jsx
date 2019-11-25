@@ -3,6 +3,7 @@ import {connect} from "react-redux";
 import HighchartsReact from "highcharts-react-official";
 import Highcharts from "highcharts";
 import mapdata from "../../charts/mapdata";
+import moment from "moment";
 import {
     countrySelectedInMapChart,
     fetchCountryListData,
@@ -64,6 +65,7 @@ class RequestOriginWorldChart extends Component {
                 title: 'Logged DateTime',
                 dataIndex: 'logged_datetime',
                 key: 'logged_datetime',
+                render: text => moment(text).format("YYYY-MM-DD, HH:MM:SS"),
             },
           ]
     }
