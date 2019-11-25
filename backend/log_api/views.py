@@ -127,7 +127,7 @@ class ApplicationLogApiView(PaginatedView):
     serializer_class = TrafficLogDetailGranularHourSerializer
 
     def get(self, request):
-        application = request.data.get('active_application')
+        application = request.data.get('application')
         if application is None:
             return Response({
                 "error": "\"application\" field is required"
