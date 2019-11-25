@@ -80,7 +80,7 @@ class ApplicationLineChart extends Component {
         };
 
         let bodyFormData = new FormData();
-        bodyFormData.set('application', this.props.selectedApplication);
+        bodyFormData.set('country', this.props.selectedCountry);
         bodyFormData.set('topcount', this.state.top_count);
         bodyFormData.set('basis', this.state.basis);
         bodyFormData.set('start_date', this.props.date_range[0]);
