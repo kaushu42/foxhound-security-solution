@@ -133,7 +133,7 @@ class ApplicationLogApiView(PaginatedView):
                 "error": "\"application\" field is required"
             }, status=HTTP_406_NOT_ACCEPTABLE)
         try:
-            application_id = Application.objects.get(name=application)
+            application_id = Application.objects.get(name=application).id
         except Exception as e:
             print(e)
             return Response({
@@ -145,8 +145,7 @@ class ApplicationLogApiView(PaginatedView):
         my_request = MyRequest()
         for i in request.data.keys():
             my_request.data[i] = request.data[i]
-        print(my_request.data)
-
+        my_request.data['application'] = str(application_id)
         tenant_id = get_tenant_id_from_token(request)
         query = get_query_from_request(my_request)
         objects = get_objects_from_query(query).filter(
