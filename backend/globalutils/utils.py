@@ -75,11 +75,18 @@ def get_activity(queryset):
     return activity_bytes_sent, activity_bytes_received
 
 
-def _get_max(item):
+def get_max(item, max_index=1, item_index=1):
     try:
-        return max(item, key=operator.itemgetter(1))[1]
+        return max(item, key=operator.itemgetter(max_index))[item_index]
     except ValueError as e:
         return 0
+
+
+def get_sorted(item, index=0):
+    try:
+        return sorted(item, key=operator.itemgetter(index))
+    except ValueError as e:
+        return []
 
 
 def get_usage(queryset):
@@ -90,8 +97,10 @@ def get_usage(queryset):
         time = obj['date'].timestamp()
         bytes_sent.append([time, obj['bytes_sent']])
         bytes_received.append([time, obj['bytes_received']])
-    bytes_sent_max = _get_max(bytes_sent)
-    bytes_received_max = _get_max(bytes_received)
+    bytes_sent = get_sorted(bytes_sent)
+    bytes_received = get_sorted(bytes_received)
+    bytes_sent_max = get_max(bytes_sent)
+    bytes_received_max = get_max(bytes_received)
     return bytes_sent, bytes_received, bytes_sent_max, bytes_received_max
 
 
