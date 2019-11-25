@@ -99,11 +99,18 @@ class Initialize():
             if os.path.exists(tenant_path) is not True:
                 os.makedirs(tenant_path)
             tenant_df = df[df['Rule'] == tenant]
-            tenant_df.reset_index(inplace=True)
-            tenant_df = tenant_df.drop(columns=['index', 'Rule'])
-            tenant_df = self._preprocess(tenant_df)
-            tenant_csv_path = os.path.join(tenant_path, (tenant+'.csv'))
-            self._save_to_csv(tenant_df, tenant_csv_path)
+
+            ips = tenant_df['Source address'].unique()
+            private_ips = ips[[ipaddress.ip_address(ip).is_private for ip in ips]]
+
+            for ip in private_ips:
+                ip_csv_path = os.path.join(tenant_path, (ip+'.csv'))
+                ip_df = tenant_df[tenant_df['Source address'] == ip]
+                ip_df.reset_index(inplace=True)
+                ip_df = ip_df.drop(columns=['index', 'Rule', 'Source address'])
+                ip_df = self._preprocess(ip_df)
+
+            self._save_to_csv(ip_df, ip_csv_path)
 
     def parse_all_csv(self):
         """Method to parse all history csv to create tenant profile
