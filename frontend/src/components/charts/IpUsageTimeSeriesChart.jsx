@@ -177,6 +177,9 @@ class IpUsageTimeSeriesChart extends Component {
               }
           }
       },
+      tooltip: {
+          valueSuffix: unit
+      },
     });
     this.setState({
       loading: false
