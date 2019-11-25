@@ -192,6 +192,9 @@ class ApplicationLineChart extends Component {
                     day: '%Y-%b-%d',
                 }
             },
+            tooltip: {
+                valueDecimals: 2
+            },
             time: {
                 timezoneOffset: -6 * 60
             },

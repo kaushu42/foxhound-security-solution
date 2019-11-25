@@ -49,7 +49,10 @@ class BandwidthUsageChart extends Component{
                         name : 'Bytes Received',
                         data: []
                     }
-                ]
+                ],
+                tooltip: {
+                    valueDecimals: 2
+                },
             }
         }
     }

@@ -47,6 +47,9 @@ class IpUsageAverageDailyTrendChart extends Component {
                         data: []
                     }
                 ],
+                tooltip: {
+                    valueDecimals: 2
+                },
             }
         }
     }
