@@ -1,4 +1,4 @@
-import pytz
+import datetime
 import json
 from collections import defaultdict, OrderedDict
 
@@ -18,7 +18,7 @@ from rest_framework.status import (
 )
 
 from core.models import (
-    TrafficLog, TrafficLogDetail,
+    TrafficLog, TrafficLogDetailGranularHour,
     IPAddress
 )
 from globalutils import (
@@ -111,9 +111,19 @@ class AverageDailyApiView(APIView):
         bytes_sent_data = []
         bytes_received_data = []
         assert len(bytes_sent) == len(bytes_received)
+        import time
+        latest_date = TrafficLogDetailGranularHour.objects.latest(
+            'logged_datetime').logged_datetime
+
+        s = str(latest_date.date())
+        timestamp = time.mktime(
+            datetime.datetime.strptime(s, "%Y-%m-%d").timetuple())
+
         for i, j in zip(bytes_sent, bytes_received):
-            bytes_sent_data.append([i, bytes_sent[i]])
-            bytes_received_data.append([j, bytes_received[j]])
+            ts_sent = timestamp + int(i.split(':')[0]) * 3600
+            ts_received = timestamp + int(j.split(':')[0]) * 3600
+            bytes_sent_data.append([ts_sent, bytes_sent[i]])
+            bytes_received_data.append([ts_received, bytes_received[j]])
         return {
             "bytes_sent": bytes_sent_data,
             "bytes_received": bytes_received_data,
@@ -123,7 +133,7 @@ class AverageDailyApiView(APIView):
         tenant_id = get_tenant_id_from_token(request)
         ip = get_ip_from_request(request)
         # query = get_query_from_request(request)
-        objects = TrafficLogDetail.objects.filter(
+        objects = TrafficLogDetailGranularHour.objects.filter(
             firewall_rule__tenant__id=tenant_id
         )
         response = self._get_usage(ip, objects)
@@ -225,11 +235,11 @@ class TimeSeriesApiView(APIView):
         query = get_query_from_request(request)
 
         if not query:
-            latest_date = TrafficLogDetail.objects.latest(
+            latest_date = TrafficLogDetailGranularHour.objects.latest(
                 'logged_datetime'
             ).logged_datetime.date()
             objects = groupby_date(
-                TrafficLogDetail.objects.filter(
+                TrafficLogDetailGranularHour.objects.filter(
                     logged_datetime__gte=latest_date,
                     source_ip__address=ip,
                     firewall_rule__tenant__id=tenant_id

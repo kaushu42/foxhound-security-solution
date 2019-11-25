@@ -75,6 +75,10 @@ class TrafficLog(Base):
     processed_datetime = Column(DateTime)
     log_date = Column(DateTime)
     log_name = Column(String)
+    is_log_detail_written = Column(Boolean)
+    is_rule_written = Column(Boolean)
+    is_info_written = Column(Boolean)
+    is_granular_hour_written = Column(Boolean)
 
     def __repr__(self):
         return self.log_name
@@ -92,6 +96,46 @@ class IPAddress(Base):
 
 class Application(Base):
     __tablename__ = 'core_application'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+
+    def __repr__(self):
+        return self.name
+
+
+class Interface(Base):
+    __tablename__ = 'core_interface'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+
+    def __repr__(self):
+        return self.name
+
+
+class Action(Base):
+    __tablename__ = 'core_action'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+
+    def __repr__(self):
+        return self.name
+
+
+class Category(Base):
+    __tablename__ = 'core_category'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+
+    def __repr__(self):
+        return self.name
+
+
+class SessionEndReason(Base):
+    __tablename__ = 'core_sessionendreason'
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
@@ -159,6 +203,50 @@ class TrafficLogDetail(Base):
     source_zone_id = Column(ForeignKey(Zone.id, ondelete='CASCADE'))
     destination_zone_id = Column(ForeignKey(Zone.id, ondelete='CASCADE'))
     firewall_rule_id = Column(ForeignKey(FirewallRule.id, ondelete='CASCADE'))
+    inbound_interface_id = Column(ForeignKey(Interface.id, ondelete='CASCADE'))
+    outbound_interface_id = Column(
+        ForeignKey(Interface.id, ondelete='CASCADE'))
+    action_id = Column(ForeignKey(Action.id, ondelete='CASCADE'))
+    category_id = Column(ForeignKey(Category.id, ondelete='CASCADE'))
+    session_end_reason_id = Column(ForeignKey(
+        SessionEndReason.id, ondelete='CASCADE'))
+    row_number = Column(BigInteger)
+    source_port = Column(Integer)
+    destination_port = Column(Integer)
+    bytes_sent = Column(BigInteger)
+    bytes_received = Column(BigInteger)
+    repeat_count = Column(Integer)
+    packets_received = Column(BigInteger)
+    packets_sent = Column(BigInteger)
+    time_elapsed = Column(BigInteger)
+    logged_datetime = Column(DateTime)
+
+    def __repr__(self):
+        return f'Log-{self.traffic_log_id}:{self.row_number}'
+
+    def __str__(self):
+        return self.__repr__()
+
+
+class TrafficLogDetailGranularHour(Base):
+    __tablename__ = 'core_trafficlogdetailgranularhour'
+
+    id = Column(Integer, primary_key=True)
+    traffic_log_id = Column(ForeignKey(TrafficLog.id, ondelete='CASCADE'))
+    source_ip_id = Column(ForeignKey(IPAddress.id, ondelete='CASCADE'))
+    destination_ip_id = Column(ForeignKey(IPAddress.id, ondelete='CASCADE'))
+    application_id = Column(ForeignKey(Application.id, ondelete='CASCADE'))
+    protocol_id = Column(ForeignKey(Protocol.id, ondelete='CASCADE'))
+    source_zone_id = Column(ForeignKey(Zone.id, ondelete='CASCADE'))
+    destination_zone_id = Column(ForeignKey(Zone.id, ondelete='CASCADE'))
+    firewall_rule_id = Column(ForeignKey(FirewallRule.id, ondelete='CASCADE'))
+    inbound_interface_id = Column(ForeignKey(Interface.id, ondelete='CASCADE'))
+    outbound_interface_id = Column(
+        ForeignKey(Interface.id, ondelete='CASCADE'))
+    action_id = Column(ForeignKey(Action.id, ondelete='CASCADE'))
+    category_id = Column(ForeignKey(Category.id, ondelete='CASCADE'))
+    session_end_reason_id = Column(ForeignKey(
+        SessionEndReason.id, ondelete='CASCADE'))
     row_number = Column(BigInteger)
     source_port = Column(Integer)
     destination_port = Column(Integer)

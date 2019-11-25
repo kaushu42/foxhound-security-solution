@@ -5,14 +5,14 @@ from rest_framework.status import (
     HTTP_406_NOT_ACCEPTABLE
 )
 from core.models import (
-    TrafficLog, TrafficLogDetail,
+    TrafficLog, TrafficLogDetailGranularHour,
     Country,
     ProcessedLogDetail
 )
 from views.views import PaginatedView
 from serializers.serializers import (
     ProcessedLogDetailSerializer,
-    TrafficLogDetailSerializer
+    TrafficLogDetailGranularHourSerializer
 )
 from globalutils.utils import (
     get_tenant_id_from_token,
@@ -49,12 +49,12 @@ class TrafficLogApiView(PaginatedView):
 
 
 class TrafficLogDetailApiView(PaginatedView):
-    queryset = TrafficLogDetail.objects.all().order_by('-id')
-    serializer_class = TrafficLogDetailSerializer
+    serializer_class = TrafficLogDetailGranularHourSerializer
 
     def get(self, request, id):
-        self.queryset = TrafficLogDetail.objects.filter(traffic_log__id=id)
-        page = self.paginate_queryset(self.queryset)
+        objects = TrafficLogDetailGranularHour.objects.filter(
+            traffic_log__id=id).order_by('-id')
+        page = self.paginate_queryset(objects)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
@@ -64,7 +64,7 @@ class TrafficLogDetailApiView(PaginatedView):
 
 
 class RequestOriginLogApiView(PaginatedView):
-    serializer_class = TrafficLogDetailSerializer
+    serializer_class = TrafficLogDetailGranularHourSerializer
 
     def get(self, request):
         country = request.data.get('country')
@@ -74,16 +74,24 @@ class RequestOriginLogApiView(PaginatedView):
             })
         ips = Country.objects.filter(iso_code=country).values('ip_address')
         tenant_id = get_tenant_id_from_token(request)
-        tenant_id = get_tenant_id_from_token(request)
         query = get_query_from_request(request)
         objects = get_objects_from_query(query).filter(
             firewall_rule__tenant__id=tenant_id,
             source_ip__in=ips
         ).order_by('-id')
+
+        bytes_sent = objects.aggregate(Sum('bytes_sent'))['bytes_sent__sum']
+        bytes_received = objects.aggregate(Sum('bytes_received'))[
+            'bytes_received__sum']
+
         page = self.paginate_queryset(objects)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
-            return self.get_paginated_response(serializer.data)
+            response = self.get_paginated_response(serializer.data)
+            response.data['bytes_sent'] = bytes_sent
+            response.data['bytes_received'] = bytes_received
+            response.data['rows'] = response.data['count']
+            return response
         return Response({})
 
     def post(self, request):
@@ -91,7 +99,7 @@ class RequestOriginLogApiView(PaginatedView):
 
 
 class RequestEndLogApiView(PaginatedView):
-    serializer_class = TrafficLogDetailSerializer
+    serializer_class = TrafficLogDetailGranularHourSerializer
 
     def get(self, request):
         country = request.data.get('country')

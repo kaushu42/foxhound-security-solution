@@ -19,8 +19,9 @@ PORT = 5432
 
 TRAFFIC_LOGS_INPUT_DIR = os.path.join(BASE_PATH, '../inputs/traffic_logs')
 TRAFFIC_LOGS_OUTPUT_DIR = os.path.join(BASE_PATH, '../outputs/traffic_logs')
-IP_PROFILE_OUTPUT_DIR = os.path.join(BASE_PATH, "../outputs/ip_profile")
-IP_MODEL_OUTPUT_DIR = os.path.join(BASE_PATH, "../outputs/ip_model")
+TENANT_PROFILE_OUTPUT_DIR = os.path.join(
+    BASE_PATH, "../outputs/tenant_profile")
+TENANT_MODEL_OUTPUT_DIR = os.path.join(BASE_PATH, "../outputs/tenant_model")
 ANOMALY_LOGS_OUTPUT_DIR = os.path.join(BASE_PATH, "../outputs/anomaly_logs")
 
 LOG_PATH = os.path.join(BASE_PATH, 'logs')
@@ -29,8 +30,8 @@ GRANULARIZED_LOG_PATH = os.path.join(BASE_PATH, '../outputs/granularized_logs')
 
 create_directory(TRAFFIC_LOGS_INPUT_DIR)
 create_directory(TRAFFIC_LOGS_OUTPUT_DIR)
-create_directory(IP_PROFILE_OUTPUT_DIR)
-create_directory(IP_MODEL_OUTPUT_DIR)
+create_directory(TENANT_PROFILE_OUTPUT_DIR)
+create_directory(TENANT_MODEL_OUTPUT_DIR)
 create_directory(ANOMALY_LOGS_OUTPUT_DIR)
 create_directory(LOG_PATH)
 create_directory(GRANULARIZED_LOG_PATH)

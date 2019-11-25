@@ -17,7 +17,7 @@ from rest_framework.status import (
 )
 
 from core.models import (
-    TrafficLog, TrafficLogDetail,
+    TrafficLog, TrafficLogDetailGranularHour,
     Country, Domain,
     TenantIPAddressInfo,
     TenantApplicationInfo,
@@ -69,10 +69,17 @@ class StatsApiView(APIView):
         destination_ips = objects.values('destination_ip__address').distinct()
         ips = TenantIPAddressInfo.objects.filter(
             firewall_rule__tenant_id=tenant_id)
-
+        try:
+            latest_date = objects.latest(
+                'logged_datetime').logged_datetime.date()
+        except Exception as e:
+            latest_date = None
         if start_date:
             ips = ips.filter(created_date__gte=start_date,
                              created_date__lte=end_date)
+        else:
+            if latest_date is not None:
+                ips = ips.filter(created_date=latest_date)
         sources = ips.filter(ip_address__in=source_ips)
         destinations = ips.filter(ip_address__in=destination_ips)
         return Response(
@@ -93,7 +100,7 @@ class StatsApiView(APIView):
 class FiltersApiView(APIView):
     def get(self, request, format=None):
         tenant_id = get_tenant_id_from_token(request)
-        objects = TrafficLogDetail.objects.filter(
+        objects = TrafficLogDetailGranularHour.objects.filter(
             firewall_rule__tenant__id=tenant_id).prefetch_related(
                 'firewall_rule', 'application', 'protocol', 'source_zone', 'destination_zone'
         )
@@ -144,7 +151,7 @@ class UsageApiView(APIView):
         if not query:
             latest_date = TrafficLog.objects.latest('log_date')
             objects = groupby_date(
-                TrafficLogDetail.objects.filter(
+                TrafficLogDetailGranularHour.objects.filter(
                     traffic_log__id=latest_date.id,
                     firewall_rule__tenant__id=tenant_id
                 ),
@@ -262,7 +269,7 @@ class ActivityApiView(APIView):
     def get(self, request):
         tenant_id = get_tenant_id_from_token(request)
         objects = groupby_date(
-            TrafficLogDetail.objects.filter(
+            TrafficLogDetailGranularHour.objects.filter(
                 firewall_rule__tenant__id=tenant_id),
             'logged_datetime',
             'day',
@@ -315,11 +322,9 @@ class NewIPAddressApiView(APIView):
     def get(self, request):
         tenant_id = get_tenant_id_from_token(request)
         query = get_query_from_request(request)
-        print(query)
         objects = get_objects_from_query(query).filter(
             firewall_rule__tenant__id=tenant_id
         ).values('source_ip__address')
-        print(objects)
         return Response({})
 
     def post(self, request):
