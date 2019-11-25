@@ -197,6 +197,9 @@ class BandwidthUsageChart extends Component{
                         }
                     }
                 },
+                tooltip: {
+                    valueSuffix: unit
+                },
             });
             this.setState({
                 loading : false

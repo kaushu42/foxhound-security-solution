@@ -196,7 +196,8 @@ class ApplicationLineChart extends Component {
                 }
             },
             tooltip: {
-                valueDecimals: 2
+                valueDecimals: 2,
+                valueSuffix: unit
             },
             time: {
                 timezoneOffset: -6 * 60

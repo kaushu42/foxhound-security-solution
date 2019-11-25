@@ -197,7 +197,10 @@ class IpUsageAverageDailyTrendChart extends Component {
                           return this.value + " " + unit;
                       }
                   }
-              }
+            },
+            tooltip: {
+                valueSuffix: unit
+            },
         })
         this.setState({
             loading : false
