@@ -108,16 +108,16 @@ def get_filters(request):
     """
         Obtain the filter data from the request
     """
-    start_date = request.POST.get('start_date', None)
-    end_date = request.POST.get('end_date', None)
+    start_date = request.data.get('start_date', None)
+    end_date = request.data.get('end_date', None)
     start_date = str_to_date(start_date)
     end_date = str_to_date(end_date)
-    firewall_rule = request.POST.get('firewall_rule', None)
-    application = request.POST.get('application', None)
-    protocol = request.POST.get('protocol', None)
-    source_zone = request.POST.get('source_zone', None)
-    destination_zone = request.POST.get('destination_zone', None)
-    ip_address = request.POST.get('ip_address', None)
+    firewall_rule = request.data.get('firewall_rule', None)
+    application = request.data.get('application', None)
+    protocol = request.data.get('protocol', None)
+    source_zone = request.data.get('source_zone', None)
+    destination_zone = request.data.get('destination_zone', None)
+    ip_address = request.data.get('ip_address', None)
     response = {
         "start_date": (start_date),
         "end_date": (end_date),

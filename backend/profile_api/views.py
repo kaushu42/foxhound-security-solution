@@ -98,7 +98,10 @@ class AverageDailyApiView(APIView):
             Sum
         )
         unique_dates = {i['date'].date() for i in as_source}
-        n_days = len(unique_dates)
+        n_days = len(unique_dates) - 1
+        print('*'*80)
+        print(unique_dates)
+        print('*'*80)
         if n_days == 0:
             n_days = 1
         bytes_sent = defaultdict(int)
