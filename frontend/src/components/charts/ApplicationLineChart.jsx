@@ -219,6 +219,7 @@ class ApplicationLineChart extends Component {
 
         let bodyFormDataForLog = new FormData();
         bodyFormDataForLog.set("application", this.state.selectedApplication);
+        bodyFormDataForLog.set("country", this.props.selectedCountry);
 
         axios.post(FETCH_APPLICATION_LOG_API,bodyFormDataForLog,{headers, params})
             .then(res => {

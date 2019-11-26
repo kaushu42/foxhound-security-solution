@@ -143,6 +143,7 @@ class ApplicationLogApiView(PaginatedView):
         class MyRequest:
             data = {}
         my_request = MyRequest()
+
         for i in request.data.keys():
             my_request.data[i] = request.data[i]
         my_request.data['application'] = str(application_id)
@@ -152,6 +153,12 @@ class ApplicationLogApiView(PaginatedView):
             firewall_rule__tenant__id=tenant_id,
             application__name=application
         ).order_by('-id')
+        country = request.data.get('country', None)
+
+        if (country is not None) and (country != 'undefined'):
+            ips = Country.objects.filter(iso_code=country).values('ip_address')
+            objects = objects.filter(source_ip__in=ips)
+
         page = self.paginate_queryset(objects)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
