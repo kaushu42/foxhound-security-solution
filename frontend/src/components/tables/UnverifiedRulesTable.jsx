@@ -16,7 +16,7 @@ import {drawerInfoStyle} from "../../utils";
 import {search} from "../../actions/ipSearchAction";
 import QuickIpView from "../../views/QuickIpView";
 import moment from "moment";
-
+import '../../views/rules/rules.css'
 
 class UnverifiedRulesTable extends Component {
 
@@ -175,6 +175,7 @@ class UnverifiedRulesTable extends Component {
                             dataSource = {this.props.unverifiedRulesData}
                             pagination={this.props.unverifiedRulePagination}
                             onChange={this.handleTableChange}
+                            rowClassName = {record => record.application == "ping" ? "redTable" : null }
                         />
                     </div>
                 </Spin>

@@ -10,6 +10,7 @@ const { Option } = Select;
 
 
 const FETCH_API = `${ROOT_URL}dashboard/top/application/`;
+const FETCH_APPLICATION_LOG_API = `${ROOT_URL}log/application/`;
 
 class ApplicationLineChart extends Component {
 
@@ -21,10 +22,50 @@ class ApplicationLineChart extends Component {
             data : [],
             top_count: 5,
             basis : 'bytes_received',
-            selectedApplicationLogData : null,
+            selectedApplicationLogData : [],
             selectedApplicationLogDrawerVisible : false,
             selectedApplication : null,
-            selectedTimeStamp : null
+            selectedTimeStamp : null,
+            params:{},
+            pagination:{},
+            applicationlogColumns : [
+                {
+                    title: 'Id',
+                    dataIndex: 'id',
+                    key: 'id',
+                },
+                {
+                    title: 'Source Address',
+                    dataIndex: 'source_ip.address',
+                    key: 'source_ip.address',
+                },
+                {
+                    title: 'Destination Address',
+                    dataIndex: 'destination_ip.address',
+                    key: 'destination_ip.address',
+                },
+                // {
+                //     title: 'Application',
+                //     dataIndex: 'application.name',
+                //     key: 'application.name',
+                // },
+                {
+                    title: 'Bytes Sent',
+                    dataIndex: 'bytes_sent',
+                    key: 'bytes_sent',
+                },
+                {
+                    title: 'Bytes Received',
+                    dataIndex: 'bytes_received',
+                    key: 'bytes_received',
+                },
+                {
+                    title: 'Logged DateTime',
+                    dataIndex: 'logged_datetime',
+                    key: 'logged_datetime',
+                    render: text => moment(text).format("YYYY-MM-DD, HH:MM:SS")
+                },
+              ]
 
         };
     }
@@ -157,18 +198,62 @@ class ApplicationLineChart extends Component {
     }
 
     handleApplicationLineChartLogView = (selectedTimeStamp,selectedApplication) => {
-        console.log('timestamp ',selectedTimeStamp,'application ',selectedApplication);
+        
         this.setState({
             selectedApplication : selectedApplication,
             selectedTimeStamp : selectedTimeStamp,
             selectedApplicationLogDrawerVisible : true
         })
-
+        console.log('timestamp ',selectedTimeStamp,'application ',this.state.selectedApplication) 
         // axios.post("");
-
+        this.fetchApplicationLineChartLog();
     }
 
-    handleCloseApplicationLogDrawer = () => this.setState({selectedApplicationLogDrawerVisible:false})
+    fetchApplicationLineChartLog = (params = {}) => {
+        const token = `Token ${this.props.auth_token}`;
+        let headers = {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Authorization" : token
+        };
+
+        let bodyFormDataForLog = new FormData();
+        bodyFormDataForLog.set("application", this.state.selectedApplication);
+
+        axios.post(FETCH_APPLICATION_LOG_API,bodyFormDataForLog,{headers, params})
+            .then(res => {
+                const page = this.state.pagination;
+                page.total  = res.data.count;
+                this.setState({
+                    selectedApplicationLogData:res.data.results,
+                    pagination: page
+                })
+            });
+
+        console.log("fetched log data for selected application", this.state.selectedApplicationLogData)
+    }
+
+    handleTableChange = (pagination, filters, sorter) => {
+        console.log('pagination',pagination);
+        console.log('filter',filters)
+        console.log('sorter',sorter)
+        const pager = { ...this.state.pagination};
+        pager.current = pagination.current;
+        this.state.pagination = pager,
+        this.fetchApplicationLineChartLog({
+            // results: pagination.pageSize,
+            page: pagination.current,
+            sortField: sorter.field,
+            sortOrder: sorter.order,
+            ...filters
+        });
+    };
+
+    handleCloseApplicationLogDrawer = () => {
+        this.setState({
+            selectedApplicationLogDrawerVisible:false,
+        }
+    )}
 
     render(){
         const options = {
@@ -269,8 +354,11 @@ class ApplicationLineChart extends Component {
                     {
                         this.state.selectedApplicationLogData ? (
                             <Table
+                            rowKey={record => record.id}
                             columns={this.state.applicationlogColumns}
                             dataSource={this.state.selectedApplicationLogData}
+                            pagination={this.state.pagination}
+                            onChange={this.handleTableChange}
                             />
                         ) : null
                     }

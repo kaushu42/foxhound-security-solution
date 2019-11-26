@@ -23,7 +23,7 @@ class Ip extends Component{
     render(){
         return(
             <Fragment>
-                <MasterLayout>
+                <MasterLayout activePageKey={this.props.activePageKey}>
                     <PageHeader
                         style={{background: '#fff'}}
                         title={"IP Address Profile"}
