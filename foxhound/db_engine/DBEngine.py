@@ -248,7 +248,7 @@ class DBEngine(object):
                 f"INSERT INTO core_firewallrule VALUES({next_id}, '{i}', {TENANT_ID_DEFAULT});")
 
     def _map_to_foreign_key(self, data, dfs):
-        data = data.copy()
+        # data = data.copy()
         data.virtual_system_id = data.virtual_system_id.map(
             dfs['core_virtualsystem'].reset_index().set_index('code').id)
         data.source_ip_id = data.source_ip_id.map(
@@ -425,12 +425,14 @@ class DBEngine(object):
         if not traffic_log.is_log_detail_written:
             self._write_new_items_to_db(params)
             dfs = self._read_tables_from_db()
-            mapped_data = self._map_to_foreign_key(data, dfs)
+            data = self._map_to_foreign_key(data, dfs)
             self._write_log(mapped_data, traffic_log.id,
                             table_name='core_trafficlogdetail')
             traffic_log.is_log_detail_written = True
+            del data
             self._session.commit()
 
+        data = self._read_csv(csv)
         if not traffic_log.is_rule_written:
             self._write_rules(data)
             traffic_log.is_rule_written = True
