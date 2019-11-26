@@ -209,7 +209,7 @@ class UnverifiedRulesTable extends Component {
                                     <Form style={{width:'100%'}} name={"rejectRuleForm"}>
                                             <Form.Item>
                                                 <label>Description</label>
-                                                <Input.TextArea ref={node => (this.description = node)} defaultValue={selectedRecordToReject.description} />
+                                                <Input ref={node => (this.description = node)} defaultValue={selectedRecordToReject.description} />
                                             </Form.Item>
                                             <Button
                                                 type="primary"
@@ -258,7 +258,7 @@ class UnverifiedRulesTable extends Component {
 
                                         <Form.Item>
                                                 <label>Description</label>
-                                                <Input.TextArea ref={node => (this.description = node)} defaultValue={selectedRecordToAccept.description} />
+                                                <Input ref={node => (this.description = node)} defaultValue={selectedRecordToAccept.description} />
                                             </Form.Item>
                                             <Button
                                                 type="primary"
@@ -318,7 +318,7 @@ class UnverifiedRulesTable extends Component {
                                             </Form.Item>
                                                 <Form.Item>
                                                     <label>Description</label>
-                                                    <Input.TextArea ref={node => (this.description = node)} defaultValue={selectedRecordToUpdate.description} />
+                                                    <Input ref={node => (this.description = node)} defaultValue={selectedRecordToUpdate.description} />
                                                 </Form.Item>
                                             <Button
                                                 type="primary"
