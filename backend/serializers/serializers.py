@@ -169,7 +169,15 @@ class TroubleTicketAnomalyLogDetailSerializer(serializers.Serializer):
     source_ip = serializers.CharField()
     destination_ip = serializers.CharField()
     application = serializers.CharField()
-    destination_port = serializers.CharField()
+    bytes_sent = serializers.IntegerField()
+    bytes_received = serializers.IntegerField()
+    packets_sent = serializers.IntegerField()
+    packets_received = serializers.IntegerField()
+    destination_port = serializers.IntegerField()
+    action = serializers.CharField()
+    session_end_reason = serializers.CharField()
+    category = serializers.CharField()
+    reasons = serializers.CharField()
 
 
 class RuleEditSerializer(serializers.Serializer):

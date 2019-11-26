@@ -42,6 +42,11 @@ class TroubleTicketAnomaly(TroubleTicket):
     row_number = models.IntegerField()
     firewall_rule = models.ForeignKey(
         FirewallRule, on_delete=models.CASCADE, null=True)
+    assigned_to = models.ForeignKey(
+        FoxhoundUser, on_delete=models.CASCADE,
+        null=True
+    )
+    reasons = models.CharField(max_length=500, null=True)
 
     def __str__(self):
         return f'{self.log}-{self.row_number}'
