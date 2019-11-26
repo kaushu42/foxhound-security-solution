@@ -17,8 +17,6 @@ const USER_LIST_API = `${ROOT_URL}tt/users/`;
 
 
 class AnomalyBasedTroubleTicketTable extends Component {
-
-
     constructor(props){
         super(props);
         this.state = {
@@ -111,7 +109,8 @@ class AnomalyBasedTroubleTicketTable extends Component {
     onClose = () => {
         this.setState({
             followUpDrawerVisible: false,
-            error_message : ""
+            error_message : "",
+            recordFollowUpComment: null
         });
 
     };
@@ -149,6 +148,7 @@ class AnomalyBasedTroubleTicketTable extends Component {
             "Content-Type": "application/json",
             Authorization: authorization
         };
+        
         let data = {
             assigned_by_user_id: parseInt(this.props.current_session_user_id),
             assigned_to_user_id: assignedTo,
@@ -172,6 +172,45 @@ class AnomalyBasedTroubleTicketTable extends Component {
                 })
             });
 
+    }
+
+    handleAnomalyTTClose = (e) => {
+        e.preventDefault();
+        const comment = this.state.recordFollowUpComment;
+        if(comment == null  || comment == ""){
+            this.setState({error_message:"Please Enter Reason To Closing Trouble Ticket"});
+            return
+        }
+        // console.log("selected tt to close", this.state.record.id)
+        const authorization = `Token ${this.props.auth_token}`;
+
+        let headers = {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: authorization
+        };
+
+
+        let bodyFormData = new FormData();
+        bodyFormData.set("description", comment);
+        axios.post(`${ROOT_URL}tt/close/${this.state.record.id}/`,bodyFormData,{headers})
+        .then(res=>{
+            console.log('Trouble Ticket Closed Successfully');
+            this.setState({
+                followUpDrawerVisible: false,
+                error_message : "",
+                loading: true,
+                recordFollowUpComment: null
+            })
+        })
+        .catch(e => {
+            console.log("error",e);
+            this.setState({
+                error_message : "something went wrong!!"
+            })
+        });
+
+        setTimeout(()=>{this.fetch()},2500);
     }
 
     componentDidMount() {
@@ -222,7 +261,7 @@ class AnomalyBasedTroubleTicketTable extends Component {
         console.log("data loading");
         this.setState({ loading: true });
         reqwest({
-            url: `${ROOT_URL}tt/anomaly/`,
+            url: `${ROOT_URL}tt/open/`,
             method: "get",
             headers: {
                 Authorization: `Token ${this.props.auth_token}`
@@ -325,15 +364,18 @@ class AnomalyBasedTroubleTicketTable extends Component {
                                             <Col xs={24} sm={12} md={24} lg={24} xl={24}>
                                                 <TextArea rows={3} value={this.state.recordFollowUpComment} onChange={(e)=>this.setState({recordFollowUpComment : e.target.value})}/>
                                             </Col>
-                                            <Col xs={24} sm={12} md={16} lg={16} xl={16} style={{paddingTop: 10,paddingBottom: 10}}>
+                                            <Col xs={24} sm={12} md={16} lg={12} xl={12} style={{paddingTop: 10,paddingBottom: 10}}>
                                                 <Select style={{width:'100%'}} defaultValue={parseInt(this.props.current_session_user_id)}  onChange={(value)=>this.setState({recordFollowUpAssignedTo : value})}>
                                                     {this.state.user_list.map(user =>
                                                         <Option key={user.id} value={user.id}>{user.full_name}</Option>
                                                     )}
                                                 </Select>
                                             </Col>
-                                            <Col xs={24} sm={12} md={8} lg={8} xl={8} style={{paddingTop: 10,paddingBottom: 10}}>
+                                            <Col xs={24} sm={12} md={8} lg={6} xl={6} style={{paddingTop: 10,paddingBottom: 10}}>
                                                 <Button type="primary" style={{width:'100%'}} htmlType="submit" className="login-form-button" onClick={e =>this.handlePostAnomalyFollowUp(e)}>Follow Up</Button>
+                                            </Col>
+                                            <Col xs={24} sm={12} md={8} lg={6} xl={6} style={{paddingTop: 10,paddingBottom: 10}}>
+                                                <Button type="danger" style={{width:'100%'}} htmlType="submit" className="login-form-button" onClick={e =>this.handleAnomalyTTClose(e)}>Close TT</Button>
                                             </Col>
                                         </Row>
                                         </Form>

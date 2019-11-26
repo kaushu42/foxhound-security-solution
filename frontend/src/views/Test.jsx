@@ -8,17 +8,19 @@ import AnomalousRulesTable from "../components/tables/AnomalousRulesTable";
 import ApplicationLineChart from "../components/charts/ApplicationLineChart";
 import AnomalyBasedTroubleTicketTable from "../components/tables/AnomalyBasedTroubleTicketTable"
 import BandwidthUsageChart from "../charts/BandwidthUsageChart";
+import ClosedTroubleTickets from "../components/tables/ClosedTroubleTickets";
 
 
 class Test extends Component {
     render() {
         return (
             <Fragment>
-                <ApplicationLineChart/>
+                {/* <ApplicationLineChart/> */}
                 {/* <UnverifiedRulesTable/> */}
                 {/* <VerifiedRulesTable/> */}
                 {/* <AnomalousRulesTable/> */}
                 {/* <AnomalyBasedTroubleTicketTable/> */}
+                <ClosedTroubleTickets />
                 {/* <BandwidthUsageChart/> */}
             </Fragment>
             )

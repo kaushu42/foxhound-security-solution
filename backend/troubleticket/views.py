@@ -47,7 +47,7 @@ def _get_tts(request, *, is_closed):
             traffic_log=log.log, row_number=log.row_number)
         follow_up = TroubleTicketFollowUpAnomaly.objects.filter(
             trouble_ticket=log).latest(
-            '-follow_up_datetime')
+            'id')
         item = {
             "id": log.id,
             "log_name": log.log.log_name,
