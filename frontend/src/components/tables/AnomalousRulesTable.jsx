@@ -99,7 +99,8 @@ class AnomalousRulesTable extends Component {
     handleAcceptRuleSubmit = (e) => {
         e.preventDefault();
         const {auth_token,selectedRecordToAccept} = this.props;
-        this.props.dispatchAcceptRule(auth_token,selectedRecordToAccept);
+        const description = this.description.state.value;
+        this.props.dispatchAcceptRule(auth_token,description,selectedRecordToAccept);
     }
 
     handleShowAnomalousIpDashboard(record){
@@ -142,7 +143,7 @@ class AnomalousRulesTable extends Component {
                 </Spin>
                 <Drawer
                     id={"AcceptDrawer"}
-                    visible={this.props.AnomalousRuleAcceptDrawerLoading}
+                    visible={this.props.anomalousRuleAcceptDrawerLoading}
                     title={"Confirm Accept this rule?"}
                     width={500}
                     closable={true}
@@ -166,9 +167,13 @@ class AnomalousRulesTable extends Component {
                                     </Col>
                                 </Row>
                                 <br />
-                                <Form>
-                                    <p style={{color:'red'}}>{this.props.error_message}</p>
-                                    <Row type="flex" gutter={16} style={{paddingTop: 10,paddingBottom: 10}}>
+                                <p style={{color:'red'}}>{this.props.error_message}</p>
+                                <Row type="flex" gutter={16} style={{paddingTop: 10,paddingBottom: 10}}>
+                                    <Form style={{width:'100%'}} name={"acceptAnomalousForm"}>
+                                        <Form.Item>
+                                            <label>Description</label>
+                                            <Input ref={node => (this.description = node)} defaultValue={selectedRecordToAccept.description} />
+                                        </Form.Item>
                                         <Button
                                             type="primary"
                                             style={{width:'100%'}}
@@ -177,8 +182,8 @@ class AnomalousRulesTable extends Component {
                                             loading={this.props.acceptAnomalousRuleLoading}
                                             onClick={e =>this.handleAcceptRuleSubmit(e)}>Accept this rule
                                         </Button>
-                                    </Row>
-                                </Form>
+                                    </Form>
+                                </Row>
                             </Fragment>
                             ):null
                         }
@@ -226,7 +231,7 @@ const mapDispatchToProps = dispatch => {
         dispatchFetchAnomalousRulesData : (auth_token, params, pagination) => dispatch(fetchAnomalousRulesData(auth_token, params, pagination)),
         handleAnomalousRuleAccept : (auth_token,record) => dispatch(acceptAnomalousRule(auth_token,record)),
         dispatchHandleDrawerClose : () => dispatch(handleDrawerClose()),
-        dispatchAcceptRule : (auth_token,record) => dispatch(acceptRule(auth_token,record)),
+        dispatchAcceptRule : (auth_token,description,record) => dispatch(acceptRule(auth_token,description,record)),
         dispatchPaginationUpdate : (pager) => dispatch(updatePagination(pager)),
 
         dispatchAnomalousIpSearchValueUpdate : value => dispatch(search(value))

@@ -74,7 +74,8 @@ const anomalousRulesReducer = (state=initialState,action)=>{
         case CLOSE_ALL_DRAWER:
             return{
                 ...state,
-                anomalousRuleAcceptDrawerLoading: false
+                anomalousRuleAcceptDrawerLoading: false,
+                selectedRecordToAccept:null,
             }
         case RULE_SELECTED_TO_ACCEPT :
             return {
@@ -129,11 +130,11 @@ const anomalousRulesReducer = (state=initialState,action)=>{
         case TOGGLE_FLAGGED_RULE_COMPLETE:
             return{
                 ...state,
-                unverifiedRulesData: state.unverifiedRulesData.filter(function(value, index, arr){
+                anomalousRulesData: state.anomalousRulesData.filter(function(value, index, arr){
                     return value.id != action.payload.id
                 }),
-                selectedRecordToReject:null,
-                rejectUnverifiedRuleLoading: false
+                selectedRecordToToggle:null,
+                // rejectUnverifiedRuleLoading: false
             }
         case CLEAN_ALL_STATE :
             return {
