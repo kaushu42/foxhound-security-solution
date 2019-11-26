@@ -82,22 +82,22 @@ try:
     # pa.run(verbose=True)
 
     # logging.info('DB Engine running')
-    # db = fh.db_engine.DBEngine(
-    #     config.TRAFFIC_LOGS_OUTPUT_DIR,
-    #     config.GRANULARIZED_LOG_PATH,
-    #     db_engine=db_engine,
-    #     db_path=os.path.join(config.BASE_PATH, 'GeoLite2-City.mmdb')
-    # )
-    # db.run(verbose=True)
-    # db.clean()
-    tt_anomaly = TTAnomaly(config.ANOMALY_LOGS_OUTPUT_DIR, db_engine)
-    tt_anomaly.run()
+    db = fh.db_engine.DBEngine(
+        config.TRAFFIC_LOGS_OUTPUT_DIR,
+        config.GRANULARIZED_LOG_PATH,
+        db_engine=db_engine,
+        db_path=os.path.join(config.BASE_PATH, 'GeoLite2-City.mmdb')
+    )
+    db.run(verbose=True)
+    db.clean()
+    # tt_anomaly = TTAnomaly(config.ANOMALY_LOGS_OUTPUT_DIR, db_engine)
+    # tt_anomaly.run()
 
-    anomaly_logs = [os.path.join(config.ANOMALY_LOGS_OUTPUT_DIR, f)
-                    for f in os.listdir(config.ANOMALY_LOGS_OUTPUT_DIR)]
-    for log in anomaly_logs:
-        os.remove(log)
-        logging.info(f'{log} deleted!')
+    # anomaly_logs = [os.path.join(config.ANOMALY_LOGS_OUTPUT_DIR, f)
+    #                 for f in os.listdir(config.ANOMALY_LOGS_OUTPUT_DIR)]
+    # for log in anomaly_logs:
+    #     os.remove(log)
+    #     logging.info(f'{log} deleted!')
 except Exception as e:
     logging.exception(f'An error occured on {datetime.datetime.now()}')
     raise(e)

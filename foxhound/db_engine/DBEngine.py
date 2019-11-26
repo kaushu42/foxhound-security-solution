@@ -424,8 +424,10 @@ class DBEngine(object):
 
         if not traffic_log.is_log_detail_written:
             self._write_new_items_to_db(params)
+            del params
             dfs = self._read_tables_from_db()
             data = self._map_to_foreign_key(data, dfs)
+            del dfs
             self._write_log(data, traffic_log.id,
                             table_name='core_trafficlogdetail')
             traffic_log.is_log_detail_written = True
