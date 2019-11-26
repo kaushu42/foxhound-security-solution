@@ -467,7 +467,7 @@ class DBEngine(object):
             filename = os.path.basename(csv)
             traffic_log = self._get_traffic_log(filename)
             self._write_to_db(csv, traffic_log)
-            os.remove(csv)
+            # os.remove(csv)
 
     def _run_for_granular_hour(self, verbose=False):
         for csv in self._granular_hour_csvs:
@@ -476,7 +476,7 @@ class DBEngine(object):
             filename = os.path.basename(csv)
             traffic_log = self._get_traffic_log(filename)
             self._write_granular(csv, traffic_log)
-            os.remove(csv)
+            # os.remove(csv)
 
     def run(self, verbose=False):
         self._run_for_detail(verbose=verbose)

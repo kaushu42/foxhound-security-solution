@@ -68,39 +68,28 @@ try:
     session = Session()
 
     seedutils.seed(session)
-    init = Initialize(config.TRAFFIC_LOGS_INPUT_DIR,
-                      config.TENANT_PROFILE_OUTPUT_DIR)
-    init.parse_all_csv()
+    # init = Initialize(config.TRAFFIC_LOGS_INPUT_DIR,
+    #                   config.TENANT_PROFILE_OUTPUT_DIR)
+    # init.parse_all_csv()
 
-<<<<<<< HEAD
     # mle = MLEngine(config.TENANT_PROFILE_OUTPUT_DIR, config.TENANT_MODEL_OUTPUT_DIR,
     #                config.TRAFFIC_LOGS_INPUT_DIR, config.ANOMALY_LOGS_OUTPUT_DIR)
     # mle.run(create_model=True, predict=True)
-    logging.info('DC Engine running')
-    pa = fh.dc_engine.PaloAltoEngine(
-        config.TRAFFIC_LOGS_INPUT_DIR, config.TRAFFIC_LOGS_OUTPUT_DIR,
-        config.GRANULARIZED_LOG_PATH)
-    pa.run(verbose=False)
-=======
-    mle = MLEngine(config.TENANT_PROFILE_OUTPUT_DIR, config.TENANT_MODEL_OUTPUT_DIR,
-                   config.TRAFFIC_LOGS_INPUT_DIR, config.ANOMALY_LOGS_OUTPUT_DIR)
-    mle.run(create_model=True, predict=True)
     # logging.info('DC Engine running')
     # pa = fh.dc_engine.PaloAltoEngine(
     #     config.TRAFFIC_LOGS_INPUT_DIR, config.TRAFFIC_LOGS_OUTPUT_DIR,
     #     config.GRANULARIZED_LOG_PATH)
     # pa.run(verbose=False)
->>>>>>> 8091f89524d518ba02fad44447403b9a8780a046
 
-    # logging.info('DB Engine running')
-    # db = fh.db_engine.DBEngine(
-    #     config.TRAFFIC_LOGS_OUTPUT_DIR,
-    #     config.GRANULARIZED_LOG_PATH,
-    #     db_engine=db_engine,
-    #     db_path=os.path.join(config.BASE_PATH, 'GeoLite2-City.mmdb')
-    # )
-    # db.run(verbose=False)
-    # db.clean()
+    logging.info('DB Engine running')
+    db = fh.db_engine.DBEngine(
+        config.TRAFFIC_LOGS_OUTPUT_DIR,
+        config.GRANULARIZED_LOG_PATH,
+        db_engine=db_engine,
+        db_path=os.path.join(config.BASE_PATH, 'GeoLite2-City.mmdb')
+    )
+    db.run(verbose=False)
+    db.clean()
     # tt_anomaly = TTAnomaly(config.ANOMALY_LOGS_OUTPUT_DIR, db_engine)
     # tt_anomaly.run()
 
