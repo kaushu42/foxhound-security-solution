@@ -66,7 +66,8 @@ class TTAnomaly:
             'bytes_sent': row_data['Bytes Sent'],
             'bytes_received': row_data['Bytes Received'],
             'application': row_data['Application'],
-            'firewall_rule': row_data['Rule']
+            'firewall_rule': row_data['Rule'],
+            'reasons': row_data['Reasons']
         }
 
     def _get_virtual_system(self, params):
@@ -95,7 +96,9 @@ class TTAnomaly:
             is_closed=False,
             log_id=log.id,
             row_number=params['log_record_number'],
-            firewall_rule_id=firewall_rule_id
+            firewall_rule_id=firewall_rule_id,
+            assigned_to_id=1,
+            reasons=params['reasons']
         )
         return tt
 
