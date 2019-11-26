@@ -178,6 +178,7 @@ class TroubleTicketAnomalyLogDetailSerializer(serializers.Serializer):
     session_end_reason = serializers.CharField()
     category = serializers.CharField()
     reasons = serializers.CharField()
+    description = serializers.CharField()
 
 
 class RuleEditSerializer(serializers.Serializer):

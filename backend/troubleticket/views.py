@@ -45,6 +45,9 @@ def _get_tts(request, *, is_closed):
         detail = TrafficLogDetailGranularHour.objects.select_related(
             'source_ip', 'destination_ip', 'application').get(
             traffic_log=log.log, row_number=log.row_number)
+        follow_up = TroubleTicketFollowUpAnomaly.objects.filter(
+            trouble_ticket=log).latest(
+            '-follow_up_datetime')
         item = {
             "id": log.id,
             "log_name": log.log.log_name,
@@ -61,7 +64,7 @@ def _get_tts(request, *, is_closed):
             "action": detail.action,
             "session_end_reason": detail.session_end_reason,
             "reasons": log.reasons,
-
+            "description": follow_up.description
         }
         items.append(item)
     return items
@@ -177,11 +180,14 @@ def close_tt(request, id):
     trouble_ticket.is_closed = True
     trouble_ticket.assigned_to = user
     trouble_ticket.save()
+
+    now = datetime.datetime.now()
     follow_up = TroubleTicketFollowUpAnomaly(
         assigned_by=user,
         assigned_to=user,
         description=description,
-        trouble_ticket=trouble_ticket
+        trouble_ticket=trouble_ticket,
+        follow_up_datetime=now
     )
     follow_up.save()
     return Response({'ok': 'tt closed'})

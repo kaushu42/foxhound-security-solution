@@ -39,7 +39,7 @@ class DBEngine(object):
             self,
             log_input_dir: str,
             granular_hour_input_dir: str,
-            *, db_engine, db_path
+            *, db_engine, db_path, logging
     ):
         if not isinstance(log_input_dir, str):
             raise TypeError('Log input directory must be a string')
@@ -61,6 +61,7 @@ class DBEngine(object):
             self._GRANULAR_HOUR_INPUT_DIR)
         self._session = sessionmaker(bind=db_engine, autoflush=False)()
         self._reader = geoip2.database.Reader(db_path)
+        self.logging = logging
         self._cols = [
             'core_virtualsystem',
             'core_tenant',
@@ -113,57 +114,83 @@ class DBEngine(object):
         return dfs
 
     def _get_unique(self, data, dfs):
+        self.logging.info('Getting unique vsys...')
+        new_items = data['virtual_system_id'].unique()
+        old_items = set(dfs['core_virtualsystem'].code.values)
         vsys = [
-            i for i in data['virtual_system_id'].unique(
-            ) if i not in dfs['core_virtualsystem'].code.values
+            i for i in new_items if i not in old_items
         ]
+        self.logging.info('Getting unique firewall rule...')
+        new_items = data['firewall_rule_id'].unique()
+        old_items = set(dfs['core_firewallrule'].name.values)
         firewall_rule = [
-            i for i in data['firewall_rule_id'].unique(
-            ) if i not in dfs['core_firewallrule'].name.values
+            i for i in new_items if i not in old_items
         ]
+        self.logging.info('Getting unique source ips...')
+        new_items = data['source_ip_id'].unique()
+        old_items = set(dfs['core_ipaddress'].address.values)
         source_ip = [
-            i for i in data['source_ip_id'].unique(
-            ) if i not in dfs['core_ipaddress'].address.values
+            i for i in new_items if i not in old_items
         ]
+        self.logging.info('Getting unique destination ips...')
+        new_items = data['destination_ip_id'].unique()
+        old_items = set(dfs['core_ipaddress'].address.values)
         destination_ip = [
-            i for i in data['destination_ip_id'].unique(
-            ) if i not in dfs['core_ipaddress'].address.values
+            i for i in new_items if i not in old_items
         ]
+        self.logging.info('Getting unique applications...')
+        new_items = data['application_id'].unique()
+        old_items = set(dfs['core_application'].name.values)
         application = [
-            i for i in data['application_id'].unique(
-            ) if i not in dfs['core_application'].name.values
+            i for i in new_items if i not in old_items
         ]
+        self.logging.info('Getting unique protocols...')
+        new_items = data['protocol_id'].unique()
+        old_items = set(dfs['core_protocol'].name.values)
         protocol = [
-            i for i in data['protocol_id'].unique(
-            ) if i not in dfs['core_protocol'].name.values
+            i for i in new_items if i not in old_items
         ]
+        self.logging.info('Getting unique source zones...')
+        new_items = data['source_zone_id'].unique()
+        old_items = set(dfs['core_zone'].name.values)
         source_zone = [
-            i for i in data['source_zone_id'].unique(
-            ) if i not in dfs['core_zone'].name.values
+            i for i in new_items if i not in old_items
         ]
+        self.logging.info('Getting unique destination zones...')
+        new_items = data['destination_zone_id'].unique()
+        old_items = set(dfs['core_zone'].name.values)
         destination_zone = [
-            i for i in data['destination_zone_id'].unique(
-            ) if i not in dfs['core_zone'].name.values
+            i for i in new_items if i not in old_items
         ]
+        self.logging.info('Getting unique inbound interfaces...')
+        new_items = data['inbound_interface_id'].unique()
+        old_items = set(dfs['core_interface'].name.values)
         inbound_interface = [
-            i for i in data['inbound_interface_id'].unique(
-            ) if i not in dfs['core_interface'].name.values
+            i for i in new_items if i not in old_items
         ]
+        self.logging.info('Getting unique outbound interfaces...')
+        new_items = data['outbound_interface_id'].unique()
+        old_items = set(dfs['core_interface'].name.values)
         outbound_interface = [
-            i for i in data['outbound_interface_id'].unique(
-            ) if i not in dfs['core_interface'].name.values
+            i for i in new_items if i not in old_items
         ]
+        self.logging.info('Getting unique actions...')
+        new_items = data['action_id'].unique()
+        old_items = set(dfs['core_action'].name.values)
         action = [
-            i for i in data['action_id'].unique(
-            ) if i not in dfs['core_action'].name.values
+            i for i in new_items if i not in old_items
         ]
+        self.logging.info('Getting unique categories...')
+        new_items = data['category_id'].unique()
+        old_items = set(dfs['core_category'].name.values)
         category = [
-            i for i in data['category_id'].unique(
-            ) if i not in dfs['core_category'].name.values
+            i for i in new_items if i not in old_items
         ]
+        self.logging.info('Getting unique season end reasons...')
+        new_items = data['session_end_reason_id'].unique()
+        old_items = set(dfs['core_sessionendreason'].name.values)
         session_end_reason = [
-            i for i in data['session_end_reason_id'].unique(
-            ) if i not in dfs['core_sessionendreason'].name.values
+            i for i in new_items if i not in old_items
         ]
         return {
             'vsys': vsys,
@@ -189,7 +216,7 @@ class DBEngine(object):
             if info.name is None:
                 raise geoip2.errors.AddressNotFoundError
         except geoip2.errors.AddressNotFoundError:
-            print('Not in database')
+            self.logging.info('Not in database')
             return 'Unknown', '---'
         return info.name.lower(), info.iso_code.lower()
 
@@ -418,16 +445,21 @@ class DBEngine(object):
             self._session.commit()
 
     def _write_to_db(self, csv: str, traffic_log):
+        self.logging.info("Reading tables...")
         dfs = self._read_tables_from_db()
+        self.logging.info("Reading csv...")
         data = self._read_csv(csv)
+        self.logging.info("Getting unique items...")
         params = self._get_unique(data, dfs)
 
         if not traffic_log.is_log_detail_written:
+            self.logging.info('Writing new items to db')
             self._write_new_items_to_db(params)
             del params
             dfs = self._read_tables_from_db()
             data = self._map_to_foreign_key(data, dfs)
             del dfs
+            self.logging.info('Writing logs to db')
             self._write_log(data, traffic_log.id,
                             table_name='core_trafficlogdetail')
             traffic_log.is_log_detail_written = True
@@ -436,12 +468,15 @@ class DBEngine(object):
 
         data = self._read_csv(csv)
         if not traffic_log.is_rule_written:
+            self.logging.info('Writing rules to db')
             self._write_rules(data)
             traffic_log.is_rule_written = True
+            self.logging.info('Cleaning rule db')
             self.clean()
             self._session.commit()
 
         if not traffic_log.is_info_written:
+            self.logging.info('Writing log info in db')
             self._write_info(data, traffic_log.id)
             traffic_log.is_info_written = True
             self._session.commit()
@@ -466,7 +501,7 @@ class DBEngine(object):
     def _run_for_detail(self, verbose=False):
         for csv in self._log_detail_csvs:
             if verbose:
-                print('Writing to db: ', csv)
+                self.logging.info(f'Writing detail to db: {csv}')
             filename = os.path.basename(csv)
             traffic_log = self._get_traffic_log(filename)
             self._write_to_db(csv, traffic_log)
@@ -475,9 +510,10 @@ class DBEngine(object):
     def _run_for_granular_hour(self, verbose=False):
         for csv in self._granular_hour_csvs:
             if verbose:
-                print('Writing to db: ', csv)
+                self.logging.info(f'Writing granular hour to db: {csv}')
             filename = os.path.basename(csv)
             traffic_log = self._get_traffic_log(filename)
+            self.logging.info('Writing granular log in db')
             self._write_granular(csv, traffic_log)
             # os.remove(csv)
 

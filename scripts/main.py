@@ -86,7 +86,8 @@ try:
         config.TRAFFIC_LOGS_OUTPUT_DIR,
         config.GRANULARIZED_LOG_PATH,
         db_engine=db_engine,
-        db_path=os.path.join(config.BASE_PATH, 'GeoLite2-City.mmdb')
+        db_path=os.path.join(config.BASE_PATH, 'GeoLite2-City.mmdb'),
+        logging=logging
     )
     db.run(verbose=True)
     db.clean()
