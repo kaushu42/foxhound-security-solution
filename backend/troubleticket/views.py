@@ -169,7 +169,9 @@ class TroubleTicketUsersApiView(APIView):
 @api_view(['POST'])
 def close_tt(request, id):
     try:
-        trouble_ticket = TroubleTicketAnomaly.objects.get(id=id)
+        tenant_id = get_tenant_id_from_token(request)
+        trouble_ticket = TroubleTicketAnomaly.objects.get(
+            id=id, firewall_rule__tenant__id=tenant_id)
     except Exception as e:
         print(e)
         return Response({
