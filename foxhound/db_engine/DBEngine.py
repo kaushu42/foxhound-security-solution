@@ -426,7 +426,7 @@ class DBEngine(object):
             self._write_new_items_to_db(params)
             dfs = self._read_tables_from_db()
             data = self._map_to_foreign_key(data, dfs)
-            self._write_log(mapped_data, traffic_log.id,
+            self._write_log(data, traffic_log.id,
                             table_name='core_trafficlogdetail')
             traffic_log.is_log_detail_written = True
             del data
