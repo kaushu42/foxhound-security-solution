@@ -75,11 +75,11 @@ try:
     # mle = MLEngine(config.TENANT_PROFILE_OUTPUT_DIR, config.TENANT_MODEL_OUTPUT_DIR,
     #                config.TRAFFIC_LOGS_INPUT_DIR, config.ANOMALY_LOGS_OUTPUT_DIR)
     # mle.run(create_model=True, predict=True)
-    # logging.info('DC Engine running')
-    # pa = fh.dc_engine.PaloAltoEngine(
-    #     config.TRAFFIC_LOGS_INPUT_DIR, config.TRAFFIC_LOGS_OUTPUT_DIR,
-    #     config.GRANULARIZED_LOG_PATH)
-    # pa.run(verbose=False)
+    logging.info('DC Engine running')
+    pa = fh.dc_engine.PaloAltoEngine(
+        config.TRAFFIC_LOGS_INPUT_DIR, config.TRAFFIC_LOGS_OUTPUT_DIR,
+        config.GRANULARIZED_LOG_PATH)
+    pa.run(verbose=True)
 
     logging.info('DB Engine running')
     db = fh.db_engine.DBEngine(
@@ -88,7 +88,7 @@ try:
         db_engine=db_engine,
         db_path=os.path.join(config.BASE_PATH, 'GeoLite2-City.mmdb')
     )
-    db.run(verbose=False)
+    db.run(verbose=True)
     db.clean()
     # tt_anomaly = TTAnomaly(config.ANOMALY_LOGS_OUTPUT_DIR, db_engine)
     # tt_anomaly.run()
