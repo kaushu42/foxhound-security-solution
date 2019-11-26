@@ -438,6 +438,7 @@ class DBEngine(object):
         if not traffic_log.is_rule_written:
             self._write_rules(data)
             traffic_log.is_rule_written = True
+            self.clean()
             self._session.commit()
 
         if not traffic_log.is_info_written:
