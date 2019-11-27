@@ -63,7 +63,7 @@ class MLEngine(AutoEncoder):
         self._DAILY_CSV_DIR = daily_csv_path
         self._ANOMALIES_CSV_OUTPUT_DIR = anomalies_csv_output_path
 
-        super(MLEngine, self).__init__(len(self._FEATURES)-1, verbose=verbose)
+        super(MLEngine, self).__init__(len(self._FEATURES)-2, verbose=verbose)
 
     def _preprocess(self, df):
         """Method to preprocess dataframe
@@ -143,7 +143,7 @@ class MLEngine(AutoEncoder):
 
         return model, params
 
-    def _create_tenant_models(self):
+    def _create_models(self):
         """Method to create models for tenant in tenant profile directory
         """
         if os.path.exists(self._TENANT_MODEL_DIR) is not True:
@@ -157,16 +157,16 @@ class MLEngine(AutoEncoder):
                 if os.path.exists(tenant_model_dir) is not True:
                     os.makedirs(tenant_model_dir)
 
-                for ip_csv_file in sorted(os.listdir(tenant_profile_dir)):
-                    ip_csv_path = os.path.join(tenant_profile_dir, ip_csv_file)
-                    ip_model_path = os.path.join(tenant_model_dir, ip_csv_file[:-3])
-                    ip_df = pd.read_csv(ip_csv_path)
-                    if len(ip_df.index) > 100:
-                        ip_df, standarizer = self.normalize_data(ip_df)
-                        print(f'**************** Training model for {ip_csv_path}****************')
-                        self.train_model(ip_df)
-                        print(f'**************** Training model for {ip_csv_path}****************')
-                        self._save_model_params({'standarizer': standarizer}, ip_model_path)
+                for csv_file in sorted(os.listdir(tenant_profile_dir)):
+                    csv_path = os.path.join(tenant_profile_dir, csv_file)
+                    model_path = os.path.join(tenant_model_dir, csv_file[:-4])
+                    df = pd.read_csv(csv_path)
+                    if len(df.index) > 10000:
+                        df, standarizer = self.normalize_data(df)
+                        print(f'**************** Training model for {csv_path}****************')
+                        self.train_model(df)
+                        print(f'**************** Trained model for {csv_path}****************')
+                        self._save_model_params({'standarizer': standarizer}, model_path)
                     else:
                         pass
 
@@ -280,6 +280,68 @@ class MLEngine(AutoEncoder):
 
         return anomalous_df
 
+    def get_ip_anomalies(self, input_csv, save_data_for_ip_profile=False):
+        """Method to get anomaly from input csv
+
+        Parameters
+        ----------
+        input_csv : str
+            Location of input csv to find anomaly from
+        save_data_for_ip_profile : bool, optional
+            Set it to True in order to save this new data for ip profile, by default False
+
+        Returns
+        -------
+        Pandas Dataframe
+            Dataframe containing anomalous entries from the input csv
+        """
+        df = pd.read_csv(input_csv)
+        truncated_df = df[self._FEATURES]
+        anomalous_df = df.head(0)
+        anomalous_without_model_count = 0
+        anomalous_features = []
+
+        for tenant in truncated_df['Rule'].unique():
+            tenant_df = truncated_df[truncated_df['Rule'] == tenant]
+
+            ips = tenant_df['Source address'].unique()
+            private_ips = ips[[ipaddress.ip_address(
+                ip).is_private for ip in ips]]
+
+            for ip in private_ips:
+                ip_csv_path = os.path.join(
+                    self._TENANT_PROFILE_DIR, tenant, f'{ip}.csv')
+                model_path = os.path.join(
+                    self._TENANT_MODEL_DIR, tenant, ip)
+
+                ip_df = tenant_df[tenant_df['Source address'] == ip].copy()
+                ip_df.reset_index(inplace=True)
+                ip_df = ip_df.drop(columns=['index', 'Rule', 'Source address'])
+                ip_df = self._preprocess(ip_df)
+
+                if os.path.exists(model_path) is True:
+                    has_anomaly, indices, reasons = self._predict(ip_df, model_path)
+                    if has_anomaly:
+                        anomalous_features.extend(reasons)
+                        anomalous_df = pd.concat(
+                            [anomalous_df, df.iloc[ip_df.index[indices]]],
+                            axis=0, ignore_index=True
+                            )
+                else:
+                    anomalous_without_model_count += len(ip_df.index)
+                    anomalous_features.extend(['No model']*len(ip_df.index))
+                    anomalous_df = pd.concat(
+                        [anomalous_df, df.iloc[ip_df.index]], axis=0)
+
+                if save_data_for_ip_profile is True:
+                    self._save_to_csv(ip_df, ip_csv_path)
+                    #print(f'Saved data for ip {ip}')
+
+        anomalous_df['log_name'] = input_csv.split('/')[-1]
+        print(
+            f'{anomalous_without_model_count}/{len(anomalous_df.index)} : Anomalous without model')
+        return anomalous_df
+
     def _predict_anomalies(self):
         """Method to predict anomalies from csvs' from input directory
         """
@@ -288,8 +350,8 @@ class MLEngine(AutoEncoder):
             for csv in sorted(os.listdir(self._DAILY_CSV_DIR)):
                 print(f'**********Processing {csv} **********')
                 csv_file_path = os.path.join(self._DAILY_CSV_DIR, csv)
-                anomalous_df.append(self.get_tenant_anomalies(
-                    csv_file_path, save_data_for_tenant_profile=False))
+                anomalous_df.append(self.get_ip_anomalies(
+                    csv_file_path, save_data_for_ip_profile=False))
                 # print(anomalous_df)
 
             anomalous_df = pd.concat(anomalous_df)
@@ -311,7 +373,7 @@ class MLEngine(AutoEncoder):
         """
         if create_model:
             print("Creating models")
-            self._create_tenant_models()
+            self._create_models()
             print("Model created")
         if predict:
             self._predict_anomalies()
