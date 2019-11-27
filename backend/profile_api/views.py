@@ -1,4 +1,5 @@
 import datetime
+import time
 import json
 from collections import defaultdict, OrderedDict
 
@@ -28,7 +29,8 @@ from globalutils import (
     get_usage,
     get_query_from_request,
     get_objects_from_query,
-    get_tenant_id_from_token
+    get_tenant_id_from_token,
+    get_max
 )
 
 from .utils import get_ip_from_request, get_filters
@@ -95,7 +97,11 @@ class AverageDailyApiView(APIView):
             ['bytes_received'],
             Sum
         )
-        n_days = len(as_destination)//24
+        unique_dates = {i['date'].date() for i in as_source}
+        n_days = len(unique_dates) - 1
+        print('*'*80)
+        print(unique_dates)
+        print('*'*80)
         if n_days == 0:
             n_days = 1
         bytes_sent = defaultdict(int)
@@ -118,16 +124,20 @@ class AverageDailyApiView(APIView):
         s = str(latest_date.date())
         timestamp = time.mktime(
             datetime.datetime.strptime(s, "%Y-%m-%d").timetuple())
-        print(timestamp)
 
         for i, j in zip(bytes_sent, bytes_received):
             ts_sent = timestamp + int(i.split(':')[0]) * 3600
             ts_received = timestamp + int(j.split(':')[0]) * 3600
             bytes_sent_data.append([ts_sent, bytes_sent[i]])
             bytes_received_data.append([ts_received, bytes_received[j]])
+        bytes_sent_max = get_max(bytes_sent_data)
+        bytes_received_max = get_max(bytes_received_data)
+
         return {
             "bytes_sent": bytes_sent_data,
             "bytes_received": bytes_received_data,
+            "bytes_sent_max": bytes_sent_max,
+            "bytes_received_max": bytes_received_max
         }
 
     def post(self, request, format=None):
@@ -239,6 +249,9 @@ class TimeSeriesApiView(APIView):
             latest_date = TrafficLogDetailGranularHour.objects.latest(
                 'logged_datetime'
             ).logged_datetime.date()
+            latest_date = datetime.datetime.combine(
+                latest_date, datetime.time())
+
             objects = groupby_date(
                 TrafficLogDetailGranularHour.objects.filter(
                     logged_datetime__gte=latest_date,

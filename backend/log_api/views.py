@@ -7,7 +7,8 @@ from rest_framework.status import (
 from core.models import (
     TrafficLog, TrafficLogDetailGranularHour,
     Country,
-    ProcessedLogDetail
+    ProcessedLogDetail,
+    Application
 )
 from views.views import PaginatedView
 from serializers.serializers import (
@@ -120,3 +121,49 @@ class RequestEndLogApiView(PaginatedView):
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
         return Response({})
+
+
+class ApplicationLogApiView(PaginatedView):
+    serializer_class = TrafficLogDetailGranularHourSerializer
+
+    def get(self, request):
+        application = request.data.get('application')
+        if application is None:
+            return Response({
+                "error": "\"application\" field is required"
+            }, status=HTTP_406_NOT_ACCEPTABLE)
+        try:
+            application_id = Application.objects.get(name=application).id
+        except Exception as e:
+            print(e)
+            return Response({
+                "error": "Application name error"
+            })
+
+        class MyRequest:
+            data = {}
+        my_request = MyRequest()
+
+        for i in request.data.keys():
+            my_request.data[i] = request.data[i]
+        my_request.data['application'] = str(application_id)
+        tenant_id = get_tenant_id_from_token(request)
+        query = get_query_from_request(my_request)
+        objects = get_objects_from_query(query).filter(
+            firewall_rule__tenant__id=tenant_id,
+            application__name=application
+        ).order_by('-id')
+        country = request.data.get('country', None)
+
+        if (country is not None) and (country != 'undefined'):
+            ips = Country.objects.filter(iso_code=country).values('ip_address')
+            objects = objects.filter(source_ip__in=ips)
+
+        page = self.paginate_queryset(objects)
+        if page is not None:
+            serializer = self.serializer_class(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        return Response({})
+
+    def post(self, request):
+        return self.get(request)

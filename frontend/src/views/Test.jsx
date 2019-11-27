@@ -8,6 +8,7 @@ import AnomalousRulesTable from "../components/tables/AnomalousRulesTable";
 import ApplicationLineChart from "../components/charts/ApplicationLineChart";
 import AnomalyBasedTroubleTicketTable from "../components/tables/AnomalyBasedTroubleTicketTable"
 import BandwidthUsageChart from "../charts/BandwidthUsageChart";
+import ClosedTroubleTickets from "../components/tables/ClosedTroubleTickets";
 
 
 class Test extends Component {
@@ -19,7 +20,8 @@ class Test extends Component {
                 {/* <VerifiedRulesTable/> */}
                 {/* <AnomalousRulesTable/> */}
                 {/* <AnomalyBasedTroubleTicketTable/> */}
-                <BandwidthUsageChart/>
+                <ClosedTroubleTickets />
+                {/* <BandwidthUsageChart/> */}
             </Fragment>
             )
     }

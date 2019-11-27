@@ -4,6 +4,7 @@ import json
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
+from rest_framework.decorators import api_view
 from rest_framework.status import (
     HTTP_200_OK,
     HTTP_400_BAD_REQUEST
@@ -27,50 +28,69 @@ from serializers.serializers import (
     TroubleTicketAnomalyLogDetailSerializer
 )
 
-from globalutils.utils import get_tenant_id_from_token
+from globalutils.utils import (
+    get_tenant_id_from_token,
+    get_user_from_token
+)
 
 
-class TroubleTicketAnomalyApiView(PaginatedView):
+def _get_tts(request, *, is_closed):
+    tenant_id = get_tenant_id_from_token(request)
+    anomalous_logs = TroubleTicketAnomaly.objects.filter(
+        firewall_rule__tenant_id=tenant_id,
+        is_closed=is_closed,
+    )[:1000].select_related('log')
+    items = []
+    for log in anomalous_logs:
+        detail = TrafficLogDetailGranularHour.objects.select_related(
+            'source_ip', 'destination_ip', 'application').get(
+            traffic_log=log.log, row_number=log.row_number)
+        follow_up = TroubleTicketFollowUpAnomaly.objects.filter(
+            trouble_ticket=log).latest(
+            'id')
+        item = {
+            "id": log.id,
+            "log_name": log.log.log_name,
+            "created_datetime": log.created_datetime,
+            "source_ip": detail.source_ip,
+            "destination_ip": detail.destination_ip,
+            "application": detail.application,
+            "destination_port": detail.destination_port,
+            "bytes_sent": detail.bytes_sent,
+            "bytes_received": detail.bytes_received,
+            "packets_sent": detail.packets_sent,
+            "packets_received": detail.packets_received,
+            "category": detail.category,
+            "action": detail.action,
+            "session_end_reason": detail.session_end_reason,
+            "reasons": log.reasons,
+            "description": follow_up.description
+        }
+        items.append(item)
+    return items
+
+
+class TroubleTicketAnomalyOpenApiView(PaginatedView):
     serializer_class = TroubleTicketAnomalyLogDetailSerializer
 
     def get(self, request):
         # Get the tenant id to filter the TTs
-        tenant_id = get_tenant_id_from_token(request)
+        items = _get_tts(request, is_closed=False)
+        page = self.paginate_queryset(items)
+        if page is not None:
+            serializer = self.serializer_class(page, many=True)
+            return self.get_paginated_response(serializer.data)
 
-        # # Get all the log details belonging to the tenant
-        # log_details = TrafficLogDetailGranularHour.objects.filter(
-        #     firewall_rule__tenant__id=tenant_id
-        # )
+    def post(self, request):
+        return self.get(request)
 
-        # # # Get a list of all logs which have anomaly tts
-        # logs = TrafficLogDetailGranularHour.objects.values('traffic_log').distinct()
-        # # Get the row numbers for each log
-        # row_numbers = TrafficLogDetailGranularHour.objects.values(
-        #     'row_number').distinct()
 
-        # # Using the log name and row_number get all the records which
-        # # are anomalous
-        # anomalous_logs = log_details.filter(
-        #     traffic_log__in=logs,
-        #     row_number__in=row_numbers
-        # ).order_by('-id')[:1000]
-        anomalous_logs = TroubleTicketAnomaly.objects.filter(
-            firewall_rule__tenant_id=tenant_id, is_closed=False)[:1000].select_related('log')
-        items = []
-        for log in anomalous_logs:
-            detail = TrafficLogDetailGranularHour.objects.select_related('source_ip', 'destination_ip', 'application').get(
-                traffic_log=log.log, row_number=log.row_number)
-            item = {
-                "id": log.id,
-                "log_name": log.log.log_name,
-                "created_datetime": log.created_datetime,
-                "source_ip": detail.source_ip,
-                "destination_ip": detail.destination_ip,
-                "application": detail.application,
-                "source_port": detail.source_port,
-                "destination_port": detail.destination_port,
-            }
-            items.append(item)
+class TroubleTicketAnomalyClosedApiView(PaginatedView):
+    serializer_class = TroubleTicketAnomalyLogDetailSerializer
+
+    def get(self, request):
+        # Get the tenant id to filter the TTs
+        items = _get_tts(request, is_closed=True)
         page = self.paginate_queryset(items)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
@@ -81,8 +101,7 @@ class TroubleTicketAnomalyApiView(PaginatedView):
 
 
 class TroubleTicketFollowUpAnomalyApiView(PaginatedView):
-    queryset = TroubleTicketFollowUpAnomaly.objects.filter(
-        trouble_ticket__is_closed=False)
+    queryset = TroubleTicketFollowUpAnomaly.objects
     serializer_class = TroubleTicketFollowUpAnomalySerializer
 
     def get(self, request, id):
@@ -98,8 +117,11 @@ class TroubleTicketFollowUpAnomalyApiView(PaginatedView):
             tt_anomaly = TroubleTicketAnomaly.objects.get(id=id)
         except Exception as e:
             print([i['id']
-                   for i in TroubleTicketAnomaly.objects.values('id').distinct()])
-            return Response({"error": "No matching TT Found"}, status=HTTP_400_BAD_REQUEST)
+                   for i in TroubleTicketAnomaly.objects.values(
+                       'id').distinct()])
+            return Response({
+                "error": "No matching TT Found"
+            }, status=HTTP_400_BAD_REQUEST)
         assigned_by_user_id = request.data.get('assigned_by_user_id')
         assigned_to_user_id = request.data.get('assigned_to_user_id')
         description = request.data.get('description')
@@ -142,3 +164,32 @@ class TroubleTicketUsersApiView(APIView):
         response = UserNameSerializer(FoxhoundUser.objects.filter(
             tenant_id=tenant_id), many=True).data
         return Response(response)
+
+
+@api_view(['POST'])
+def close_tt(request, id):
+    try:
+        tenant_id = get_tenant_id_from_token(request)
+        trouble_ticket = TroubleTicketAnomaly.objects.get(
+            id=id, firewall_rule__tenant__id=tenant_id)
+    except Exception as e:
+        print(e)
+        return Response({
+            "error": "Invalid id for trouble ticket"
+        })
+    description = request.data.get('description', '')
+    user = get_user_from_token(request)
+    trouble_ticket.is_closed = True
+    trouble_ticket.assigned_to = user
+    trouble_ticket.save()
+
+    now = datetime.datetime.now()
+    follow_up = TroubleTicketFollowUpAnomaly(
+        assigned_by=user,
+        assigned_to=user,
+        description=description,
+        trouble_ticket=trouble_ticket,
+        follow_up_datetime=now
+    )
+    follow_up.save()
+    return Response({'ok': 'tt closed'})

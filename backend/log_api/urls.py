@@ -7,4 +7,5 @@ urlpatterns = [
     path('<int:id>/', views.TrafficLogDetailApiView.as_view()),
     path('request-origin/', views.RequestOriginLogApiView.as_view()),
     path('request-end/', views.RequestEndLogApiView.as_view()),
+    path('application/', views.ApplicationLogApiView.as_view()),
 ]

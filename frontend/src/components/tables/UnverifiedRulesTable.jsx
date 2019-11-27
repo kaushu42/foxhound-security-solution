@@ -1,22 +1,39 @@
 import React, {Component, Fragment} from 'react';
 import {connect} from "react-redux";
-import {Alert, Avatar, Button, Col, Drawer, Form, Icon, Input, List, Row, Select, Spin, Statistic, Table} from 'antd';
+import {
+    Alert,
+    Avatar,
+    Button,
+    Col,
+    Drawer,
+    Form,
+    Icon,
+    Input,
+    List,
+    Row,
+    Select,
+    Spin,
+    Statistic,
+    Table,
+    Tag
+} from 'antd';
 import {
     acceptRule,
     acceptUnverifiedRule,
-    fetchUnverifiedRulesData, 
-    handleDrawerClose, 
+    fetchUnverifiedRulesData,
+    handleDrawerClose,
     rejectRule,
-    rejectUnverifiedRule, 
-    updateRule, 
+    rejectUnverifiedRule,
+    updateRule,
     updateUnverifiedRule,
-    updatePagination
+    updatePagination, fetchBlackListedAddress
 } from "../../actions/unverifiedRulesAction";
-import {drawerInfoStyle} from "../../utils";
+import {axiosHeader, drawerInfoStyle, ROOT_URL} from "../../utils";
 import {search} from "../../actions/ipSearchAction";
 import QuickIpView from "../../views/QuickIpView";
 import moment from "moment";
-
+import '../../views/rules/rules.css'
+import axios from "axios";
 
 class UnverifiedRulesTable extends Component {
 
@@ -74,9 +91,8 @@ class UnverifiedRulesTable extends Component {
             }
         ],
         data: [],
-        quickIpView : false
-
-
+        quickIpView : false,
+        blackListData : []
     }
 
     handleTableChange = (pagination, filters, sorter) => {
@@ -102,6 +118,15 @@ class UnverifiedRulesTable extends Component {
 
     componentDidMount() {
         this.handleFetchUnverifiedRulesData(this.state.params)
+        const FETCH_API = `${ROOT_URL}dashboard/blacklist/`;
+        let auth_token = this.props.auth_token;
+        let headers = axiosHeader(auth_token);
+        axios.post(FETCH_API,null,{headers})
+            .then(res => {
+                const response = res.data;
+                this.setState({blackListData:response});
+            }).catch(error => console.log(error));
+
     }
 
     handleAcceptRuleSubmit = (e) => {
@@ -144,6 +169,9 @@ class UnverifiedRulesTable extends Component {
 
     render(){
         const {selectedRecordToAccept,selectedRecordToReject,selectedRecordToUpdate} = this.props;
+        const {blackListData} = this.state;
+        console.log(blackListData);
+
         const expandedRowRender = record => <p><b>Verified Data: </b>{record.verifiedDate} <br/><b>Verified By: </b> {record.verifiedBy} </p>;
         return(
             <Fragment>
@@ -165,16 +193,25 @@ class UnverifiedRulesTable extends Component {
                 {this.props.updateUnverifiedRuleSuccess ?
                     <Alert message="Success" type="success" closeText="Close Now" showIcon description={this.props.updateUnverifiedRuleSuccessMessage} />
                     : null }
-
                 <Spin spinning={this.props.unverifiedRulesLoading}>
                     <div style={{marginBottom:24,padding:24,background:'#fbfbfb',border: '1px solid #d9d9d9',borderRadius: 6}}>
                         <Table
                             rowKey={record => record.id}
+                            size={"small"}
                             expandedRowRender = {expandedRowRender}
                             columns={this.state.columns}
                             dataSource = {this.props.unverifiedRulesData}
                             pagination={this.props.unverifiedRulePagination}
                             onChange={this.handleTableChange}
+                            rowClassName = {record =>  {
+                                if(this.state.blackListData.request_from_blacklisted_ip && this.state.blackListData.request_from_blacklisted_ip.includes(record.source_ip)){
+                                    return "redTable"
+                                }
+                                if(this.state.blackListData.request_to_blacklisted_ip && this.state.blackListData.request_to_blacklisted_ip.includes(record.destination_ip)){
+                                    return "redTable"
+                                }
+
+                            }}
                         />
                     </div>
                 </Spin>
@@ -208,7 +245,7 @@ class UnverifiedRulesTable extends Component {
                                     <Form style={{width:'100%'}} name={"rejectRuleForm"}>
                                             <Form.Item>
                                                 <label>Description</label>
-                                                <Input.TextArea ref={node => (this.description = node)} defaultValue={selectedRecordToReject.description} />
+                                                <Input ref={node => (this.description = node)} defaultValue={selectedRecordToReject.description} />
                                             </Form.Item>
                                             <Button
                                                 type="primary"
@@ -257,7 +294,7 @@ class UnverifiedRulesTable extends Component {
 
                                         <Form.Item>
                                                 <label>Description</label>
-                                                <Input.TextArea ref={node => (this.description = node)} defaultValue={selectedRecordToAccept.description} />
+                                                <Input ref={node => (this.description = node)} defaultValue={selectedRecordToAccept.description} />
                                             </Form.Item>
                                             <Button
                                                 type="primary"
@@ -317,7 +354,7 @@ class UnverifiedRulesTable extends Component {
                                             </Form.Item>
                                                 <Form.Item>
                                                     <label>Description</label>
-                                                    <Input.TextArea ref={node => (this.description = node)} defaultValue={selectedRecordToUpdate.description} />
+                                                    <Input ref={node => (this.description = node)} defaultValue={selectedRecordToUpdate.description} />
                                                 </Form.Item>
                                             <Button
                                                 type="primary"
@@ -393,6 +430,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
         dispatchFetchUnverifiedRulesData : (auth_token, params, pagination) => dispatch(fetchUnverifiedRulesData(auth_token, params, pagination)),
+        dispatchFetchBlacklistedAddress:() => dispatch(fetchBlackListedAddress()),
         handleUnverifiedRuleAccept : (auth_token,record) => dispatch(acceptUnverifiedRule(auth_token,record)),
         handleUnverifiedRuleReject : (auth_token,record) => dispatch(rejectUnverifiedRule(auth_token,record)),
         handleUnverifiedRuleUpdate : (auth_token,record) => dispatch(updateUnverifiedRule(auth_token,record)),

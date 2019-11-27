@@ -49,7 +49,10 @@ class BandwidthUsageChart extends Component{
                         name : 'Bytes Received',
                         data: []
                     }
-                ]
+                ],
+                tooltip: {
+                    valueDecimals: 2
+                },
             }
         }
     }
@@ -179,7 +182,7 @@ class BandwidthUsageChart extends Component{
                 series: [
                     {
                         id: 'bytes',
-                        type: 'spline',
+                        type: 'areaspline',
                         name : 'Bytes Received' + '(' + unit + ')',
                         data: data
                     }
@@ -193,6 +196,9 @@ class BandwidthUsageChart extends Component{
                             return this.value + " " + unit;
                         }
                     }
+                },
+                tooltip: {
+                    valueSuffix: unit
                 },
             });
             this.setState({

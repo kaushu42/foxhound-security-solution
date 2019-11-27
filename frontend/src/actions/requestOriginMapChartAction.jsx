@@ -228,7 +228,7 @@ export function fetchSelectedCountryLog(auth_token,start_date,end_date,firewall_
              updatePagination(page);
              dispatch(countryLogDataFetchLoading());
              dispatch(updatePaginationPageCount(response.count));
-             dispatch(fetchSelectedCountryLogSuccess(response.results));
+             dispatch(fetchSelectedCountryLogSuccess(response));
 
          })
          .catch(e => dispatch(fetchMapChartLogDataError(e)))

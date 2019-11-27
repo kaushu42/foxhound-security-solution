@@ -3,7 +3,9 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('anomaly/', views.TroubleTicketAnomalyApiView.as_view()),
+    path('open/', views.TroubleTicketAnomalyOpenApiView.as_view()),
+    path('closed/', views.TroubleTicketAnomalyClosedApiView.as_view()),
+    path('close/<int:id>/', views.close_tt),
     path('users/', views.TroubleTicketUsersApiView.as_view()),
     path(
         'anomaly/<int:id>/',

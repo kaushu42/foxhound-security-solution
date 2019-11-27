@@ -14,7 +14,8 @@ from globalutils.utils import (
     get_tenant_id_from_token,
     get_query_from_request,
     get_objects_from_query,
-    groupby_date
+    groupby_date,
+    get_sorted
 )
 
 from rest_framework import serializers
@@ -92,7 +93,7 @@ class ApplicationApiView(APIView):
             firewall_rule__tenant__id=tenant_id
         )
         country = request.data.get('country', None)
-        if country is not None:
+        if (country is not None) and (country != 'undefined'):
             ips = Country.objects.filter(iso_code=country).values('ip_address')
             objects = objects.filter(source_ip__in=ips)
 
@@ -117,7 +118,7 @@ class ApplicationApiView(APIView):
                 top_apps.items(),
                 key=operator.itemgetter(1),
                 reverse=True)[:topcount]:
-            final_response[key] = response[key]
+            final_response[key] = get_sorted(response[key])
 
         return Response({"data": final_response})
 

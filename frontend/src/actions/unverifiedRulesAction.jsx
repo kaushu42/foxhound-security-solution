@@ -313,6 +313,11 @@ export function rejectRule(auth_token,description,record){
     }
 }
 
+export function fetchBlackListedAddress(auth_token){
+    return (dispatch) => {
+    }
+}
+
 
 export function fetchUnverifiedRulesData(auth_token, params, pagination){
     return(dispatch)=>{

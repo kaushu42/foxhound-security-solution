@@ -1,6 +1,6 @@
 import React, {Component, Fragment} from 'react';
 import HighchartsReact from "highcharts-react-official";
-import {Card, Drawer, Select, Spin} from "antd";
+import {Card, Drawer, Select, Spin, Table} from "antd";
 import {connect} from "react-redux";
 import axios from "axios";
 import {ROOT_URL} from "../../utils";
@@ -10,6 +10,7 @@ const { Option } = Select;
 
 
 const FETCH_API = `${ROOT_URL}dashboard/top/application/`;
+const FETCH_APPLICATION_LOG_API = `${ROOT_URL}log/application/`;
 
 class ApplicationLineChart extends Component {
 
@@ -21,10 +22,50 @@ class ApplicationLineChart extends Component {
             data : [],
             top_count: 5,
             basis : 'bytes_received',
-            selectedApplicationLogData : null,
+            selectedApplicationLogData : [],
             selectedApplicationLogDrawerVisible : false,
             selectedApplication : null,
-            selectedTimeStamp : null
+            selectedTimeStamp : null,
+            params:{},
+            pagination:{},
+            applicationlogColumns : [
+                {
+                    title: 'Id',
+                    dataIndex: 'id',
+                    key: 'id',
+                },
+                {
+                    title: 'Source Address',
+                    dataIndex: 'source_ip.address',
+                    key: 'source_ip.address',
+                },
+                {
+                    title: 'Destination Address',
+                    dataIndex: 'destination_ip.address',
+                    key: 'destination_ip.address',
+                },
+                // {
+                //     title: 'Application',
+                //     dataIndex: 'application.name',
+                //     key: 'application.name',
+                // },
+                {
+                    title: 'Bytes Sent',
+                    dataIndex: 'bytes_sent',
+                    key: 'bytes_sent',
+                },
+                {
+                    title: 'Bytes Received',
+                    dataIndex: 'bytes_received',
+                    key: 'bytes_received',
+                },
+                {
+                    title: 'Logged DateTime',
+                    dataIndex: 'logged_datetime',
+                    key: 'logged_datetime',
+                    render: text => moment(text).format("YYYY-MM-DD, HH:MM:SS")
+                },
+              ]
 
         };
     }
@@ -80,7 +121,7 @@ class ApplicationLineChart extends Component {
         };
 
         let bodyFormData = new FormData();
-        bodyFormData.set('selected_country', this.props.selectedCountry);
+        bodyFormData.set('country', this.props.selectedCountry);
         bodyFormData.set('topcount', this.state.top_count);
         bodyFormData.set('basis', this.state.basis);
         bodyFormData.set('start_date', this.props.date_range[0]);
@@ -97,6 +138,7 @@ class ApplicationLineChart extends Component {
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if(
+            (String(prevProps.selectedCountry)!==String(this.props.selectedCountry)) ||
             (String(prevState.top_count)!==String(this.state.top_count)) ||
             (String(prevState.basis)!==String(this.state.basis)) ||
             (String(prevProps.ip_address)!==String(this.props.ip_address)) ||
@@ -135,7 +177,7 @@ class ApplicationLineChart extends Component {
         for(let i = 0; i< data.length;i++){
             this.chart.addSeries({
                 name: data[i].name,
-                type: 'spline',
+                type: 'areaspline',
                 data: data[i].data,
                 showInNavigator: true,
                 events: {
@@ -156,16 +198,63 @@ class ApplicationLineChart extends Component {
     }
 
     handleApplicationLineChartLogView = (selectedTimeStamp,selectedApplication) => {
-        console.log('timestamp ',selectedTimeStamp,'application ',selectedApplication);
+        
         this.setState({
             selectedApplication : selectedApplication,
             selectedTimeStamp : selectedTimeStamp,
             selectedApplicationLogDrawerVisible : true
         })
-
+        console.log('timestamp ',selectedTimeStamp,'application ',this.state.selectedApplication) 
         // axios.post("");
-
+        this.fetchApplicationLineChartLog();
     }
+
+    fetchApplicationLineChartLog = (params = {}) => {
+        const token = `Token ${this.props.auth_token}`;
+        let headers = {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Authorization" : token
+        };
+
+        let bodyFormDataForLog = new FormData();
+        bodyFormDataForLog.set("application", this.state.selectedApplication);
+        bodyFormDataForLog.set("country", this.props.selectedCountry);
+
+        axios.post(FETCH_APPLICATION_LOG_API,bodyFormDataForLog,{headers, params})
+            .then(res => {
+                const page = this.state.pagination;
+                page.total  = res.data.count;
+                this.setState({
+                    selectedApplicationLogData:res.data.results,
+                    pagination: page
+                })
+            });
+
+        console.log("fetched log data for selected application", this.state.selectedApplicationLogData)
+    }
+
+    handleTableChange = (pagination, filters, sorter) => {
+        console.log('pagination',pagination);
+        console.log('filter',filters)
+        console.log('sorter',sorter)
+        const pager = { ...this.state.pagination};
+        pager.current = pagination.current;
+        this.state.pagination = pager,
+        this.fetchApplicationLineChartLog({
+            // results: pagination.pageSize,
+            page: pagination.current,
+            sortField: sorter.field,
+            sortOrder: sorter.order,
+            ...filters
+        });
+    };
+
+    handleCloseApplicationLogDrawer = () => {
+        this.setState({
+            selectedApplicationLogDrawerVisible:false,
+        }
+    )}
 
     render(){
         const options = {
@@ -192,22 +281,13 @@ class ApplicationLineChart extends Component {
                     day: '%Y-%b-%d',
                 }
             },
+            tooltip: {
+                valueDecimals: 2,
+                valueSuffix: "MB"
+            },
             time: {
                 timezoneOffset: -6 * 60
             },
-            // plotOptions: {
-            //     series: {
-            //         cursor: 'pointer',
-            //         point: {
-            //             events: {
-            //                 click: function() {
-            //                     const self = this.chart.component;
-            //                     self.handleApplicationLineChartLogView(this.category,this.series.name);
-            //                 }
-            //             }
-            //         }
-            //     }
-            // },
             responsive: {
                 rules: [{
                     condition: {
@@ -272,7 +352,17 @@ class ApplicationLineChart extends Component {
                     closable={true}
                     onClose={this.handleCloseApplicationLogDrawer}
                 >
-
+                    {
+                        this.state.selectedApplicationLogData ? (
+                            <Table
+                            rowKey={record => record.id}
+                            columns={this.state.applicationlogColumns}
+                            dataSource={this.state.selectedApplicationLogData}
+                            pagination={this.state.pagination}
+                            onChange={this.handleTableChange}
+                            />
+                        ) : null
+                    }
                 </Drawer>
             </Fragment>
         )

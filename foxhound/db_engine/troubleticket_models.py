@@ -25,9 +25,16 @@ class TroubleTicketAnomaly(Base):
             ondelete='CASCADE'
         )
     )
+    assigned_to_id = Column(
+        ForeignKey(
+            FoxhoundUser.id,
+            ondelete='CASCADE'
+        )
+    )
     created_datetime = Column(DateTime)
     is_closed = Column(Boolean)
     row_number = Column(BigInteger)
+    reasons = Column(String)
 
     def __str__(self):
         return f'{self.log_id}-{self.row_number}'

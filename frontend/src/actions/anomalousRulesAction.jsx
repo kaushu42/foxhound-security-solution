@@ -111,12 +111,16 @@ export function cleanAllDrawerState(){
     }
 }
 
-export function acceptRule(auth_token,record){
+export function acceptRule(auth_token,description,record){
     return (dispatch) => {
         const url_to_verify_flagged_rule = VERIFY_RULE_API + record.id + '/';
         let headers = axiosHeader(auth_token);
+
+        const formData = new FormData();
+        formData.set('description', description);
+
         dispatch(acceptRuleBegin());
-        axios.post(url_to_verify_flagged_rule,null,{headers})
+        axios.post(url_to_verify_flagged_rule,formData,{headers})
             .then(res =>{
                 const response = res.data;
                 console.log(response);

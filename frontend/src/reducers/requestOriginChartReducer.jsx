@@ -28,7 +28,12 @@ const initialState = {
     mapSelectedCountryLogData : null,
     mapChartLogDrawerVisible: false,
     requestOriginMapPagination : {},
-    countryLogDataLoading : false
+    countryLogDataLoading : false,
+    mapSelectedCountryTotalBytesReceived: null,
+    mapSelectedCountryTotalBytesSent: null,
+    mapSelectedCountryTotalBytesEvents: null,
+    mapSelectedCountryTotalBytesReceivedUnit: "",
+    mapSelectedCountryTotalBytesSentUnit: ""
 }
 
 const requestOriginChartReducer = (state=initialState,action) => {
@@ -101,9 +106,49 @@ const requestOriginChartReducer = (state=initialState,action) => {
                 mapChartLogDrawerVisible : true
             }
         case MAP_CHART_LOG_FETCH_SUCCESS :
+            let mapSelectedCountryTotalBytesSentUnit = ""
+            let mapSelectedCountryTotalBytesReceivedUnit = ""
+            if (action.payload.bytes_sent > 1000000000){
+                action.payload.bytes_sent = (action.payload.bytes_sent/(1024*1024*1024))
+                mapSelectedCountryTotalBytesSentUnit = "GB"
+            }
+            else if (action.payload.bytes_sent > 1000000 && action.payload.bytes_sent < 1000000000){
+                action.payload.bytes_sent = (action.payload.bytes_sent/(1024*1024))
+                mapSelectedCountryTotalBytesSentUnit = "MB"
+            }
+            else if (action.payload.bytes_sent > 1000 && action.payload.bytes_sent < 1000000){
+                action.payload.bytes_sent = (action.payload.bytes_sent/(1024))
+                mapSelectedCountryTotalBytesSentUnit = "KB"
+            }
+            else{
+                action.payload.bytes_sent = (action.payload.bytes_sent)
+                mapSelectedCountryTotalBytesSentUnit = "Bytes"
+            }
+
+            if (action.payload.bytes_received > 1000000000){
+                action.payload.bytes_received = (action.payload.bytes_received/(1024*1024*1024))
+                mapSelectedCountryTotalBytesReceivedUnit = "GB"
+            }
+            else if (action.payload.bytes_received > 1000000 && action.payload.bytes_received < 1000000000){
+                action.payload.bytes_received = (action.payload.bytes_received/(1024*1024))
+                mapSelectedCountryTotalBytesReceivedUnit = "MB"
+            }
+            else if (action.payload.bytes_received > 1000 && action.payload.bytes_received < 1000000){
+                action.payload.bytes_received = (action.payload.bytes_received/(1024))
+                mapSelectedCountryTotalBytesReceivedUnit = "KB"
+            }
+            else{
+                action.payload.bytes_received = (action.payload.bytes_received)
+                mapSelectedCountryTotalBytesReceivedUnit = "Bytes"
+            }
             return{
                 ...state,
-                mapSelectedCountryLogData : action.payload,
+                mapSelectedCountryLogData : action.payload.results,
+                mapSelectedCountryTotalBytesReceived : action.payload.bytes_received,
+                mapSelectedCountryTotalBytesSent : action.payload.bytes_sent,
+                mapSelectedCountryTotalBytesEvents : action.payload.rows,
+                mapSelectedCountryTotalBytesSentUnit: mapSelectedCountryTotalBytesSentUnit,
+                mapSelectedCountryTotalBytesReceivedUnit: mapSelectedCountryTotalBytesReceivedUnit,
                 countryLogDataLoading: false
             }
         case REQUEST_ORIGIN_MAP_PAGINATION_UPDATE :

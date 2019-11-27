@@ -38,11 +38,14 @@ class IpUsageTimeSeriesChart extends Component {
         },
         series: [
           {
-            type: "spline",
+            type: "line",
             name: "Bytes Received",
             data: []
           }
-        ]
+        ],
+        tooltip: {
+          valueDecimals: 2
+        },
       }
     };
   }
@@ -67,22 +70,22 @@ class IpUsageTimeSeriesChart extends Component {
     ipUsageDataService(auth_token, ip_address, this.props).then(res => {
       console.log("fetching current data for ip", ip_address);
       const data = res.data;
-      if(data["bytes_sent_max"]>1000000000){
-        data["bytes_sent"] = data["bytes_sent"].map(e => [((e[0]*1000)),e[1]/(1024*1024*1024)])
+      if(data["bytes_received_max"]>1000000000){
+        data["bytes_received"] = data["bytes_received"].map(e => [((e[0]*1000)),e[1]/(1024*1024*1024)])
         this.setState({
             data : data,
             unit: "GB"
         })
       }
-      if(data["bytes_sent_max"]>1000000 && data["bytes_sent_max"]<1000000000){
-          data["bytes_sent"] = data["bytes_sent"].map(e => [((e[0]*1000)),e[1]/(1024*1024)])
+      else if(data["bytes_received_max"]>1000000 && data["bytes_received_max"]<1000000000){
+          data["bytes_received"] = data["bytes_received"].map(e => [((e[0]*1000)),e[1]/(1024*1024)])
           this.setState({
               data : data,
               unit: "MB"
           })
       }
-      if(data["bytes_sent_max"]>1000 && data["bytes_sent_max"]<1000000){
-          data["bytes_sent"] = data["bytes_sent"].map(e => [((e[0]*1000)),e[1]/(1024)])
+      else if(data["bytes_received_max"]>1000 && data["bytes_received_max"]<1000000){
+          data["bytes_received"] = data["bytes_received"].map(e => [((e[0]*1000)),e[1]/(1024)])
           this.setState({
               data : data,
               unit: "KB"
@@ -133,7 +136,7 @@ class IpUsageTimeSeriesChart extends Component {
       this.handleFetchData();
     }
     if (prevState.data !== this.state.data) {
-      let dataSeries = this.state.data["bytes_sent"]
+      let dataSeries = this.state.data["bytes_received"]
       console.log("Bandwidth chart dataseries", dataSeries);
       this.updateChart(dataSeries, this.state.unit);
     }
@@ -159,7 +162,6 @@ class IpUsageTimeSeriesChart extends Component {
       },
       series: [
         {
-          name: "Bytes Received",
           type: "spline",
           name : 'Bytes Received' + '(' + unit + ')',
           data: data
@@ -174,6 +176,9 @@ class IpUsageTimeSeriesChart extends Component {
                   return this.value + " " + unit;
               }
           }
+      },
+      tooltip: {
+          valueSuffix: unit
       },
     });
     this.setState({
