@@ -68,9 +68,10 @@ try:
     session = Session()
 
     seedutils.seed(session)
-    # init = Initialize(config.TRAFFIC_LOGS_INPUT_DIR,
-    #                   config.TENANT_PROFILE_OUTPUT_DIR)
-    # init.parse_all_csv()
+    
+    init = Initialize(config.TRAFFIC_LOGS_INPUT_DIR,
+                      config.TENANT_PROFILE_OUTPUT_DIR)
+    init.parse_all_csv('tenant')
 
     # mle = MLEngine(config.TENANT_PROFILE_OUTPUT_DIR, config.TENANT_MODEL_OUTPUT_DIR,
     #                config.TRAFFIC_LOGS_INPUT_DIR, config.ANOMALY_LOGS_OUTPUT_DIR)
