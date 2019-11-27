@@ -16,10 +16,8 @@ import ClosedTickets from "./views/troubletickets/ClosedTickets";
 import MyTickets from "./views/troubletickets/MyTickets";
 import VerifiedRules from "./views/rules/VerifiedRules";
 import ChangePassword from "./views/layout/ChangePassword";
-import TrafficLogs from "./views/logs/TrafficLogs";
-import ThreatLogs from "./views/logs/ThreatLogs";
-// import TrafficLogs from "./views/logs/TrafficLogs";
-// import ThreatLogs from "./views/logs/ThreatLogs";
+import TrafficLogs from "./views/processedlogs/TrafficLogs";
+import ThreatLogs from "./views/processedlogs/ThreatLogs";
 
 class App extends Component {
   render() {
@@ -50,13 +48,13 @@ class App extends Component {
             auth_token={this.props.auth_token}
             path="/logs/traffic"
             component={TrafficLogs}
-            activePageKey={"traffic-logs"}
+            activePageKey={"traffic-processedlogs"}
           />
           <AuthenticatedRoute
             auth_token={this.props.auth_token}
             path="/logs/threat"
             component={ThreatLogs}
-            activePageKey={"threat-logs"}
+            activePageKey={"threat-processedlogs"}
           />
 
           {/*Rules*/}
