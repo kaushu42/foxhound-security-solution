@@ -22,22 +22,21 @@ def pca(X, output_path):
 
 
 class AutoEncoder:
-    def __init__(self, input_size=17, verbose=0):
+    def __init__(self, verbose=0):
         self._model = None
         self._call_backs = None
         self._verbose = verbose
-        self._input_size = input_size
         #self._create_architecture()
 
-    def _create_architecture(self):
+    def _create_architecture(self, input_size):
         clear_session()
         self._model = Sequential()
-        self._model.add(Dense(16, activation='tanh', activity_regularizer=regularizers.l1(10e-5), input_shape=(self._input_size,)))
+        self._model.add(Dense(16, activation='tanh', activity_regularizer=regularizers.l1(10e-5), input_shape=(input_size,)))
         self._model.add(Dense(12, activation='tanh', activity_regularizer=regularizers.l1(10e-5)))
         self._model.add(Dense(8, activation='tanh', activity_regularizer=regularizers.l1(10e-5)))
         self._model.add(Dense(4, activation='tanh', activity_regularizer=regularizers.l1(10e-5)))
         self._model.add(Dense(10, activation='tanh', activity_regularizer=regularizers.l1(10e-5)))
-        self._model.add(Dense(self._input_size, activation='tanh', activity_regularizer=regularizers.l1(10e-5)))
+        self._model.add(Dense(input_size, activation='tanh', activity_regularizer=regularizers.l1(10e-5)))
 
         self._call_backs = [
             EarlyStopping(
@@ -51,7 +50,7 @@ class AutoEncoder:
         return X, standarizer
 
     def train_model(self, X):
-        self._create_architecture()
+        self._create_architecture(X.shape[1])
         self._model.compile(
             optimizer='adam', loss='mean_squared_error', metrics=['accuracy'])
         self._model.fit(
