@@ -17,7 +17,7 @@ class Initialize():
         Object to parse all history data to create tenant profile
     """
 
-    def __init__(self, dir_to_parse, tenant_profile_dir, mode):
+    def __init__(self, dir_to_parse, tenant_profile_dir):
         """Constructor for Initialize class
 
         Parameters
@@ -30,7 +30,6 @@ class Initialize():
         self._dir_to_parse = dir_to_parse
         self._TENANT_PROFILE_DIR = tenant_profile_dir
         self._features = features_list
-        self._mode = mode
 
     def _preprocess(self, df):
         """Method to preprocess dataframe
@@ -142,7 +141,7 @@ class Initialize():
 
             self._save_to_csv(ip_df, ip_csv_path)
 
-    def parse_all_csv(self):
+    def parse_all_csv(self, mode):
         """Method to parse all history csv to create tenant profile
         """
         if os.path.exists(self._TENANT_PROFILE_DIR) is not True:
