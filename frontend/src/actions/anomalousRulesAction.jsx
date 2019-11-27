@@ -129,22 +129,23 @@ export function acceptRule(auth_token,description,record){
             .then(res => {
                 dispatch(acceptRuleComplete(record));
                 dispatch(toggleAcceptDrawer());
+                dispatch(toggleRuleSuccess());
                 setTimeout(()=>{dispatch(cleanAllDrawerState())},5000);
             })
             .catch(error => dispatch(acceptRuleError(error)));
         
-        const url_to_toggle_flag = FLAG_RULE_API + record.id + '/';
-        dispatch(toggleRuleBegin());
-        axios.post(url_to_toggle_flag,null,{headers})
-            .then(res =>{
-                const response = res.data;
-                console.log(response);
-                dispatch(toggleRuleSuccess());
-            })
-            .then(res => {
-                dispatch(toggleRuleComplete(record));
-            })
-            .catch(error => dispatch(toggleRuleError(error)));
+        // const url_to_toggle_flag = FLAG_RULE_API + record.id + '/';
+        // dispatch(toggleRuleBegin());
+        // axios.post(url_to_toggle_flag,null,{headers})
+        //     .then(res =>{
+        //         const response = res.data;
+        //         console.log(response);
+        //         dispatch(toggleRuleSuccess());
+        //     })
+        //     .then(res => {
+        //         dispatch(toggleRuleComplete(record));
+        //     })
+        //     .catch(error => dispatch(toggleRuleError(error)));
     }
 }
 
