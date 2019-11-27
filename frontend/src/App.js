@@ -16,6 +16,8 @@ import ClosedTickets from "./views/troubletickets/ClosedTickets";
 import MyTickets from "./views/troubletickets/MyTickets";
 import VerifiedRules from "./views/rules/VerifiedRules";
 import ChangePassword from "./views/layout/ChangePassword";
+import TrafficLogs from "./views/logs/TrafficLogs";
+import ThreatLogs from "./views/logs/ThreatLogs";
 // import TrafficLogs from "./views/logs/TrafficLogs";
 // import ThreatLogs from "./views/logs/ThreatLogs";
 
@@ -44,7 +46,7 @@ class App extends Component {
 
           {/*Processed Logs*/}
 
-          {/* <AuthenticatedRoute
+          <AuthenticatedRoute
             auth_token={this.props.auth_token}
             path="/logs/traffic"
             component={TrafficLogs}
@@ -55,7 +57,7 @@ class App extends Component {
             path="/logs/threat"
             component={ThreatLogs}
             activePageKey={"threat-logs"}
-          /> */}
+          />
 
           {/*Rules*/}
           <AuthenticatedRoute
