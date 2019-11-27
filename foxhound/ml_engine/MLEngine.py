@@ -63,7 +63,7 @@ class MLEngine(AutoEncoder):
         self._DAILY_CSV_DIR = daily_csv_path
         self._ANOMALIES_CSV_OUTPUT_DIR = anomalies_csv_output_path
 
-        super(MLEngine, self).__init__(len(self._FEATURES)-2, verbose=verbose)
+        super(MLEngine, self).__init__(verbose=verbose)
 
     def _preprocess(self, df):
         """Method to preprocess dataframe
@@ -243,7 +243,7 @@ class MLEngine(AutoEncoder):
             csv_path = os.path.join(
                 self._TENANT_PROFILE_DIR, tenant, f'{tenant}.csv')
             model_path = os.path.join(
-                self._TENANT_MODEL_DIR, tenant)
+                self._TENANT_MODEL_DIR, tenant, tenant)
 
             tenant_df = truncated_df[truncated_df['Rule'] == tenant]
             tenant_df.reset_index(inplace=True)
@@ -255,14 +255,16 @@ class MLEngine(AutoEncoder):
                 if has_anomaly:
                     anomalous_features.extend(reasons)
                     anomalous_df = pd.concat(
-                        [anomalous_df, df.iloc[tenant_df.index[indices]]], axis=0, ignore_index=True
+                        [anomalous_df, df.iloc[tenant_df.index[indices]]],
+                        axis=0, ignore_index=True
                         )
             else:
                 anomalous_without_model_count += len(tenant_df.index)
                 anomalous_features.extend(['No model']*len(tenant_df.index))
                 anomalous_df = pd.concat(
-                    anomalous_df, df.iloc[tenant_df.index]
-                )
+                    [anomalous_df, df.iloc[tenant_df.index]],
+                    axis=0, ignore_index=True
+                    )
 
             if save_data_for_tenant_profile is True:
                 self._save_to_csv(tenant_df, csv_path)
@@ -350,8 +352,8 @@ class MLEngine(AutoEncoder):
             for csv in sorted(os.listdir(self._DAILY_CSV_DIR)):
                 print(f'**********Processing {csv} **********')
                 csv_file_path = os.path.join(self._DAILY_CSV_DIR, csv)
-                anomalous_df.append(self.get_ip_anomalies(
-                    csv_file_path, save_data_for_ip_profile=False))
+                anomalous_df.append(self.get_tenant_anomalies(
+                    csv_file_path, save_data_for_tenant_profile=False))
                 # print(anomalous_df)
 
             anomalous_df = pd.concat(anomalous_df)
