@@ -17,7 +17,7 @@ class Initialize():
         Object to parse all history data to create tenant profile
     """
 
-    def __init__(self, dir_to_parse, tenant_profile_dir):
+    def __init__(self, dir_to_parse, tenant_profile_dir, mode):
         """Constructor for Initialize class
 
         Parameters
@@ -30,6 +30,7 @@ class Initialize():
         self._dir_to_parse = dir_to_parse
         self._TENANT_PROFILE_DIR = tenant_profile_dir
         self._features = features_list
+        self._mode = mode
 
     def _preprocess(self, df):
         """Method to preprocess dataframe
@@ -99,6 +100,35 @@ class Initialize():
             if os.path.exists(tenant_path) is not True:
                 os.makedirs(tenant_path)
             tenant_df = df[df['Rule'] == tenant]
+            tenant_df.reset_index(inplace=True)
+            tenant_df = tenant_df.drop(columns=['index', 'Rule'])
+            tenant_df = self._preprocess(tenant_df)
+            tenant_csv_path = os.path.join(tenant_path, (tenant+'.csv'))
+            self._save_to_csv(tenant_df, tenant_csv_path)
+
+    def _create_ip_profile(self, src_file_path, dest_path, features_list):
+        """Method to create tenant profile from daily csv file
+
+        Parameters
+        ----------
+        src_file_path : str
+            Location of input csv file to read
+        dest_path : str
+            Location of tenant profile directory to save tenant's profile to
+        features_list : list of strings
+            List of features to consider for analysis
+        """
+        df = pd.read_csv(src_file_path)
+        print("*************************")
+        df = df[features_list]  # feature selection
+        df['Receive Time'] = df['Receive Time'].apply(
+            lambda x: x[-8:])  # remove date information from dataframe
+
+        for tenant in df['Rule'].unique():
+            tenant_path = os.path.join(dest_path, tenant)
+            if os.path.exists(tenant_path) is not True:
+                os.makedirs(tenant_path)
+            tenant_df = df[df['Rule'] == tenant]
 
             ips = tenant_df['Source address'].unique()
             private_ips = ips[[ipaddress.ip_address(ip).is_private for ip in ips]]
@@ -128,8 +158,15 @@ class Initialize():
                 csv_file_path = os.path.join(self._dir_to_parse, csv)
                 print(
                     f'[{count}/{total}]**********Processing {csv_file_path} file **********')
-                self._create_tenant_profile(
-                    csv_file_path, self._TENANT_PROFILE_DIR, self._features)
+
+                if mode == 'tenant':
+                    self._create_tenant_profile(
+                        csv_file_path, self._TENANT_PROFILE_DIR, self._features)
+                elif mode == 'ip':
+                    self._create_ip_profile(
+                        csv_file_path, self._TENANT_PROFILE_DIR, self._features)
+                else:
+                    raise TypeError('Not a valid mode')
                 count = count+1
         else:
             print(f'{self._dir_to_parse} doesnt exist')
