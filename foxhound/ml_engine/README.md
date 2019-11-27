@@ -7,9 +7,11 @@
 >
 >> Example : init = Initialize("../inputs/traffic_logs", "../outputs/tenant_profile")
 
-2. Use **parse_all_csv()** method of Initialize object to parse all csv's to create tenant profile brefore creating models and predicting
+2. Use **parse_all_csv(mode)** method of Initialize object to parse all csv's to create tenant profile brefore creating models and predicting
+> *mode:* 'tenant' for creating cummulative profile for tenant and 'ip' for creating ip profile for tenants.
+>
 <u>This step should only be called when you want to create tenant profile from unprocessed csv</u>
->> Example : init.parse_all_csv()
+>> Example : init.parse_all_csv('tenant')
 
 ### <u> Model Creation & Prediction :</u>
 1. Initialize oject for MLEngine with params, (tenant_profile_path, tenant_model_path,
