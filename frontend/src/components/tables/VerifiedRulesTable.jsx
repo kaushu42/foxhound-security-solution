@@ -1,11 +1,14 @@
 import React, {Component, Fragment} from 'react';
 import {connect} from "react-redux";
-import {Spin, Table} from 'antd';
+import {Spin, Table, Drawer} from 'antd';
 import {
     fetchVerifiedRulesData,
     updatePagination
 } from "../../actions/verifiedRulesAction";
 import moment from "moment";
+import QuickIpView from "../../views/QuickIpView"
+import {search} from "../../actions/ipSearchAction";
+
 
 class VerifiedRulesTable extends Component {
 
@@ -22,13 +25,13 @@ class VerifiedRulesTable extends Component {
                 title: 'Source IP',
                 dataIndex: 'source_ip',
                 key: 'source_ip',
-                render: text => <a>{text}</a>,
+                render: (text,record) => <a onClick={()=> this.handleShowSourceIpProfile(record)}>{text}</a>,
             },
             {
                 title: 'Destination IP',
                 dataIndex: 'destination_ip',
                 key: 'destination_ip',
-                render: text => <a>{text}</a>,
+                render: (text,record) => <a onClick={()=> this.handleShowDestinationIpProfile(record)}>{text}</a>,
             },
             {
                 title: 'Application',
@@ -49,7 +52,8 @@ class VerifiedRulesTable extends Component {
                 render: text => <a>{text}</a>,
             }
         ],
-        data: []
+        data: [],
+        quickIpView: false
     }
 
     handleTableChange = (pagination, filters, sorter) => {
@@ -73,6 +77,20 @@ class VerifiedRulesTable extends Component {
         this.props.dispatchFetchVerifiedRulesData(auth_token,params,verifiedRulePagination);
     }
 
+    handleShowSourceIpProfile(record){
+        this.props.dispatchIpSearchValueUpdate(record.source_ip);
+        this.setState({quickIpView : true})
+    }
+
+    handleShowDestinationIpProfile(record){
+        this.props.dispatchIpSearchValueUpdate(record.destination_ip);
+        this.setState({quickIpView : true})
+    }
+
+    closeQuickIpView  = () => {
+        this.setState({quickIpView: false})
+    }
+
     componentDidMount() {
         // this.props.dispatchFetchVerifiedRulesData(this.props.auth_token);
         this.handleFetchVerifiedRulesData(this.state.params)
@@ -93,6 +111,14 @@ class VerifiedRulesTable extends Component {
                         onChange={this.handleTableChange}
                     />
                 </div>
+                <Drawer
+                    closable={true}
+                    width={800}
+                    placement={"right"}
+                    onClose={this.closeQuickIpView}
+                    visible={this.state.quickIpView}>
+                    <QuickIpView/>
+                </Drawer>
             </Fragment>
         )
     }
@@ -116,7 +142,8 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
         dispatchFetchVerifiedRulesData : (auth_token, params, pagination) => dispatch(fetchVerifiedRulesData(auth_token, params, pagination)),
-        dispatchPaginationUpdate : (pager) => dispatch(updatePagination(pager))
+        dispatchPaginationUpdate : (pager) => dispatch(updatePagination(pager)),
+        dispatchIpSearchValueUpdate : value => dispatch(search(value))
     }
 }
 

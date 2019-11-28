@@ -15,10 +15,11 @@ class Test extends Component {
     render() {
         return (
             <Fragment>
-                {/* <ApplicationLineChart/> */}
-                <UnverifiedRulesTable/>
-                <VerifiedRulesTable/>
-                <AnomalousRulesTable/>
+                <ApplicationLineChart/>
+                {/* <RequestOriginWorldChart /> */}
+                {/* <UnverifiedRulesTable/> */}
+                {/* <VerifiedRulesTable/> */}
+                {/* <AnomalousRulesTable/> */}
                 {/* <AnomalyBasedTroubleTicketTable/> */}
                 {/* <ClosedTroubleTickets /> */}
                 {/* <BandwidthUsageChart/> */}

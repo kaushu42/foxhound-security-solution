@@ -15,6 +15,8 @@ import {
 } from "../../actions/requestOriginMapChartAction";
 import {Drawer, Select, Spin, Table, Card, Row, Col, Statistic, Icon} from "antd";
 import ApplicationLineChart from "./ApplicationLineChart";
+import QuickIpView from "../../views/QuickIpView"
+import {search} from "../../actions/ipSearchAction";
 
 class RequestOriginWorldChart extends Component {
 
@@ -30,11 +32,13 @@ class RequestOriginWorldChart extends Component {
                 title: 'Source Address',
                 dataIndex: 'source_ip.address',
                 key: 'source_ip.address',
+                render: (text,record) => <a onClick={()=> this.handleShowSourceIpProfile(record)}>{text}</a>,
             },
             {
                 title: 'Destination Address',
                 dataIndex: 'destination_ip.address',
                 key: 'destination_ip.address',
+                render: (text,record) => <a onClick={()=> this.handleShowDestinationIpProfile(record)}>{text}</a>,
             },
             {
                 title: 'Application',
@@ -67,7 +71,22 @@ class RequestOriginWorldChart extends Component {
                 key: 'logged_datetime',
                 render: text => moment(text).format("YYYY-MM-DD, HH:MM:SS"),
             },
-          ]
+          ],
+          quickIpView: false
+    }
+
+    handleShowSourceIpProfile(record){
+        this.props.dispatchIpSearchValueUpdate(record.source_ip.address);
+        this.setState({quickIpView : true})
+    }
+
+    handleShowDestinationIpProfile(record){
+        this.props.dispatchIpSearchValueUpdate(record.destination_ip.address);
+        this.setState({quickIpView : true})
+    }
+
+    closeQuickIpView  = () => {
+        this.setState({quickIpView: false})
     }
 
     handleTableChange = (pagination, filters, sorter) => {
@@ -241,6 +260,14 @@ class RequestOriginWorldChart extends Component {
                         </div>
                     </Spin>
                 </Drawer>
+                <Drawer
+                    closable={true}
+                    width={800}
+                    placement={"right"}
+                    onClose={this.closeQuickIpView}
+                    visible={this.state.quickIpView}>
+                    <QuickIpView/>
+                </Drawer>
             </Fragment>
         )
     }
@@ -289,7 +316,8 @@ const mapDispatchToProps = dispatch => {
         dispatchCountrySelectedInMapChart : (event,auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries,params,pagination) => dispatch(countrySelectedInMapChart(event,auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries,params,pagination)),
         dispatchCloseMapChartLogDrawer : () => dispatch(closeMapChartLogDrawer()),
         dispatchFetchSelectedCountryLog : (auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,params,pagination,mapChartSelectedCountryCode) => dispatch(fetchSelectedCountryLog(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,params,pagination,mapChartSelectedCountryCode)),
-        dispatchPaginationUpdate : (pager) => dispatch(updatePagination(pager))
+        dispatchPaginationUpdate : (pager) => dispatch(updatePagination(pager)),
+        dispatchIpSearchValueUpdate : value => dispatch(search(value))
     }
 }
 
