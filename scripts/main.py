@@ -18,7 +18,7 @@ from foxhound.db_engine.core_models import (
 )
 
 from foxhound.ml_engine.Initialize import Initialize
-##from foxhound.ml_engine.MLEngine import MLEngine
+from foxhound.ml_engine.MLEngine import MLEngine
 from foxhound.tt_engine.TTAnomaly import TTAnomaly
 
 import config
@@ -68,14 +68,14 @@ try:
     session = Session()
 
     seedutils.seed(session)
-    
-    init = Initialize(config.TRAFFIC_LOGS_INPUT_DIR,
+
+    init = Initialize(config.TRAFFIC_LOGS_OUTPUT_DIR,
                       config.TENANT_PROFILE_OUTPUT_DIR)
     init.parse_all_csv('tenant')
 
-    # mle = MLEngine(config.TENANT_PROFILE_OUTPUT_DIR, config.TENANT_MODEL_OUTPUT_DIR,
-    #                config.TRAFFIC_LOGS_INPUT_DIR, config.ANOMALY_LOGS_OUTPUT_DIR)
-    # mle.run(create_model=True, predict=True)
+    mle = MLEngine(config.TENANT_PROFILE_OUTPUT_DIR, config.TENANT_MODEL_OUTPUT_DIR,
+                   config.TRAFFIC_LOGS_OUTPUT_DIR, config.ANOMALY_LOGS_OUTPUT_DIR, verbose=True)
+    mle.run(create_model=True, predict=True)
     # logging.info('DC Engine running')
     # pa = fh.dc_engine.PaloAltoEngine(
     #     config.TRAFFIC_LOGS_INPUT_DIR, config.TRAFFIC_LOGS_OUTPUT_DIR,
@@ -83,15 +83,15 @@ try:
     # pa.run(verbose=True)
 
     # logging.info('DB Engine running')
-    db = fh.db_engine.DBEngine(
-        config.TRAFFIC_LOGS_OUTPUT_DIR,
-        config.GRANULARIZED_LOG_PATH,
-        db_engine=db_engine,
-        db_path=os.path.join(config.BASE_PATH, 'GeoLite2-City.mmdb'),
-        logging=logging
-    )
-    db.run(verbose=True)
-    db.clean()
+    # db = fh.db_engine.DBEngine(
+    #     config.TRAFFIC_LOGS_OUTPUT_DIR,
+    #     config.GRANULARIZED_LOG_PATH,
+    #     db_engine=db_engine,
+    #     db_path=os.path.join(config.BASE_PATH, 'GeoLite2-City.mmdb'),
+    #     logging=logging
+    # )
+    # db.run(verbose=True)
+    # db.clean()
     # tt_anomaly = TTAnomaly(config.ANOMALY_LOGS_OUTPUT_DIR, db_engine)
     # tt_anomaly.run()
 
