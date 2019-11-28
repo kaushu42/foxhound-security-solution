@@ -292,7 +292,7 @@ class AnomalyBasedTroubleTicketTable extends Component {
                 <Table
                     bordered
                     columns={this.state.columns}
-                    title={title}
+                    // title={title}
                     rowKey={record => record.id}
                     dataSource={this.state.data}
                     pagination={this.state.pagination}

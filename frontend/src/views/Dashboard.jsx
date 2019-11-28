@@ -51,12 +51,18 @@ class Dashboard extends Component{
 
                     </Row>
                     <Row style={contentLayout}>
+                        <br />
+                        <h3>Unverified Rules</h3>
                         <UnverifiedRulesTable />
                     </Row>
                     <Row style={contentLayout}>
+                        <br />
+                        <h3>Anomalous Rules</h3>
                         <AnomalousRulesTable />
                     </Row>
                     <Row style={contentLayout}>
+                        <br />
+                        <h3>Trouble Tickets</h3>
                         <AnomalyBasedTroubleTicketTable />
                     </Row>
                 </MasterLayout>
