@@ -1,5 +1,16 @@
-//export const ROOT_URL = "http://202.51.3.65/api/v1/";
-export const ROOT_URL = "http://127.0.0.1:8000/api/v1/"
+let URL = "";
+if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
+  // dev code
+  URL = "http://127.0.0.1:8000/api/v1/"
+} else {
+  // production code
+  URL = "http://202.51.3.65/api/v1/";
+}
+
+export  const ROOT_URL = URL;
+
+
+
 //export const ROOT_URL = "http://192.168.1.107:8000/api/v1/"
 
 export const contentLayout = {
