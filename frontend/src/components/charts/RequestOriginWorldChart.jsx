@@ -156,6 +156,10 @@ class RequestOriginWorldChart extends Component {
                     verticalAlign: 'middle'
                 }
             },
+            colorAxis: {
+                min: 0,
+                stops: [[0.4, '#4776E6'], [0.65, '#6767E8'], [1, '#8E54E9']]
+            },
             series: [
                 {
                     mapData: mapdata,
