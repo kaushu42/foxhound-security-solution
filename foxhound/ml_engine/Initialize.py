@@ -45,7 +45,8 @@ class Initialize():
             Dataframe after removing unnecessary features and numeric representation
         """
         temp = df.copy()
-        temp['Receive Time'] = temp['Receive Time'].apply(lambda x: x[-8:])
+        temp['logged_datetime'] = temp['logged_datetime'].apply(
+            lambda x: x[-8:])
         rows = temp.values
         rows = [[sum([(weight+1)*char for weight, char in enumerate(list(bytearray(cell, encoding='utf8'))[::-1])])
                  if isinstance(cell, str) else cell for cell in row] for row in rows]
@@ -91,16 +92,16 @@ class Initialize():
         df = pd.read_csv(src_file_path)
         print("*************************")
         df = df[features_list]  # feature selection
-        df['Receive Time'] = df['Receive Time'].apply(
+        df['logged_datetime'] = df['logged_datetime'].apply(
             lambda x: x[-8:])  # remove date information from dataframe
 
-        for tenant in df['Rule'].unique():
+        for tenant in df['firewall_rule_id'].unique():
             tenant_path = os.path.join(dest_path, tenant)
             if os.path.exists(tenant_path) is not True:
                 os.makedirs(tenant_path)
-            tenant_df = df[df['Rule'] == tenant]
+            tenant_df = df[df['firewall_rule_id'] == tenant]
             tenant_df.reset_index(inplace=True)
-            tenant_df = tenant_df.drop(columns=['index', 'Rule'])
+            tenant_df = tenant_df.drop(columns=['index', 'firewall_rule_id'])
             tenant_df = self._preprocess(tenant_df)
             tenant_csv_path = os.path.join(tenant_path, (tenant+'.csv'))
             self._save_to_csv(tenant_df, tenant_csv_path)
@@ -120,23 +121,25 @@ class Initialize():
         df = pd.read_csv(src_file_path)
         print("*************************")
         df = df[features_list]  # feature selection
-        df['Receive Time'] = df['Receive Time'].apply(
+        df['logged_datetime'] = df['logged_datetime'].apply(
             lambda x: x[-8:])  # remove date information from dataframe
 
-        for tenant in df['Rule'].unique():
+        for tenant in df['firewall_rule_id'].unique():
             tenant_path = os.path.join(dest_path, tenant)
             if os.path.exists(tenant_path) is not True:
                 os.makedirs(tenant_path)
-            tenant_df = df[df['Rule'] == tenant]
+            tenant_df = df[df['firewall_rule_id'] == tenant]
 
-            ips = tenant_df['Source address'].unique()
-            private_ips = ips[[ipaddress.ip_address(ip).is_private for ip in ips]]
+            ips = tenant_df['source_ip_id'].unique()
+            private_ips = ips[[ipaddress.ip_address(
+                ip).is_private for ip in ips]]
 
             for ip in private_ips:
                 ip_csv_path = os.path.join(tenant_path, (ip+'.csv'))
-                ip_df = tenant_df[tenant_df['Source address'] == ip]
+                ip_df = tenant_df[tenant_df['source_ip_id'] == ip]
                 ip_df.reset_index(inplace=True)
-                ip_df = ip_df.drop(columns=['index', 'Rule', 'Source address'])
+                ip_df = ip_df.drop(
+                    columns=['index', 'firewall_rule_id', 'source_ip_id'])
                 ip_df = self._preprocess(ip_df)
 
             self._save_to_csv(ip_df, ip_csv_path)

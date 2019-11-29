@@ -6,6 +6,8 @@ import axios from "axios";
 import {ROOT_URL} from "../../utils";
 import Highcharts from "highcharts";
 import moment from "moment";
+import QuickIpView from "../../views/QuickIpView"
+import {search} from "../../actions/ipSearchAction";
 const { Option } = Select;
 
 
@@ -38,11 +40,12 @@ class ApplicationLineChart extends Component {
                     title: 'Source Address',
                     dataIndex: 'source_ip.address',
                     key: 'source_ip.address',
+                    render: (text,record) => <a onClick={()=> this.handleShowSourceIpProfile(record)}>{text}</a>,
                 },
                 {
                     title: 'Destination Address',
                     dataIndex: 'destination_ip.address',
-                    key: 'destination_ip.address',
+                    key: 'destination_ip.address',render: (text,record) => <a onClick={()=> this.handleShowDestinationIpProfile(record)}>{text}</a>,
                 },
                 // {
                 //     title: 'Application',
@@ -65,12 +68,24 @@ class ApplicationLineChart extends Component {
                     key: 'logged_datetime',
                     render: text => moment(text).format("YYYY-MM-DD, HH:MM:SS")
                 },
-              ]
-
+              ],
+              quickIpView: false
         };
     }
 
-    
+    handleShowSourceIpProfile(record){
+        this.props.dispatchIpSearchValueUpdate(record.source_ip.address);
+        this.setState({quickIpView : true})
+    }
+
+    handleShowDestinationIpProfile(record){
+        this.props.dispatchIpSearchValueUpdate(record.destination_ip.address);
+        this.setState({quickIpView : true})
+    }
+
+    closeQuickIpView  = () => {
+        this.setState({quickIpView: false})
+    }
 
     componentDidMount = () => {
         this.handleFetchData();
@@ -364,6 +379,14 @@ class ApplicationLineChart extends Component {
                         ) : null
                     }
                 </Drawer>
+                <Drawer
+                    closable={true}
+                    width={800}
+                    placement={"right"}
+                    onClose={this.closeQuickIpView}
+                    visible={this.state.quickIpView}>
+                    <QuickIpView/>
+                </Drawer>
             </Fragment>
         )
     }
@@ -386,4 +409,10 @@ const mapStateToProps = state => {
     }
 }
 
-export default connect(mapStateToProps,null)(ApplicationLineChart);
+const mapDispatchToProps = dispatch => {
+    return {
+        dispatchIpSearchValueUpdate : value => dispatch(search(value))
+    }
+}
+
+export default connect(mapStateToProps,mapDispatchToProps)(ApplicationLineChart);

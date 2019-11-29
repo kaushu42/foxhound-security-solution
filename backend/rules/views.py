@@ -91,7 +91,7 @@ class AnomalousRulesApiView(RulePaginatedView):
 @api_view(['POST'])
 def verify_rule(request, id):
     try:
-        rule = Rule.objects.get(id=id)
+        rule = Rule.objects.get(id=id, firewall_rule__tenant__id=tenant_id)
     except Exception as e:
         print(e)
         return Response({
@@ -110,7 +110,8 @@ def verify_rule(request, id):
 @api_view(['POST'])
 def flag_rule(request, id):
     try:
-        rule = Rule.objects.get(id=id)
+        tenant_id = get_tenant_id_from_token(request)
+        rule = Rule.objects.get(id=id, firewall_rule__tenant__id=tenant_id)
     except Exception as e:
         print(e)
         return Response({

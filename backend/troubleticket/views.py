@@ -39,7 +39,7 @@ def _get_tts(request, *, is_closed):
     anomalous_logs = TroubleTicketAnomaly.objects.filter(
         firewall_rule__tenant_id=tenant_id,
         is_closed=is_closed,
-    )[:1000].select_related('log')
+    ).select_related('log')
     items = []
     for log in anomalous_logs:
         detail = TrafficLogDetailGranularHour.objects.select_related(

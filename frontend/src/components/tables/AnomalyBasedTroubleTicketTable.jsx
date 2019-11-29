@@ -7,10 +7,10 @@ import { Drawer} from 'antd';
 import { Card, Col, Row } from 'antd';
 import axios from 'axios';
 import { Input } from 'antd';
+import QuickIpView from "../../views/QuickIpView"
+import {search} from "../../actions/ipSearchAction";
 const { Option } = Select;
 const { TextArea } = Input;
-
-
 
 
 const USER_LIST_API = `${ROOT_URL}tt/users/`;
@@ -42,11 +42,13 @@ class AnomalyBasedTroubleTicketTable extends Component {
                     title: 'Source Address',
                     dataIndex: 'source_ip',
                     key: 'source_ip',
+                    render: (text,record) => <a onClick={()=> this.handleShowSourceIpProfile(record)}>{text}</a>,
                 },
                 {
                     title: 'Destination Address',
                     dataIndex: 'destination_ip',
                     key: 'destination_ip',
+                    render: (text,record) => <a onClick={()=> this.handleShowDestinationIpProfile(record)}>{text}</a>,
                 },
                 {
                     title: 'Application',
@@ -89,8 +91,23 @@ class AnomalyBasedTroubleTicketTable extends Component {
             pagination:{},
             loading:false,
             user_list : [],
-            error_message : ""
+            error_message : "",
+            quickIpView : false
         }
+    }
+
+    handleShowSourceIpProfile(record){
+        this.props.dispatchIpSearchValueUpdate(record.source_ip);
+        this.setState({quickIpView : true})
+    }
+
+    handleShowDestinationIpProfile(record){
+        this.props.dispatchIpSearchValueUpdate(record.destination_ip);
+        this.setState({quickIpView : true})
+    }
+
+    closeQuickIpView  = () => {
+        this.setState({quickIpView: false})
     }
 
     showDrawer = (record) => {
@@ -292,7 +309,7 @@ class AnomalyBasedTroubleTicketTable extends Component {
                 <Table
                     bordered
                     columns={this.state.columns}
-                    title={title}
+                    // title={title}
                     rowKey={record => record.id}
                     dataSource={this.state.data}
                     pagination={this.state.pagination}
@@ -388,7 +405,14 @@ class AnomalyBasedTroubleTicketTable extends Component {
                             )
                     }
                 </Drawer>
-
+                <Drawer
+                    closable={true}
+                    width={800}
+                    placement={"right"}
+                    onClose={this.closeQuickIpView}
+                    visible={this.state.quickIpView}>
+                    <QuickIpView/>
+                </Drawer>
             </Fragment>
         )
     }
@@ -401,4 +425,9 @@ const mapStateToProps = state => {
     }
 }
 
-export default connect(mapStateToProps,null)(AnomalyBasedTroubleTicketTable);
+const mapDispatchToProps = dispatch => {
+    return{
+        dispatchIpSearchValueUpdate : value => dispatch(search(value))
+    }
+}
+export default connect(mapStateToProps,mapDispatchToProps)(AnomalyBasedTroubleTicketTable);

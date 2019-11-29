@@ -8,20 +8,17 @@ export const contentLayout = {
   paddingTop: 12
 };
 
-
 export const drawerInfoStyle = {
-  paddingBottom : 10,
-  paddingTop : 10,
-  border: '1px solid rgb(235, 237, 240)'
-}
+  paddingBottom: 10,
+  paddingTop: 10,
+  border: "1px solid rgb(235, 237, 240)"
+};
 
-
-export const axiosHeader = (auth_token) => {
-
+export const axiosHeader = auth_token => {
   let token = `Token ${auth_token}`;
   return {
     Accept: "application/json",
     "Content-Type": "application/json",
-    "Authorization" : token
-  }
-}
+    Authorization: token
+  };
+};
