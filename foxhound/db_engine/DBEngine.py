@@ -20,7 +20,9 @@ from .core_models import (
     Tenant, Application, Protocol,
     Zone, TenantIPAddressInfo,
     TenantApplicationInfo,
-    ProcessedLogDetail
+    ProcessedLogDetail,
+    Interface, Action, Category,
+    SessionEndReason
 )
 from .troubleticket_models import TroubleTicketRule
 from .rule_models import Rule
@@ -221,58 +223,97 @@ class DBEngine(object):
         return info.name.lower(), info.iso_code.lower()
 
     def _write_new_items_to_db(self, params):
-        for v in params['vsys']:
-            print(f'Created {v}')
-            next_id = self._get_next_id('core_virtualsystem')
-            self._db_engine.execute(
-                f"INSERT INTO core_virtualsystem VALUES({next_id}, '{v}', '{v}');")
+        print('******Virtual System******')
+        for i in params['vsys']:
+            print(f'Created {i}')
+            item = VirtualSystem(code=i, name=i)
+            self._session.add(item)
+        self._session.commit()
 
+        print('******IP Address******')
         for i in params['source_ip']:
-            print(f'Created Source_IP: {i}')
-            next_id = self._get_next_id('core_ipaddress')
-            self._db_engine.execute(
-                f"INSERT INTO core_ipaddress VALUES({next_id}, '{i}', '{i}');")
-            country_next_id = self._get_next_id('core_country')
+            print(f'Created {i}')
+            item = IPAddress(address=i)
+            self._session.add(item)
+            self._session.flush()
             name, iso_code = self._get_country(i)
-            self._db_engine.execute(
-                f"INSERT INTO core_country VALUES({country_next_id}, '{name}', '{iso_code}', {next_id});"
-            )
+            item = Country(ip_address_id=item.id, name=name, iso_code=iso_code)
+            self._session.add(item)
 
         for i in params['destination_ip']:
-            print(f'Created Destination_IP: {i}')
-            next_id = self._get_next_id('core_ipaddress')
-            self._db_engine.execute(
-                f"INSERT INTO core_ipaddress VALUES({next_id}, '{i}', '{i}');")
+            print(f'Created {i}')
+            item = IPAddress(address=i)
+            self._session.add(item)
+            self._session.flush()
+            name, iso_code = self._get_country(i)
+            item = Country(ip_address_id=item.id, name=name, iso_code=iso_code)
+            self._session.add(item)
+        self._session.commit()
 
+        print('******Protocol******')
         for i in params['protocol']:
             print(f'Created {i}')
-            next_id = self._get_next_id('core_protocol')
-            self._db_engine.execute(
-                f"INSERT INTO core_protocol VALUES({next_id}, '{i}');")
+            item = Protocol(name=i)
+            self._session.add(item)
+        self._session.commit()
 
+        print('******Application******')
         for i in params['application']:
             print(f'Created {i}')
-            next_id = self._get_next_id('core_application')
-            self._db_engine.execute(
-                f"INSERT INTO core_application VALUES({next_id}, '{i}');")
+            item = Application(name=i)
+            self._session.add(item)
+        self._session.commit()
 
+        print('******Zone******')
         for i in params['source_zone']:
             print(f'Created {i}')
-            next_id = self._get_next_id('core_zone')
-            self._db_engine.execute(
-                f"INSERT INTO core_zone VALUES({next_id}, '{i}');")
+            item = Zone(name=i)
+            self._session.add(item)
 
         for i in params['destination_zone']:
             print(f'Created {i}')
-            next_id = self._get_next_id('core_zone')
-            self._db_engine.execute(
-                f"INSERT INTO core_zone VALUES({next_id}, '{i}');")
+            item = Zone(name=i)
+            self._session.add(item)
+        self._session.commit()
 
+        print('******Firewall Rule******')
         for i in params['firewall_rule']:
             print(f'Created {i}')
-            next_id = self._get_next_id('core_firewallrule')
-            self._db_engine.execute(
-                f"INSERT INTO core_firewallrule VALUES({next_id}, '{i}', {TENANT_ID_DEFAULT});")
+            item = FirewallRule(name=i, tenant_id=TENANT_ID_DEFAULT)
+            self._session.add(item)
+        self._session.commit()
+
+        print('******Interface******')
+        for i in params['inbound_interface']:
+            print(f'Created {i}')
+            item = Interface(name=i)
+            self._session.add(item)
+
+        for i in params['outbound_interface']:
+            print(f'Created {i}')
+            item = Interface(name=i)
+            self._session.add(item)
+        self._session.commit()
+
+        print('******Action******')
+        for i in params['action']:
+            print(f'Created {i}')
+            item = Action(name=i)
+            self._session.add(item)
+        self._session.commit()
+
+        print('******Category******')
+        for i in params['category']:
+            print(f'Created {i}')
+            item = Category(name=i)
+            self._session.add(item)
+        self._session.commit()
+
+        print('******Session End Reason******')
+        for i in params['session_end_reason']:
+            print(f'Created {i}')
+            item = SessionEndReason(name=i)
+            self._session.add(item)
 
     def _map_to_foreign_key(self, data, dfs):
         # data = data.copy()
@@ -324,14 +365,18 @@ class DBEngine(object):
 
     def _write_rules(self, data):
         data = data[['firewall_rule_id', 'source_ip_id',
-                     'destination_ip_id', 'application_id']].drop_duplicates()
+                     'destination_ip_id', 'application_id',
+                     'action_id', 'category_id', 'session_end_reason_id',
+                     'source_zone_id', 'destination_zone_id']].drop_duplicates()
         rules_table = pd.read_sql_table('rules_rule', self._db_engine)
         firewall_rules = pd.read_sql_table(
             'core_firewallrule', self._db_engine)
         data = pd.merge(
             data, firewall_rules,
             left_on='firewall_rule_id', right_on='name')[
-            ['id', 'source_ip_id', 'destination_ip_id', 'application_id']
+            ['id', 'source_ip_id', 'destination_ip_id', 'application_id',
+             'action_id', 'category_id', 'session_end_reason_id',
+             'source_zone_id', 'destination_zone_id']
         ]
         for i, j in data.iterrows():
             id = int(j.id)
