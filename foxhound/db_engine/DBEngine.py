@@ -366,17 +366,14 @@ class DBEngine(object):
     def _write_rules(self, data):
         data = data[['firewall_rule_id', 'source_ip_id',
                      'destination_ip_id', 'application_id',
-                     'action_id', 'category_id', 'session_end_reason_id',
-                     'source_zone_id', 'destination_zone_id']].drop_duplicates()
+                     ]].drop_duplicates()
         rules_table = pd.read_sql_table('rules_rule', self._db_engine)
         firewall_rules = pd.read_sql_table(
             'core_firewallrule', self._db_engine)
         data = pd.merge(
             data, firewall_rules,
             left_on='firewall_rule_id', right_on='name')[
-            ['id', 'source_ip_id', 'destination_ip_id', 'application_id',
-             'action_id', 'category_id', 'session_end_reason_id',
-             'source_zone_id', 'destination_zone_id']
+            ['id', 'source_ip_id', 'destination_ip_id', 'application_id']
         ]
         for i, j in data.iterrows():
             id = int(j.id)
