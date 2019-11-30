@@ -377,8 +377,8 @@ class MLEngine(AutoEncoder):
             for csv in sorted(os.listdir(self._DAILY_CSV_DIR)):
                 print(f'**********Processing {csv} **********')
                 csv_file_path = os.path.join(self._DAILY_CSV_DIR, csv)
-                anomalous_df.append(self.get_tenant_anomalies(
-                    csv_file_path, save_data_for_tenant_profile=False))
+                anomalous_df.append(self.get_ip_anomalies(
+                    csv_file_path, save_data_for_ip_profile=False))
                 # print(anomalous_df)
 
             anomalous_df = pd.concat(anomalous_df)

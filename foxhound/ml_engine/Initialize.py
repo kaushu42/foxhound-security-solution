@@ -147,16 +147,22 @@ class Initialize():
             ips = tenant_df['source_ip_id'].unique()
             private_ips = ips[[ipaddress.ip_address(
                 ip).is_private for ip in ips]]
+            print(tenant)
+            print(private_ips)
 
-            for ip in private_ips:
+            for ip in sorted(private_ips):
+                print(len(private_ips))
+                print(f'Processing ip: {ip}')
                 ip_csv_path = os.path.join(tenant_path, (ip+'.csv'))
                 ip_df = tenant_df[tenant_df['source_ip_id'] == ip]
                 ip_df.reset_index(inplace=True)
                 ip_df = ip_df.drop(
                     columns=['index', 'firewall_rule_id', 'source_ip_id'])
+                print(f'Saving ip: {ip}')
                 ip_df = self._preprocess(ip_df)
 
-            self._save_to_csv(ip_df, ip_csv_path)
+                self._save_to_csv(ip_df, ip_csv_path)
+                print(f'Sacved ip: {ip}')
 
     def parse_all_csv(self, mode):
         """Method to parse all history csv to create tenant profile
