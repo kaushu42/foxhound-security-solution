@@ -32,7 +32,7 @@ class AutoEncoder:
         clear_session()
         self._model = Sequential()
         self._model.add(Dense(16, activation='tanh', activity_regularizer=regularizers.l1(10e-5), input_shape=(input_size,)))
-        #self._model.add(Dense(12, activation='tanh', activity_regularizer=regularizers.l1(10e-5)))
+        # self._model.add(Dense(12, activation='tanh', activity_regularizer=regularizers.l1(10e-5)))
         self._model.add(Dense(8, activation='tanh', activity_regularizer=regularizers.l1(10e-5)))
         self._model.add(Dense(4, activation='tanh', activity_regularizer=regularizers.l1(10e-5)))
         self._model.add(Dense(10, activation='tanh', activity_regularizer=regularizers.l1(10e-5)))

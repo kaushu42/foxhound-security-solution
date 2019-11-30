@@ -79,8 +79,15 @@ class MLEngine(AutoEncoder):
             Dataframe after removing unnecessary features and numeric representation
         """
         temp = df.copy()
+        # temp['logged_datetime'] = temp['logged_datetime'].apply(
+        #     lambda x: x[-8:])
+
         temp['logged_datetime'] = temp['logged_datetime'].apply(
-            lambda x: x[-8:])
+            lambda x: x[-8:-6])  # remove date information from dataframe
+        temp['sin_time'] = temp.logged_datetime.apply(lambda x: np.sin((2*np.pi/24)*int(x)))
+        temp['cos_time'] = temp.logged_datetime.apply(lambda x: np.cos((2*np.pi/24)*int(x)))
+        temp.drop(columns=['logged_datetime'], inplace=True)
+
         rows = temp.values
         rows = [[sum([(weight+1)*char for weight, char in enumerate(list(bytearray(cell, encoding='utf8'))[::-1])])
                  if isinstance(cell, str) else cell for cell in row] for row in rows]
