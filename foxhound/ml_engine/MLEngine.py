@@ -163,7 +163,7 @@ class MLEngine(AutoEncoder):
                     csv_path = os.path.join(tenant_profile_dir, csv_file)
                     model_path = os.path.join(tenant_model_dir, csv_file[:-4])
                     df = pd.read_csv(csv_path)
-                    if len(df.index) > 10000:
+                    if len(df.index) > 1000:
                         df, standarizer = self.normalize_data(df)
                         print(
                             f'**************** Training model for {csv_path}****************')
@@ -240,7 +240,13 @@ class MLEngine(AutoEncoder):
             Dataframe containing anomalous entries from the input csv
         """
         df = pd.read_csv(input_csv)
-        truncated_df = df[self._FEATURES]
+        truncated_df = df[self._FEATURES].copy()
+
+        truncated_df.session_end_reason_id.fillna('unknown', inplace=True)
+
+        private_ips_index = truncated_df.source_ip_id.apply(lambda x: ipaddress.ip_address(x).is_private)
+        truncated_df = truncated_df[private_ips_index]
+
         anomalous_df = df.head(0)
         anomalous_without_model_count = 0
         anomalous_features = []
@@ -305,7 +311,10 @@ class MLEngine(AutoEncoder):
             Dataframe containing anomalous entries from the input csv
         """
         df = pd.read_csv(input_csv)
-        truncated_df = df[self._FEATURES]
+        truncated_df = df[self._FEATURES].copy()
+
+        truncated_df.session_end_reason_id.fillna('unknown', inplace=True)
+
         anomalous_df = df.head(0)
         anomalous_without_model_count = 0
         anomalous_features = []
