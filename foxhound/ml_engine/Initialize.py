@@ -98,6 +98,8 @@ class Initialize():
         private_ips_index = df.source_ip_id.apply(lambda x: ipaddress.ip_address(x).is_private)
         df = df[private_ips_index]
 
+        df.session_end_reason_id.fillna('unknown', inplace=True)
+
         for tenant in df['firewall_rule_id'].unique():
             tenant_path = os.path.join(dest_path, tenant)
             if os.path.exists(tenant_path) is not True:
@@ -126,6 +128,7 @@ class Initialize():
         df = df[features_list]  # feature selection
         df['logged_datetime'] = df['logged_datetime'].apply(
             lambda x: x[-8:])  # remove date information from dataframe
+        df.session_end_reason_id.fillna('unknown', inplace=True)
 
         for tenant in df['firewall_rule_id'].unique():
             tenant_path = os.path.join(dest_path, tenant)
