@@ -32,7 +32,7 @@ class AutoEncoder:
         clear_session()
         self._model = Sequential()
         self._model.add(Dense(16, activation='tanh', activity_regularizer=regularizers.l1(10e-5), input_shape=(input_size,)))
-        self._model.add(Dense(12, activation='tanh', activity_regularizer=regularizers.l1(10e-5)))
+        #self._model.add(Dense(12, activation='tanh', activity_regularizer=regularizers.l1(10e-5)))
         self._model.add(Dense(8, activation='tanh', activity_regularizer=regularizers.l1(10e-5)))
         self._model.add(Dense(4, activation='tanh', activity_regularizer=regularizers.l1(10e-5)))
         self._model.add(Dense(10, activation='tanh', activity_regularizer=regularizers.l1(10e-5)))
@@ -55,7 +55,7 @@ class AutoEncoder:
             optimizer='adam', loss='mean_squared_error', metrics=['accuracy'])
         self._model.fit(
             X, X, epochs=100, batch_size=32, shuffle=True,
-            validation_split=0.2, verbose=self._verbose, callbacks=self._call_backs)
+            validation_split=0.1, verbose=self._verbose, callbacks=self._call_backs)
 
     def save_model(self, model_path):
         self._model.save(f'{model_path}/model.h5')
