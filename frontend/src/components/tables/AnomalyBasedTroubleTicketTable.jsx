@@ -1,5 +1,5 @@
 import React, {Component, Fragment} from 'react';
-import {Avatar, Button, Form, List, Select, Spin, Statistic, Table} from 'antd';
+import {Avatar, Button, Form, List, Select, Spin, Statistic, Table, Tag} from 'antd';
 import reqwest from "reqwest";
 import {drawerInfoStyle, ROOT_URL} from "../../utils";
 import {connect} from "react-redux";
@@ -79,6 +79,17 @@ class AnomalyBasedTroubleTicketTable extends Component {
                     title: 'Log Name',
                     dataIndex: 'log_name',
                     key: 'log_name',
+                },
+                {
+                    title: 'Reasons',
+                    dataIndex: 'reasons',
+                    key: 'reasons',
+                    render : (text,record) => (text.split(",").map(tag => {
+                        return (
+                            <Tag color={"red"} key={tag}>{tag}</Tag>
+                        )
+                    }))
+
                 },
                 {
                     title: 'Action',
