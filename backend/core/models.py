@@ -1,6 +1,8 @@
 from django.db import models
 from rest_framework import serializers
 
+import architect
+
 
 class VirtualSystem(models.Model):
     code = models.CharField(max_length=20, unique=True, null=False)
@@ -142,6 +144,11 @@ class Interface(ModelWithName):
     pass
 
 
+@architect.install(
+    'partition', type='range',
+    subtype='date', constraint='month',
+    column='logged_datetime'
+)
 class TrafficLogDetail(models.Model):
     traffic_log = models.ForeignKey(
         TrafficLog,
@@ -291,6 +298,11 @@ class ProcessedLogDetail(models.Model):
         return self.__repr__()
 
 
+@architect.install(
+    'partition', type='range',
+    subtype='date', constraint='month',
+    column='logged_datetime'
+)
 class TrafficLogDetailGranularHour(models.Model):
     traffic_log = models.ForeignKey(
         TrafficLog,

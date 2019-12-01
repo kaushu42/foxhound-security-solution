@@ -269,9 +269,9 @@ class Country(Base):
     __tablename__ = 'core_country'
 
     id = Column(Integer, primary_key=True)
-    ip_address = Column(ForeignKey(IPAddress.id, ondelete='CASCADE'))
-    country_name = Column(String)
-    country_iso_code = Column(String)
+    ip_address_id = Column(ForeignKey(IPAddress.id, ondelete='CASCADE'))
+    name = Column(String)
+    iso_code = Column(String)
 
     def __repr__(self):
         return f'{self.ip_address}-{self.country_iso_code}'

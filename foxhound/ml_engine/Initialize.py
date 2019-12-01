@@ -45,8 +45,15 @@ class Initialize():
             Dataframe after removing unnecessary features and numeric representation
         """
         temp = df.copy()
+        # temp['logged_datetime'] = temp['logged_datetime'].apply(
+        #     lambda x: x[-8:])
+
         temp['logged_datetime'] = temp['logged_datetime'].apply(
-            lambda x: x[-8:])
+            lambda x: x[-8:-6])  # remove date information from dataframe
+        temp['sin_time'] = temp.logged_datetime.apply(lambda x: np.sin((2*np.pi/24)*int(x)))
+        temp['cos_time'] = temp.logged_datetime.apply(lambda x: np.cos((2*np.pi/24)*int(x)))
+        temp.drop(columns=['logged_datetime'], inplace=True)
+
         rows = temp.values
         rows = [[sum([(weight+1)*char for weight, char in enumerate(list(bytearray(cell, encoding='utf8'))[::-1])])
                  if isinstance(cell, str) else cell for cell in row] for row in rows]
@@ -92,8 +99,13 @@ class Initialize():
         df = pd.read_csv(src_file_path)
         print("*************************")
         df = df[features_list]  # feature selection
-        df['logged_datetime'] = df['logged_datetime'].apply(
-            lambda x: x[-8:])  # remove date information from dataframe
+        # df['logged_datetime'] = df['logged_datetime'].apply(
+        #     lambda x: x[-8:])  # remove date information from dataframe
+        #new
+        private_ips_index = df.source_ip_id.apply(lambda x: ipaddress.ip_address(x).is_private)
+        df = df[private_ips_index]
+
+        df.session_end_reason_id.fillna('unknown', inplace=True)
 
         for tenant in df['firewall_rule_id'].unique():
             tenant_path = os.path.join(dest_path, tenant)
@@ -121,8 +133,10 @@ class Initialize():
         df = pd.read_csv(src_file_path)
         print("*************************")
         df = df[features_list]  # feature selection
-        df['logged_datetime'] = df['logged_datetime'].apply(
-            lambda x: x[-8:])  # remove date information from dataframe
+        # df['logged_datetime'] = df['logged_datetime'].apply(
+        #     lambda x: x[-8:])  # remove date information from dataframe
+
+        df.session_end_reason_id.fillna('unknown', inplace=True)
 
         for tenant in df['firewall_rule_id'].unique():
             tenant_path = os.path.join(dest_path, tenant)
