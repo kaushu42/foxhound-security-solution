@@ -29,18 +29,40 @@ class TrafficLogApiView(PaginatedView):
         tenant_id = get_tenant_id_from_token(request)
         objects = ProcessedLogDetail.objects.filter(
             firewall_rule__tenant__id=tenant_id
-        ).values('log__log_name').annotate(
+        ).values('log').annotate(
             size=Sum('size'),
             rows=Sum('n_rows'),
             log_name=F('log__log_name'),
             processed_date=F('log__processed_datetime'),
-            log_date=F('log__log_date')
+            log_date=F('log__log_date'),
+            firewall_rule=Sum('firewall_rule')
         ).values(
             'size', 'rows',
             'log_name', 'processed_date',
             'log_date'
         ).order_by('-id')
-        page = self.paginate_queryset(objects)
+        from collections import defaultdict
+        size = defaultdict(int)
+        rows = defaultdict(int)
+        processed_date = defaultdict(str)
+        log_date = defaultdict(str)
+        for o in objects:
+            log_name = o['log_name']
+            size[log_name] += o['size']
+            rows[log_name] += o['rows']
+            processed_date[log_name] = o['processed_date']
+            log_date[log_name] = o['log_date']
+        results = []
+        for i, j in zip(size, rows):
+            results.append({
+                'log_name': i,
+                'size': size[i],
+                'rows': rows[i],
+                'processed_date': processed_date[i],
+                'log_date': log_date[i],
+            })
+        print(results)
+        page = self.paginate_queryset(results)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
