@@ -265,8 +265,8 @@ class MLEngine(AutoEncoder):
                 self._TENANT_MODEL_DIR, tenant, tenant)
 
             tenant_df = truncated_df[truncated_df['firewall_rule_id'] == tenant]
-            tenant_df.reset_index(inplace=True)
-            tenant_df = tenant_df.drop(columns=['index', 'firewall_rule_id'])
+            #tenant_df.reset_index(inplace=True)
+            tenant_df = tenant_df.drop(columns=['firewall_rule_id'])
             tenant_df = self._preprocess(tenant_df)
 
             if os.path.exists(model_path) is True:
@@ -276,8 +276,9 @@ class MLEngine(AutoEncoder):
                     anomalous_features.extend(reasons)
                     anomalous_df = pd.concat(
                         [anomalous_df, df.iloc[tenant_df.index[indices]]],
-                        axis=0, ignore_index=True
+                        axis=0
                     )
+                    #print((df.iloc[tenant_df.index[indices]]).source_ip_id)
             else:
                 anomalous_without_model_count += len(tenant_df.index)
                 anomalous_features.extend(['No model']*len(tenant_df.index))
@@ -340,9 +341,10 @@ class MLEngine(AutoEncoder):
                     self._TENANT_MODEL_DIR, tenant, ip)
 
                 ip_df = tenant_df[tenant_df['source_ip_id'] == ip].copy()
-                ip_df.reset_index(inplace=True)
+                #ip_df.reset_index(inplace=True)
+                #print(ip)
                 ip_df = ip_df.drop(
-                    columns=['index', 'firewall_rule_id', 'source_ip_id'])
+                    columns=['firewall_rule_id', 'source_ip_id'])
                 ip_df = self._preprocess(ip_df)
 
                 if os.path.exists(model_path) is True:
@@ -352,7 +354,7 @@ class MLEngine(AutoEncoder):
                         anomalous_features.extend(reasons)
                         anomalous_df = pd.concat(
                             [anomalous_df, df.iloc[ip_df.index[indices]]],
-                            axis=0, ignore_index=True
+                            axis=0
                         )
                 else:
                     anomalous_without_model_count += len(ip_df.index)
@@ -377,8 +379,8 @@ class MLEngine(AutoEncoder):
             for csv in sorted(os.listdir(self._DAILY_CSV_DIR)):
                 print(f'**********Processing {csv} **********')
                 csv_file_path = os.path.join(self._DAILY_CSV_DIR, csv)
-                anomalous_df.append(self.get_ip_anomalies(
-                    csv_file_path, save_data_for_ip_profile=False))
+                anomalous_df.append(self.get_tenant_anomalies(
+                    csv_file_path, save_data_for_tenant_profile=False))
                 # print(anomalous_df)
 
             anomalous_df = pd.concat(anomalous_df)
