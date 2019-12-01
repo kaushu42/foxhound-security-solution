@@ -12,7 +12,10 @@ from rest_framework.status import (
 
 from users.models import FoxhoundUser
 
-from core.models import TrafficLogDetailGranularHour
+from core.models import (
+    TrafficLogDetailGranularHour,
+    TrafficLogDetail
+)
 
 from troubleticket.models import (
     TroubleTicketAnomaly,
@@ -42,7 +45,7 @@ def _get_tts(request, *, is_closed):
     ).select_related('log')
     items = []
     for log in anomalous_logs:
-        detail = TrafficLogDetailGranularHour.objects.select_related(
+        detail = TrafficLogDetail.objects.select_related(
             'source_ip', 'destination_ip', 'application').get(
             traffic_log=log.log, row_number=log.row_number)
         follow_up = TroubleTicketFollowUpAnomaly.objects.filter(

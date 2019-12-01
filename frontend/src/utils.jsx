@@ -7,7 +7,7 @@ if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
   URL = "http://202.51.3.65/api/v1/";
 }
 
-export  const ROOT_URL = URL;
+export const ROOT_URL = URL;
 
 
 
