@@ -56,17 +56,17 @@ class TTAnomaly:
         index, row_data = row
         return {
             'log_name': row_data.log_name,
-            'vsys_name': row_data['Virtual System'],
-            'source_ip': row_data['Source address'],
-            'destination_ip': row_data['Destination address'],
+            'vsys_name': row_data['virtual_system_id'],
+            'source_ip': row_data['source_ip_id'],
+            'destination_ip': row_data['destination_ip_id'],
             'log_record_number': index,
-            'source_port': row_data['Source Port'],
-            'destination_port': row_data['Destination Port'],
+            'source_port': row_data['source_port_id'],
+            'destination_port': row_data['destination_port_id'],
             'now': datetime.datetime.now(),
-            'bytes_sent': row_data['Bytes Sent'],
-            'bytes_received': row_data['Bytes Received'],
-            'application': row_data['Application'],
-            'firewall_rule': row_data['Rule'],
+            'bytes_sent': row_data['bytes_sent'],
+            'bytes_received': row_data['bytes_received'],
+            'application': row_data['application_id'],
+            'firewall_rule': row_data['firewall_rule_id'],
             'reasons': row_data['Reasons']
         }
 
