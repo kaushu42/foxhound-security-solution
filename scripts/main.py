@@ -4,25 +4,14 @@ import datetime
 import re
 import logging
 
-from sqlalchemy.engine import create_engine
-from sqlalchemy.orm import sessionmaker
-
 from tqdm import tqdm
 
 import pandas as pd
 
-import foxhound as fh
-from foxhound.db_engine.core_models import (
-    VirtualSystem, Country,
-    TrafficLog
-)
-
-from foxhound.ml_engine.Initialize import Initialize
-from foxhound.ml_engine.MLEngine import MLEngine
-from foxhound.tt_engine.TTAnomaly import TTAnomaly
-
 import config
 import seedutils
+import utils
+import run
 
 LOG_FILE = os.path.join(config.LOG_PATH, f'{os.path.basename(__file__)}.log')
 logging.basicConfig(
@@ -31,80 +20,13 @@ logging.basicConfig(
 )
 logging.info(f'Script ran on {datetime.datetime.now()}')
 try:
-    if not os.path.exists(
-        os.path.join(config.BASE_PATH, 'GeoLite2-City.mmdb')
-    ):
-        import wget
-        import tarfile
-        import shutil
+    seedutils.seed()
 
-        logging.info('Downloading IP database....')
+    run.ml_engine()
+    run.dc_engine()
+    run.db_engine(utils.get_db_engine(), logging)
+    run.tt_engine()
 
-        wget.download(config.DATABASE_URL)
-        tar = tarfile.open(os.path.join(
-            config.BASE_PATH, 'GeoLite2-City_20191029.tar.gz'))
-        tar.extractall()
-        os.rename(
-            os.path.join(
-                config.BASE_PATH,
-                'GeoLite2-City_20191029/GeoLite2-City.mmdb'
-            ),
-            os.path.join(
-                config.BASE_PATH, './GeoLite2-City.mmdb'
-            )
-        )
-        shutil.rmtree('GeoLite2-City_20191029/')
-        os.remove('GeoLite2-City_20191029.tar.gz')
-
-        print('\nDone')
-
-    db_name = os.environ.get(config.FH_DB_NAME, '')
-    db_user = os.environ.get(config.FH_DB_USER, '')
-    db_password = os.environ.get(config.FH_DB_PASSWORD, '')
-    db_engine = create_engine(
-        f'''
-        postgresql://{db_user}:{db_password}@{config.HOST}:{config.PORT}/{db_name}
-        '''.strip()
-    )
-    Session = sessionmaker(bind=db_engine)
-    session = Session()
-
-    seedutils.seed(session)
-
-    # init = Initialize(config.TRAFFIC_LOGS_OUTPUT_DIR,
-    #                   config.TENANT_PROFILE_OUTPUT_DIR)
-    # init.parse_all_csv('tenant')
-
-    # mle = MLEngine(config.TENANT_PROFILE_OUTPUT_DIR,
-    #                config.TENANT_MODEL_OUTPUT_DIR,
-    #                config.TRAFFIC_LOGS_OUTPUT_DIR,
-    #                config.ANOMALY_LOGS_OUTPUT_DIR,
-    #                verbose=True)
-    # mle.run(create_model=True, predict=True)
-    logging.info('DC Engine running')
-    pa = fh.dc_engine.PaloAltoEngine(
-        config.TRAFFIC_LOGS_INPUT_DIR, config.TRAFFIC_LOGS_OUTPUT_DIR,
-        config.GRANULARIZED_LOG_PATH)
-    pa.run(verbose=True)
-
-    # logging.info('DB Engine running')
-    db = fh.db_engine.DBEngine(
-        config.TRAFFIC_LOGS_OUTPUT_DIR,
-        config.GRANULARIZED_LOG_PATH,
-        db_engine=db_engine,
-        db_path=os.path.join(config.BASE_PATH, 'GeoLite2-City.mmdb'),
-        logging=logging
-    )
-    db.run(verbose=True)
-    # db.clean()
-    # tt_anomaly = TTAnomaly(config.ANOMALY_LOGS_OUTPUT_DIR, db_engine)
-    # tt_anomaly.run()
-
-    # anomaly_logs = [os.path.join(config.ANOMALY_LOGS_OUTPUT_DIR, f)
-    #                 for f in os.listdir(config.ANOMALY_LOGS_OUTPUT_DIR)]
-    # for log in anomaly_logs:
-    #     os.remove(log)
-    #     logging.info(f'{log} deleted!')
 except Exception as e:
-    logging.exception(f'An error occured on {datetime.datetime.now()}')
+    logging.exception(f'Terminated on {datetime.datetime.now()}')
     raise(e)

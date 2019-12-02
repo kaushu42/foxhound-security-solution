@@ -1,3 +1,7 @@
+import sys
+import os
+import subprocess
+
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.status import HTTP_400_BAD_REQUEST
@@ -8,6 +12,7 @@ from serializers.serializers import (
     RuleEditSerializer
 )
 
+from backend.settings import BASE_DIR
 from core.models import FirewallRule
 from globalutils.utils import (
     get_tenant_id_from_token,
@@ -15,6 +20,8 @@ from globalutils.utils import (
 )
 from views.views import PaginatedView
 from .models import Rule
+
+DELETE_RULE_FILENAME = '../dumps/delete_rules.txt'
 
 
 class RulePaginatedView(PaginatedView):
@@ -148,28 +155,27 @@ def edit_rule(request):
         'application__regex': application,
         'is_anomalous_rule': False
     }
-    create_new_rule = False
+    f = open(os.path.join(BASE_DIR, DELETE_RULE_FILENAME), 'w')
+
     for rule in Rule.objects.filter(**query):
-        print(
-            f"Deleted {rule.source_ip}--{rule.destination_ip}--{rule.application}"
-        )
-        rule.delete()
-        create_new_rule = True
+        f.write(f'{rule.id}\n')
+
+    f.close()
+    DELETE_RULE_SCRIPT = os.path.join(BASE_DIR, '../scripts/delete_rules.py')
+    subprocess.Popen([sys.executable, DELETE_RULE_SCRIPT])
     firewall_rule = FirewallRule.objects.filter(tenant__id=tenant_id)[0]
     rule_name = f'{source_ip}--{destination_ip}--{application}'
     user = get_user_from_token(request)
-    print('Create new rule: ', create_new_rule)
-    if create_new_rule:
-        Rule(
-            firewall_rule=firewall_rule,
-            name=rule_name,
-            source_ip=source_ip,
-            destination_ip=destination_ip,
-            application=application,
-            description=description,
-            is_verified_rule=True,
-            is_anomalous_rule=False,
-            verified_by_user=user
-        ).save()
+    Rule(
+        firewall_rule=firewall_rule,
+        name=rule_name,
+        source_ip=source_ip,
+        destination_ip=destination_ip,
+        application=application,
+        description=description,
+        is_verified_rule=True,
+        is_anomalous_rule=False,
+        verified_by_user=user
+    ).save()
 
     return Response(serializer.data)
