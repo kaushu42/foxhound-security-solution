@@ -155,14 +155,14 @@ def edit_rule(request):
         'application__regex': application,
         'is_anomalous_rule': False
     }
-    f = open(os.path.join(BASE_DIR, DELETE_RULE_FILENAME), 'w')
+    # f = open(os.path.join(BASE_DIR, DELETE_RULE_FILENAME), 'w')
 
     for rule in Rule.objects.filter(**query):
-        f.write(f'{rule.id}\n')
-
-    f.close()
-    DELETE_RULE_SCRIPT = os.path.join(BASE_DIR, '../scripts/delete_rules.py')
-    subprocess.Popen([sys.executable, DELETE_RULE_SCRIPT])
+        # f.write(f'{rule.id}\n')
+        rule.delete()
+    # f.close()
+    # DELETE_RULE_SCRIPT = os.path.join(BASE_DIR, '../scripts/delete_rules.py')
+    # subprocess.Popen([sys.executable, DELETE_RULE_SCRIPT])
     firewall_rule = FirewallRule.objects.filter(tenant__id=tenant_id)[0]
     rule_name = f'{source_ip}--{destination_ip}--{application}'
     user = get_user_from_token(request)
