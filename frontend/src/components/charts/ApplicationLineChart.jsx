@@ -3,7 +3,7 @@ import HighchartsReact from "highcharts-react-official";
 import {Card, Drawer, Select, Spin, Table} from "antd";
 import {connect} from "react-redux";
 import axios from "axios";
-import {ROOT_URL} from "../../utils";
+import {bytesToSize, ROOT_URL} from "../../utils";
 import Highcharts from "highcharts";
 import moment from "moment";
 import QuickIpView from "../../views/QuickIpView"
@@ -47,20 +47,18 @@ class ApplicationLineChart extends Component {
                     dataIndex: 'destination_ip.address',
                     key: 'destination_ip.address',render: (text,record) => <a onClick={()=> this.handleShowDestinationIpProfile(record)}>{text}</a>,
                 },
-                // {
-                //     title: 'Application',
-                //     dataIndex: 'application.name',
-                //     key: 'application.name',
-                // },
                 {
                     title: 'Bytes Sent',
                     dataIndex: 'bytes_sent',
                     key: 'bytes_sent',
+                    render : (text,record) => bytesToSize(text)
                 },
                 {
                     title: 'Bytes Received',
                     dataIndex: 'bytes_received',
                     key: 'bytes_received',
+                    render : (text,record) => bytesToSize(text)
+
                 },
                 {
                     title: 'Logged DateTime',
@@ -275,7 +273,7 @@ class ApplicationLineChart extends Component {
         const options = {
             plotOptions: {
                 arearange: {
-                    showInLegend: false,
+                    showInLegend: true,
                     stickyTracking: true,
                     trackByArea: false,
                     dataGrouping: {
@@ -283,7 +281,7 @@ class ApplicationLineChart extends Component {
                     }
                 },
                 areaspline: {
-                    showInLegend: false,
+                    showInLegend: true,
                     stickyTracking: true,
                     trackByArea: false,
                     marker: {
@@ -301,7 +299,7 @@ class ApplicationLineChart extends Component {
                     turboThreshold: 0,
                     events: {
                         legendItemClick: () => {
-                            return false;
+                            return true;
                         }
                     },
                     dataGrouping: {
@@ -310,10 +308,11 @@ class ApplicationLineChart extends Component {
                 }
             },
             xAxis: {
-                minTickInterval: 60 * 1000,
-                tickInterval: 60 * 1000,
+                dateTimeLabelFormats: {
+                    day: '%Y-%b-%d',
+                },
                 ordinal: false,
-                followPointer: false,
+                followPointer: true,
                 type: "datetime",
 
                 showLastLabel: true,
@@ -323,6 +322,7 @@ class ApplicationLineChart extends Component {
                 }
             },
             tooltip: {
+                valueSuffix: " MB",
                 shared: true,
                 followPointer: false,
                 snap: 1,
@@ -354,26 +354,9 @@ class ApplicationLineChart extends Component {
                         textOverflow: "ellipsis",
                         width: "100px"
                     },
-                    text: "Metric"
+                    text: "Bytes (MB)"
                 }
-            },
-                {
-                    min: 0,
-                    opposite: true,
-                    title: {
-                        useHTML: true,
-                        text: "<div class='average_value' style='color: #41A4F0; font-size: 16px; font-weight: 500; letter-spacing: -0.38px; line-height: 21px;'>Avg</div>",
-                        rotation: 360,
-                        textAlign: "left"
-                    },
-                    labels: {
-                        style: {
-                            color: this.labelColor
-                        }
-                    }
-                }
-            ],
-
+            }],
             chart :{
                 zoomType : 'x',
               },
@@ -381,12 +364,6 @@ class ApplicationLineChart extends Component {
             title: {
                 text: 'Applications Used'
             },
-            // xAxis : {
-            //     type: 'datetime',
-            //     dateTimeLabelFormats: {
-            //         day: '%Y-%b-%d',
-            //     }
-            // },
             responsive: {
                 rules: [{
                     condition: {
