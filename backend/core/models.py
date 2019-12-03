@@ -370,3 +370,14 @@ class TrafficLogDetailGranularHour(models.Model):
 
     def __str__(self):
         return self.__repr__()
+
+
+class DBLock(models.Model):
+    table_name = models.CharField(max_length=80, null=True, unique=True)
+    is_locked = models.BooleanField(default=False)
+
+    def __repr__(self):
+        return f'{self.is_locked}'
+
+    def __str__(self):
+        return self.__repr__()

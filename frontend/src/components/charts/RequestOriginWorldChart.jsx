@@ -10,7 +10,7 @@ import {
     fetchRequestOriginMapData,
     updateMapAfterExcludingCountries,
     closeMapChartLogDrawer,
-    fetchSelectedCountryLog, 
+    fetchSelectedCountryLog,
     updatePagination
 } from "../../actions/requestOriginMapChartAction";
 import {Drawer, Select, Spin, Table, Card, Row, Col, Statistic, Icon} from "antd";
@@ -104,7 +104,7 @@ class RequestOriginWorldChart extends Component {
             ...filters
         });
     };
-  
+
     handlefetchSelectedCountryLog = (params={}) => {
         const {auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,requestOriginMapPagination,mapChartSelectedCountryCode} = this.props;
         this.props.dispatchFetchSelectedCountryLog(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,params,requestOriginMapPagination,mapChartSelectedCountryCode);
@@ -164,7 +164,18 @@ class RequestOriginWorldChart extends Component {
             },
             colorAxis: {
                 min: 0,
-                stops: [[0.4, '#4776E6'], [0.65, '#6767E8'], [1, '#8E54E9']]
+                stops: [
+                    [0.1, '#0575E6'],
+                    [0.2, '#0525E6'],
+                    [0.4, '#0475E6'],
+                    [0.3, '#0425E6'],
+                    [0.5, '#0375E6'],
+                    [0.6, '#0325E6'],
+                    [0.7, '#0275E6'],
+                    [0.8, '#0225E6'],
+                    [0.9, '#0175E6'],
+                    [1, '#012B79']
+                ]
             },
             series: [
                 {
@@ -190,6 +201,7 @@ class RequestOriginWorldChart extends Component {
                                     <Select
                                         id="country"
                                         mode="multiple"
+                                        searching = {true}
                                         allowClear={true}
                                         style={{ width: "50%",float:"right" }}
                                         onChange={(exclude_countries)=> dispatchUpdateMapAfterCountryExcluding(exclude_countries)}

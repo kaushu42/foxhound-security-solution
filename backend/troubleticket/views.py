@@ -59,6 +59,7 @@ def _get_tts(request, *, is_closed):
             "destination_ip": detail.destination_ip,
             "application": detail.application,
             "destination_port": detail.destination_port,
+            "source_port": detail.source_port,
             "bytes_sent": detail.bytes_sent,
             "bytes_received": detail.bytes_received,
             "packets_sent": detail.packets_sent,

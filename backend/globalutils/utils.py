@@ -8,7 +8,9 @@ from django.db.models.functions import (
     TruncDay, TruncMinute, TruncMonth, TruncHour)
 from django.db.models import Sum
 from django.db.models import Q
+
 from core.models import TrafficLogDetailGranularHour
+from core.models import DBLock
 
 
 def _get_day_index(date):
@@ -263,3 +265,13 @@ def get_user_from_token(request):
     token = request.META.get('HTTP_AUTHORIZATION').split()[1]
     user = Token.objects.get(key=token).user
     return user
+
+
+def lock_rule_table():
+    lock = DBLock.objects.get(table_name='rules_rule')
+    lock.is_locked = True
+    lock.save()
+
+
+def is_rule_table_locked():
+    return DBLock.objects.get(table_name='rules_rule').is_locked

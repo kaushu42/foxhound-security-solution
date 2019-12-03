@@ -21,6 +21,13 @@ from serializers.serializers import (
 from users.models import FoxhoundUser
 
 
+class IsTokenValidApiView(APIView):
+    def post(self, request):
+        return Response({
+            "valid": True
+        })
+
+
 class TenantInfoApiView(APIView):
     permission_classes = (AllowAny,)
 
