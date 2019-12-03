@@ -110,10 +110,11 @@ class AnomalousRulesApiView(RulePaginatedView):
         return self.post(request)
 
 
-@lock_check
 @api_view(['POST'])
+@lock_check
 def verify_rule(request, id):
     try:
+        tenant_id = get_tenant_id_from_token(request)
         rule = Rule.objects.get(id=id, firewall_rule__tenant__id=tenant_id)
     except Exception as e:
         print(e)
@@ -130,8 +131,8 @@ def verify_rule(request, id):
     })
 
 
-@lock_check
 @api_view(['POST'])
+@lock_check
 def flag_rule(request, id):
     try:
         tenant_id = get_tenant_id_from_token(request)
@@ -150,8 +151,8 @@ def flag_rule(request, id):
     })
 
 
-@lock_check
 @api_view(['POST'])
+@lock_check
 def edit_rule(request):
     def handle_empty_regex(string):
         if string == '*':

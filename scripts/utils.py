@@ -17,7 +17,7 @@ def delete_using_id(engine, table_name, id):
 
 def unlock_rule_table(engine):
     engine.execute(
-        f'UPDATE core_dblock set is_locked=true where table_name=rules_rule'
+        f"UPDATE core_dblock set is_locked=false where table_name='rules_rule'"
     )
 
 
