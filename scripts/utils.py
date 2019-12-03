@@ -15,6 +15,12 @@ def delete_using_id(engine, table_name, id):
     engine.execute(f'DELETE from {table_name} where id={id};')
 
 
+def unlock_rule_table(engine):
+    engine.execute(
+        f'UPDATE core_dblock set is_locked=true where table_name=rules_rule'
+    )
+
+
 def get_blacklisted_ip(engine):
     print('Getting blacklist')
     filename = wget.download(config.BLACKLISTED_IP_URL,

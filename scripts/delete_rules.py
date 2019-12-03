@@ -16,6 +16,7 @@ try:
     os.remove(FILENAME)
 
     print(f'{index+1} rules deleted!')
+    utils.unlock_rule_table()
 except NameError:
     print('No rules to delete')
 except FileNotFoundError:
