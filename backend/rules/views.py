@@ -143,6 +143,7 @@ def flag_rule(request, id):
             "error": "Bad id"
         }, status=HTTP_400_BAD_REQUEST)
     rule.is_anomalous_rule = True
+    rule.is_verified_rule = False
     rule.verified_by_user = get_user_from_token(request)
     rule.description = request.data.get('description', '')
     rule.save()
