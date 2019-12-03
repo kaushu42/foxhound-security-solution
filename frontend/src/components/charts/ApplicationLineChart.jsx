@@ -213,13 +213,13 @@ class ApplicationLineChart extends Component {
     }
 
     handleApplicationLineChartLogView = (selectedTimeStamp,selectedApplication) => {
-        
+
         this.setState({
             selectedApplication : selectedApplication,
             selectedTimeStamp : selectedTimeStamp,
             selectedApplicationLogDrawerVisible : true
         })
-        console.log('timestamp ',selectedTimeStamp,'application ',this.state.selectedApplication) 
+        console.log('timestamp ',selectedTimeStamp,'application ',this.state.selectedApplication)
         // axios.post("");
         this.fetchApplicationLineChartLog();
     }
@@ -273,6 +273,107 @@ class ApplicationLineChart extends Component {
 
     render(){
         const options = {
+            plotOptions: {
+                arearange: {
+                    showInLegend: false,
+                    stickyTracking: true,
+                    trackByArea: false,
+                    dataGrouping: {
+                        enabled: false
+                    }
+                },
+                areaspline: {
+                    showInLegend: false,
+                    stickyTracking: true,
+                    trackByArea: false,
+                    marker: {
+                        enabled: false
+                    },
+                    softThreshold: false,
+                    connectNulls: false,
+                    dataGrouping: {
+                        enabled: false
+                    }
+                },
+                series: {
+                    stickyTracking: false,
+                    trackByArea: false,
+                    turboThreshold: 0,
+                    events: {
+                        legendItemClick: () => {
+                            return false;
+                        }
+                    },
+                    dataGrouping: {
+                        enabled: false
+                    }
+                }
+            },
+            xAxis: {
+                minTickInterval: 60 * 1000,
+                tickInterval: 60 * 1000,
+                ordinal: false,
+                followPointer: false,
+                type: "datetime",
+
+                showLastLabel: true,
+                tickWidth: 0,
+                labels: {
+                    enabled: true
+                }
+            },
+            tooltip: {
+                shared: true,
+                followPointer: false,
+                snap: 1,
+                xDateFormat: "%m/%d/%y %l:%M %p",
+                valueDecimals: 2,
+                crosshairs: [{
+                    snap: false,
+                    zIndex: 10
+                }]
+            },
+            yAxis: [{
+                min: 0,
+                minorTickInterval: 0.1,
+                lineWidth: 0,
+                offset: 0,
+                showLastLabel: true,
+                labels: {
+                    style: {
+                        fontSize: "11px",
+                        textOverflow: "ellipsis",
+                        width: "100px",
+                        whiteSpace: "nowrap"
+                    }
+                },
+                title: {
+                    useHTML: true,
+                    style: {
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        width: "100px"
+                    },
+                    text: "Metric"
+                }
+            },
+                {
+                    min: 0,
+                    opposite: true,
+                    title: {
+                        useHTML: true,
+                        text: "<div class='average_value' style='color: #41A4F0; font-size: 16px; font-weight: 500; letter-spacing: -0.38px; line-height: 21px;'>Avg</div>",
+                        rotation: 360,
+                        textAlign: "left"
+                    },
+                    labels: {
+                        style: {
+                            color: this.labelColor
+                        }
+                    }
+                }
+            ],
+
             chart :{
                 zoomType : 'x',
               },
@@ -280,29 +381,12 @@ class ApplicationLineChart extends Component {
             title: {
                 text: 'Applications Used'
             },
-            yAxis: {
-                title: {
-                    text: 'Bytes Received in (MB)'
-                }
-            },
-            legend: {
-                layout: 'horizontal',
-                align: 'center',
-                verticalAlign: 'bottom'
-            },
-            xAxis : {
-                type: 'datetime',
-                dateTimeLabelFormats: {
-                    day: '%Y-%b-%d',
-                }
-            },
-            tooltip: {
-                valueDecimals: 2,
-                valueSuffix: "MB"
-            },
-            time: {
-                timezoneOffset: -6 * 60
-            },
+            // xAxis : {
+            //     type: 'datetime',
+            //     dateTimeLabelFormats: {
+            //         day: '%Y-%b-%d',
+            //     }
+            // },
             responsive: {
                 rules: [{
                     condition: {
