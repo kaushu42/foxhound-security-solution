@@ -321,7 +321,7 @@ class AnomalyBasedTroubleTicketTable extends Component {
         <br/><b>Packets Sent: </b> {record.packets_sent}
         <br/><b>Packets Received: </b> {record.packets_received} 
         <br/><b>Bytes Sent: </b> {record.bytes_sent}
-        {/* <br/><b>Source Port: </b> {record.source_port}  */}
+        <br/><b>Source Port: </b> {record.source_port} 
         <br/><b>Destination Port: </b> {record.destination_port} 
         </p>;
         return (
