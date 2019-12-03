@@ -174,6 +174,7 @@ class TroubleTicketAnomalyLogDetailSerializer(serializers.Serializer):
     packets_sent = serializers.IntegerField()
     packets_received = serializers.IntegerField()
     destination_port = serializers.IntegerField()
+    source_port = serializers.IntegerField()
     action = serializers.CharField()
     session_end_reason = serializers.CharField()
     category = serializers.CharField()

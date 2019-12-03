@@ -9,6 +9,7 @@ import axios from 'axios';
 import { Input } from 'antd';
 import QuickIpView from "../../views/QuickIpView"
 import {search} from "../../actions/ipSearchAction";
+import moment from "moment"
 const { Option } = Select;
 const { TextArea } = Input;
 
@@ -60,11 +61,11 @@ class AnomalyBasedTroubleTicketTable extends Component {
                 //     dataIndex: 'source_port',
                 //     key: 'source_port',
                 // },
-                {
-                    title: 'Destination Port',
-                    dataIndex: 'destination_port',
-                    key: 'destination_port',
-                },
+                // {
+                //     title: 'Destination Port',
+                //     dataIndex: 'destination_port',
+                //     key: 'destination_port',
+                // },
                 // {
                 //     title: 'Bytes Sent',
                 //     dataIndex: 'bytes_sent',
@@ -80,17 +81,16 @@ class AnomalyBasedTroubleTicketTable extends Component {
                     dataIndex: 'log_name',
                     key: 'log_name',
                 },
-                {
-                    title: 'Reasons',
-                    dataIndex: 'reasons',
-                    key: 'reasons',
-                    render : (text,record) => (text.split(",").map(tag => {
-                        return (
-                            <Tag color={"red"} key={tag}>{tag}</Tag>
-                        )
-                    }))
-
-                },
+                // {
+                //     title: 'Reasons',
+                //     dataIndex: 'reasons',
+                //     key: 'reasons',
+                //     render : (text,record) => (text.split(",").map(tag => {
+                //         return (
+                //             <Tag color={"red"} key={tag}>{tag}</Tag>
+                //         )
+                //     }))
+                // },
                 {
                     title: 'Action',
                     dataIndex: '',
@@ -315,12 +315,21 @@ class AnomalyBasedTroubleTicketTable extends Component {
 
     render() {
         const title = () => <h3>Anomaly Based Trouble Tickets</h3>
+        const expandedRowRender = record => <p><b>Created Date: </b>{moment(record.created_datetime).format("YYYY-MM-DD, HH:MM:SS")} 
+        <br/><b>Bytes Sent: </b> {record.bytes_sent}
+        <br/><b>Bytes Received: </b> {record.bytes_received} 
+        <br/><b>Packets Sent: </b> {record.packets_sent}
+        <br/><b>Packets Received: </b> {record.packets_received} 
+        <br/><b>Bytes Sent: </b> {record.bytes_sent}
+        <br/><b>Source Port: </b> {record.source_port} 
+        <br/><b>Destination Port: </b> {record.destination_port} 
+        </p>;
         return (
             <Fragment>
                 <Table
                     bordered
                     columns={this.state.columns}
-                    // title={title}
+                    expandedRowRender={expandedRowRender}
                     rowKey={record => record.id}
                     dataSource={this.state.data}
                     pagination={this.state.pagination}

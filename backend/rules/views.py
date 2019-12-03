@@ -19,9 +19,20 @@ from globalutils.utils import (
     get_user_from_token
 )
 from views.views import PaginatedView
+from globalutils import lock_rule_table, is_rule_table_locked
 from .models import Rule
 
 DELETE_RULE_FILENAME = '../dumps/delete_rules.txt'
+
+
+def lock_check(func):
+    def inner(*args, **kwargs):
+        if is_rule_table_locked():
+            return Response({
+                "locked": True
+            }, status=HTTP_400_BAD_REQUEST)
+        return func(*args, **kwargs)
+    return inner
 
 
 class RulePaginatedView(PaginatedView):
@@ -29,6 +40,7 @@ class RulePaginatedView(PaginatedView):
 
 
 class RulesApiView(RulePaginatedView):
+    @lock_check
     def get(self, request):
         tenant_id = get_tenant_id_from_token(request)
         objects = Rule.objects.filter(
@@ -44,6 +56,7 @@ class RulesApiView(RulePaginatedView):
 
 
 class UnverifiedRulesApiView(RulePaginatedView):
+    @lock_check
     def post(self, request):
         tenant_id = get_tenant_id_from_token(request)
         objects = Rule.objects.filter(
@@ -62,6 +75,7 @@ class UnverifiedRulesApiView(RulePaginatedView):
 
 
 class VerifiedRulesApiView(RulePaginatedView):
+    @lock_check
     def post(self, request):
         tenant_id = get_tenant_id_from_token(request)
         objects = Rule.objects.filter(
@@ -79,6 +93,7 @@ class VerifiedRulesApiView(RulePaginatedView):
 
 
 class AnomalousRulesApiView(RulePaginatedView):
+    @lock_check
     def post(self, request):
         tenant_id = get_tenant_id_from_token(request)
         objects = Rule.objects.filter(
@@ -96,8 +111,10 @@ class AnomalousRulesApiView(RulePaginatedView):
 
 
 @api_view(['POST'])
+@lock_check
 def verify_rule(request, id):
     try:
+        tenant_id = get_tenant_id_from_token(request)
         rule = Rule.objects.get(id=id, firewall_rule__tenant__id=tenant_id)
     except Exception as e:
         print(e)
@@ -115,6 +132,7 @@ def verify_rule(request, id):
 
 
 @api_view(['POST'])
+@lock_check
 def flag_rule(request, id):
     try:
         tenant_id = get_tenant_id_from_token(request)
@@ -125,6 +143,7 @@ def flag_rule(request, id):
             "error": "Bad id"
         }, status=HTTP_400_BAD_REQUEST)
     rule.is_anomalous_rule = True
+    rule.is_verified_rule = False
     rule.verified_by_user = get_user_from_token(request)
     rule.description = request.data.get('description', '')
     rule.save()
@@ -134,6 +153,7 @@ def flag_rule(request, id):
 
 
 @api_view(['POST'])
+@lock_check
 def edit_rule(request):
     def handle_empty_regex(string):
         if string == '*':
@@ -155,14 +175,17 @@ def edit_rule(request):
         'application__regex': application,
         'is_anomalous_rule': False
     }
-    # f = open(os.path.join(BASE_DIR, DELETE_RULE_FILENAME), 'w')
+
+    lock_rule_table()
+
+    f = open(os.path.join(BASE_DIR, DELETE_RULE_FILENAME), 'w')
 
     for rule in Rule.objects.filter(**query):
-        # f.write(f'{rule.id}\n')
-        rule.delete()
-    # f.close()
-    # DELETE_RULE_SCRIPT = os.path.join(BASE_DIR, '../scripts/delete_rules.py')
-    # subprocess.Popen([sys.executable, DELETE_RULE_SCRIPT])
+        f.write(f'{rule.id}\n')
+
+    f.close()
+    DELETE_RULE_SCRIPT = os.path.join(BASE_DIR, '../scripts/delete_rules.py')
+    subprocess.Popen([sys.executable, DELETE_RULE_SCRIPT])
     firewall_rule = FirewallRule.objects.filter(tenant__id=tenant_id)[0]
     rule_name = f'{source_ip}--{destination_ip}--{application}'
     user = get_user_from_token(request)
