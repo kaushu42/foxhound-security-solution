@@ -7,13 +7,37 @@ import SideBar from "./SideBar";
 import NavBar from "./NavBar";
 import FootBar from "./FootBar";
 import {toggleSideBar} from "../../actions/layoutAction";
+import axios from 'axios';
+import {axiosHeader, ROOT_URL} from "../../utils";
+import {Redirect} from "react-router-dom";
 
 
 const LayoutStyle = {
     margin: '24px 16px',
     background: '#fff',
 }
+
+
+const AUTH_CHECKER = `${ROOT_URL}session/is_valid/`;
 class MasterLayout extends Component {
+
+
+    componentDidMount() {
+        this.checkAuthChecker();
+    }
+
+    checkAuthChecker = () => {
+        let headers = axiosHeader(this.props.auth_token);
+        axios.post(AUTH_CHECKER,null,{headers})
+            .then(res => {
+            })
+            .catch(error => {
+                console.log('token invalid');
+                window.location.href="/auth/logout";
+            })
+    }
+
+
     render(){
         return (
             <Layout className="Fade">
@@ -33,7 +57,8 @@ class MasterLayout extends Component {
 
 const mapStateToProps = state => {
     return {
-        sideBarCollapsed: state.layout.sideBarCollapsed
+        sideBarCollapsed: state.layout.sideBarCollapsed,
+        auth_token : state.auth.auth_token
     }
 }
 

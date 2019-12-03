@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {Fragment} from 'react';
 import {
     Avatar,
     Brand,
@@ -28,7 +28,6 @@ import accessibleStyles from '@patternfly/react-styles/css/utilities/Accessibili
 import spacingStyles from '@patternfly/react-styles/css/utilities/Spacing/spacing';
 import { css } from '@patternfly/react-styles';
 import { BellIcon, CogIcon } from '@patternfly/react-icons';
-
 class MasterLayout extends React.Component {
     constructor(props) {
         super(props);
@@ -125,12 +124,7 @@ class MasterLayout extends React.Component {
             </DropdownItem>
         ];
         const userDropdownItems = [
-            <DropdownItem>Link</DropdownItem>,
             <DropdownItem component="button">Action</DropdownItem>,
-            <DropdownItem isDisabled>Disabled Link</DropdownItem>,
-            <DropdownItem isDisabled component="button">
-                Disabled Action
-            </DropdownItem>,
             <DropdownSeparator />,
             <DropdownItem>Separated Link</DropdownItem>,
             <DropdownItem component="button">Separated Action</DropdownItem>
@@ -166,7 +160,7 @@ class MasterLayout extends React.Component {
                             position="right"
                             onSelect={this.onDropdownSelect}
                             isOpen={isDropdownOpen}
-                            toggle={<DropdownToggle onToggle={this.onDropdownToggle}>Kyle Baker</DropdownToggle>}
+                            toggle={<DropdownToggle onToggle={this.onDropdownToggle}>Shangrilla Microsystems | Kyle Baker</DropdownToggle>}
                             dropdownItems={userDropdownItems}
                         />
                     </ToolbarItem>
@@ -176,11 +170,11 @@ class MasterLayout extends React.Component {
 
         const Header = (
             <PageHeader
-                logo={<Brand src="/assets/fox-white.png" alt="Foxhound Logo" />}
+                logo={(<Fragment><Brand src="/assets/fox-white.png" alt="Foxhound Logo" style={{height:'40px',paddingRight:5}}/>
+                    <img src="/assets/logo.png" style={{position:'right', height:'40px',paddingLeft:5}} /></Fragment>)}
                 toolbar={PageToolbar}
-                avatar={<Avatar src="" alt="Avatar image" />}
+                avatar={<Avatar src="/assets/user.svg" alt="Avatar image" />}
                 showNavToggle
-
             />
         );
         const Sidebar = <PageSidebar nav={PageNav} theme="dark" />;
