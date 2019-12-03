@@ -84,7 +84,7 @@ class UnverifiedRulesTable extends Component {
                         <Fragment>
                             <a onClick={() => this.props.handleUnverifiedRuleAccept(this.props.auth_token,record)}><Icon type="check-circle" theme="filled" style={{fontSize:24}}/>&nbsp;&nbsp;</a>
                             <a onClick={() => this.props.handleUnverifiedRuleReject(this.props.auth_token,record)}><Icon type="close-circle" theme="filled" style={{fontSize:24}}/>&nbsp;&nbsp;</a>
-                            <a onClick={() => this.props.handleUnverifiedRuleUpdate(this.props.auth_token,record)}><Icon type="edit" theme="filled" style={{fontSize:24}}/>&nbsp;&nbsp;</a>
+                            <a onClick={() => {this.props.handleUnverifiedRuleUpdate(this.props.auth_token,record)}}><Icon type="edit" theme="filled" style={{fontSize:24}}/>&nbsp;&nbsp;</a>
                         </Fragment>
                     )
                 }
@@ -92,7 +92,11 @@ class UnverifiedRulesTable extends Component {
         ],
         data: [],
         quickIpView : false,
-        blackListData : []
+        blackListData : [],
+        input_source_ip : "",
+        input_destination_ip : "",
+        input_application : "",
+        input_description : ""
     }
 
     handleTableChange = (pagination, filters, sorter) => {
@@ -129,6 +133,15 @@ class UnverifiedRulesTable extends Component {
 
     }
 
+    // componentDidUpdate(prevProps, prevState, snapshot) {
+    //     if(prevProps.selectedRecordToUpdate != this.props.selectedRecordToUpdate){
+    //         let record = this.props.selectedRecordToUpdate;
+    //         this.setState({
+    //             // input_source_ip : record.source_ip
+    //         })
+    //     }
+    // }
+
     handleAcceptRuleSubmit = (e) => {
         e.preventDefault();
         const {auth_token,selectedRecordToAccept} = this.props;
@@ -146,12 +159,15 @@ class UnverifiedRulesTable extends Component {
     handleUpdateRuleSubmit = (e) => {
         e.preventDefault();
         const {auth_token,unverifiedRulePagination} = this.props;
-        const source_ip = this.source_ip.state.value;
-        const destination_ip = this.destination_ip.state.value;
-        const application = this.application.state.value;
-        const description = this.description.state.value;
+        const source_ip = this.source_ip.value;
+        const destination_ip = this.destination_ip.value;
+        const application = this.application.value;
+        const description = this.description.value;
         this.props.dispatchUpdateRule(auth_token,source_ip,destination_ip,application,description,{}, unverifiedRulePagination);
     }
+
+
+
 
     handleShowUnverifiedIpDashboard(record){
         this.props.dispatchUnverifiedIpSearchValueUpdate(record.source_ip);
@@ -342,11 +358,11 @@ class UnverifiedRulesTable extends Component {
                                             <Form style={{width:'100%'}} name={"updateRuleForm"}>
                                             <Form.Item>
                                                 <label>Source IP</label>
-                                                <Input ref={node => (this.source_ip = node)} defaultValue={selectedRecordToUpdate.source_ip} />
+                                                <Input ref={node => (this.source_ip = node)}  defaultValue={selectedRecordToUpdate.source_ip} />
                                             </Form.Item>
                                             <Form.Item>
                                                 <label>Destination IP</label>
-                                                <Input ref={node => (this.destination_ip = node)}defaultValue={selectedRecordToUpdate.destination_ip} />
+                                                <Input ref={node => (this.destination_ip = node)} defaultValue={selectedRecordToUpdate.destination_ip} />
                                             </Form.Item>
                                             <Form.Item>
                                                 <label>Application</label>
