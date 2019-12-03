@@ -9,6 +9,7 @@ import FootBar from "./FootBar";
 import {toggleSideBar} from "../../actions/layoutAction";
 import axios from 'axios';
 import {axiosHeader, ROOT_URL} from "../../utils";
+import {Redirect} from "react-router-dom";
 
 
 const LayoutStyle = {
@@ -26,13 +27,13 @@ class MasterLayout extends Component {
     }
 
     checkAuthChecker = () => {
-        let auth_header = axiosHeader(this.props.auth_token);
-        axios(AUTH_CHECKER,null,{auth_header})
-            .then(res => console.log(res))
+        let headers = axiosHeader(this.props.auth_token);
+        axios.post(AUTH_CHECKER,null,{headers})
+            .then(res => {
+            })
             .catch(error => {
                 console.log('token invalid');
-                console.log(error);
-                this.props.history.push("/auth/login");
+                window.location.href="/auth/logout";
             })
     }
 
