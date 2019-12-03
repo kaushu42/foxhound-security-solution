@@ -1,5 +1,8 @@
+import math
 import datetime
 import json
+
+from django.db.models import Avg, Count, F
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -197,3 +200,49 @@ def close_tt(request, id):
     )
     follow_up.save()
     return Response({'ok': 'tt closed'})
+
+
+class TroubleTicketDetailApiView(APIView):
+    def post(self, request, id):
+        try:
+            tenant_id = get_tenant_id_from_token(request)
+            tt = TroubleTicketAnomaly.objects.get(
+                id=id, firewall_rule__tenant_id=tenant_id)
+        except Exception as e:
+            print(e)
+            return Response({
+                'error' 'Bad id'
+            })
+        detail = TrafficLogDetail.objects.get(
+            row_number=tt.row_number,
+            traffic_log=tt.log,
+            firewall_rule__tenant_id=tenant_id
+        )
+        stats = TrafficLogDetail.objects.filter(
+            source_ip=detail.source_ip,
+            destination_ip=detail.destination_ip,
+            firewall_rule__tenant_id=tenant_id
+        )
+        application_stats = stats.filter(
+            application=detail.application).aggregate(
+            bytes=Avg('bytes_sent') + Avg('bytes_received'),
+            packets=Avg('packets_sent') + Avg('packets_received'),
+            count=Count('id')
+        )
+        info = stats.aggregate(
+            Avg('bytes_sent'),
+            Avg('bytes_received'),
+            Avg('packets_sent'),
+            Avg('packets_received'),
+        )
+        return Response({
+            "bytes_sent_average": info['bytes_sent__avg'],
+            "bytes_received_average": info['bytes_received__avg'],
+            "packets_sent_average": info['packets_sent__avg'],
+            "packets_received_average": math.ceil(info['packets_received__avg']),
+            "application": {
+                "bytes": application_stats['bytes'],
+                "packets": math.ceil(application_stats['packets']),
+                "count": application_stats['count'],
+            }
+        })
