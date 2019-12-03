@@ -141,6 +141,12 @@ class RequestOriginWorldChart extends Component {
         this.props.dispatchCountrySelectedInMapChart(e,auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,{},requestOriginMapPagination);
     }
 
+    toTitleCase(str) {
+        return str.toLowerCase().split(' ').map(function(word) {
+          return word.replace(word[0], word[0].toUpperCase());
+        }).join(' ');
+      }
+
     render() {
         const {mapChartData} = this.props;
         const options = {
@@ -189,7 +195,7 @@ class RequestOriginWorldChart extends Component {
                                         onChange={(exclude_countries)=> dispatchUpdateMapAfterCountryExcluding(exclude_countries)}
                                         placeholder="Exclude countries....">
                                         {
-                                            countrySelectListData.map(data => <Select.Option key={data['id']}>{data['name']}</Select.Option>)
+                                            countrySelectListData.map(data => <Select.Option key={data['id']}>{this.toTitleCase(data['name'])}</Select.Option>)
                                         }
                                     </Select>
                                 ) : null}

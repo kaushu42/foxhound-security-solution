@@ -1,6 +1,6 @@
 import React, {Component, Fragment} from 'react';
 import {connect} from "react-redux";
-import {Spin, Table, Drawer} from 'antd';
+import {Spin, Table, Drawer, Icon} from 'antd';
 import {
     fetchVerifiedRulesData,
     updatePagination
@@ -50,6 +50,17 @@ class VerifiedRulesTable extends Component {
                 dataIndex: 'description',
                 key: 'description',
                 render: text => <a>{text}</a>,
+            },
+            {
+                title : 'Actions',
+                dataIndex: 'actions',
+                render : (text,record) => {
+                    return (
+                        <Fragment>
+                            <a onClick={() => this.props.handleVerifiedRuleReject(this.props.auth_token,record)}><Icon type="close-circle" theme="filled" style={{fontSize:24}}/>&nbsp;&nbsp;</a>
+                        </Fragment>
+                    )
+                }
             }
         ],
         data: [],
