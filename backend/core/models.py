@@ -356,7 +356,6 @@ class TrafficLogDetailGranularHour(models.Model):
         SessionEndReason, on_delete=models.CASCADE, null=True,
         related_name='granular_hour_session_end_reason'
     )
-    row_number = models.BigIntegerField()
     destination_port = models.PositiveIntegerField()
     bytes_sent = models.BigIntegerField()
     bytes_received = models.BigIntegerField()

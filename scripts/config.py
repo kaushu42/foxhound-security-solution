@@ -28,6 +28,14 @@ LOG_PATH = os.path.join(BASE_PATH, 'logs')
 
 GRANULARIZED_LOG_PATH = os.path.join(BASE_PATH, '../outputs/granularized_logs')
 
+IP_DB_FILENAME = 'GeoLite2-City.mmdb'
+
+BLACKLISTED_IP_URL = 'https://blocklist.greensnow.co/greensnow.txt'
+BLACKLISTED_IP_FILENAME = 'greensnow.txt'
+
+DUMPS_PATH = os.path.join(BASE_PATH, '../dumps')
+
+create_directory(DUMPS_PATH)
 create_directory(TRAFFIC_LOGS_INPUT_DIR)
 create_directory(TRAFFIC_LOGS_OUTPUT_DIR)
 create_directory(TENANT_PROFILE_OUTPUT_DIR)
