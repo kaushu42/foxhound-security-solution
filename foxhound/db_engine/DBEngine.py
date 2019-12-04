@@ -318,31 +318,44 @@ class DBEngine(object):
     def _map_to_foreign_key(self, data, dfs):
         # data = data.copy()
         data.virtual_system_id = data.virtual_system_id.map(
-            dfs['core_virtualsystem'].drop_duplicates('name').reset_index().set_index('code').id)
+            dfs['core_virtualsystem'].drop_duplicates(
+                'name').reset_index().set_index('code').id)
         data.source_ip_id = data.source_ip_id.map(
-            dfs['core_ipaddress'].drop_duplicates('address').reset_index().set_index('address').id)
+            dfs['core_ipaddress'].drop_duplicates(
+                'address').reset_index().set_index('address').id)
         data.destination_ip_id = data.destination_ip_id.map(
-            dfs['core_ipaddress'].drop_duplicates('address').reset_index().set_index('address').id)
+            dfs['core_ipaddress'].drop_duplicates(
+                'address').reset_index().set_index('address').id)
         data.source_zone_id = data.source_zone_id.map(
-            dfs['core_zone'].drop_duplicates('name').reset_index().set_index('name').id)
+            dfs['core_zone'].drop_duplicates(
+                'name').reset_index().set_index('name').id)
         data.destination_zone_id = data.destination_zone_id.map(
-            dfs['core_zone'].drop_duplicates('name').reset_index().set_index('name').id)
+            dfs['core_zone'].drop_duplicates(
+                'name').reset_index().set_index('name').id)
         data.application_id = data.application_id.map(
-            dfs['core_application'].drop_duplicates('name').reset_index().set_index('name').id)
+            dfs['core_application'].drop_duplicates(
+                'name').reset_index().set_index('name').id)
         data.protocol_id = data.protocol_id.map(
-            dfs['core_protocol'].drop_duplicates('name').reset_index().set_index('name').id)
+            dfs['core_protocol'].drop_duplicates(
+                'name').reset_index().set_index('name').id)
         data.firewall_rule_id = data.firewall_rule_id.map(
-            dfs['core_firewallrule'].drop_duplicates('name').reset_index().set_index('name').id)
+            dfs['core_firewallrule'].drop_duplicates(
+                'name').reset_index().set_index('name').id)
         data.inbound_interface_id = data.inbound_interface_id.map(
-            dfs['core_interface'].drop_duplicates('name').reset_index().set_index('name').id)
+            dfs['core_interface'].drop_duplicates(
+                'name').reset_index().set_index('name').id)
         data.outbound_interface_id = data.outbound_interface_id.map(
-            dfs['core_interface'].drop_duplicates('name').reset_index().set_index('name').id)
+            dfs['core_interface'].drop_duplicates(
+                'name').reset_index().set_index('name').id)
         data.action_id = data.action_id.map(
-            dfs['core_action'].drop_duplicates('name').reset_index().set_index('name').id)
+            dfs['core_action'].drop_duplicates(
+                'name').reset_index().set_index('name').id)
         data.category_id = data.category_id.map(
-            dfs['core_category'].drop_duplicates('name').reset_index().set_index('name').id)
+            dfs['core_category'].drop_duplicates(
+                'name').reset_index().set_index('name').id)
         data.session_end_reason_id = data.session_end_reason_id.map(
-            dfs['core_sessionendreason'].drop_duplicates('name').reset_index().set_index('name').id)
+            dfs['core_sessionendreason'].drop_duplicates(
+                'name').reset_index().set_index('name').id)
         return data
 
     def _get_filename_from_full_path(self, path):
@@ -361,7 +374,7 @@ class DBEngine(object):
         data['traffic_log_id'] = traffic_log_id
         data.drop(['virtual_system_id'], axis=1).to_sql(
             table_name, self._db_engine,
-            if_exists='append', index=True)
+            if_exists='append', index=False)
 
     def _write_rules(self, data):
         data = data[['firewall_rule_id', 'source_ip_id',
@@ -403,7 +416,7 @@ class DBEngine(object):
                 )
                 self._session.add(rule)
                 print(
-                    f'Created Rule: {(source_ip)}--{destination_ip}--{application}'
+                    f'Created Rule:{source_ip}-{destination_ip}--{application}'
                 )
 
     def _write_ip_info(self, id, data, ip_in_db):
