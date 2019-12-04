@@ -22,7 +22,7 @@ logging.info(f'Script ran on {datetime.datetime.now()}')
 try:
     seedutils.seed()
 
-    run.ml_engine()
+    # run.ml_engine()
     run.dc_engine()
     run.db_engine(utils.get_db_engine(), logging)
     run.tt_engine()

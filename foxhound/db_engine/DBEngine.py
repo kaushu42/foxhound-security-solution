@@ -314,6 +314,7 @@ class DBEngine(object):
             print(f'Created {i}')
             item = SessionEndReason(name=i)
             self._session.add(item)
+        self._session.commit()
 
     def _map_to_foreign_key(self, data, dfs):
         # data = data.copy()
@@ -370,11 +371,11 @@ class DBEngine(object):
         self._session.commit()
         return traffic_log
 
-    def _write_log(self, data, traffic_log_id, *, table_name):
+    def _write_log(self, data, traffic_log_id, index=True, *, table_name):
         data['traffic_log_id'] = traffic_log_id
         data.drop(['virtual_system_id'], axis=1).to_sql(
             table_name, self._db_engine,
-            if_exists='append', index=False)
+            if_exists='append', index=index)
 
     def _write_rules(self, data):
         data = data[['firewall_rule_id', 'source_ip_id',
@@ -494,7 +495,7 @@ class DBEngine(object):
             data = self._read_csv(csv)
             dfs = self._read_tables_from_db()
             mapped_data = self._map_to_foreign_key(data, dfs)
-            self._write_log(mapped_data, traffic_log.id,
+            self._write_log(mapped_data, traffic_log.id, index=False,
                             table_name='core_trafficlogdetailgranularhour')
             traffic_log.is_granular_hour_written = True
             self._session.commit()
