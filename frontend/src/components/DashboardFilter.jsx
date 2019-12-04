@@ -11,6 +11,7 @@ import {
     updateIpAddressFilter
 } from "../actions/filterAction";
 import {filterSelectDataServiceAsync} from "../services/filterSelectDataService";
+import moment from "moment";
 
 const {RangePicker} = DatePicker;
 const { Option } = Select;
@@ -143,6 +144,7 @@ class DashboardFilter extends Component{
                         <Col xs={24} sm={24} md={24} lg={8} xl={8}>
                             <RangePicker
                                 style={{width:"100%"}}
+                                defaultValue={[moment(new Date(new Date().getFullYear(),new Date().getMonth(),new Date().getDay())),moment(new Date(new Date().getFullYear(),new Date().getMonth(),new Date().getDay()))]}
                                 size={"default"}
                                 id="RangePicker"
                                 onChange={(e,v)=>this.handleRangePickerChange(e,v)}/>
@@ -154,6 +156,10 @@ class DashboardFilter extends Component{
                                 mode="multiple"
                                 loading={this.state.loading_ip_address_select}
                                 allowClear={true}
+                                optionFilterProp="children"
+                                filterOption={(input, option) =>
+                                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                }
                                 style={{ width: "100%" }}
                                 placeholder="IP Address"
                                 onChange={(v)=> this.handleIpAddressRuleFilterChange(v)}>
@@ -169,6 +175,10 @@ class DashboardFilter extends Component{
                                 size={"default"}
                                 loading={this.state.loading_firewall_rule_select}
                                 allowClear={true}
+                                optionFilterProp="children"
+                                filterOption={(input, option) =>
+                                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                }
                                 style={{ width: "100%" }}
                                 placeholder="Firewall Rule"
                                 onChange={(v)=> this.handleFirewallRuleFilterChange(v)}>
@@ -184,6 +194,10 @@ class DashboardFilter extends Component{
                                 size={"default"}
                                 loading={this.state.loading_application_select}
                                 allowClear={true}
+                                optionFilterProp="children"
+                                filterOption={(input, option) =>
+                                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                }
                                 style={{ width: "100%" }}
                                 placeholder="Application"
                                 onChange={(v)=>this.handleApplicationFilterChange(v)} >
@@ -199,6 +213,10 @@ class DashboardFilter extends Component{
                                 size={"default"}
                                 loading={this.state.loading_protocol_select}
                                 allowClear={true}
+                                optionFilterProp="children"
+                                filterOption={(input, option) =>
+                                    option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                }
                                 style={{ width: "100%" }}
                                 placeholder="Protocol"
                                 onChange={(v)=>this.handleProtocolFilterChange(v)}>
@@ -213,6 +231,10 @@ class DashboardFilter extends Component{
                                     size={"default"}
                                     loading={this.state.loading_source_zone_select}
                                     allowClear={true}
+                                    optionFilterProp="children"
+                                    filterOption={(input, option) =>
+                                        option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                    }
                                     style={{ width: "100%" }}
                                     placeholder="Source Zone"
                                     onChange={(v)=>this.handleSourceZoneFilterChange(v)}>
@@ -227,6 +249,10 @@ class DashboardFilter extends Component{
                                     size={"default"}
                                     loading={this.state.loading_destination_zone_select}
                                     allowClear={true}
+                                    optionFilterProp="children"
+                                    filterOption={(input, option) =>
+                                        option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                    }
                                     style={{ width: "100%" }}
                                     placeholder="Destination Zone"
                                     onChange={(v)=>this.handleDestinationZoneFilterChange(v)}>

@@ -141,6 +141,12 @@ class RequestOriginWorldChart extends Component {
         this.props.dispatchCountrySelectedInMapChart(e,auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,excludeCountries,{},requestOriginMapPagination);
     }
 
+    toTitleCase(str) {
+        return str.toLowerCase().split(' ').map(function(word) {
+          return word.replace(word[0], word[0].toUpperCase());
+        }).join(' ');
+      }
+
     render() {
         const {mapChartData} = this.props;
         const options = {
@@ -160,15 +166,15 @@ class RequestOriginWorldChart extends Component {
                 min: 0,
                 stops: [
                     [0.1, '#0575E6'],
-                    [0.2, '#0525E6'],
-                    [0.4, '#0475E6'],
-                    [0.3, '#0425E6'],
-                    [0.5, '#0375E6'],
-                    [0.6, '#0325E6'],
-                    [0.7, '#0275E6'],
-                    [0.8, '#0225E6'],
-                    [0.9, '#0175E6'],
-                    [1, '#012B79']
+                    [0.2, '#0560E6'],
+                    [0.4, '#0550E6'],
+                    [0.3, '#0540E6'],
+                    [0.5, '#0530E6'],
+                    [0.6, '#0520E6'],
+                    [0.7, '#0510E6'],
+                    [0.8, '#0500E6'],
+                    [0.9, '#0500E6'],
+                    [1.0, '#050079']
                 ]
             },
             series: [
@@ -195,13 +201,16 @@ class RequestOriginWorldChart extends Component {
                                     <Select
                                         id="country"
                                         mode="multiple"
-                                        searching = {true}
                                         allowClear={true}
+                                        optionFilterProp="children"
+                                        filterOption={(input, option) =>
+                                            option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                        }
                                         style={{ width: "50%",float:"right" }}
                                         onChange={(exclude_countries)=> dispatchUpdateMapAfterCountryExcluding(exclude_countries)}
                                         placeholder="Exclude countries....">
                                         {
-                                            countrySelectListData.map(data => <Select.Option key={data['id']}>{data['name']}</Select.Option>)
+                                            countrySelectListData.map(data => <Select.Option key={data['id']}>{this.toTitleCase(data['name'])}</Select.Option>)
                                         }
                                     </Select>
                                 ) : null}

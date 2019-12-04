@@ -100,6 +100,7 @@ const unverifiedRulesReducer = (state=initialState,action)=>{
         case CLOSE_ALL_DRAWER:
             return{
                 ...state,
+                selectedRecordToUpdate : null,
                 unverifiedRuleAcceptDrawerLoading: false,
                 unverifiedRuleRejectDrawerLoading: false,
                 unverifiedRuleUpdateDrawerLoading: false

@@ -7,9 +7,18 @@ import {
     VERIFIED_RULES_DATA_FETCH_SUCCESS,
     VERIFIED_RULE_PAGINATION_UPDATE, 
     VERIFIED_RULE_UPDATE_PAGINATION_PAGE_COUNT,
+    VERIFIED_RULE_SELECTED_TO_REJECT,
+    VERIFIED_REJECT_RULE_DRAWER_TOGGLE,
+    REJECT_VERIFIED_RULE_BEGIN,
+    REJECT_VERIFIED_RULE_COMPLETE,
+    REJECT_VERIFIED_RULE_ERROR,
+    REJECT_VERIFIED_RULE_SUCCESS,
+    CLOSE_ALL_DRAWER,
+    CLEAN_ALL_STATE
 } from "../actionTypes/verifiedRulesActionType";
 
 const FETCH_API  = `${ROOT_URL}rules/verified/`;
+const FLAG_RULE_API = `${ROOT_URL}rules/flag/`
 
 export function fetchVerifiedRulesDataBegin(){
     return {
@@ -37,6 +46,32 @@ export function fetchVerifiedRulesDataFailure(error) {
     }
 }
 
+export function rejectVerifiedRule(auth_token,record){
+    return(dispatch) => {
+        dispatch(selectRecordToReject(record));
+        dispatch(toggleRejectDrawer());
+
+    }
+}
+
+export function selectRecordToReject(record){
+    return {
+        type : VERIFIED_RULE_SELECTED_TO_REJECT,
+        payload: record
+    }
+}
+
+export function toggleRejectDrawer(){
+    return {
+        type:VERIFIED_REJECT_RULE_DRAWER_TOGGLE
+    }
+}
+
+export function handleDrawerClose(){
+    return {
+        type: CLOSE_ALL_DRAWER
+    }
+}
 
 export function fetchVerifiedRulesData(auth_token, params, pagination){
     return(dispatch)=>{
@@ -60,6 +95,66 @@ export function fetchVerifiedRulesData(auth_token, params, pagination){
             .catch(error => dispatch(fetchVerifiedRulesDataFailure(error)));
     }
 }
+
+export function rejectRule(auth_token,description,record){
+    return (dispatch) => {
+
+        const url = FLAG_RULE_API + record.id + '/';
+        let headers = axiosHeader(auth_token);
+
+        const formData = new FormData();
+        formData.set('description', description);
+
+        dispatch(rejectRuleBegin());
+        axios.post(url,formData,{headers})
+            .then(res =>{
+                const response = res.data;
+                console.log(response);
+                dispatch(rejectRuleSuccess());
+            })
+            .then(res => {
+                dispatch(rejectRuleComplete(record));
+                setTimeout(()=>{dispatch(cleanAllDrawerState())},5000);
+                dispatch(toggleRejectDrawer());
+
+            })
+            .catch(error => dispatch(rejectRuleError(error)));
+
+    }
+}
+
+export function rejectRuleBegin(){
+    return {
+        type:REJECT_VERIFIED_RULE_BEGIN
+    }
+}
+
+export function rejectRuleSuccess(){
+    return {
+        type:REJECT_VERIFIED_RULE_SUCCESS
+    }
+}
+
+export function rejectRuleComplete(record){
+    return{
+        type:REJECT_VERIFIED_RULE_COMPLETE,
+        payload:record
+    }
+}
+
+export function rejectRuleError(error){
+    return {
+        type:REJECT_VERIFIED_RULE_ERROR,
+        payload:error
+    }
+}
+
+export function cleanAllDrawerState(){
+    return {
+        type: CLEAN_ALL_STATE
+    }
+}
+
 
 export function updatePagination(pagination){
     return {
