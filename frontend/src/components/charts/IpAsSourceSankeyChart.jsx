@@ -1,23 +1,31 @@
-import React, {Component} from "react";
+import React, {Component, Fragment} from "react";
 import Highcharts from "highcharts";
 import Chart from "../../charts/Chart";
-import {ROOT_URL} from "../../utils";
+import {bytesToSize, ROOT_URL} from "../../utils";
 require('highcharts/modules/sankey')(Highcharts);
 require("highcharts/modules/exporting")(Highcharts);
 import axios from 'axios';
 import {connect} from "react-redux";
 import mapdata from "../../charts/mapdata";
-import {Card, Row, Spin} from "antd";
+import {Card, Row, Spin, Drawer, Table} from "antd";
 import HighchartsReact from "highcharts-react-official";
+import moment from "moment";
 
 const FETCH_API = `${ROOT_URL}profile/sankey/`;
+const FETCH_SANKEY_LOG_API = `${ROOT_URL}log/sankey/`;
 
 class IpAsSourceSankeyChart extends Component {
     constructor(props){
         super(props);
         this.state = {
+            params:{},
+            pagination:{},
             data : [],
             loading : true,
+            selectedSourceIp : null, 
+            selectedDestinationIp : null,
+            selectedSourceToDestinationLogDrawerVisible : false,
+            selectedSourceToDestinationLogData : [],
             options : {
                 chart : {
                     margin : 50,
@@ -32,15 +40,53 @@ class IpAsSourceSankeyChart extends Component {
                         data: [],
                         type: "sankey",
                         connectNulls : true,
+                        events: {
+                            legendItemClick: () => {
+                                return true;
+                            }
+                        },
                     }
                 ]
-            }
+            },
+            logColumns : [
+                {
+                    title: 'Id',
+                    dataIndex: 'id',
+                    key: 'id',
+                },
+                {
+                    title: 'Application',
+                    dataIndex: 'application.name',
+                    key: 'application.name',
+                    // render : (text,record) => bytesToSize(text)
+                },
+                {
+                    title: 'Bytes Sent',
+                    dataIndex: 'bytes_sent',
+                    key: 'bytes_sent',
+                    render : (text,record) => bytesToSize(text)
+                },
+                {
+                    title: 'Bytes Received',
+                    dataIndex: 'bytes_received',
+                    key: 'bytes_received',
+                    render : (text,record) => bytesToSize(text)
+
+                },
+                {
+                    title: 'Logged DateTime',
+                    dataIndex: 'logged_datetime',
+                    key: 'logged_datetime',
+                    render: text => moment(text).format("YYYY-MM-DD, HH:MM:SS")
+                },
+              ],
 
         }
     }
     componentDidMount = () => {
         this.handleFetchData();
         this.chart = this.refs.chart.chart;
+        this.chart.component = this;
         if (document.addEventListener) {
             document.addEventListener('webkitfullscreenchange', this.exitHandler, false);
             document.addEventListener('mozfullscreenchange', this.exitHandler, false);
@@ -48,6 +94,7 @@ class IpAsSourceSankeyChart extends Component {
             document.addEventListener('MSFullscreenChange', this.exitHandler, false);
         }
     }
+    
     handleFetchData = () => {
 
         this.setState({
@@ -141,7 +188,13 @@ class IpAsSourceSankeyChart extends Component {
                     keys: ['from', 'to', 'weight'],
                     type: "sankey",
                     data: d,
-                }
+                    events: {
+                        click: function (e) {
+                            const self = this.chart.component;
+                            self.handleSankeyChartLogView(e.point.from, e.point.to);
+                        }
+                    }
+                },
             ]
         });
         this.setState({
@@ -150,19 +203,96 @@ class IpAsSourceSankeyChart extends Component {
 
     }
 
+    handleSankeyChartLogView = (source_ip, destination_ip) => {
+        this.setState({
+            selectedSourceIp : source_ip,
+            selectedDestinationIp : destination_ip,
+            selectedSourceToDestinationLogDrawerVisible : true
+        })
+        // console.log(this.state.selectedSourceIp, this.state.selectedDestinationIp, this.state.selectedSourceToDestinationLogDrawerVisible)
+        this.fetchSankeyChartLog();
+    }
+
+    fetchSankeyChartLog = (params = {}) => {
+        const token = `Token ${this.props.auth_token}`;
+        let headers = {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Authorization" : token
+        };
+        let bodyFormDataForLog = new FormData();
+        bodyFormDataForLog.set("source_ip", this.state.selectedSourceIp);
+        bodyFormDataForLog.set("destination_ip", this.state.selectedDestinationIp);
+
+        axios.post(FETCH_SANKEY_LOG_API,bodyFormDataForLog,{headers, params})
+            .then(res => {
+                const page = this.state.pagination;
+                page.total  = res.data.count;
+                this.setState({
+                    selectedSourceToDestinationLogData:res.data.results,
+                    pagination: page
+                })
+            });
+
+        console.log("fetched log data for selected application", this.state.selectedSourceToDestinationLogData)
+    }
+
+    handleTableChange = (pagination, filters, sorter) => {
+        console.log('pagination',pagination);
+        console.log('filter',filters)
+        console.log('sorter',sorter)
+        const pager = { ...this.state.pagination};
+        pager.current = pagination.current;
+        this.state.pagination = pager,
+        this.fetchSankeyChartLog({
+            // results: pagination.pageSize,
+            page: pagination.current,
+            sortField: sorter.field,
+            sortOrder: sorter.order,
+            ...filters
+        });
+    };
+
+    handleCloseLogDrawer = () => {
+        this.setState({
+            selectedSourceToDestinationLogDrawerVisible:false,
+            selectedSourceToDestinationLogData : [],
+        }
+    )}
 
     render() {
         return (
-            <Spin tip="Loading..." spinning={this.state.loading}>
-                <Card>
-                    <HighchartsReact
-                        allowChartUpdate={false}
-                        highcharts={Highcharts}
-                        ref = {'chart'}
-                        options = {this.state.options}
-                    />
-                </Card>
-            </Spin>
+            <Fragment>
+                <Spin tip="Loading..." spinning={this.state.loading}>
+                    <Card>
+                        <HighchartsReact
+                            allowChartUpdate={false}
+                            highcharts={Highcharts}
+                            ref = {'chart'}
+                            options = {this.state.options}
+                        />
+                    </Card>
+                </Spin>
+                <Drawer
+                    title={`Logs for ${this.state.selectedSourceIp} to ${this.state.selectedDestinationIp}`}
+                    width={1100}
+                    visible={this.state.selectedSourceToDestinationLogDrawerVisible}
+                    closable={true}
+                    onClose={this.handleCloseLogDrawer}
+                >
+                    {
+                        this.state.selectedSourceToDestinationLogData ? (
+                            <Table
+                            rowKey={record => record.id}
+                            columns={this.state.logColumns}
+                            dataSource={this.state.selectedSourceToDestinationLogData}
+                            pagination={this.state.pagination}
+                            onChange={this.handleTableChange}
+                            />
+                        ) : null
+                    }
+                </Drawer>
+            </Fragment>
         )
     }
 }
