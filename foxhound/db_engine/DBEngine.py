@@ -373,9 +373,43 @@ class DBEngine(object):
 
     def _write_log(self, data, traffic_log_id, index=True, *, table_name):
         data['traffic_log_id'] = traffic_log_id
-        data.drop(['virtual_system_id'], axis=1).to_sql(
-            table_name, self._db_engine,
-            if_exists='append', index=index)
+        data = data.drop(['virtual_system_id'], axis=1).reset_index()
+        cols = [
+            'row_number', 'source_port',
+            'destination_port',
+            'bytes_sent',
+            'bytes_received',
+            'repeat_count',
+            'packets_received',
+            'packets_sent',
+            'time_elapsed',
+            'logged_datetime',
+            'action_id',
+            'application_id',
+            'category_id',
+            'destination_ip_id',
+            'destination_zone_id',
+            'firewall_rule_id',
+            'inbound_interface_id',
+            'outbound_interface_id',
+            'protocol_id',
+            'session_end_reason_id',
+            'source_ip_id',
+            'source_zone_id',
+            'traffic_log_id'
+        ]
+        if 'granular' in table_name:
+            cols.remove('source_port')
+            cols.remove('row_number')
+        data = data[cols]
+        TMP_FILENAME = '/tmp/logdata.csv'
+        data.to_csv(TMP_FILENAME, index=False)
+        del data
+        cursor = self._db_engine.raw_connection().cursor()
+        with open(TMP_FILENAME) as f:
+            next(f)
+            cursor.copy_from(f, table_name, sep=',', columns=cols)
+        os.remove(TMP_FILENAME)
 
     def _write_rules(self, data):
         data = data[['firewall_rule_id', 'source_ip_id',
@@ -495,6 +529,9 @@ class DBEngine(object):
             data = self._read_csv(csv)
             dfs = self._read_tables_from_db()
             mapped_data = self._map_to_foreign_key(data, dfs)
+            del data
+            mapped_data['repeat_count'] = mapped_data['repeat_count'].astype(
+                int)
             self._write_log(mapped_data, traffic_log.id, index=False,
                             table_name='core_trafficlogdetailgranularhour')
             traffic_log.is_granular_hour_written = True
@@ -565,17 +602,20 @@ class DBEngine(object):
 
     def _run_for_granular_hour(self, verbose=False):
         for csv in self._granular_hour_csvs:
+
             if verbose:
                 self.logging.info(f'Writing granular hour to db: {csv}')
+
             filename = os.path.basename(csv)
             traffic_log = self._get_traffic_log(filename)
             self.logging.info('Writing granular log in db')
             self._write_granular(csv, traffic_log)
+
             # os.remove(csv)
 
     def run(self, verbose=False):
-        self._run_for_detail(verbose=verbose)
         self._run_for_granular_hour(verbose=verbose)
+        self._run_for_detail(verbose=verbose)
 
     def _check_data_dir_valid(self, data_dir: str):
         if not os.path.isdir(data_dir):
