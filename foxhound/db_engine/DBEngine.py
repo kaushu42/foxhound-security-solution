@@ -2,6 +2,7 @@ import os
 import re
 import datetime
 import enum
+import math
 
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
@@ -28,6 +29,9 @@ from .troubleticket_models import TroubleTicketRule
 from .rule_models import Rule
 TENANT_ID_DEFAULT = 1
 SIZE_PER_LOG = 468
+
+FILL_NA_WITH = 'UNKNOWN_SESSION_END_REASON'
+TMP_FILENAME = '/tmp/logdata.csv'
 
 
 class LOG_TYPE(enum.IntEnum):
@@ -222,17 +226,19 @@ class DBEngine(object):
             return 'Unknown', '---'
         return info.name.lower(), info.iso_code.lower()
 
-    def _write_new_items_to_db(self, params):
+    def _write_new_items_to_db(self, params, verbose=False):
         print('******Virtual System******')
         for i in params['vsys']:
-            print(f'Created {i}')
+            if verbose:
+                print(f'Created {i}')
             item = VirtualSystem(code=i, name=i)
             self._session.add(item)
         self._session.commit()
 
         print('******IP Address******')
         for i in params['source_ip']:
-            print(f'Created {i}')
+            if verbose:
+                print(f'Created {i}')
             item = IPAddress(address=i)
             self._session.add(item)
             self._session.flush()
@@ -241,7 +247,8 @@ class DBEngine(object):
             self._session.add(item)
 
         for i in params['destination_ip']:
-            print(f'Created {i}')
+            if verbose:
+                print(f'Created {i}')
             item = IPAddress(address=i)
             self._session.add(item)
             self._session.flush()
@@ -252,97 +259,127 @@ class DBEngine(object):
 
         print('******Protocol******')
         for i in params['protocol']:
-            print(f'Created {i}')
+            if verbose:
+                print(f'Created {i}')
             item = Protocol(name=i)
             self._session.add(item)
         self._session.commit()
 
         print('******Application******')
         for i in params['application']:
-            print(f'Created {i}')
+            if verbose:
+                print(f'Created {i}')
             item = Application(name=i)
             self._session.add(item)
         self._session.commit()
 
         print('******Zone******')
         for i in params['source_zone']:
-            print(f'Created {i}')
+            if verbose:
+                print(f'Created {i}')
             item = Zone(name=i)
             self._session.add(item)
 
         for i in params['destination_zone']:
-            print(f'Created {i}')
+            if verbose:
+                print(f'Created {i}')
             item = Zone(name=i)
             self._session.add(item)
         self._session.commit()
 
         print('******Firewall Rule******')
         for i in params['firewall_rule']:
-            print(f'Created {i}')
+            if verbose:
+                print(f'Created {i}')
             item = FirewallRule(name=i, tenant_id=TENANT_ID_DEFAULT)
             self._session.add(item)
         self._session.commit()
 
         print('******Interface******')
         for i in params['inbound_interface']:
-            print(f'Created {i}')
+            if verbose:
+                print(f'Created {i}')
             item = Interface(name=i)
             self._session.add(item)
 
         for i in params['outbound_interface']:
-            print(f'Created {i}')
+            if verbose:
+                print(f'Created {i}')
             item = Interface(name=i)
             self._session.add(item)
         self._session.commit()
 
         print('******Action******')
         for i in params['action']:
-            print(f'Created {i}')
+            if verbose:
+                print(f'Created {i}')
             item = Action(name=i)
             self._session.add(item)
         self._session.commit()
 
         print('******Category******')
         for i in params['category']:
-            print(f'Created {i}')
+            if verbose:
+                print(f'Created {i}')
             item = Category(name=i)
             self._session.add(item)
         self._session.commit()
 
         print('******Session End Reason******')
         for i in params['session_end_reason']:
-            print(f'Created {i}')
-            item = SessionEndReason(name=i)
+            if verbose:
+                print(f'Created {i}')
+            try:
+                math.isnan(i)
+                name = FILL_NA_WITH
+            except TypeError:
+                name = i
+            item = SessionEndReason(name=name)
             self._session.add(item)
+        self._session.commit()
 
     def _map_to_foreign_key(self, data, dfs):
         # data = data.copy()
         data.virtual_system_id = data.virtual_system_id.map(
-            dfs['core_virtualsystem'].drop_duplicates('name').reset_index().set_index('code').id)
+            dfs['core_virtualsystem'].drop_duplicates(
+                'name').reset_index().set_index('code').id).astype(int)
         data.source_ip_id = data.source_ip_id.map(
-            dfs['core_ipaddress'].drop_duplicates('address').reset_index().set_index('address').id)
+            dfs['core_ipaddress'].drop_duplicates(
+                'address').reset_index().set_index('address').id).astype(int)
         data.destination_ip_id = data.destination_ip_id.map(
-            dfs['core_ipaddress'].drop_duplicates('address').reset_index().set_index('address').id)
+            dfs['core_ipaddress'].drop_duplicates(
+                'address').reset_index().set_index('address').id).astype(int)
         data.source_zone_id = data.source_zone_id.map(
-            dfs['core_zone'].drop_duplicates('name').reset_index().set_index('name').id)
+            dfs['core_zone'].drop_duplicates(
+                'name').reset_index().set_index('name').id).astype(int)
         data.destination_zone_id = data.destination_zone_id.map(
-            dfs['core_zone'].drop_duplicates('name').reset_index().set_index('name').id)
+            dfs['core_zone'].drop_duplicates(
+                'name').reset_index().set_index('name').id).astype(int)
         data.application_id = data.application_id.map(
-            dfs['core_application'].drop_duplicates('name').reset_index().set_index('name').id)
+            dfs['core_application'].drop_duplicates(
+                'name').reset_index().set_index('name').id).astype(int)
         data.protocol_id = data.protocol_id.map(
-            dfs['core_protocol'].drop_duplicates('name').reset_index().set_index('name').id)
+            dfs['core_protocol'].drop_duplicates(
+                'name').reset_index().set_index('name').id).astype(int)
         data.firewall_rule_id = data.firewall_rule_id.map(
-            dfs['core_firewallrule'].drop_duplicates('name').reset_index().set_index('name').id)
+            dfs['core_firewallrule'].drop_duplicates(
+                'name').reset_index().set_index('name').id).astype(int)
         data.inbound_interface_id = data.inbound_interface_id.map(
-            dfs['core_interface'].drop_duplicates('name').reset_index().set_index('name').id)
+            dfs['core_interface'].drop_duplicates(
+                'name').reset_index().set_index('name').id).astype(int)
         data.outbound_interface_id = data.outbound_interface_id.map(
-            dfs['core_interface'].drop_duplicates('name').reset_index().set_index('name').id)
+            dfs['core_interface'].drop_duplicates(
+                'name').reset_index().set_index('name').id).astype(int)
         data.action_id = data.action_id.map(
-            dfs['core_action'].drop_duplicates('name').reset_index().set_index('name').id)
+            dfs['core_action'].drop_duplicates(
+                'name').reset_index().set_index('name').id).astype(int)
         data.category_id = data.category_id.map(
-            dfs['core_category'].drop_duplicates('name').reset_index().set_index('name').id)
-        data.session_end_reason_id = data.session_end_reason_id.map(
-            dfs['core_sessionendreason'].drop_duplicates('name').reset_index().set_index('name').id)
+            dfs['core_category'].drop_duplicates(
+                'name').reset_index().set_index('name').id).astype(int)
+        data.session_end_reason_id = data.session_end_reason_id.fillna(
+            FILL_NA_WITH).map(
+            dfs['core_sessionendreason'].drop_duplicates(
+                'name').reset_index().set_index('name').id).astype(int)
         return data
 
     def _get_filename_from_full_path(self, path):
@@ -357,11 +394,43 @@ class DBEngine(object):
         self._session.commit()
         return traffic_log
 
-    def _write_log(self, data, traffic_log_id, *, table_name):
+    def _write_log(self, data, traffic_log_id, index=True, *, table_name):
         data['traffic_log_id'] = traffic_log_id
-        data.drop(['virtual_system_id'], axis=1).to_sql(
-            table_name, self._db_engine,
-            if_exists='append', index=True)
+        data = data.drop(['virtual_system_id'], axis=1).reset_index()
+        cols = [
+            'row_number', 'source_port',
+            'destination_port',
+            'bytes_sent',
+            'bytes_received',
+            'repeat_count',
+            'packets_received',
+            'packets_sent',
+            'time_elapsed',
+            'logged_datetime',
+            'action_id',
+            'application_id',
+            'category_id',
+            'destination_ip_id',
+            'destination_zone_id',
+            'firewall_rule_id',
+            'inbound_interface_id',
+            'outbound_interface_id',
+            'protocol_id',
+            'session_end_reason_id',
+            'source_ip_id',
+            'source_zone_id',
+            'traffic_log_id'
+        ]
+        if 'granular' in table_name:
+            cols.remove('source_port')
+            cols.remove('row_number')
+        data = data[cols]
+        data.to_csv(TMP_FILENAME, index=False)
+        cursor = self._db_engine.raw_connection().cursor()
+        with open(TMP_FILENAME) as f:
+            next(f)
+            cursor.copy_from(f, table_name, sep=',', columns=cols)
+        os.remove(TMP_FILENAME)
 
     def _write_rules(self, data):
         data = data[['firewall_rule_id', 'source_ip_id',
@@ -403,7 +472,7 @@ class DBEngine(object):
                 )
                 self._session.add(rule)
                 print(
-                    f'Created Rule: {(source_ip)}--{destination_ip}--{application}'
+                    f'Created Rule:{source_ip}-{destination_ip}--{application}'
                 )
 
     def _write_ip_info(self, id, data, ip_in_db):
@@ -481,22 +550,26 @@ class DBEngine(object):
             data = self._read_csv(csv)
             dfs = self._read_tables_from_db()
             mapped_data = self._map_to_foreign_key(data, dfs)
-            self._write_log(mapped_data, traffic_log.id,
+            del data
+            mapped_data['repeat_count'] = mapped_data['repeat_count'].astype(
+                int)
+            self._write_log(mapped_data, traffic_log.id, index=False,
                             table_name='core_trafficlogdetailgranularhour')
             traffic_log.is_granular_hour_written = True
             self._session.commit()
 
-    def _write_to_db(self, csv: str, traffic_log):
+    def _write_to_db(self, csv: str, traffic_log, verbose=False):
         self.logging.info("Reading tables...")
         dfs = self._read_tables_from_db()
         self.logging.info("Reading csv...")
         data = self._read_csv(csv)
         self.logging.info("Getting unique items...")
         params = self._get_unique(data, dfs)
-
+        import time
+        start = time.time()
         if not traffic_log.is_log_detail_written:
             self.logging.info('Writing new items to db')
-            self._write_new_items_to_db(params)
+            self._write_new_items_to_db(params, verbose=verbose)
             del params
             dfs = self._read_tables_from_db()
             data = self._map_to_foreign_key(data, dfs)
@@ -507,7 +580,8 @@ class DBEngine(object):
             traffic_log.is_log_detail_written = True
             del data
             self._session.commit()
-
+        print('Detail: ', time.time()-start)
+        start = time.time()
         data = self._read_csv(csv)
         if not traffic_log.is_rule_written:
             self.logging.info('Writing rules to db')
@@ -516,12 +590,14 @@ class DBEngine(object):
             self.logging.info('Cleaning rule db')
             self.clean()
             self._session.commit()
-
+        print('Rules: ', time.time()-start)
+        start = time.time()
         if not traffic_log.is_info_written:
             self.logging.info('Writing log info in db')
             self._write_info(data, traffic_log.id)
             traffic_log.is_info_written = True
             self._session.commit()
+        print('Info: ', time.time()-start)
 
     def _get_date_from_filename(self, string):
         date = re.findall(r'[0-9]{4}_[0-9]{2}_[0-9]{2}',
@@ -546,17 +622,21 @@ class DBEngine(object):
                 self.logging.info(f'Writing detail to db: {csv}')
             filename = os.path.basename(csv)
             traffic_log = self._get_traffic_log(filename)
-            self._write_to_db(csv, traffic_log)
+            self._write_to_db(csv, traffic_log, verbose=verbose)
             # os.remove(csv)
 
     def _run_for_granular_hour(self, verbose=False):
         for csv in self._granular_hour_csvs:
+            import time
+            start = time.time()
             if verbose:
                 self.logging.info(f'Writing granular hour to db: {csv}')
+
             filename = os.path.basename(csv)
             traffic_log = self._get_traffic_log(filename)
             self.logging.info('Writing granular log in db')
             self._write_granular(csv, traffic_log)
+            print('time taken:', time.time()-start)
             # os.remove(csv)
 
     def run(self, verbose=False):

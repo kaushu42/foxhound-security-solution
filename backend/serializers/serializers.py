@@ -187,3 +187,8 @@ class RuleEditSerializer(serializers.Serializer):
     destination_ip = serializers.CharField(required=True)
     application = serializers.CharField(required=True)
     description = serializers.CharField(required=False)
+
+
+class SourceDestinationIPSerializer(serializers.Serializer):
+    source_ip = serializers.CharField(required=True)
+    destination_ip = serializers.CharField(required=True)

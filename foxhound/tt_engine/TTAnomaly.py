@@ -35,7 +35,8 @@ class TTAnomaly:
             ) if f.endswith('.csv')
         ]
         if not files:
-            raise Exception('No Logs to process')
+            # raise Exception('No Logs to process')
+            return []
 
         return files
 

@@ -33,12 +33,6 @@ class AnomalyBasedTroubleTicketTable extends Component {
                     dataIndex: 'id',
                     key: 'id',
                 },
-                // {
-                //     title: 'Created Date',
-                //     dataIndex: 'created_datetime',
-                //     key: 'created_datetime',
-                //     render: text => text,
-                // },
                 {
                     title: 'Source Address',
                     dataIndex: 'source_ip',
@@ -56,41 +50,11 @@ class AnomalyBasedTroubleTicketTable extends Component {
                     dataIndex: 'application',
                     key: 'application',
                 },
-                // {
-                //     title: 'Source Port',
-                //     dataIndex: 'source_port',
-                //     key: 'source_port',
-                // },
-                // {
-                //     title: 'Destination Port',
-                //     dataIndex: 'destination_port',
-                //     key: 'destination_port',
-                // },
-                // {
-                //     title: 'Bytes Sent',
-                //     dataIndex: 'bytes_sent',
-                //     key: 'bytes_sent',
-                // },
-                // {
-                //     title: 'Bytes Received',
-                //     dataIndex: 'bytes_received',
-                //     key: 'bytes_received',
-                // },
                 {
                     title: 'Log Name',
                     dataIndex: 'log_name',
                     key: 'log_name',
                 },
-                // {
-                //     title: 'Reasons',
-                //     dataIndex: 'reasons',
-                //     key: 'reasons',
-                //     render : (text,record) => (text.split(",").map(tag => {
-                //         return (
-                //             <Tag color={"red"} key={tag}>{tag}</Tag>
-                //         )
-                //     }))
-                // },
                 {
                     title: 'Action',
                     dataIndex: '',
@@ -322,7 +286,11 @@ class AnomalyBasedTroubleTicketTable extends Component {
         <br/><b>Packets Received: </b> {record.packets_received} 
         <br/><b>Bytes Sent: </b> {record.bytes_sent}
         <br/><b>Source Port: </b> {record.source_port} 
-        <br/><b>Destination Port: </b> {record.destination_port} 
+        <br/><b>Destination Port: </b> {record.destination_port}
+        <br/><b>Action: </b> {record.action}
+        <br/><b>Session End Reason: </b> {record.session_end_reason}
+        <br/><b>Inbound Interface: </b> {record.inbound_interface}
+        <br/><b>Outbound Interface: </b> {record.outbound_interface} 
         </p>;
         return (
             <Fragment>
