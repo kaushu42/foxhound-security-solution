@@ -149,10 +149,14 @@ class UsageApiView(APIView):
         tenant_id = get_tenant_id_from_token(request)
         query = get_query_from_request(request)
         if not query:
-            latest_date = TrafficLog.objects.latest('log_date')
+            latest_date = TrafficLog.objects.latest('log_date').log_date
+            date_range = (
+                latest_date - datetime.timedelta(days=1),
+                latest_date
+            )
             objects = groupby_date(
                 TrafficLogDetailGranularHour.objects.filter(
-                    traffic_log__id=latest_date.id,
+                    logged_datetime__range=date_range,
                     firewall_rule__tenant__id=tenant_id
                 ),
                 'logged_datetime',
