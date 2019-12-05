@@ -13,7 +13,8 @@ from core.models import (
 from views.views import PaginatedView
 from serializers.serializers import (
     ProcessedLogDetailSerializer,
-    TrafficLogDetailGranularHourSerializer
+    TrafficLogDetailGranularHourSerializer,
+    SourceDestinationIPSerializer
 )
 from globalutils.utils import (
     get_tenant_id_from_token,
@@ -189,3 +190,29 @@ class ApplicationLogApiView(PaginatedView):
 
     def post(self, request):
         return self.get(request)
+
+
+class SankeyLogApiView(PaginatedView):
+    serializer_class = TrafficLogDetailGranularHourSerializer
+
+    def post(self, request):
+        tenant_id = get_tenant_id_from_token(request)
+        serializer = SourceDestinationIPSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors)
+        source_ip = serializer.data['source_ip']
+        destination_ip = serializer.data['destination_ip']
+        objects = TrafficLogDetailGranularHour.objects.filter(
+            firewall_rule__tenant__id=tenant_id,
+            source_ip__address=source_ip,
+            destination_ip__address=destination_ip
+        ).order_by('id')
+
+        page = self.paginate_queryset(objects)
+        if page is not None:
+            serializer = self.serializer_class(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        return Response({})
+
+    def get(self, request):
+        return self.post(request)

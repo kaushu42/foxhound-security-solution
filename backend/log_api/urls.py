@@ -8,4 +8,5 @@ urlpatterns = [
     path('request-origin/', views.RequestOriginLogApiView.as_view()),
     path('request-end/', views.RequestEndLogApiView.as_view()),
     path('application/', views.ApplicationLogApiView.as_view()),
+    path('sankey/', views.SankeyLogApiView.as_view()),
 ]

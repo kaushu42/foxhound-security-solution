@@ -239,7 +239,8 @@ class TroubleTicketDetailApiView(APIView):
             "bytes_sent_average": info['bytes_sent__avg'],
             "bytes_received_average": info['bytes_received__avg'],
             "packets_sent_average": info['packets_sent__avg'],
-            "packets_received_average": math.ceil(info['packets_received__avg']),
+            "packets_received_average": math.ceil(
+                info['packets_received__avg']),
             "application": {
                 "bytes": application_stats['bytes'],
                 "packets": math.ceil(application_stats['packets']),
