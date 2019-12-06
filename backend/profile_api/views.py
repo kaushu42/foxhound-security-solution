@@ -314,8 +314,8 @@ class IPAliasApiView(APIView):
             }, status=HTTP_400_BAD_REQUEST)
         tenant_id = get_tenant_id_from_token(request)
         try:
-            item = TenantIPAddressInfo.objects.get(
-                address=ip, firewall_rule__tenant__id=tenant_id)
+            item = TenantIPAddressInfo.objects.filter(
+                address=ip, firewall_rule__tenant__id=tenant_id)[0]
         except Exception as e:
             print(e)
             return Response({
