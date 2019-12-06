@@ -1,6 +1,7 @@
 import math
 import datetime
 import json
+import traceback
 
 from django.db.models import Avg, Count, F
 
@@ -123,11 +124,9 @@ class TroubleTicketFollowUpAnomalyApiView(PaginatedView):
         try:
             tt_anomaly = TroubleTicketAnomaly.objects.get(id=id)
         except Exception as e:
-            print([i['id']
-                   for i in TroubleTicketAnomaly.objects.values(
-                       'id').distinct()])
             return Response({
-                "error": "No matching TT Found"
+                "traceback": str(traceback.format_exc()),
+                "exception": str(e)
             }, status=HTTP_400_BAD_REQUEST)
         assigned_by_user_id = request.data.get('assigned_by_user_id')
         assigned_to_user_id = request.data.get('assigned_to_user_id')
@@ -180,10 +179,10 @@ def close_tt(request, id):
         trouble_ticket = TroubleTicketAnomaly.objects.get(
             id=id, firewall_rule__tenant__id=tenant_id)
     except Exception as e:
-        print(e)
         return Response({
-            "error": "Invalid id for trouble ticket"
-        })
+            "traceback": str(traceback.format_exc()),
+            "exception": str(e)
+        }, status=HTTP_400_BAD_REQUEST)
     description = request.data.get('description', '')
     user = get_user_from_token(request)
     trouble_ticket.is_closed = True
@@ -209,10 +208,10 @@ class TroubleTicketDetailApiView(APIView):
             tt = TroubleTicketAnomaly.objects.get(
                 id=id, firewall_rule__tenant_id=tenant_id)
         except Exception as e:
-            print(e)
             return Response({
-                'error' 'Bad id'
-            })
+                "traceback": str(traceback.format_exc()),
+                "exception": str(e)
+            }, status=HTTP_400_BAD_REQUEST)
         detail = TrafficLogDetail.objects.get(
             row_number=tt.row_number,
             traffic_log=tt.log,

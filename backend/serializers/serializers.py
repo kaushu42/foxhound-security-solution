@@ -192,3 +192,8 @@ class RuleEditSerializer(serializers.Serializer):
 class SourceDestinationIPSerializer(serializers.Serializer):
     source_ip = serializers.CharField(required=True)
     destination_ip = serializers.CharField(required=True)
+
+
+class IPAliasSerializer(serializers.Serializer):
+    ip = serializers.CharField(required=True)
+    alias = serializers.CharField(required=True)

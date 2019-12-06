@@ -2,6 +2,7 @@ import datetime
 import time
 import json
 from collections import defaultdict, OrderedDict
+import traceback
 
 import ipaddress
 
@@ -20,7 +21,7 @@ from rest_framework.status import (
 
 from core.models import (
     TrafficLog, TrafficLogDetailGranularHour,
-    IPAddress
+    IPAddress, TenantIPAddressInfo
 )
 from globalutils import (
     get_month_day_index,
@@ -32,7 +33,7 @@ from globalutils import (
     get_tenant_id_from_token,
     get_max
 )
-
+from serializers.serializers import IPAliasSerializer
 from .utils import get_ip_from_request, get_filters
 
 
@@ -281,3 +282,47 @@ class TimeSeriesApiView(APIView):
 
     def get(self, request, format=None):
         return self.post(request, format=format)
+
+
+class IPAliasApiView(APIView):
+    def post(self, request):
+        serializer = IPAliasSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors)
+
+        tenant_id = get_tenant_id_from_token(request)
+        ip = serializer.data['ip']
+        alias = serializer.data['alias']
+        try:
+            item = TenantIPAddressInfo.objects.filter(
+                address=ip, firewall_rule__tenant__id=tenant_id)[0]
+        except Exception as e:
+            return Response({
+                "traceback": str(traceback.format_exc()),
+                "exception": str(e)
+            }, status=HTTP_400_BAD_REQUEST)
+        item.alias = alias
+        item.save()
+        return Response({
+            'saved': True
+        })
+
+    def get(self, request):
+        ip = request.data.get('ip', None)
+        if ip is None:
+            return Response({
+                "error": "Please enter an ip"
+            }, status=HTTP_400_BAD_REQUEST)
+        tenant_id = get_tenant_id_from_token(request)
+        try:
+            item = TenantIPAddressInfo.objects.filter(
+                address=ip, firewall_rule__tenant__id=tenant_id)[0]
+        except Exception as e:
+            return Response({
+                "traceback": str(traceback.format_exc()),
+                "exception": str(e)
+            }, status=HTTP_400_BAD_REQUEST)
+        return Response({
+            "address": item.address,
+            "alias": item.alias
+        })

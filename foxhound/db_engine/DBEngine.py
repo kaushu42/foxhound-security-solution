@@ -481,7 +481,7 @@ class DBEngine(object):
                 ip = TenantIPAddressInfo(
                     firewall_rule_id=id,
                     created_date=date,
-                    ip_address=ip_address
+                    address=ip_address
                 )
                 self._session.add(ip)
 
@@ -500,7 +500,7 @@ class DBEngine(object):
             'core_tenantipaddressinfo',
             self._db_engine,
             index_col='id'
-        ).ip_address.unique()
+        ).address.unique()
 
         application_in_db = pd.read_sql_table(
             'core_tenantapplicationinfo',

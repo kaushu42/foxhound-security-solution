@@ -4,6 +4,7 @@ import RequestOriginWorldChart from "../components/charts/RequestOriginWorldChar
 import AnomalyBasedTroubleTicketTable from "../components/tables/AnomalyBasedTroubleTicketTable"
 import VerifiedRulesTable from "../components/tables/VerifiedRulesTable"
 import IpAsSourceSankeyChart from "../components/charts/IpAsSourceSankeyChart";
+import ChangeAlias from "./ChangeAlias"
 
 class Test extends Component {
     render() {
@@ -11,9 +12,10 @@ class Test extends Component {
             <Fragment>
                 {/* <Worldmapchart /> */}
                 {/* <RequestOriginWorldChart /> */}
-                <AnomalyBasedTroubleTicketTable />
+                {/* <AnomalyBasedTroubleTicketTable /> */}
                 {/* <VerifiedRulesTable /> */}
                 {/* <IpAsSourceSankeyChart /> */}
+                <ChangeAlias />
             </Fragment>
             )
     }
