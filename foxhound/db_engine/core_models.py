@@ -286,7 +286,7 @@ class TenantIPAddressInfo(Base):
     id = Column(Integer, primary_key=True)
     firewall_rule_id = Column(ForeignKey(FirewallRule.id, ondelete='CASCADE'))
     created_date = Column(Date)
-    ip_address = Column(String)
+    address = Column(String)
 
     def __repr__(self):
         return f'{self.firewall_rule_id}-{self.ip_address}'
