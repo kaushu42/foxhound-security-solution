@@ -481,7 +481,7 @@ class DBEngine(object):
                 ip = TenantIPAddressInfo(
                     firewall_rule_id=id,
                     created_date=date,
-                    ip_address=ip_address
+                    address=ip_address
                 )
                 self._session.add(ip)
 
