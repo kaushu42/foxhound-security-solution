@@ -258,7 +258,8 @@ class TenantInfo(models.Model):
 
 
 class TenantIPAddressInfo(TenantInfo):
-    ip_address = models.CharField(max_length=15)
+    address = models.CharField(max_length=15)
+    alias = models.CharField(max_length=250, null=True)
 
     def __repr__(self):
         return f'{self.firewall_rule.tenant}-{self.ip_address}'
