@@ -18,6 +18,7 @@ import VerifiedRules from "./views/rules/VerifiedRules";
 import ChangePassword from "./views/layout/ChangePassword";
 import TrafficLogs from "./views/processedlogs/TrafficLogs";
 import ThreatLogs from "./views/processedlogs/ThreatLogs";
+import ChangeAlias from "./views/ChangeAlias"
 
 class App extends Component {
   render() {
@@ -40,6 +41,12 @@ class App extends Component {
             path="/ip"
             activePageKey={"ip"}
             component={IpAddressProfile}
+          />
+          <AuthenticatedRoute
+            auth_token={this.props.auth_token}
+            path="/changealias"
+            activePageKey={"changealias"}
+            component={ChangeAlias}
           />
 
           {/*Processed Logs*/}

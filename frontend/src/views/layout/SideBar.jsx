@@ -28,6 +28,12 @@ class SideBar extends Component {
                                     <span>IP Address Profile</span>
                                 </a>
                             </Menu.Item>
+                            <Menu.Item key="changealias">
+                                <a href={"/changealias"} >
+                                    <Icon type="link" />
+                                    <span>Change Alias Name</span>
+                                </a>
+                            </Menu.Item>
                         </Menu.ItemGroup>
 
                         <Menu.ItemGroup key={"Rules"} title="Rules">
