@@ -1,8 +1,11 @@
+import traceback
+
 from django.db.models import Sum, F
 from rest_framework.response import Response
 from rest_framework.status import (
     HTTP_200_OK,
-    HTTP_406_NOT_ACCEPTABLE
+    HTTP_406_NOT_ACCEPTABLE,
+    HTTP_400_BAD_REQUEST
 )
 from core.models import (
     TrafficLog, TrafficLogDetailGranularHour,
@@ -158,10 +161,10 @@ class ApplicationLogApiView(PaginatedView):
         try:
             application_id = Application.objects.get(name=application).id
         except Exception as e:
-            print(e)
             return Response({
-                "error": "Application name error"
-            })
+                "traceback": str(traceback.format_exc()),
+                "exception": str(e)
+            }, status=HTTP_400_BAD_REQUEST)
 
         class MyRequest:
             data = {}

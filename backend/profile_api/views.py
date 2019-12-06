@@ -2,6 +2,7 @@ import datetime
 import time
 import json
 from collections import defaultdict, OrderedDict
+import traceback
 
 import ipaddress
 
@@ -293,13 +294,13 @@ class IPAliasApiView(APIView):
         ip = serializer.data['ip']
         alias = serializer.data['alias']
         try:
-            item = TenantIPAddressInfo.objects.get(
-                address=ip, firewall_rule__tenant__id=tenant_id)
+            item = TenantIPAddressInfo.objects.filter(
+                address=ip, firewall_rule__tenant__id=tenant_id)[0]
         except Exception as e:
-            print(e)
             return Response({
-                "error": "No IP for tenant"
-            })
+                "traceback": str(traceback.format_exc()),
+                "exception": str(e)
+            }, status=HTTP_400_BAD_REQUEST)
         item.alias = alias
         item.save()
         return Response({
@@ -310,17 +311,17 @@ class IPAliasApiView(APIView):
         ip = request.data.get('ip', None)
         if ip is None:
             return Response({
-                "error": "Bad IP"
+                "error": "Please enter an ip"
             }, status=HTTP_400_BAD_REQUEST)
         tenant_id = get_tenant_id_from_token(request)
         try:
             item = TenantIPAddressInfo.objects.filter(
                 address=ip, firewall_rule__tenant__id=tenant_id)[0]
         except Exception as e:
-            print(e)
             return Response({
-                "error": "No matching IP for found"
-            })
+                "traceback": str(traceback.format_exc()),
+                "exception": str(e)
+            }, status=HTTP_400_BAD_REQUEST)
         return Response({
             "address": item.address,
             "alias": item.alias

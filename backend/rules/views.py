@@ -1,6 +1,7 @@
 import sys
 import os
 import subprocess
+import traceback
 
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -117,9 +118,9 @@ def verify_rule(request, id):
         tenant_id = get_tenant_id_from_token(request)
         rule = Rule.objects.get(id=id, firewall_rule__tenant__id=tenant_id)
     except Exception as e:
-        print(e)
         return Response({
-            "error": "Bad id"
+            "traceback": str(traceback.format_exc()),
+            "exception": str(e)
         }, status=HTTP_400_BAD_REQUEST)
     rule.is_verified_rule = True
     rule.is_anomalous_rule = False
@@ -138,9 +139,9 @@ def flag_rule(request, id):
         tenant_id = get_tenant_id_from_token(request)
         rule = Rule.objects.get(id=id, firewall_rule__tenant__id=tenant_id)
     except Exception as e:
-        print(e)
         return Response({
-            "error": "Bad id"
+            "traceback": str(traceback.format_exc()),
+            "exception": str(e)
         }, status=HTTP_400_BAD_REQUEST)
     rule.is_anomalous_rule = True
     rule.is_verified_rule = False
