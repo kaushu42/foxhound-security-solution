@@ -29,85 +29,10 @@ import accessibleStyles from '@patternfly/react-styles/css/utilities/Accessibili
 import spacingStyles from '@patternfly/react-styles/css/utilities/Spacing/spacing';
 import { css } from '@patternfly/react-styles';
 import { BellIcon, CogIcon } from '@patternfly/react-icons';
-import SankeyChart from "../demo/SankeyChart";
 import FullScreen, {isFullScreen} from 'react-request-fullscreen';
 import domtoimage from 'dom-to-image';
 import { ScreenIcon } from '@patternfly/react-icons'
-const data = {
-    "nodes": [
-        {
-            "id": "John",
-            "color": "hsl(314, 70%, 50%)"
-        },
-        {
-            "id": "Raoul",
-            "color": "hsl(125, 70%, 50%)"
-        },
-        {
-            "id": "Jane",
-            "color": "hsl(188, 70%, 50%)"
-        },
-        {
-            "id": "Marcel",
-            "color": "hsl(229, 70%, 50%)"
-        },
-        {
-            "id": "Ibrahim",
-            "color": "hsl(60, 70%, 50%)"
-        },
-        {
-            "id": "Junko",
-            "color": "hsl(294, 70%, 50%)"
-        }
-    ],
-    "links": [
-        {
-            "source": "John",
-            "target": "Jane",
-            "value": 10
-        },
-        {
-            "source": "John",
-            "target": "Raoul",
-            "value": 103
-        },
-        {
-            "source": "Ibrahim",
-            "target": "Raoul",
-            "value": 76
-        },
-        {
-            "source": "Ibrahim",
-            "target": "John",
-            "value": 79
-        },
-        {
-            "source": "Junko",
-            "target": "Marcel",
-            "value": 38
-        },
-        {
-            "source": "Junko",
-            "target": "Raoul",
-            "value": 138
-        },
-        {
-            "source": "Junko",
-            "target": "Ibrahim",
-            "value": 122
-        },
-        {
-            "source": "Marcel",
-            "target": "Ibrahim",
-            "value": 71
-        },
-        {
-            "source": "Raoul",
-            "target": "Jane",
-            "value": 148
-        }
-    ]
-}
+import SankeyChart from "../demo/SankeyChart";
 
 class MasterLayout extends React.Component {
     constructor(props) {
@@ -167,20 +92,6 @@ class MasterLayout extends React.Component {
         this.fullScreenRef.fullScreen()
     }
 
-    requestOrExitFullScreenByElement () {
-        this.elFullScreenRef.fullScreen(this.elRef)
-    }
-
-    handleDownloadImage = () => {
-        console.log('image saving');
-        domtoimage.toJpeg(document.getElementById('abc'), { quality: 1 })
-            .then(function (dataUrl) {
-                var link = document.createElement('a');
-                link.download = 'my-image-name.jpeg';
-                link.href = dataUrl;
-                link.click();
-            });
-    };
     render() {
         const { isDropdownOpen, isKebabDropdownOpen, activeItem, activeGroup } = this.state;
 
@@ -359,24 +270,11 @@ class MasterLayout extends React.Component {
                         </Nav>
                     </PageSection>
                     <PageSection variant={PageSectionVariants.default}>
-                        <FullScreen ref={ref => { this.fullScreenRef = ref }} onFullScreenChange={this.onFullScreenChange.bind(this)}>
-                            <div
-                                className='rq'
-                                onClick={this.requestOrExitFullScreen.bind(this)}
-                            >
-                            </div>
-                        </FullScreen>
-                        <button onClick={this.handleDownloadImage}>Download as png</button>
-                        <FullScreen ref={ref => { this.elFullScreenRef = ref }}>
-                            <div id="abc" style={{height:'450px'}}
-                                className='el-rq'
-                                ref={ref => { this.elRef = ref }}
-                                onClick={this.requestOrExitFullScreenByElement.bind(this)}
-                            >
-                                {!this.state.isFullScreen ? 'Go FullScreen' : 'Exit FullScreen'}
-                                <SankeyChart data={data}/>
-                            </div>
-                        </FullScreen>
+                        <Grid gutter="md">
+                            <GridItem span={5} style={{borderWidth: 1,borderStyle: 'dashed'}}>
+                                <SankeyChart />
+                            </GridItem>
+                        </Grid>
                     </PageSection>
                 </Page>
             </React.Fragment>
@@ -385,3 +283,13 @@ class MasterLayout extends React.Component {
 }
 
 export default MasterLayout;
+
+
+
+{/*<FullScreen ref={ref => { this.fullScreenRef = ref }} onFullScreenChange={this.onFullScreenChange.bind(this)}>*/}
+{/*    <div*/}
+{/*        className='rq'*/}
+{/*        onClick={this.requestOrExitFullScreen.bind(this)}*/}
+{/*    >*/}
+{/*    </div>*/}
+{/*</FullScreen>*/}
