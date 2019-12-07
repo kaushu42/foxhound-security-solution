@@ -323,10 +323,12 @@ export function fetchUnverifiedRulesData(auth_token, params, pagination){
     return(dispatch)=>{
 
         let headers = axiosHeader(auth_token);
+        var continuousFetch;
 
         dispatch(fetchUnverifiedRulesDataBegin());
         axios.post(FETCH_API,null,{headers, params})
             .then(res => {
+                clearInterval(continuousFetch);
                 const response = res.data;
                 console.log(response);
                 const page = pagination;
@@ -336,7 +338,12 @@ export function fetchUnverifiedRulesData(auth_token, params, pagination){
                 dispatch(updatePaginationPageCount(response.count));
             })
             .then(res => dispatch(fetchUnverifiedRulesDataComplete()))
-            .catch(error => dispatch(fetchUnverifiedRulesDataFailure(error)));
+            .catch(error => {
+                if(error.response.status ==503){
+                    continuousFetch = setInterval(()=>{dispatch(fetchUnverifiedRulesData(auth_token, params, pagination))} , 5000);
+                }
+                dispatch(fetchUnverifiedRulesDataFailure(error))
+            });
 
     }
 }
