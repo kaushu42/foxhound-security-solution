@@ -13,9 +13,9 @@ class Test extends Component {
                 {/* <Worldmapchart /> */}
                 {/* <RequestOriginWorldChart /> */}
                 {/* <AnomalyBasedTroubleTicketTable /> */}
-                {/* <VerifiedRulesTable /> */}
+                <VerifiedRulesTable />
                 {/* <IpAsSourceSankeyChart /> */}
-                <ChangeAlias />
+                {/* <ChangeAlias /> */}
             </Fragment>
             )
     }

@@ -183,6 +183,7 @@ def edit_rule(request):
 
     for rule in Rule.objects.filter(**query):
         f.write(f'{rule.id}\n')
+        print(rule)
 
     f.close()
     DELETE_RULE_SCRIPT = os.path.join(BASE_DIR, '../scripts/delete_rules.py')

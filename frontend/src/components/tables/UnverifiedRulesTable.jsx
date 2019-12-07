@@ -46,17 +46,37 @@ class UnverifiedRulesTable extends Component {
                 key: 'created_date_time',
                 render: text => moment(text).format("YYYY-MM-DD, HH:MM:SS"),
             },
-            {
-                title: 'Source Address',
-                dataIndex: 'source_ip',
-                key: 'source_ip',
-                render: (text,record) => <a onClick={()=> this.handleShowUnverifiedIpDashboard(record)}>{text}</a>,
+            {   
+                title: 'Source IP',
+                children:[
+                    {   
+                        title: "IP Address",
+                        dataIndex: 'source_ip',
+                        key: 'source_ip',
+                        render: (text,record) => <a onClick={()=> this.handleShowUnverifiedIpDashboard(record)}>{text}</a>,
+                    },
+                    {   
+                        title: "Alias",
+                        dataIndex: 'source_ip_alias',
+                        key: 'source_ip_alias'
+                    }
+                ]
             },
-            {
-                title: 'Destination Address',
-                dataIndex: 'destination_ip',
-                key: 'destination_ip',
-                render: (text,record) => <a onClick={()=> this.handleShowUnverifiedIpDashboardDestinationIP(record)}>{text}</a>,
+            {   
+                title: 'Destination IP',
+                children:[
+                    {   
+                        title: "IP Address",
+                        dataIndex: 'destination_ip',
+                        key: 'destination_ip',
+                        render: (text,record) => <a onClick={()=> this.handleShowUnverifiedIpDashboardDestinationIP(record)}>{text}</a>,
+                    },
+                    {   
+                        title: "Alias",
+                        dataIndex: 'destination_ip_alias',
+                        key: 'destination_ip_alias'
+                    }
+                ]
             },
             {
                 title: 'Application',

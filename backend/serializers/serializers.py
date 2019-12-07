@@ -142,6 +142,8 @@ class VirtualSystemSerializer(serializers.ModelSerializer):
 
 class RuleSerializer(serializers.ModelSerializer):
     verified_by_user = UserSerializer()
+    source_ip_alias = serializers.CharField()
+    destination_ip_alias = serializers.CharField()
 
     class Meta:
         model = Rule

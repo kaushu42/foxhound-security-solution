@@ -27,15 +27,35 @@ class VerifiedRulesTable extends Component {
             },
             {
                 title: 'Source IP',
-                dataIndex: 'source_ip',
-                key: 'source_ip',
-                render: (text,record) => <a onClick={()=> this.handleShowSourceIpProfile(record)}>{text}</a>,
+                children:[
+                    {   
+                        title: "IP Address",
+                        dataIndex: 'source_ip',
+                        key: 'source_ip',
+                        render: (text,record) => <a onClick={()=> this.handleShowSourceIpProfile(record)}>{text}</a>,
+                    },
+                    {   
+                        title: "Alias",
+                        dataIndex: 'source_ip_alias',
+                        key: 'source_ip_alias'
+                    }
+                ]
             },
             {
                 title: 'Destination IP',
-                dataIndex: 'destination_ip',
-                key: 'destination_ip',
-                render: (text,record) => <a onClick={()=> this.handleShowDestinationIpProfile(record)}>{text}</a>,
+                children:[
+                    {   
+                        title: "IP Address",
+                        dataIndex: 'destination_ip',
+                        key: 'destination_ip',
+                        render: (text,record) => <a onClick={()=> this.handleShowDestinationIpProfile(record)}>{text}</a>,
+                    },
+                    {   
+                        title: "Alias",
+                        dataIndex: 'destination_ip_alias',
+                        key: 'destination_ip_alias'
+                    }
+                ]
             },
             {
                 title: 'Application',

@@ -195,7 +195,7 @@ class CountryListApiView(APIView):
             firewall_rule__tenant__id=tenant_id).values(
             'source_ip'
         )
-        countries = Country.objects.filter(address__in=objects)
+        countries = Country.objects.filter(ip_address__in=objects)
         countries = countries.values(
             'id', 'iso_code', 'name').distinct('iso_code')
         return Response(CountrySerializer(countries, many=True).data)
@@ -229,12 +229,12 @@ class WorldMapApiView(APIView):
         objects = objects[:]
         objects = pd.DataFrame(objects)
         try:
-            objects.columns = ['address_id', 'count']
+            objects.columns = ['ip_address_id', 'count']
         except Exception as e:
             print(e)
             return Response({'data': []})
         countries = pd.read_sql('core_country', db_engine, index_col='id')
-        data = objects.merge(countries, on='address_id', how='inner')[
+        data = objects.merge(countries, on='ip_address_id', how='inner')[
             ['iso_code', 'count']]
         data = data.groupby('iso_code').sum().to_dict(orient='split')
         response = []
