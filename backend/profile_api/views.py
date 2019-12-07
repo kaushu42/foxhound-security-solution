@@ -303,16 +303,16 @@ class IPAliasApiView(APIView):
         tenant_id = get_tenant_id_from_token(request)
         ip = serializer.data['ip']
         alias = serializer.data['alias']
-        try:
-            item = TenantIPAddressInfo.objects.filter(
-                address=ip, firewall_rule__tenant__id=tenant_id)[0]
-        except Exception as e:
+        ips = TenantIPAddressInfo.objects.filter(
+            address=ip, firewall_rule__tenant__id=tenant_id)
+        if not ips:
             return Response({
-                "traceback": str(traceback.format_exc()),
-                "exception": str(e)
+                "error": "No matching IP found"
             }, status=HTTP_400_BAD_REQUEST)
-        item.alias = alias
-        item.save()
+        for item in ips:
+            item.alias = alias
+            item.save()
+
         return Response({
             'saved': True
         })
