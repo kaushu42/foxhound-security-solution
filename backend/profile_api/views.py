@@ -44,7 +44,7 @@ def get_ip_type(ip):
 
 
 class StatsApiView(APIView):
-    def _get_stats(self, ip, objects):
+    def _get_stats(self, ip, objects, tenant_id):
         objects = objects.filter(
             source_ip__address=ip,
         )
@@ -57,11 +57,21 @@ class StatsApiView(APIView):
             Sum('bytes_received')).get(
             'bytes_received__sum', None
         )
+
+        try:
+            alias = TenantIPAddressInfo.objects.filter(
+                firewall_rule__tenant__id=tenant_id,
+                address=ip
+            )[0].alias
+        except IndexError:
+            alias = ip
+        if not alias:
+            alias = ip
         return {
             "uplink": uplink,
             "downlink": downlink,
             "ip_address": ip,
-            "alias_name": ip,
+            "alias_name": alias,
             "ip_address_type": get_ip_type(ip)
         }
 
@@ -72,7 +82,7 @@ class StatsApiView(APIView):
         objects = get_objects_from_query(query).filter(
             firewall_rule__tenant__id=tenant_id
         )
-        response = self._get_stats(ip, objects)
+        response = self._get_stats(ip, objects, tenant_id)
         return Response(response, status=HTTP_200_OK)
 
     def get(self, request, format=None):
