@@ -33,6 +33,8 @@ import FullScreen, {isFullScreen} from 'react-request-fullscreen';
 import domtoimage from 'dom-to-image';
 import { ScreenIcon } from '@patternfly/react-icons'
 import SankeyChart from "../demo/SankeyChart";
+import MapChart from "../demo/MapChart";
+import {TransformComponent, TransformWrapper} from "react-zoom-pan-pinch";
 
 class MasterLayout extends React.Component {
     constructor(props) {
@@ -271,9 +273,13 @@ class MasterLayout extends React.Component {
                     </PageSection>
                     <PageSection variant={PageSectionVariants.default}>
                         <Grid gutter="md">
-                            <GridItem span={5} style={{borderWidth: 1,borderStyle: 'dashed'}}>
+                            <GridItem span={7} style={{borderWidth: 1,borderStyle: 'dashed'}}>
                                 <SankeyChart />
                             </GridItem>
+                            <GridItem span={5} style={{borderWidth: 1,borderStyle: 'dashed'}}>
+                                <MapChart />
+                            </GridItem>
+
                         </Grid>
                     </PageSection>
                 </Page>

@@ -31,13 +31,17 @@
     "@fortawesome/free-regular-svg-icons": "^5.11.2",
     "@fortawesome/free-solid-svg-icons": "^5.11.2",
     "@fortawesome/react-fontawesome": "^0.1.7",
+    "@nivo/geo": "^0.59.2",
     "@nivo/sankey": "^0.59.1",
     "@patternfly/react-core": "^3.124.1",
     "dom-to-image": "^2.6.0",
+    "install": "^0.13.0",
+    "npm": "^6.13.2",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
     "react-fontawesome": "^1.7.1",
     "react-full-screen": "^0.2.4",
-    "react-request-fullscreen": "^1.1.2"
+    "react-request-fullscreen": "^1.1.2",
+    "react-zoom-pan-pinch": "^1.4.5"
   }
 }
