@@ -186,11 +186,15 @@ def edit_rule(request):
         'is_anomalous_rule': False
     }
 
+    results = Rule.objects.filter(**query)
+    if not results.count():
+        return Response({
+            "error": "Input does not match any rules"
+        })
     lock_rule_table()
-
     f = open(os.path.join(BASE_DIR, DELETE_RULE_FILENAME), 'w')
     try:
-        for rule in Rule.objects.filter(**query):
+        for rule in results:
             f.write(f'{rule.id}\n')
             print(rule)
     except django.db.utils.DataError as e:
