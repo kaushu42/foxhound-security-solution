@@ -15,6 +15,8 @@ try:
         id = int(line.strip())
         utils.delete_using_id(engine, RULES_TABLE_NAME, id)
     print(f'{index+1} rules deleted!')
+    f.close()
+    os.remove(FILENAME)
 except NameError:
     print('No rules to delete')
 except FileNotFoundError:
