@@ -3,6 +3,8 @@ import os
 import subprocess
 import traceback
 
+import django
+
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.status import (
@@ -23,7 +25,11 @@ from globalutils.utils import (
     get_user_from_token
 )
 from views.views import PaginatedView
-from globalutils import lock_rule_table, is_rule_table_locked
+from globalutils.utils import (
+    lock_rule_table,
+    is_rule_table_locked,
+    unlock_rule_table
+)
 from .models import Rule
 
 DELETE_RULE_FILENAME = '../dumps/delete_rules.txt'
@@ -183,11 +189,17 @@ def edit_rule(request):
     lock_rule_table()
 
     f = open(os.path.join(BASE_DIR, DELETE_RULE_FILENAME), 'w')
-
-    for rule in Rule.objects.filter(**query):
-        f.write(f'{rule.id}\n')
-        print(rule)
-
+    try:
+        for rule in Rule.objects.filter(**query):
+            f.write(f'{rule.id}\n')
+            print(rule)
+    except django.db.utils.DataError as e:
+        print(e)
+        unlock_rule_table()
+        return Response({
+            "traceback": str(traceback.format_exc()),
+            "exception": str(e)
+        }, status=HTTP_400_BAD_REQUEST)
     f.close()
     DELETE_RULE_SCRIPT = os.path.join(BASE_DIR, '../scripts/delete_rules.py')
     subprocess.Popen([sys.executable, DELETE_RULE_SCRIPT])
