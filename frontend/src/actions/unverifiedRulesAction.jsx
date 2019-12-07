@@ -268,19 +268,19 @@ export function updateRule(auth_token,source_ip,destination_ip,application,descr
         dispatch(updateRuleBegin());
         setTimeout(()=>{
             axios.post(UPDATE_API,formData,{headers})
-                .then(res =>{
-                    const response = res.data;
-                    console.log(response);
-                    dispatch(updateRuleSuccess());
-                })
-                .then(res => {
-                    dispatch(updateRuleComplete());
-                    dispatch(fetchUnverifiedRulesData(auth_token,params,pagination));
-                    setTimeout(()=>{dispatch(cleanAllDrawerState())},5000);
-                    dispatch(toggleUpdateDrawer());
+            .then(res =>{
+                const response = res.data;
+                console.log(response);
+                dispatch(updateRuleSuccess());
+            })
+            .then(res => {
+                dispatch(updateRuleComplete());
+                dispatch(fetchUnverifiedRulesData(auth_token,params,pagination));
+                setTimeout(()=>{dispatch(cleanAllDrawerState())},5000);
+                dispatch(toggleUpdateDrawer());
 
-                })
-                .catch(error => dispatch(updateRuleError(error)));
+            })
+            .catch(error => dispatch(updateRuleError(error)));
         },2500);
     }
 }
@@ -313,22 +313,12 @@ export function rejectRule(auth_token,description,record){
     }
 }
 
-export function fetchBlackListedAddress(auth_token){
-    return (dispatch) => {
-    }
-}
-
-
 export function fetchUnverifiedRulesData(auth_token, params, pagination){
     return(dispatch)=>{
-
         let headers = axiosHeader(auth_token);
-        var continuousFetch;
-
         dispatch(fetchUnverifiedRulesDataBegin());
         axios.post(FETCH_API,null,{headers, params})
             .then(res => {
-                clearInterval(continuousFetch);
                 const response = res.data;
                 console.log(response);
                 const page = pagination;
@@ -340,7 +330,8 @@ export function fetchUnverifiedRulesData(auth_token, params, pagination){
             .then(res => dispatch(fetchUnverifiedRulesDataComplete()))
             .catch(error => {
                 if(error.response.status ==503){
-                    continuousFetch = setInterval(()=>{dispatch(fetchUnverifiedRulesData(auth_token, params, pagination))} , 5000);
+                    dispatch(fetchUnverifiedRulesDataBegin());
+                    dispatch(fetchUnverifiedRulesData(auth_token, params, pagination));
                 }
                 dispatch(fetchUnverifiedRulesDataFailure(error))
             });
