@@ -430,50 +430,59 @@ class DBEngine(object):
         with open(TMP_FILENAME) as f:
             next(f)
             cursor.copy_from(f, table_name, sep=',', columns=cols)
+        cursor.connection.commit()
         os.remove(TMP_FILENAME)
 
     def _write_rules(self, data):
         data = data[['firewall_rule_id', 'source_ip_id',
                      'destination_ip_id', 'application_id',
                      ]].drop_duplicates()
-        rules_table = pd.read_sql_table('rules_rule', self._db_engine)
         firewall_rules = pd.read_sql_table(
             'core_firewallrule', self._db_engine)
-        data = pd.merge(
+        mapped = pd.merge(
             data, firewall_rules,
             left_on='firewall_rule_id', right_on='name')[
-            ['id', 'source_ip_id', 'destination_ip_id', 'application_id']
+            ['id', 'source_ip_id', 'destination_ip_id', 'application_id']]
+        rules_table = pd.read_sql_table('rules_rule', self._db_engine)[
+            ['source_ip', 'destination_ip', 'application', 'firewall_rule_id']]
+        merged = mapped.merge(rules_table,
+                              how='left',
+                              left_on=['id', 'source_ip_id',
+                                       'destination_ip_id', 'application_id'],
+                              right_on=['firewall_rule_id', 'source_ip',
+                                        'destination_ip', 'application'],
+                              indicator=True)
+        new_rules = merged[merged['_merge'] == 'left_only'][[
+            'id', 'source_ip_id', 'destination_ip_id', 'application_id']]
+
+        new_rules['name'] = new_rules['source_ip_id'] + '--' + \
+            new_rules['destination_ip_id'] + '--' + new_rules['application_id']
+        new_rules['created_date_time'] = pd.to_datetime(
+            datetime.datetime.utcnow())
+        new_rules['is_verified_rule'] = False
+        new_rules['is_anomalous_rule'] = False
+        new_rules['verified_date_time'] = new_rules['created_date_time']
+        new_rules['description'] = None
+        new_rules['verified_by_user_id'] = 1
+        new_rules = new_rules[['created_date_time', 'name', 'source_ip_id',
+                               'destination_ip_id', 'application_id',
+                               'description', 'is_verified_rule',
+                               'is_anomalous_rule', 'verified_date_time',
+                               'id', 'verified_by_user_id']]
+        new_rules.columns = [
+            'created_date_time', 'name', 'source_ip',
+            'destination_ip', 'application', 'description',
+            'is_verified_rule', 'is_anomalous_rule', 'verified_date_time',
+            'firewall_rule_id', 'verified_by_user_id'
         ]
-        for i, j in data.iterrows():
-            id = int(j.id)
-            source_ip = j.source_ip_id
-            destination_ip = j.destination_ip_id
-            application = j.application_id
-            rules = rules_table[
-                (rules_table['source_ip'] == source_ip) &
-                (rules_table['destination_ip'] == destination_ip) &
-                (rules_table['application'] == application)
-            ]
-            if rules.index.empty:
-                rule_name = f'{source_ip}--{destination_ip}--{application}'
-                now = datetime.datetime.now()
-                rule = Rule(
-                    firewall_rule_id=id,
-                    verified_by_user_id=None,
-                    created_date_time=now,
-                    name=rule_name,
-                    source_ip=source_ip,
-                    destination_ip=destination_ip,
-                    application=application,
-                    description='New Rule',
-                    is_verified_rule=False,
-                    verified_date_time=None,
-                    is_anomalous_rule=False
-                )
-                self._session.add(rule)
-                print(
-                    f'Created Rule:{source_ip}-{destination_ip}--{application}'
-                )
+        new_rules.to_csv(TMP_FILENAME, index=False)
+        cols = new_rules.columns
+        cursor = self._db_engine.raw_connection().cursor()
+        with open(TMP_FILENAME) as f:
+            next(f)
+            cursor.copy_from(f, 'rules_rule', sep=',', columns=cols)
+        cursor.connection.commit()
+        os.remove(TMP_FILENAME)
 
     def _write_ip_info(self, id, data, ip_in_db):
         for date, ip_address in data:
@@ -618,8 +627,8 @@ class DBEngine(object):
     # TODO: Write functions using decorators
     def _run_for_detail(self, verbose=False):
         for csv in self._log_detail_csvs:
-            if verbose:
-                self.logging.info(f'Writing detail to db: {csv}')
+            # if verbose:
+            self.logging.info(f'Writing detail to db: {csv}')
             filename = os.path.basename(csv)
             traffic_log = self._get_traffic_log(filename)
             self._write_to_db(csv, traffic_log, verbose=verbose)
@@ -629,12 +638,11 @@ class DBEngine(object):
         for csv in self._granular_hour_csvs:
             import time
             start = time.time()
-            if verbose:
-                self.logging.info(f'Writing granular hour to db: {csv}')
+            # if verbose:
+            self.logging.info(f'Writing granular hour to db: {csv}')
 
             filename = os.path.basename(csv)
             traffic_log = self._get_traffic_log(filename)
-            self.logging.info('Writing granular log in db')
             self._write_granular(csv, traffic_log)
             print('time taken:', time.time()-start)
             # os.remove(csv)
