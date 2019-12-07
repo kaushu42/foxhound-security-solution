@@ -34,7 +34,7 @@ def lock_check(func):
         if is_rule_table_locked():
             return Response({
                 "locked": True
-            }, status=H)
+            }, status=HTTP_503_SERVICE_UNAVAILABLE)
         return func(*args, **kwargs)
     return inner
 
