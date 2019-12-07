@@ -40,7 +40,7 @@ from serializers.serializers import (
     FilterSerializer,
     DomainURLSerializer,
     RuleSerializer,
-    CountrySerializer
+    CountrySerializer,
 )
 
 
@@ -262,7 +262,7 @@ class IPAddressApiView(APIView):
             id=F('source_ip__id'),
             address=F('source_ip__address'),
             alias=F('source_ip__alias'),
-        ).values('id', 'address', 'alias', 'bytes_sent')[:20]
+        ).values('id', 'address', 'alias', 'bytes_sent')
         return Response(data)
 
     def post(self, request):

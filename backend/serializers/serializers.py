@@ -8,7 +8,8 @@ from core.models import (
     IPAddress,
     Application,
     Country,
-    ProcessedLogDetail
+    ProcessedLogDetail,
+    TenantIPAddressInfo
 )
 from troubleticket.models import (
     TroubleTicketAnomaly,
@@ -199,3 +200,9 @@ class SourceDestinationIPSerializer(serializers.Serializer):
 class IPAliasSerializer(serializers.Serializer):
     ip = serializers.CharField(required=True)
     alias = serializers.CharField(required=True)
+
+
+class IPAliasModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TenantIPAddressInfo
+        fields = '__all__'
