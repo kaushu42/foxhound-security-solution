@@ -234,9 +234,6 @@ class WorldMapApiView(APIView):
             print(e)
             return Response({'data': []})
         countries = pd.read_sql('core_country', db_engine, index_col='id')
-        print(countries.columns)
-        print(objects.columns)
-        # return Response()
         data = objects.merge(countries, on='ip_address_id', how='inner')[
             ['iso_code', 'count']]
         data = data.groupby('iso_code').sum().to_dict(orient='split')
