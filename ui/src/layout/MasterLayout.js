@@ -10,6 +10,7 @@ import {
     DropdownSeparator,
     KebabToggle,
     Nav,
+    NavVariants,
     NavGroup,
     NavItem,
     Page,
@@ -22,21 +23,35 @@ import {
     Text,
     Toolbar,
     ToolbarGroup,
-    ToolbarItem, NavList, NavExpandable, Breadcrumb, Gallery, BreadcrumbItem, GalleryItem, Card, CardBody
+    ToolbarItem, NavList, NavExpandable, Breadcrumb, Gallery, BreadcrumbItem, GalleryItem, Card, CardBody,Grid, GridItem
 } from '@patternfly/react-core';
 import accessibleStyles from '@patternfly/react-styles/css/utilities/Accessibility/accessibility';
 import spacingStyles from '@patternfly/react-styles/css/utilities/Spacing/spacing';
 import { css } from '@patternfly/react-styles';
 import { BellIcon, CogIcon } from '@patternfly/react-icons';
+import FullScreen, {isFullScreen} from 'react-request-fullscreen';
+import domtoimage from 'dom-to-image';
+import { ScreenIcon } from '@patternfly/react-icons'
+import SankeyChart from "../demo/SankeyChart";
+import MapChart from "../demo/MapChart";
+import {TransformComponent, TransformWrapper} from "react-zoom-pan-pinch";
+
 class MasterLayout extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            isFullScreen: false,
+            isFull: false,
+            isNavBarOpen : false,
             isDropdownOpen: false,
             isKebabDropdownOpen: false,
             activeGroup: 'grp-1',
             activeItem: 'grp-1_itm-1'
         };
+
+        this.goFull = () => {
+            this.setState({ isFull: true });
+        }
 
         this.onDropdownToggle = isDropdownOpen => {
             this.setState({
@@ -68,6 +83,15 @@ class MasterLayout extends React.Component {
                 activeGroup: result.groupId
             });
         };
+    }
+    onFullScreenChange (isFullScreen) {
+        this.setState({
+            isFullScreen
+        })
+    }
+
+    requestOrExitFullScreen () {
+        this.fullScreenRef.fullScreen()
     }
 
     render() {
@@ -164,28 +188,29 @@ class MasterLayout extends React.Component {
                             dropdownItems={userDropdownItems}
                         />
                     </ToolbarItem>
+                    <ToolbarItem>
+                        <ScreenIcon position="right" onClick={this.requestOrExitFullScreen.bind(this)} />
+                    </ToolbarItem>
+
                 </ToolbarGroup>
             </Toolbar>
         );
 
         const Header = (
             <PageHeader
-                logo={(<Fragment><Brand src="/assets/fox-white.png" alt="Foxhound Logo" style={{height:'40px',paddingRight:5}}/>
-                    <img src="/assets/logo.png" style={{position:'right', height:'40px',paddingLeft:5}} /></Fragment>)}
+                logo={(<Fragment><Brand src="assets/fox-white.png" alt="Foxhound Logo" style={{height:'40px',paddingRight:5}}/>
+                    <img src="assets/logo.png" style={{position:'right', height:'40px',paddingLeft:5}} /></Fragment>)}
                 toolbar={PageToolbar}
-                avatar={<Avatar src="/assets/user.svg" alt="Avatar image" />}
+                avatar={<Avatar src="assets/user.svg" alt="Avatar image" />}
                 showNavToggle
             />
         );
-        const Sidebar = <PageSidebar nav={PageNav} theme="dark" />;
+        const Sidebar = <PageSidebar nav={PageNav} theme="dark"/>;
         const PageBreadcrumb = (
             <Breadcrumb>
-                <BreadcrumbItem>Section Home</BreadcrumbItem>
-                <BreadcrumbItem to="#">Section Title</BreadcrumbItem>
-                <BreadcrumbItem to="#">Section Title</BreadcrumbItem>
-                <BreadcrumbItem to="#" isActive>
-                    Section Landing
-                </BreadcrumbItem>
+                <BreadcrumbItem>Home</BreadcrumbItem>
+                <BreadcrumbItem to="#">Dashboard</BreadcrumbItem>
+                <BreadcrumbItem to="#" isActive>Overview Dashboard</BreadcrumbItem>
             </Breadcrumb>
         );
         const pageId = 'main-content-page-layout-expandable-nav';
@@ -197,30 +222,65 @@ class MasterLayout extends React.Component {
                     style={{height:'100vh'}}
                     header={Header}
                     sidebar={Sidebar}
-                    isManagedSidebar
+                    isManagedSidebar={true}
                     skipToContent={PageSkipToContent}
-                    breadcrumb={PageBreadcrumb}
+                    // breadcrumb={PageBreadcrumb}
                     mainContainerId={pageId}
+                    defaultManagedSidebarIsOpen = {false}
                 >
                     <PageSection variant={PageSectionVariants.light}>
                         <TextContent>
-                            <Text component="h1">Main Title</Text>
-                            <Text component="p">
-                                Body text should be Overpass Regular at 16px. It should have leading of 24px because <br />
-                                of it’s relative line height of 1.5.
-                            </Text>
+                            <Text component="h1">Overview Dashboard</Text>
                         </TextContent>
+                        <Nav theme="light">
+                            <NavList variant={NavVariants.tertiary}>
+                                <NavItem key={'0'} itemId={'0'} isActive={true}>
+                                    Overview Dashboard
+                                </NavItem>
+                            </NavList>
+                            <NavList variant={NavVariants.tertiary}>
+                                <NavItem key={'1'} itemId={'1'} isActive={false}>
+                                    Traffic Dashboard
+                                </NavItem>
+                            </NavList>
+                            <NavList variant={NavVariants.tertiary}>
+                                <NavItem key={'2'} itemId={'2'} isActive={false}>
+                                    Threat Dashboard
+                                </NavItem>
+                            </NavList>
+                            <NavList variant={NavVariants.tertiary}>
+                                <NavItem key={'3'} itemId={'3'} isActive={false}>
+                                    Flow Dashboard
+                                </NavItem>
+                            </NavList>
+                            <NavList variant={NavVariants.tertiary}>
+                                <NavItem key={'3'} itemId={'3'} isActive={false}>
+                                    GeoIP Dashboard
+                                </NavItem>
+                            </NavList>
+                            <NavList variant={NavVariants.tertiary}>
+                                <NavItem key={'3'} itemId={'3'} isActive={false}>
+                                    Rules Dashboard
+                                </NavItem>
+                            </NavList>
+                            <NavList variant={NavVariants.tertiary}>
+                                <NavItem key={'3'} itemId={'3'} isActive={false}>
+                                    TT Dashboard
+                                </NavItem>
+                            </NavList>
+
+                        </Nav>
                     </PageSection>
                     <PageSection variant={PageSectionVariants.default}>
-                        <Gallery gutter="md">
-                            {Array.apply(0, Array(10)).map((x, i) => (
-                                <GalleryItem key={i}>
-                                    <Card>
-                                        <CardBody>This is a card</CardBody>
-                                    </Card>
-                                </GalleryItem>
-                            ))}
-                        </Gallery>
+                        <Grid gutter="md">
+                            <GridItem span={7} style={{borderWidth: 1,borderStyle: 'dashed'}}>
+                                <SankeyChart />
+                            </GridItem>
+                            <GridItem span={5} style={{borderWidth: 1,borderStyle: 'dashed'}}>
+                                <MapChart />
+                            </GridItem>
+
+                        </Grid>
                     </PageSection>
                 </Page>
             </React.Fragment>
@@ -229,3 +289,13 @@ class MasterLayout extends React.Component {
 }
 
 export default MasterLayout;
+
+
+
+{/*<FullScreen ref={ref => { this.fullScreenRef = ref }} onFullScreenChange={this.onFullScreenChange.bind(this)}>*/}
+{/*    <div*/}
+{/*        className='rq'*/}
+{/*        onClick={this.requestOrExitFullScreen.bind(this)}*/}
+{/*    >*/}
+{/*    </div>*/}
+{/*</FullScreen>*/}

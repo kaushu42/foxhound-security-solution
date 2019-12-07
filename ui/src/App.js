@@ -1,14 +1,16 @@
-import React, { Component } from 'react';
-import MasterLayout from "./views/layout/MasterLayout";
-import '@patternfly/patternfly/patternfly.min.css';
-import './App.css'
-import'./fonts.css'
-class App extends Component {
-  render() {
-    return (
+import React, { Component} from "react";
+import '@patternfly/react-core/dist/styles/base.css'
+import MasterLayout from "./layout/MasterLayout";
+import './App.css';
+import Test from "./components/Test";
+
+class App extends Component{
+  render(){
+    return(
         <MasterLayout />
     );
   }
 }
+
 
 export default App;
