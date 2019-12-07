@@ -275,3 +275,9 @@ def lock_rule_table():
 
 def is_rule_table_locked():
     return DBLock.objects.get(table_name='rules_rule').is_locked
+
+
+def unlock_rule_table():
+    lock = DBLock.objects.get(table_name='rules_rule')
+    lock.is_locked = False
+    lock.save()
