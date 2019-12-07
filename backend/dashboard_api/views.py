@@ -195,7 +195,7 @@ class CountryListApiView(APIView):
             firewall_rule__tenant__id=tenant_id).values(
             'source_ip'
         )
-        countries = Country.objects.filter(address__in=objects)
+        countries = Country.objects.filter(ip_address__in=objects)
         countries = countries.values(
             'id', 'iso_code', 'name').distinct('iso_code')
         return Response(CountrySerializer(countries, many=True).data)
