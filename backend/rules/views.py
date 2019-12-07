@@ -5,7 +5,10 @@ import traceback
 
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from rest_framework.status import HTTP_400_BAD_REQUEST
+from rest_framework.status import (
+    HTTP_400_BAD_REQUEST,
+    HTTP_503_SERVICE_UNAVAILABLE
+)
 from rest_framework.views import APIView
 from rest_framework import serializers
 from serializers.serializers import (
@@ -31,7 +34,7 @@ def lock_check(func):
         if is_rule_table_locked():
             return Response({
                 "locked": True
-            }, status=HTTP_400_BAD_REQUEST)
+            }, status=H)
         return func(*args, **kwargs)
     return inner
 
