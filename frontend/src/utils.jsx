@@ -9,8 +9,6 @@ if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
 
 export const ROOT_URL = URL;
 //export const ROOT_URL = "http://202.51.3.65/api/v1/";;
-
-
 //export const ROOT_URL = "http://127.0.0.1:8000/api/v1/"
 
 export const contentLayout = {
@@ -41,3 +39,4 @@ export const bytesToSize = (bytes) => {
   let i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
   return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
 }
+

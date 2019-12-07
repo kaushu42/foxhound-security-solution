@@ -183,7 +183,6 @@ class UnverifiedRulesTable extends Component {
         const destination_ip = this.destination_ip.state.value;
         const application = this.application.state.value;
         const description = this.description.state.value;
-        // console.log("details at update info ",source_ip, destination_ip, application, description)
         this.props.dispatchUpdateRule(auth_token,source_ip,destination_ip,application,description,{}, unverifiedRulePagination);
     }
 
