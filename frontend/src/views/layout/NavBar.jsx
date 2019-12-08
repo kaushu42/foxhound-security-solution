@@ -35,8 +35,8 @@ class NavBar extends Component {
         return (
             <Fragment>
                 <Header style={{ background: '#fff', paddingLeft: '20px'   }}>
-                    <img src="/assets/fox-blue.png" alt="foxhound-logo" style={{height:50,width:50,marginLeft:10,marginTop:0,marginRight:10}}/>
-                    <span style={{fontSize:20}}><b>Foxhound | {this.props.current_session_tenant_name}</b></span>
+                    <a href="/"><img src="/assets/fox-blue.png" alt="foxhound-logo" style={{height:50,width:50,marginLeft:10,marginTop:0,marginRight:10}}/>
+                    <span style={{fontSize:20, color:"black"}}><b>Foxhound | {this.props.current_session_tenant_name}</b></span></a>
                     <Icon
                         style={{fontSize:20,float:"left",marginTop:20,paddingLeft:10,paddingRight:10, paddingTop:1}}
                         type={sideBarCollapsed ? 'menu-unfold' : 'menu-fold'}

@@ -98,6 +98,7 @@ const requestOriginChartReducer = (state=initialState,action) => {
         case CLOSE_MAP_CHART_LOG_DRAWER:
                 return{
                     ...state,
+                    mapSelectedCountryLogData : null,
                     mapChartLogDrawerVisible : false
                 }
         case OPEN_MAP_CHART_LOG_DRAWER:
