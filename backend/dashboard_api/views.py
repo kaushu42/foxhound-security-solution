@@ -107,11 +107,13 @@ class StatsApiView(APIView):
 class FiltersApiView(APIView):
     def get(self, request, format=None):
         tenant_id = get_tenant_id_from_token(request)
+        firewall_rules = FirewallRule.objects.filter(
+            tenant_id=tenant_id)
         objects = TrafficLogDetailGranularHour.objects.filter(
-            firewall_rule__tenant__id=tenant_id).prefetch_related(
-                'firewall_rule', 'application', 'protocol', 'source_zone', 'destination_zone'
+            firewall_rule__in=firewall_rules).prefetch_related(
+                'firewall_rule', 'application', 'protocol',
+                'source_zone', 'destination_zone'
         )
-
         firewall_rule = objects.values_list(
             'firewall_rule',
             'firewall_rule__name'
