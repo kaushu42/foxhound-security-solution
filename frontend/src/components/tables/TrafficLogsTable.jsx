@@ -2,7 +2,7 @@ import React, { Component, Fragment } from "react";
 import { connect } from "react-redux";
 import { Divider, PageHeader, Row, Spin, Table, Tag } from "antd";
 import reqwest from "reqwest";
-import { ROOT_URL } from "../../utils";
+import { ROOT_URL, bytesToSize } from "../../utils";
 
 class TrafficLogsTable extends Component {
   constructor(props) {
@@ -42,7 +42,8 @@ class TrafficLogsTable extends Component {
         {
           title: "Log Size",
           dataIndex: "size",
-          key: "size"
+          key: "size",
+          render: (text, record) => bytesToSize(text)
         }
       ],
       data: [],
@@ -91,27 +92,6 @@ class TrafficLogsTable extends Component {
       console.log("data fetched", this.data);
       const { pagination } = this.state;
       pagination.total = data.count;
-      let size = ''
-      if (data.results[0].size > 1000000000)
-        {
-          size = (data.results[0].size/(1024*1024*1024)).toFixed(2),
-          data.results[0].size = `${size} GB`
-        }
-      else if (data.results[0].size < 1000000000 && data.results[0].size > 1000000)
-        {
-          size = (data.results[0].size/(1024*1024)).toFixed(2),
-          data.results[0].size = `${size} MB`
-        }
-      else if (data.results[0].size < 1000000 && data.results[0].size > 1000)
-        {
-          size = (data.results[0].size/(1024)).toFixed(2),
-          data.results[0].size = `${size} KB`
-        }
-      else
-        {
-          size = data.results[0].size,
-          data.results[0].size = `${size} Bytes`
-        }
       this.setState({
         loading: false,
         data: data.results,

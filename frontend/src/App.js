@@ -18,7 +18,7 @@ import VerifiedRules from "./views/rules/VerifiedRules";
 import ChangePassword from "./views/layout/ChangePassword";
 import TrafficLogs from "./views/processedlogs/TrafficLogs";
 import ThreatLogs from "./views/processedlogs/ThreatLogs";
-import ChangeAlias from "./views/ChangeAlias"
+import ChangeAlias from "./views/ChangeAlias";
 
 class App extends Component {
   render() {

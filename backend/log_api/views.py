@@ -1,4 +1,5 @@
 import traceback
+import datetime
 
 from django.db.models import Sum, F
 from rest_framework.response import Response
@@ -65,7 +66,6 @@ class TrafficLogApiView(PaginatedView):
                 'processed_date': processed_date[i],
                 'log_date': log_date[i],
             })
-        print(results)
         page = self.paginate_queryset(results)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
@@ -154,6 +154,11 @@ class ApplicationLogApiView(PaginatedView):
 
     def get(self, request):
         application = request.data.get('application')
+
+        timestamp = int(request.data.get('timestamp'))
+        start_date = datetime.datetime.fromtimestamp(
+            timestamp / 1e3)
+        end_date = start_date + datetime.timedelta(hours=1)
         if application is None:
             return Response({
                 "error": "\"application\" field is required"
@@ -177,7 +182,8 @@ class ApplicationLogApiView(PaginatedView):
         query = get_query_from_request(my_request)
         objects = get_objects_from_query(query).filter(
             firewall_rule__tenant__id=tenant_id,
-            application__name=application
+            application__name=application,
+            logged_datetime__range=(start_date, end_date)
         ).order_by('-id')
         country = request.data.get('country', None)
 
@@ -186,6 +192,8 @@ class ApplicationLogApiView(PaginatedView):
             objects = objects.filter(source_ip__in=ips)
 
         page = self.paginate_queryset(objects)
+        for i in page:
+            print(i.logged_datetime)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)

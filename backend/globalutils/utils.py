@@ -245,14 +245,22 @@ def get_query_from_request(
     return query
 
 
-def get_objects_from_query(queries, model=TrafficLogDetailGranularHour):
+def get_objects_from_query(queries, model=TrafficLogDetailGranularHour,
+                           type='model'):
     if queries:
         result = queries.pop(0)
         for query in queries:
             result &= query
-        return model.objects.filter(result)
-
-    return model.objects.filter()
+        if type == 'model':
+            return model.objects.filter(result)
+        elif type == 'queryset':
+            return model.filter(result)
+        else:
+            raise Exception("type can be 'model' or 'queryset'")
+    if type == 'model':
+        return model.objects.filter()
+    elif type == 'queryset':
+        return model
 
 
 def get_tenant_id_from_token(request):

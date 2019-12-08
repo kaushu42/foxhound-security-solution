@@ -21,7 +21,8 @@ from core.models import (
     Country, Domain,
     TenantIPAddressInfo,
     TenantApplicationInfo,
-    BlacklistedIP
+    BlacklistedIP,
+    FirewallRule
 )
 from rules.models import Rule
 from views.views import PaginatedView
@@ -51,8 +52,14 @@ class StatsApiView(APIView):
         filters = get_filters(request)
         start_date = filters.get('start_date', None)
         end_date = filters.get('end_date', None)
-        objects = get_objects_from_query(query).filter(
-            firewall_rule__tenant__id=tenant_id)
+        firewall_rules = FirewallRule.objects.filter(
+            tenant_id=tenant_id)
+        objects = TrafficLogDetailGranularHour.objects.filter(
+            firewall_rule__in=firewall_rules
+        )
+        objects = get_objects_from_query(query, model=objects,
+                                         type='queryset').filter(
+            firewall_rule__in=firewall_rules)
         uplink = objects.aggregate(
             Sum('bytes_sent')).get('bytes_sent__sum', None)
         downlink = objects.aggregate(
@@ -64,7 +71,7 @@ class StatsApiView(APIView):
             firewall_rule__tenant__id=tenant_id,
             is_verified_rule=False
         ).count()
-
+        # print(objects.explain())
         source_ips = objects.values('source_ip__address').distinct()
         destination_ips = objects.values('destination_ip__address').distinct()
         ips = TenantIPAddressInfo.objects.filter(
