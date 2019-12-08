@@ -64,10 +64,10 @@ class StatsApiView(APIView):
         downlink = objects.aggregate(
             Sum('bytes_received')).get('bytes_received__sum', None)
         opened_tt = TroubleTicketAnomaly.objects.filter(
-            firewall_rule__in=firewall_rules,
+            firewall_rule__tenant__id=tenant_id,
             is_closed=False).count()
         new_rules = Rule.objects.filter(
-            firewall_rule__in=firewall_rules,
+            firewall_rule__tenant__id=tenant_id,
             is_verified_rule=False
         ).count()
         # print(objects.explain())
