@@ -87,7 +87,8 @@ class RequestOriginWorldChart extends Component {
         title: "Logged DateTime",
         dataIndex: "logged_datetime",
         key: "logged_datetime",
-        render: text => moment(text).format("YYYY-MM-DD, HH:MM:SS")
+        // render: text => moment(text).format("YYYY-MM-DD, HH:MM:SS")
+        render: text => (new Date(text).toUTCString()).replace(" GMT", "")
       }
     ],
     quickIpView: false

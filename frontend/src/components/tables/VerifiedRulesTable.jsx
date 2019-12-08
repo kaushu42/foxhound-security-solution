@@ -23,7 +23,8 @@ class VerifiedRulesTable extends Component {
                 title: 'Created Date',
                 dataIndex: 'created_date_time',
                 key: 'created_date_time',
-                render: text => moment(text).format("YYYY-MM-DD, HH:MM:SS"),
+                // render: text => moment(text).format("YYYY-MM-DD, HH:MM:SS"),
+                render: text => (new Date(text).toUTCString()).replace(" GMT", "")
             },
             {
                 title: 'Source IP',

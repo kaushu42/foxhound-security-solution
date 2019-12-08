@@ -68,7 +68,7 @@ class ApplicationLineChart extends Component {
           title: "Logged DateTime",
           dataIndex: "logged_datetime",
           key: "logged_datetime",
-          render: text => new Date(text).toUTCString() //moment(text).format("YYYY-MM-DD, HH:MM:SS")
+          render: text => (new Date(text).toUTCString()).replace(" GMT", "") //moment(text).format("YYYY-MM-DD, HH:MM:SS")
         }
       ],
       quickIpView: false
@@ -459,7 +459,7 @@ class ApplicationLineChart extends Component {
         <Drawer
           title={`Event Logs for Application ${
             this.state.selectedApplication
-          } in time ${new Date(this.state.selectedTimeStamp).toUTCString()}`}
+          } in time ${(new Date(this.state.selectedTimeStamp).toUTCString()).replace(" GMT", "")}`}
           width={1100}
           visible={this.state.selectedApplicationLogDrawerVisible}
           closable={true}
