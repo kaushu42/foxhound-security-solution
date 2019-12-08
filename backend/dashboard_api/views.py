@@ -58,24 +58,23 @@ class StatsApiView(APIView):
             firewall_rule__in=firewall_rules
         )
         objects = get_objects_from_query(query, model=objects,
-                                         type='queryset').filter(
-            firewall_rule__in=firewall_rules)
+                                         type='queryset')
         uplink = objects.aggregate(
             Sum('bytes_sent')).get('bytes_sent__sum', None)
         downlink = objects.aggregate(
             Sum('bytes_received')).get('bytes_received__sum', None)
         opened_tt = TroubleTicketAnomaly.objects.filter(
-            firewall_rule__tenant__id=tenant_id,
+            firewall_rule__in=firewall_rules,
             is_closed=False).count()
         new_rules = Rule.objects.filter(
-            firewall_rule__tenant__id=tenant_id,
+            firewall_rule__in=firewall_rules,
             is_verified_rule=False
         ).count()
         # print(objects.explain())
         source_ips = objects.values('source_ip__address').distinct()
         destination_ips = objects.values('destination_ip__address').distinct()
         ips = TenantIPAddressInfo.objects.filter(
-            firewall_rule__tenant_id=tenant_id)
+            firewall_rule__in=firewall_rules)
         try:
             latest_date = objects.latest(
                 'logged_datetime').logged_datetime.date()
