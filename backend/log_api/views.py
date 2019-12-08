@@ -82,6 +82,9 @@ class TrafficLogDetailApiView(PaginatedView):
         objects = TrafficLogDetailGranularHour.objects.filter(
             traffic_log__id=id).order_by('-id')
         page = self.paginate_queryset(objects)
+        # for i in page:
+        #     # i.logged_datetime -= datetime.timedelta(minutes=15)
+        #     print(i.logged_datetime)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
@@ -112,6 +115,9 @@ class RequestOriginLogApiView(PaginatedView):
             'bytes_received__sum']
 
         page = self.paginate_queryset(objects)
+        for i in page:
+            i.logged_datetime -= datetime.timedelta(minutes=15)
+            # print(i.logged_datetime)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             response = self.get_paginated_response(serializer.data)
@@ -143,6 +149,8 @@ class RequestEndLogApiView(PaginatedView):
             destination_ip__in=ips
         ).order_by('-id')
         page = self.paginate_queryset(objects)
+        for i in page:
+            i.logged_datetime -= datetime.timedelta(minutes=15)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
@@ -154,7 +162,6 @@ class ApplicationLogApiView(PaginatedView):
 
     def get(self, request):
         application = request.data.get('application')
-
         timestamp = int(request.data.get('timestamp'))
         start_date = datetime.datetime.fromtimestamp(
             timestamp / 1e3)
@@ -193,7 +200,8 @@ class ApplicationLogApiView(PaginatedView):
 
         page = self.paginate_queryset(objects)
         for i in page:
-            print(i.logged_datetime)
+            i.logged_datetime -= datetime.timedelta(minutes=15)
+            # print(i.logged_datetime)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
@@ -220,6 +228,8 @@ class SankeyLogApiView(PaginatedView):
         ).order_by('id')
 
         page = self.paginate_queryset(objects)
+        for i in page:
+            i.logged_datetime -= datetime.timedelta(minutes=15)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
