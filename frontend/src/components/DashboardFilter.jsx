@@ -25,13 +25,13 @@ class DashboardFilter extends Component {
       protocol_select_data: [],
       source_zone_select_data: [],
       destination_zone_select_data: [],
-      ip_address_select_data: [],
+      // ip_address_select_data: [],
       loading_firewall_rule_select: true,
       loading_application_select: true,
       loading_protocol_select: true,
       loading_source_zone_select: true,
       loading_destination_zone_select: true,
-      loading_ip_address_select: true,
+      // loading_ip_address_select: true,
       date_range_value: [],
       firewall_rule_value: [],
       application_value: [],
@@ -45,21 +45,21 @@ class DashboardFilter extends Component {
   componentDidMount() {
     filterSelectDataServiceAsync(this.props.auth_token)
       .then(response => {
-        const filter_data = response[0].data;
-        const ip_data = response[1].data;
+        const filter_data = response.data;
+        // const ip_data = response[1].data;
         this.setState({
           firewall_rule_select_data: filter_data.firewall_rule,
           application_select_data: filter_data.application,
           protocol_select_data: filter_data.protocol,
           source_zone_select_data: filter_data.source_zone,
           destination_zone_select_data: filter_data.destination_zone,
-          ip_address_select_data: ip_data,
+          // ip_address_select_data: ip_data,
           loading_firewall_rule_select: false,
           loading_application_select: false,
           loading_protocol_select: false,
           loading_source_zone_select: false,
           loading_destination_zone_select: false,
-          loading_ip_address_select: false
+          // loading_ip_address_select: false
         });
       })
       .catch(error => console.log(error));
@@ -101,11 +101,11 @@ class DashboardFilter extends Component {
     });
   };
 
-  handleIpAddressRuleFilterChange = value => {
-    this.setState({
-      ip_value: value
-    });
-  };
+  // handleIpAddressRuleFilterChange = value => {
+  //   this.setState({
+  //     ip_value: value
+  //   });
+  // };
 
   handleFilterApplyChanges = event => {
     const {
@@ -115,11 +115,11 @@ class DashboardFilter extends Component {
       protocol_value,
       source_zone_value,
       destination_zone_value,
-      ip_value
+      // ip_value
     } = this.state;
     event.preventDefault();
     this.props.dispatchRangePickerUpdate(date_range_value);
-    this.props.dispatchIpAddressRuleFilterUpdate(ip_value);
+    // this.props.dispatchIpAddressRuleFilterUpdate(ip_value);
     this.props.dispatchDestinationZoneFilterUpdate(application_value);
     this.props.dispatchSourceZoneFilterUpdate(protocol_value);
     this.props.dispatchProtocolFilterUpdate(source_zone_value);
@@ -143,9 +143,9 @@ class DashboardFilter extends Component {
     const destinationZoneSelectListItem = this.state.destination_zone_select_data.map(
       data => <Option key={data[0]}>{data[1]}</Option>
     );
-    const ipAddressSelectListItem = this.state.ip_address_select_data.map(
-      data => <Option key={data["id"]}>{data["address"]}</Option>
-    );
+    // const ipAddressSelectListItem = this.state.ip_address_select_data.map(
+    //   data => <Option key={data["id"]}>{data["address"]}</Option>
+    // );
 
     return (
       <Fragment>
@@ -167,7 +167,7 @@ class DashboardFilter extends Component {
                 onChange={(e, v) => this.handleRangePickerChange(e, v)}
               />
             </Col>
-            <Col xs={24} sm={24} md={24} lg={8} xl={8}>
+            {/* <Col xs={24} sm={24} md={24} lg={8} xl={8}>
               <Select
                 id="IpAddress"
                 size={"default"}
@@ -186,8 +186,8 @@ class DashboardFilter extends Component {
               >
                 {ipAddressSelectListItem}
               </Select>
-            </Col>
-            <Col xs={24} sm={24} md={8} lg={8} xl={8}>
+            </Col> */}
+            <Col xs={24} sm={24} md={24} lg={8} xl={8}>
               <Select
                 id="FirewallRule"
                 mode="multiple"
@@ -207,7 +207,7 @@ class DashboardFilter extends Component {
                 {firewallRuleSelectListItem}
               </Select>
             </Col>
-            <Col xs={24} sm={24} md={8} lg={6} xl={6}>
+            <Col xs={24} sm={24} md={24} lg={8} xl={8}>
               <Select
                 id="Application"
                 mode="multiple"
@@ -227,7 +227,7 @@ class DashboardFilter extends Component {
                 {applicationSelectListItem}
               </Select>
             </Col>
-            <Col xs={24} sm={24} md={8} lg={6} xl={6}>
+            <Col xs={24} sm={24} md={24} lg={8} xl={8}>
               <Select
                 id="Protocol"
                 mode="multiple"
@@ -247,7 +247,7 @@ class DashboardFilter extends Component {
                 {protocolSelectListItem}
               </Select>
             </Col>
-            <Col xs={24} sm={24} md={8} lg={6} xl={6}>
+            <Col xs={24} sm={24} md={24} lg={8} xl={8}>
               <Select
                 id="SourceZone"
                 mode="multiple"
@@ -267,7 +267,7 @@ class DashboardFilter extends Component {
                 {sourceZoneSelectListItem}
               </Select>
             </Col>
-            <Col xs={24} sm={24} md={8} lg={6} xl={6}>
+            <Col xs={24} sm={24} md={8} lg={8} xl={8}>
               <Select
                 id="DestinationZone"
                 mode="multiple"
@@ -319,7 +319,7 @@ const mapStateToProps = state => {
     protocol: state.filter.protocol,
     source_zone: state.filter.source_zone,
     destination_zone: state.filter.destination_zone,
-    ip_address: state.filter.ip_address
+    // ip_address: state.filter.ip_address
   };
 };
 
@@ -337,8 +337,8 @@ const mapDispatchToProps = dispatch => {
       dispatch(updateSourceZoneFilter(value)),
     dispatchDestinationZoneFilterUpdate: value =>
       dispatch(updateDestinationZoneFilter(value)),
-    dispatchIpAddressRuleFilterUpdate: value =>
-      dispatch(updateIpAddressFilter(value))
+    // dispatchIpAddressRuleFilterUpdate: value =>
+    //   dispatch(updateIpAddressFilter(value))
   };
 };
 
