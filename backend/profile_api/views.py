@@ -344,33 +344,52 @@ class IPUsageByDateApiView(APIView):
     def post(self, request):
         tenant_id = get_tenant_id_from_token(request)
         ip = request.data.get('ip', None)
+        if ip is None:
+            return Response({
+                "error": "'ip' required"
+            }, status=HTTP_400_BAD_REQUEST)
+        firewall_rules = FirewallRule.objects.filter(tenant__id=tenant_id)
         start_date = request.data.get(
             'date', None)
+        if (start_date is None) or (start_date == 'undefined'):
+            latest_date = TrafficLogDetailGranularHour.objects.latest(
+                'logged_datetime'
+            ).logged_datetime.date()
+            end_date = latest_date + datetime.timedelta(days=1)
+            # latest_date = datetime.datetime.combine(
+            #     latest_date, datetime.time())
+            objects = groupby_date(
+                TrafficLogDetailGranularHour.objects.filter(
+                    logged_datetime__range=(latest_date, end_date),
+                    source_ip__address=ip,
+                    firewall_rule__in=firewall_rules
+                ),
+                'logged_datetime',
+                'hour',
+                ['bytes_received']
+            )
+        else:
+            end_date = str_to_date(start_date) + datetime.timedelta(days=1)
 
-        if ip is None or start_date is None:
-            return Response({
-                "error": "'ip' and 'date' required"
-            }, status=HTTP_400_BAD_REQUEST)
-
-        end_date = str_to_date(start_date) + datetime.timedelta(days=1)
-        firewall_rules = FirewallRule.objects.filter(tenant__id=tenant_id)
-        objects = groupby_date(
-            TrafficLogDetailGranularHour.objects.filter(
-                logged_datetime__range=(start_date, end_date),
-                source_ip__address=ip,
-                firewall_rule__in=firewall_rules
-            ),
-            'logged_datetime',
-            'hour',
-            ['bytes_sent']
-        )
-        print(objects)
+            objects = groupby_date(
+                TrafficLogDetailGranularHour.objects.filter(
+                    logged_datetime__range=(start_date, end_date),
+                    source_ip__address=ip,
+                    firewall_rule__in=firewall_rules
+                ),
+                'logged_datetime',
+                'hour',
+                ['bytes_received']
+            )
         data = []
+        max = 0
         for log in objects:
-            # print(log.logged_datetime, log.id)
             time = log['date'].timestamp()
-            item = [time, log['bytes_sent']]
+            bytes_received = log['bytes_received']
+            max = max if max > bytes_received else bytes_received
+            item = [time, bytes_received]
             data.append(item)
         return Response({
-            "data": data
+            "bytes_received": data,
+            "bytes_received_max": max
         })
