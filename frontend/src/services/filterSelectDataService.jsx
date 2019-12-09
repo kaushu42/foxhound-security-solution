@@ -14,7 +14,7 @@ export const filterSelectDataServiceAsync = (auth_token) => {
   };
 
 
-  return axios.all([axios.post(FETCH_API,null,{headers: headers}), 
-          axios.post(FETCH_IP_ADDRESSES,null,{headers: headers})]
-  );
+  return axios.post(FETCH_API,null,{headers: headers})
+          // axios.post(FETCH_IP_ADDRESSES,null,{headers: headers})
+
 };

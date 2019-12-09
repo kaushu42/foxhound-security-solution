@@ -6,7 +6,9 @@ import HighchartsReact from 'highcharts-react-official';
 import NoDataToDisplay from 'highcharts/modules/no-data-to-display';
 NoDataToDisplay(Highcharts);
 import '../../charts/chart.css';
-import {Card, Spin} from "antd";
+import {Card, Spin, DatePicker} from "antd";
+
+const { MonthPicker, RangePicker, WeekPicker } = DatePicker;
 
 class IpUsageAverageDailyTrendChart extends Component {
 
@@ -66,13 +68,13 @@ class IpUsageAverageDailyTrendChart extends Component {
         }
     }
 
-    handleFetchData = () => {
+    handleFetchData = (selectedDate = null) => {
         this.setState({
             loading : true
         });
 
         const {auth_token,ip_address} = this.props;
-        ipUsageAverageTrendDataService(auth_token,ip_address,this.props).then(res => {
+        ipUsageAverageTrendDataService(auth_token,ip_address,selectedDate).then(res => {
             console.log('fetching average data for ip',ip_address)
             const average_daily_data = res[0].data;
             const recent_data = res[1].data;
@@ -208,11 +210,21 @@ class IpUsageAverageDailyTrendChart extends Component {
 
     }
 
+    onChange = (date, dateString) => {
+        console.log(" printing date", dateString)
+        this.handleFetchData(dateString)
+    }
+
     render() {
         console.log("loading",this.state.loading);
         return (
             <Fragment>
-                <Card>
+                <Card
+                    title = {
+                            <DatePicker 
+                                style={{ width: "50%", float: "right" }}
+                                onChange = {this.onChange}/>
+                    }>
                     <Spin tip="Loading..." spinning={this.state.loading}>
                         <div id={"container"}>
                             <HighchartsReact
