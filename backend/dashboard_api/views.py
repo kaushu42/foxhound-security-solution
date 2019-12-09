@@ -21,7 +21,8 @@ from core.models import (
     Country, Domain,
     TenantIPAddressInfo,
     TenantApplicationInfo,
-    BlacklistedIP
+    BlacklistedIP,
+    FirewallRule
 )
 from rules.models import Rule
 from views.views import PaginatedView
@@ -51,8 +52,13 @@ class StatsApiView(APIView):
         filters = get_filters(request)
         start_date = filters.get('start_date', None)
         end_date = filters.get('end_date', None)
-        objects = get_objects_from_query(query).filter(
-            firewall_rule__tenant__id=tenant_id)
+        firewall_rules = FirewallRule.objects.filter(
+            tenant_id=tenant_id)
+        objects = TrafficLogDetailGranularHour.objects.filter(
+            firewall_rule__in=firewall_rules
+        )
+        objects = get_objects_from_query(query, model=objects,
+                                         type='queryset')
         uplink = objects.aggregate(
             Sum('bytes_sent')).get('bytes_sent__sum', None)
         downlink = objects.aggregate(
@@ -68,7 +74,7 @@ class StatsApiView(APIView):
         source_ips = objects.values('source_ip__address').distinct()
         destination_ips = objects.values('destination_ip__address').distinct()
         ips = TenantIPAddressInfo.objects.filter(
-            firewall_rule__tenant_id=tenant_id)
+            firewall_rule__in=firewall_rules)
         try:
             latest_date = objects.latest(
                 'logged_datetime').logged_datetime.date()
@@ -100,11 +106,13 @@ class StatsApiView(APIView):
 class FiltersApiView(APIView):
     def get(self, request, format=None):
         tenant_id = get_tenant_id_from_token(request)
+        firewall_rules = FirewallRule.objects.filter(
+            tenant_id=tenant_id)
         objects = TrafficLogDetailGranularHour.objects.filter(
-            firewall_rule__tenant__id=tenant_id).prefetch_related(
-                'firewall_rule', 'application', 'protocol', 'source_zone', 'destination_zone'
+            firewall_rule__in=firewall_rules).prefetch_related(
+                'firewall_rule', 'application', 'protocol',
+                'source_zone', 'destination_zone'
         )
-
         firewall_rule = objects.values_list(
             'firewall_rule',
             'firewall_rule__name'

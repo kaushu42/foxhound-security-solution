@@ -9,4 +9,5 @@ urlpatterns = [
     path('average-daily/', views.AverageDailyApiView.as_view()),
     path('time-series/', views.TimeSeriesApiView.as_view()),
     path('ip/', views.IPAliasApiView.as_view()),
+    path('date/', views.IPUsageByDateApiView.as_view()),
 ]

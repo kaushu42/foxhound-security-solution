@@ -50,11 +50,11 @@ const filterReducer = (state=initialState,action) => {
                 ...state,
                 destination_zone: action.payload.destination_zone
             }
-        case IP_ADDRESS_FILTER_UPDATED:
-            return{
-                ...state,
-                ip_address: action.payload.ip_address
-            }
+        // case IP_ADDRESS_FILTER_UPDATED:
+        //     return{
+        //         ...state,
+        //         ip_address: action.payload.ip_address
+        //     }
         default:
             return state;
     }

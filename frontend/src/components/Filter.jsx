@@ -39,7 +39,7 @@ class Filter extends Component{
     componentDidMount() {
         filterSelectDataServiceAsync(this.props.auth_token)
             .then(response => {
-                const data = response[0].data;
+                const data = response.data;
                 console.log(data);
                 this.setState({
                     firewall_rule_select_data : data.firewall_rule,
