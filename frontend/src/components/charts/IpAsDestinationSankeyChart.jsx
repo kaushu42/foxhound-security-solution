@@ -34,6 +34,12 @@ class IpAsDestinationSankeyChart extends Component {
                 title: {
                     text: "Connections of IP as Destination to Other IP"
                 },
+                tooltip: {
+                    formatter: function () {
+                        const self = this.series.chart.component;
+                        return self.handleDataUnit(this.point.weight);
+                    }
+                },
                 series: [
                     {
                         keys: ['from', 'to', 'weight'],
@@ -84,6 +90,11 @@ class IpAsDestinationSankeyChart extends Component {
         }
     }
 
+    handleDataUnit = (value) => {
+        let tooltipValue = bytesToSize(value);
+        return tooltipValue
+    }
+    
     componentDidMount = () => {
         this.handleFetchData();
         this.chart = this.refs.chart.chart;
