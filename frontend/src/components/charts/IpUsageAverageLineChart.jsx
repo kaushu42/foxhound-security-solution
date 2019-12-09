@@ -25,8 +25,12 @@ class IpUsageAverageDailyTrendChart extends Component {
                 },
                 xAxis: {
                     type: "datetime",
+                    labels: {
+                        format: '{value:%H:%M}'
+                    },
                     dateTimeLabelFormats: {
-                      day: "%Y-%b-%d"
+                    //   day: "%Y-%b-%d"
+                    day: "%H-%M"
                     }
                 },
                 yAxis:{
@@ -50,7 +54,9 @@ class IpUsageAverageDailyTrendChart extends Component {
                     }
                 ],
                 tooltip: {
-                    valueDecimals: 2
+                    valueDecimals: 2,
+                    shared: true,
+                    xDateFormat: "%H-%M"
                 },
             }
         }
@@ -68,7 +74,7 @@ class IpUsageAverageDailyTrendChart extends Component {
         }
     }
 
-    handleFetchData = (selectedDate = null) => {
+    handleFetchData = (selectedDate = undefined) => {
         this.setState({
             loading : true
         });

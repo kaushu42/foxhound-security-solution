@@ -2,7 +2,7 @@ import { ROOT_URL } from "../utils";
 import axios from "axios";
 
 const FETCH_AVERAGE_TREND_API = `${ROOT_URL}profile/average-daily/`;
-const FETCH_CURRENT_USAGE_API = `${ROOT_URL}profile/time-series/`;
+const FETCH_CURRENT_USAGE_API = `${ROOT_URL}profile/date/`;
 
 export const ipUsageAverageTrendDataService = (auth_token,ip_address,date) => {
     const authorization = `Token ${auth_token}`;
@@ -18,8 +18,7 @@ export const ipUsageAverageTrendDataService = (auth_token,ip_address,date) => {
 
     let bodyFormData = new FormData();
     bodyFormData.set('ip', ip_address);
-    bodyFormData.set('start_date', date);
-    bodyFormData.set('end_date', date);
+    bodyFormData.set('date', date);
 
     return axios.all([axios.post(FETCH_AVERAGE_TREND_API,bodyFormDataForAverageDaily,{headers: headers}), 
         axios.post(FETCH_CURRENT_USAGE_API,bodyFormData,{headers: headers})]
