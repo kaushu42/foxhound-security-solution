@@ -70,7 +70,7 @@ class StatsApiView(APIView):
             firewall_rule__tenant__id=tenant_id,
             is_verified_rule=False
         ).count()
-        # print(objects.explain())
+
         source_ips = objects.values('source_ip__address').distinct()
         destination_ips = objects.values('destination_ip__address').distinct()
         ips = TenantIPAddressInfo.objects.filter(

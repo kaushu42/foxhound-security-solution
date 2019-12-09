@@ -21,7 +21,8 @@ from rest_framework.status import (
 
 from core.models import (
     TrafficLog, TrafficLogDetailGranularHour,
-    IPAddress, TenantIPAddressInfo
+    IPAddress, TenantIPAddressInfo,
+    FirewallRule
 )
 from globalutils import (
     get_month_day_index,
@@ -31,7 +32,8 @@ from globalutils import (
     get_query_from_request,
     get_objects_from_query,
     get_tenant_id_from_token,
-    get_max
+    get_max,
+    str_to_date
 )
 from serializers.serializers import IPAliasSerializer
 from .utils import get_ip_from_request, get_filters
@@ -335,4 +337,40 @@ class IPAliasApiView(APIView):
         return Response({
             "address": item.address,
             "alias": item.alias
+        })
+
+
+class IPUsageByDateApiView(APIView):
+    def post(self, request):
+        tenant_id = get_tenant_id_from_token(request)
+        ip = request.data.get('ip', None)
+        start_date = request.data.get(
+            'date', None)
+
+        if ip is None or start_date is None:
+            return Response({
+                "error": "'ip' and 'date' required"
+            }, status=HTTP_400_BAD_REQUEST)
+
+        end_date = str_to_date(start_date) + datetime.timedelta(days=1)
+        firewall_rules = FirewallRule.objects.filter(tenant__id=tenant_id)
+        objects = groupby_date(
+            TrafficLogDetailGranularHour.objects.filter(
+                logged_datetime__range=(start_date, end_date),
+                source_ip__address=ip,
+                firewall_rule__in=firewall_rules
+            ),
+            'logged_datetime',
+            'hour',
+            ['bytes_sent']
+        )
+        print(objects)
+        data = []
+        for log in objects:
+            # print(log.logged_datetime, log.id)
+            time = log['date'].timestamp()
+            item = [time, log['bytes_sent']]
+            data.append(item)
+        return Response({
+            "data": data
         })
