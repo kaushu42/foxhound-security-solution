@@ -34,6 +34,12 @@ class IpAsSourceSankeyChart extends Component {
                 title: {
                     text: "Connections of IP as Source to Other IP"
                 },
+                tooltip: {
+                    formatter: function () {
+                        const self = this.series.chart.component;
+                        return self.handleDataUnit(this.point.weight);
+                    }
+                },
                 series: [
                     {
                         keys: ['from', 'to', 'weight'],
@@ -84,6 +90,12 @@ class IpAsSourceSankeyChart extends Component {
 
         }
     }
+
+    handleDataUnit = (value) => {
+        let tooltipValue = bytesToSize(value);
+        return tooltipValue
+    }
+
     componentDidMount = () => {
         this.handleFetchData();
         this.chart = this.refs.chart.chart;
@@ -194,9 +206,9 @@ class IpAsSourceSankeyChart extends Component {
                             const self = this.chart.component;
                             self.handleSankeyChartLogView(e.point.from, e.point.to);
                         }
-                    }
+                    },
                 },
-            ]
+            ],
         });
         this.setState({
             loading : false

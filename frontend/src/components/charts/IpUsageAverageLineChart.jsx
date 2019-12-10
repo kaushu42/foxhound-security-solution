@@ -8,7 +8,6 @@ NoDataToDisplay(Highcharts);
 import '../../charts/chart.css';
 import {Card, Spin, DatePicker} from "antd";
 
-const { MonthPicker, RangePicker, WeekPicker } = DatePicker;
 
 class IpUsageAverageDailyTrendChart extends Component {
 
