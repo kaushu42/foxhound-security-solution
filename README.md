@@ -153,6 +153,8 @@ from __future__ import print_function
 import sys
 from random import random
 from operator import add
+import findspark
+findspark.init()
 
 from pyspark.sql import SparkSession
 
