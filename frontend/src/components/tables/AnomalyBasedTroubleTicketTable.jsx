@@ -15,6 +15,7 @@ const { TextArea } = Input;
 
 
 const USER_LIST_API = `${ROOT_URL}tt/users/`;
+const FETCH_TT_DETAIL = `${ROOT_URL}tt/detail/`;
 
 
 class AnomalyBasedTroubleTicketTable extends Component {
@@ -67,7 +68,10 @@ class AnomalyBasedTroubleTicketTable extends Component {
             loading:false,
             user_list : [],
             error_message : "",
-            quickIpView : false
+            quickIpView : false, 
+            ttDetail: null,
+            selectedRecord: null,
+            expandedRowKeys: []
         }
     }
 
@@ -229,6 +233,59 @@ class AnomalyBasedTroubleTicketTable extends Component {
 
     }
 
+    handleTTDetail = (record) => {
+        const authorization = `Token ${this.props.auth_token}`;
+
+        let headers = {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: authorization
+        };
+
+        const url = FETCH_TT_DETAIL + record.id + '/';
+        if(this.state.selectedRecord != record.id){
+            axios.post(url, null, {headers})
+            .then(res=>{
+                this.setState({
+                    ttDetail: res.data,
+                    selectedRecord: record.id
+                })
+                console.log("tt detail data", this.state.ttDetail)
+            })
+        }   
+        var dataToShow = (<p>
+            <b>Created Date: </b>{(new Date(record.created_datetime).toUTCString()).replace(" GMT", "")} 
+            <br/><b>Bytes Sent: </b> {record.bytes_sent}
+            <br/><b>Bytes Received: </b> {record.bytes_received} 
+            <br/><b>Packets Sent: </b> {record.packets_sent}
+            <br/><b>Packets Received: </b> {record.packets_received} 
+            <br/><b>Bytes Sent: </b> {record.bytes_sent}
+            <br/><b>Source Port: </b> {record.source_port} 
+            <br/><b>Destination Port: </b> {record.destination_port}
+            <br/><b>Action: </b> {record.action}
+            <br/><b>Session End Reason: </b> {record.session_end_reason}
+            <br/><b>Inbound Interface: </b> {record.inbound_interface}
+            <br/><b>Outbound Interface: </b> {record.outbound_interface} 
+        </p>);
+
+        return dataToShow
+    }
+    
+    // <p>
+    //     <b>Created Date: </b>{(new Date(record.created_datetime).toUTCString()).replace(" GMT", "")} 
+    //     <br/><b>Bytes Sent: </b> {record.bytes_sent}
+    //     <br/><b>Bytes Received: </b> {record.bytes_received} 
+    //     <br/><b>Packets Sent: </b> {record.packets_sent}
+    //     <br/><b>Packets Received: </b> {record.packets_received} 
+    //     <br/><b>Bytes Sent: </b> {record.bytes_sent}
+    //     <br/><b>Source Port: </b> {record.source_port} 
+    //     <br/><b>Destination Port: </b> {record.destination_port}
+    //     <br/><b>Action: </b> {record.action}
+    //     <br/><b>Session End Reason: </b> {record.session_end_reason}
+    //     <br/><b>Inbound Interface: </b> {record.inbound_interface}
+    //     <br/><b>Outbound Interface: </b> {record.outbound_interface} 
+    // </p>
+
 
     handleTableChange = (pagination, filters, sorter) => {
         console.log('pagination',pagination);
@@ -276,28 +333,38 @@ class AnomalyBasedTroubleTicketTable extends Component {
         });
     };
 
+    onTableRowExpand = (expanded, record) => {
+        var keys = [];
+        if(expanded){
+            keys.push(record.id);
+        }
+        this.setState({expandedRowKeys: keys});
+    }
 
     render() {
         const title = () => <h3>Anomaly Based Trouble Tickets</h3>
-        const expandedRowRender = record => <p><b>Created Date: </b>{moment(record.created_datetime).format("YYYY-MM-DD, HH:MM:SS")} 
-        <br/><b>Bytes Sent: </b> {record.bytes_sent}
-        <br/><b>Bytes Received: </b> {record.bytes_received} 
-        <br/><b>Packets Sent: </b> {record.packets_sent}
-        <br/><b>Packets Received: </b> {record.packets_received} 
-        <br/><b>Bytes Sent: </b> {record.bytes_sent}
-        <br/><b>Source Port: </b> {record.source_port} 
-        <br/><b>Destination Port: </b> {record.destination_port}
-        <br/><b>Action: </b> {record.action}
-        <br/><b>Session End Reason: </b> {record.session_end_reason}
-        <br/><b>Inbound Interface: </b> {record.inbound_interface}
-        <br/><b>Outbound Interface: </b> {record.outbound_interface} 
-        </p>;
+        const expandedRowRender = (record) => <p>
+            <b>Created Date: </b>{(new Date(record.created_datetime).toUTCString()).replace(" GMT", "")} 
+            <br/><b>Bytes Sent: </b> {record.bytes_sent}
+            <br/><b>Bytes Received: </b> {record.bytes_received} 
+            <br/><b>Packets Sent: </b> {record.packets_sent}
+            <br/><b>Packets Received: </b> {record.packets_received} 
+            <br/><b>Bytes Sent: </b> {record.bytes_sent}
+            <br/><b>Source Port: </b> {record.source_port} 
+            <br/><b>Destination Port: </b> {record.destination_port}
+            <br/><b>Action: </b> {record.action}
+            <br/><b>Session End Reason: </b> {record.session_end_reason}
+            <br/><b>Inbound Interface: </b> {record.inbound_interface}
+            <br/><b>Outbound Interface: </b> {record.outbound_interface} 
+        </p>
         return (
             <Fragment>
                 <Table
                     bordered
                     columns={this.state.columns}
-                    expandedRowRender={expandedRowRender}
+                    expandedRowRender={this.handleTTDetail}
+                    expandedRowKeys={this.state.expandedRowKeys}
+                    onExpand={this.onTableRowExpand}
                     rowKey={record => record.id}
                     dataSource={this.state.data}
                     pagination={this.state.pagination}
@@ -331,12 +398,6 @@ class AnomalyBasedTroubleTicketTable extends Component {
                                         <Col xs={24} sm={12} md={12} lg={8} xl={8} style={drawerInfoStyle}>
                                             <Statistic title="Destination Port" value={this.state.record.destination_port}/>
                                         </Col>
-                                        {/* <Col xs={24} sm={12} md={12} lg={6} xl={6} style={drawerInfoStyle}>
-                                            <Statistic title="Bytes Sent" value={this.state.record.bytes_sent}/>
-                                        </Col>
-                                        <Col xs={24} sm={12} md={12} lg={6} xl={6} style={drawerInfoStyle}>
-                                            <Statistic title="Bytes Received" value={this.state.record.bytes_received}/>
-                                        </Col> */}
                                         <Col xs={24} sm={24} md={24} lg={24} xl={24} style={drawerInfoStyle}>
                                             <Statistic title="Log Name" value={this.state.record.log_name}/>
                                         </Col>
