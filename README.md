@@ -54,6 +54,7 @@ $ ssh master
 $ sudo apt update
 $ sudo apt install default-jre
 $ sudo apt install default-jdk
+$ sudo apt install openjdk-8-jdk
 ```
 Verify the installation with:
 ```
@@ -106,7 +107,7 @@ $ sudo vim spark-env.sh
 Add following parameters at the top
 ```
 export SPARK_MASTER_HOST='127.0.0.1'
-export JAVA_HOME=/usr
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 ```
 Edit the configuration file slaves in (/usr/local/spark/conf).
 ```
@@ -147,20 +148,36 @@ activate your foxhound virtual environment
 ```
 create a python script
 ```python
-import random
-import findspark
-from pyspark import SparkContext
+from __future__ import print_function
 
-findspark.init()
-sc = SparkContext(appName="EstimatePi")
-def inside(p):
-    x, y = random.random(), random.random()
-    return x*x + y*y < 1
-NUM_SAMPLES = 1000000
-count = sc.parallelize(range(0, NUM_SAMPLES)) \
-             .filter(inside).count()
-print("Pi is roughly %f" % (4.0 * count / NUM_SAMPLES))
-sc.stop()
+import sys
+from random import random
+from operator import add
+
+from pyspark.sql import SparkSession
+
+
+if __name__ == "__main__":
+    """
+        Usage: pi [partitions]
+    """
+    spark = SparkSession\
+        .builder\
+        .appName("PythonPi")\
+        .getOrCreate()
+
+    partitions = int(sys.argv[1]) if len(sys.argv) > 1 else 2
+    n = 100000 * partitions
+
+    def f(_):
+        x = random() * 2 - 1
+        y = random() * 2 - 1
+        return 1 if x ** 2 + y ** 2 <= 1 else 0
+
+    count = spark.sparkContext.parallelize(range(1, n + 1), partitions).map(f).reduce(add)
+    print("Pi is roughly %f" % (4.0 * count / n))
+
+    spark.stop()
 ```
 
 
