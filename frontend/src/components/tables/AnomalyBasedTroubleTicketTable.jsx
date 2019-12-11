@@ -271,22 +271,6 @@ class AnomalyBasedTroubleTicketTable extends Component {
         return dataToShow
     }
     
-    // <p>
-    //     <b>Created Date: </b>{(new Date(record.created_datetime).toUTCString()).replace(" GMT", "")} 
-    //     <br/><b>Bytes Sent: </b> {record.bytes_sent}
-    //     <br/><b>Bytes Received: </b> {record.bytes_received} 
-    //     <br/><b>Packets Sent: </b> {record.packets_sent}
-    //     <br/><b>Packets Received: </b> {record.packets_received} 
-    //     <br/><b>Bytes Sent: </b> {record.bytes_sent}
-    //     <br/><b>Source Port: </b> {record.source_port} 
-    //     <br/><b>Destination Port: </b> {record.destination_port}
-    //     <br/><b>Action: </b> {record.action}
-    //     <br/><b>Session End Reason: </b> {record.session_end_reason}
-    //     <br/><b>Inbound Interface: </b> {record.inbound_interface}
-    //     <br/><b>Outbound Interface: </b> {record.outbound_interface} 
-    // </p>
-
-
     handleTableChange = (pagination, filters, sorter) => {
         console.log('pagination',pagination);
         console.log('filter',filters)

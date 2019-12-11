@@ -216,7 +216,9 @@ class IpUsageAverageDailyTrendChart extends Component {
     }
 
     onChange = (date, dateString) => {
-        console.log(" printing date", dateString)
+        if (dateString == "" || dateString == null){
+            dateString = undefined
+        }
         this.handleFetchData(dateString)
     }
 
