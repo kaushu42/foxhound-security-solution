@@ -39,6 +39,7 @@ $ sudo apt-get install openssh-server openssh-client
 Generate key pairs
 ```
 $ ssh-keygen -t rsa -P ""
+// it will ask you for file to store key, just press enter and continue
 ```
 Configure passwordless SSH
 replace username with your accountusername

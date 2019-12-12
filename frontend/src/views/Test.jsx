@@ -5,6 +5,7 @@ import AnomalyBasedTroubleTicketTable from "../components/tables/AnomalyBasedTro
 import VerifiedRulesTable from "../components/tables/VerifiedRulesTable"
 import IpAsSourceSankeyChart from "../components/charts/IpAsSourceSankeyChart";
 import ChangeAlias from "./ChangeAlias"
+import BlacklistAddress from "../components/BlacklistAddress"
 
 class Test extends Component {
     render() {
@@ -15,7 +16,8 @@ class Test extends Component {
                 {/* <AnomalyBasedTroubleTicketTable /> */}
                 {/* <VerifiedRulesTable /> */}
                 {/* <IpAsSourceSankeyChart /> */}
-                <ChangeAlias />
+                {/* <ChangeAlias /> */}
+                <BlacklistAddress></BlacklistAddress>
             </Fragment>
             )
     }
