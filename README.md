@@ -186,6 +186,50 @@ if __name__ == "__main__":
 
 
 
+# Installing Cassandra to your local machine
+
+### Step 1: Add the Cassandra Repository File
+
+```
+echo "deb http://www.apache.org/dist/cassandra/debian 39x main" | sudo tee -a /etc/apt/sources.list.d/cassandra.sources.list
+```
+### Step 2: Add the GPG Key
+
+```
+sudo apt install curl
+curl https://www.apache.org/dist/cassandra/KEYS | sudo apt-key add -
+```
+### Step 3: Install Cassandra on Ubuntu
+```
+sudo apt update
+sudo apt install cassandra
+```
+
+### Step 4: Enable and Start Cassandra
+```
+sudo systemctl enable cassandra
+sudo systemctl start cassandra
+
+```
+
+### Step 5: Verify The Installation
+```
+sudo systemctl status cassandra
+```
+
+### Step 6: Configure Cassandra to run in sinlge node mode
+
+```
+sudo systemctl stop cassandra
+sudo nano /etc/cassandra/cassandra.yaml
+```
+change the name of the cluster_name to FoxhoundCluster
+```
+cluster\_name:'FoxhoundCluster'
+ 
+```
+
+
 # Notes:
 > Please create a branch when you are creating a new feature. However small it may be, please create a new branch.
 
