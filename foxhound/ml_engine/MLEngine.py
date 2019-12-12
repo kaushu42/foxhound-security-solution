@@ -375,17 +375,20 @@ class MLEngine(AutoEncoder):
         """Method to predict anomalies from csvs' from input directory
         """
         if os.path.exists(self._DAILY_CSV_DIR) is True:
-            anomalous_df = []
-            for csv in sorted(os.listdir(self._DAILY_CSV_DIR)):
-                print(f'**********Processing {csv} **********')
-                csv_file_path = os.path.join(self._DAILY_CSV_DIR, csv)
-                anomalous_df.append(self.get_tenant_anomalies(
-                    csv_file_path, save_data_for_tenant_profile=False))
-                # print(anomalous_df)
+            if len(os.listdir(self._DAILY_CSV_DIR)) != 0:
+                anomalous_df = []
+                for csv in sorted(os.listdir(self._DAILY_CSV_DIR)):
+                    print(f'**********Processing {csv} **********')
+                    csv_file_path = os.path.join(self._DAILY_CSV_DIR, csv)
+                    anomalous_df.append(self.get_tenant_anomalies(
+                        csv_file_path, save_data_for_tenant_profile=False))
+                    # print(anomalous_df)
 
-            anomalous_df = pd.concat(anomalous_df)
-            anomalous_df.to_csv(os.path.join(
-                self._ANOMALIES_CSV_OUTPUT_DIR, str(dt.datetime.now().date())+'.csv'))
+                anomalous_df = pd.concat(anomalous_df)
+                anomalous_df.to_csv(os.path.join(
+                    self._ANOMALIES_CSV_OUTPUT_DIR, str(dt.datetime.now().date())+'.csv'))
+            else:
+                print("[Warning]: No csv to find anomaly, TRAFFIC_LOGS_OUTPUT_DIR is empty")
 
         else:
             print("Daily csv directory does not exist")
