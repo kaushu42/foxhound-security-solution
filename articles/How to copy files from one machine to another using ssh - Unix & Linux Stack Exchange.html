@@ -1,0 +1,1878 @@
+<!DOCTYPE html>
+<!-- saved from url=(0103)https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh -->
+<html class="html__responsive gr__unix_stackexchange_com"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+        <title>How to copy files from one machine to another using ssh - Unix &amp; Linux Stack Exchange</title>
+        <link rel="shortcut icon" href="https://cdn.sstatic.net/Sites/unix/img/favicon.ico?v=546c52892feb">
+        <link rel="apple-touch-icon" href="https://cdn.sstatic.net/Sites/unix/img/apple-touch-icon.png?v=5cf7fe716a89">
+        <link rel="image_src" href="https://cdn.sstatic.net/Sites/unix/img/apple-touch-icon.png?v=5cf7fe716a89"> 
+        <link rel="search" type="application/opensearchdescription+xml" title="Unix &amp; Linux Stack Exchange" href="https://unix.stackexchange.com/opensearch.xml">
+        <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, minimum-scale=1.0">
+
+
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh">
+        <meta property="og:site_name" content="Unix &amp; Linux Stack Exchange">
+        <meta property="og:image" itemprop="image primaryImageOfPage" content="https://cdn.sstatic.net/Sites/unix/img/apple-touch-icon@2.png?v=32fb07f7ce26">
+        <meta name="twitter:card" content="summary">
+        <meta name="twitter:domain" content="unix.stackexchange.com">
+        <meta name="twitter:site" content="@StackUnix">
+        <meta name="twitter:creator" content="@StackUnix">
+        <meta name="twitter:title" property="og:title" itemprop="name" content="How to copy files from one machine to another using ssh">
+        <meta name="twitter:description" property="og:description" itemprop="description" content="I&#39;m using Linux (centos) machine, I already connected to the other system using ssh. Now my question is how can I copy files from one system to another system?
+
+Suppose, in my environment, I have two ">
+            <script src="./How to copy files from one machine to another using ssh - Unix &amp; Linux Stack Exchange_files/f.txt"></script><script src="./How to copy files from one machine to another using ssh - Unix &amp; Linux Stack Exchange_files/pubads_impl_rendering_2019121002.js"></script><script src="./How to copy files from one machine to another using ssh - Unix &amp; Linux Stack Exchange_files/rules-p-c1rF4kxgLUzNc.js" async=""></script><script async="" src="./How to copy files from one machine to another using ssh - Unix &amp; Linux Stack Exchange_files/quant.js"></script><script async="" src="./How to copy files from one machine to another using ssh - Unix &amp; Linux Stack Exchange_files/beacon.js"></script><script async="" src="./How to copy files from one machine to another using ssh - Unix &amp; Linux Stack Exchange_files/analytics.js"></script><script src="./How to copy files from one machine to another using ssh - Unix &amp; Linux Stack Exchange_files/jquery.min.js"></script>
+        <script src="./How to copy files from one machine to another using ssh - Unix &amp; Linux Stack Exchange_files/stub.en.js"></script>
+    
+    <link rel="stylesheet" type="text/css" href="./How to copy files from one machine to another using ssh - Unix &amp; Linux Stack Exchange_files/stacks.css">
+    <link rel="stylesheet" type="text/css" href="./How to copy files from one machine to another using ssh - Unix &amp; Linux Stack Exchange_files/primary.css">
+
+    
+            <meta name="twitter:app:country" content="US">
+            <meta name="twitter:app:name:iphone" content="Stack Exchange iOS">
+            <meta name="twitter:app:id:iphone" content="871299723">
+            <meta name="twitter:app:url:iphone" content="se-zaphod://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh">
+            <meta name="twitter:app:name:ipad" content="Stack Exchange iOS">
+            <meta name="twitter:app:id:ipad" content="871299723">
+            <meta name="twitter:app:url:ipad" content="se-zaphod://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh">
+            <meta name="twitter:app:name:googleplay" content="Stack Exchange Android">
+            <meta name="twitter:app:url:googleplay" content="http://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh">
+            <meta name="twitter:app:id:googleplay" content="com.stackexchange.marvin">
+        <script>
+            StackExchange.ready(function () {
+
+                StackExchange.using("postValidation", function () {
+                    StackExchange.postValidation.initOnBlurAndSubmit($('#post-form'), 2, 'answer');
+                });
+
+                
+                StackExchange.question.init({showAnswerHelp:true,totalCommentCount:5,shownCommentCount:5,highlightColor:'#F4A83D',backgroundColor:'#FFF',questionId:106480});
+
+                styleCode();
+
+                    StackExchange.realtime.subscribeToQuestion('106', '106480');
+                                                    StackExchange.using("gps", function () { StackExchange.gps.trackOutboundClicks('#content', '.post-text'); });
+
+            });
+        </script>
+
+        
+        
+        
+        
+        
+        
+        
+
+
+        <script>
+        StackExchange.ready(function () {
+            StackExchange.realtime.init('wss://qa.sockets.stackexchange.com');
+                StackExchange.realtime.subscribeToReputationNotifications('106');
+        StackExchange.realtime.subscribeToTopBarNotifications('106');
+        });
+    </script>
+    <script>
+        StackExchange.init({"locale":"en","serverTime":1576074080,"routeName":"Questions/Show","stackAuthUrl":"https://stackauth.com","networkMetaHostname":"meta.stackexchange.com","site":{"name":"Unix & Linux Stack Exchange","description":"Q&A for users of Linux, FreeBSD and other Un*x-like operating systems","isNoticesTabEnabled":true,"enableNewTagCreationWarning":true,"insertSpaceAfterNameTabCompletion":false,"id":106,"childUrl":"https://unix.meta.stackexchange.com","negativeVoteScoreFloor":null,"enableSocialMediaInSharePopup":true,"protocol":"https"},"user":{"fkey":"3f980889e0f1afd6bc758615ee1c31ad4659987361b0b49f6131d5a85a76c1a3","tid":"8c7a7a1a-3470-2cb5-9e24-e139b7c9e4c4","rep":0,"isAnonymous":true,"isAnonymousNetworkWide":true},"realtime":{"newest":true,"active":true,"tagged":true,"staleDisconnectIntervalInHours":0},"events":{"postType":{"question":1},"postEditionSection":{"title":1,"body":2,"tags":3}},"story":{"minCompleteBodyLength":75,"likedTagsMaxLength":300,"dislikedTagsMaxLength":300},"jobPreferences":{"maxNumDeveloperRoles":2,"maxNumIndustries":4},"svgIconPath":"https://cdn.sstatic.net/Img/svg-icons","svgIconHash":"53fe1f91bb82"}, {"userProfile":{},"userMessaging":{"showNewFeatureNotice":true},"tags":{},"snippets":{"renderDomain":"stacksnippets.net"},"slack":{"sidebarAdDismissCookie":"slack-sidebar-ad"},"site":{"allowImageUploads":true,"enableImgurHttps":true,"enableUserHovercards":true,"forceHttpsImages":true,"styleCode":true},"questions":{"showPostNoticesV2":true},"paths":{},"monitoring":{"clientTimingsAbsoluteTimeout":30000,"clientTimingsDebounceTimeout":1000},"mentions":{"maxNumUsersInDropdown":50},"markdown":{"asteriskIntraWordEmphasis":true},"flags":{"allowRetractingCommentFlags":true,"allowRetractingFlags":true},"comments":{},"accounts":{"currentPasswordRequiredForChangingStackIdPassword":true}});
+        StackExchange.using.setCacheBreakers({"js/prettify-full.en.js":"509c76d8bb78","js/moderator.en.js":"2e046230b37c","js/full-anon.en.js":"2090057883f3","js/full.en.js":"9cf081db32e0","js/wmd.en.js":"9fc9025a3a24","js/mobile.en.js":"b2b68dcf671f","js/help.en.js":"fefc3044f2b9","js/tageditor.en.js":"0fab02893f16","js/tageditornew.en.js":"133c139e495b","js/inline-tag-editing.en.js":"d6190e9a43d4","js/revisions.en.js":"055fbe1202e9","js/review.en.js":"330049d02c37","js/tagsuggestions.en.js":"69c07592a0f9","js/post-validation.en.js":"cc9e03194389","js/explore-qlist.en.js":"5c7424c271ef","js/events.en.js":"21153ea281ad","js/keyboard-shortcuts.en.js":"81fa8ffc83e0","js/adops.en.js":"6b9883f0531e","js/begin-edit-event.en.js":"b2ce4c828b26","js/ask.en.js":"43f1476c5dac","js/question-editor.en.js":""});
+        StackExchange.using("gps", function() {
+             StackExchange.gps.init(true);
+        });
+    </script>
+    <noscript id="noscript-css"><style>body,.top-bar{margin-top:1.9em}</style></noscript>
+    <script async="" src="./How to copy files from one machine to another using ssh - Unix &amp; Linux Stack Exchange_files/full-anon.en.js"></script><link rel="stylesheet" href="./How to copy files from one machine to another using ssh - Unix &amp; Linux Stack Exchange_files/clc.min.css" type="text/css"><script async="" src="./How to copy files from one machine to another using ssh - Unix &amp; Linux Stack Exchange_files/post-validation.en.js"></script><link rel="preload" href="./How to copy files from one machine to another using ssh - Unix &amp; Linux Stack Exchange_files/f(1).txt" as="script"><script type="text/javascript" src="./How to copy files from one machine to another using ssh - Unix &amp; Linux Stack Exchange_files/f(1).txt"></script><link rel="preload" href="./How to copy files from one machine to another using ssh - Unix &amp; Linux Stack Exchange_files/f(2).txt" as="script"><script type="text/javascript" src="./How to copy files from one machine to another using ssh - Unix &amp; Linux Stack Exchange_files/f(2).txt"></script><script src="./How to copy files from one machine to another using ssh - Unix &amp; Linux Stack Exchange_files/pubads_impl_2019121002.js" async=""></script><link rel="prefetch" href="https://tpc.googlesyndication.com/safeframe/1-0-37/html/container.html"></head>
+        <body class="question-page unified-theme" data-gr-c-s-loaded="true" cz-shortcut-listen="true">
+    <div id="notify-container"></div>
+    <div id="custom-header"></div>
+
+
+
+
+<header class="top-bar js-top-bar top-bar__network _fixed">
+    <div class="wmx12 mx-auto grid ai-center h100" role="menubar">
+        <div class="-main grid--cell">
+                <a href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#" class="left-sidebar-toggle p0 ai-center jc-center js-left-sidebar-toggle" role="menuitem" aria-haspopup="true" aria-controls="left-sidebar" aria-expanded="false"><span class="ps-relative"></span></a>
+                <div class="topbar-dialog leftnav-dialog js-leftnav-dialog dno">
+                    <div class="left-sidebar js-unpinned-left-sidebar" data-can-be="left-sidebar" data-is-here-when="sm"></div>
+                </div>
+                            <a href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#" class="-logo js-gps-track js-network-logo network-logo" data-gps-track="stack_exchange_popup.show" role="menuitem" aria-haspopup="true" aria-controls="topbar-network-logo-dialog" aria-expanded="false">
+                    <svg aria-hidden="true" class="svg-icon native mtn1 iconLogoSEAlternativeSm" width="107" height="15" viewBox="0 0 107 15"><path d="M48.41 11.93l-1.96-3.2-1.04 1.16v2.04h-1.42V2.18h1.42v6.01L48.14 5h1.72l-2.44 2.7 2.74 4.22h-1.75zm-7.06.08c-1.59 0-3.14-.96-3.14-3.56s1.55-3.54 3.14-3.54c.97 0 1.65.27 2.31.97l-.97.93c-.44-.48-.79-.66-1.34-.66s-1 .22-1.3.62c-.31.38-.42.87-.42 1.68 0 .81.1 1.32.41 1.7.3.4.76.62 1.3.62.56 0 .9-.18 1.35-.66l.97.92c-.66.7-1.34.98-2.31.98zm-5.66-3.15h-1.65c-.83 0-1.26.37-1.26 1s.4.99 1.3.99c.53 0 .93-.04 1.3-.4.22-.2.31-.53.31-1.03v-.56zm.03 3.07v-.63c-.51.5-1 .71-1.87.71-.87 0-1.46-.2-1.89-.63a2.1 2.1 0 0 1-.55-1.49c0-1.16.82-2 2.42-2h1.86v-.5c0-.87-.44-1.3-1.54-1.3-.77 0-1.15.18-1.54.68l-.92-.86c.66-.77 1.35-1 2.52-1 1.93 0 2.9.8 2.9 2.38v4.64h-1.39zm-5.9 0c-1.32 0-1.93-.93-1.93-1.93V6.18h-.8V5.1h.8V3h1.41v2.1h1.36v1.07H29.3v3.75c0 .5.25.81.78.81h.58v1.2h-.85zm-6.33.08c-1.48 0-2.55-.34-3.49-1.28l1-.98c.72.72 1.51.94 2.52.94 1.3 0 2.04-.55 2.04-1.5 0-.42-.13-.78-.39-1.01-.25-.23-.5-.33-1.08-.41l-1.16-.17a3.4 3.4 0 0 1-1.88-.78 2.41 2.41 0 0 1-.72-1.86c0-1.7 1.25-2.86 3.3-2.86 1.3 0 2.22.33 3.07 1.1l-.96.94a2.92 2.92 0 0 0-2.15-.75c-1.16 0-1.8.65-1.8 1.52 0 .35.1.67.37.9.25.22.65.38 1.11.45l1.13.17c.91.13 1.42.35 1.84.72.54.47.8 1.17.8 2 0 1.8-1.48 2.86-3.55 2.86z" fill="#fff"></path><path d="M104.16 7.09c-.2-.42-.6-.74-1.2-.74s-.99.32-1.18.74c-.1.25-.15.44-.16.75h2.7a2 2 0 0 0-.16-.75zm-2.54 1.96c0 .9.56 1.57 1.55 1.57.78 0 1.16-.21 1.61-.66l1.08 1.04a3.4 3.4 0 0 1-2.7 1.11c-1.68 0-3.29-.76-3.29-3.62 0-2.3 1.26-3.6 3.1-3.6 1.97 0 3.1 1.44 3.1 3.37v.79h-4.45zm-5.48-2.57C95.1 6.48 95 7.37 95 8.3c0 .94.1 1.85 1.15 1.85 1.05 0 1.18-.91 1.18-1.85 0-.93-.13-1.82-1.18-1.82zm-.17 8.22c-1.1 0-1.84-.21-2.58-.92l1.1-1.11c.4.38.8.54 1.4.54 1.06 0 1.43-.74 1.43-1.46v-.72c-.47.51-1 .7-1.7.7-.69 0-1.29-.23-1.68-.62-.67-.66-.73-1.57-.73-2.8 0-1.24.06-2.13.73-2.8.4-.39 1-.62 1.7-.62.75 0 1.24.2 1.73.75v-.67h1.72v6.8c0 1.7-1.21 2.93-3.12 2.93zm-5.76-2.67V7.76c0-.96-.61-1.28-1.17-1.28-.56 0-1.18.32-1.18 1.28v4.27h-1.78V4.97h1.73v.65a2.44 2.44 0 0 1 1.78-.73c.7 0 1.28.23 1.67.62.58.57.73 1.24.73 2v4.52H90.2zm-7.1-2.98h-1.4c-.64 0-1 .3-1 .8 0 .49.33.81 1.02.81.5 0 .8-.04 1.12-.34.2-.17.26-.46.26-.89v-.38zm.04 2.98v-.6c-.48.47-.93.67-1.74.67-.8 0-1.4-.2-1.82-.62-.38-.4-.58-.97-.58-1.59 0-1.12.77-2.05 2.42-2.05h1.68V7.5c0-.77-.38-1.11-1.32-1.11-.68 0-1 .16-1.37.58l-1.13-1.1c.7-.75 1.38-.97 2.57-.97 1.99 0 3.02.84 3.02 2.5v4.64h-1.73zm-6.93 0v-4.3c0-.94-.6-1.25-1.15-1.25-.56 0-1.15.32-1.15 1.24v4.31h-1.77V2.38h1.77v3.24a2.35 2.35 0 0 1 1.7-.73c1.56 0 2.38 1.08 2.38 2.57v4.57h-1.78zm-6.96.08c-1.42 0-3.18-.76-3.18-3.62 0-2.85 1.76-3.6 3.18-3.6.98 0 1.72.3 2.34.95l-1.2 1.2c-.36-.4-.68-.56-1.14-.56-.42 0-.75.14-1.01.46-.27.33-.4.8-.4 1.55s.13 1.24.4 1.58c.26.3.59.46 1 .46.47 0 .79-.16 1.15-.56l1.2 1.18c-.62.65-1.36.96-2.34.96zm-5.53-.08l-1.3-2.11-1.3 2.11H59l2.45-3.6-2.35-3.46h2.12L62.42 7l1.21-2.02h2.13L63.4 8.43l2.46 3.6h-2.13zm-11.75 0V2.06h6.6V3.8h-4.65v2.33h3.96v1.74h-3.96v2.42h4.65v1.74h-6.6z" fill="#2F96E8"></path><path d="M0 3c0-1.1.9-2 2-2h8a2 2 0 0 1 2 2H0z" fill="#8FD8F7"></path><path d="M12 10H0c0 1.1.9 2 2 2h5v3l3-3a2 2 0 0 0 2-2z" fill="#155397"></path><path fill="#46A2D9" d="M0 4h12v2H0z"></path><path fill="#2D6DB5" d="M0 7h12v2H0z"></path></svg>
+                </a>
+                <div class="topbar-dialog network-logo-dialog js-network-logo-dialog dno" id="topbar-network-logo-dialog" role="dialog" aria-labelledby="topbar-network-logo-dialog-title" aria-describedby="topbar-network-logo-dialog-body">
+                    <div class="dialog-content">
+                        <h4 class="bold" id="topbar-network-logo-dialog-title">Stack Exchange Network</h4>
+                        <p id="topbar-network-logo-dialog-body">
+                            Stack Exchange network consists of 175 Q&amp;A communities including <a href="https://stackoverflow.com/">Stack Overflow</a>, the largest, most trusted online community for developers to learn, share their knowledge, and build their careers.
+                        </p>
+                        <a class="btn-secondary" href="https://stackexchange.com/" data-gps-track="stack_exchange_popup.click">Visit Stack Exchange</a>
+                        <button class="icon-close js-close-button s-btn s-btn__unset" aria-label="Close"><svg aria-hidden="true" class="svg-icon iconClear" width="18" height="18" viewBox="0 0 18 18"><path d="M15 4.41L13.59 3 9 7.59 4.41 3 3 4.41 7.59 9 3 13.59 4.41 15 9 10.41 13.59 15 15 13.59 10.41 9 15 4.41z"></path></svg></button>
+                    </div>
+                </div>
+
+
+
+        </div>
+
+
+            <form id="search" role="search" action="https://unix.stackexchange.com/search" method="get" class="grid--cell fl-grow1 searchbar px12 js-searchbar " autocomplete="off">
+                    <div class="ps-relative">
+                        <input name="q" type="text" placeholder="Search on Unix &amp; Linux…" value="" autocomplete="off" maxlength="240" class="s-input s-input__search js-search-field " aria-label="Search" aria-controls="top-search" data-controller="s-popover" data-action="focus-&gt;s-popover#show" data-s-popover-placement="bottom-start">
+                        <svg aria-hidden="true" class="svg-icon s-input-icon s-input-icon__search iconSearch" width="18" height="18" viewBox="0 0 18 18"><path d="M18 16.5l-5.14-5.18h-.35a7 7 0 1 0-1.19 1.19v.35L16.5 18l1.5-1.5zM12 7A5 5 0 1 1 2 7a5 5 0 0 1 10 0z"></path></svg>
+<div class="s-popover p0 wmx100 wmn4 sm:wmn-initial js-top-search-popover s-popover--arrow__tl" id="top-search" role="menu" x-placement="bottom-start" style="position: absolute; transform: translate3d(0px, 33px, 0px); top: 0px; left: 0px; will-change: transform;">
+    <div class="js-spinner p24 grid ai-center jc-center d-none">
+        <div class="s-spinner s-spinner__sm fc-orange-400">
+            <div class="v-visible-sr">Loading…</div>
+        </div>
+    </div>
+
+    <span class="v-visible-sr js-screen-reader-info"></span>
+    <div class="js-ac-results overflow-y-auto hmx3 d-none"></div>
+
+    <div class="js-search-hints" aria-describedby="Tips for searching"></div>
+</div>
+                    </div>
+            </form>
+
+        
+
+
+
+<ol class="overflow-x-auto ml-auto -secondary grid ai-center list-reset h100 user-logged-out" role="presentation">
+        <li class="-item searchbar-trigger"><a href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#" class="-link js-searchbar-trigger" role="button" aria-label="Search" aria-haspopup="true" aria-controls="search" title="Click to show search"><svg aria-hidden="true" class="svg-icon iconSearch" width="18" height="18" viewBox="0 0 18 18"><path d="M18 16.5l-5.14-5.18h-.35a7 7 0 1 0-1.19 1.19v.35L16.5 18l1.5-1.5zM12 7A5 5 0 1 1 2 7a5 5 0 0 1 10 0z"></path></svg></a></li>
+            <li class="-item inbox-button-item">
+        <a href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#" class="-link js-inbox-button" aria-label="Inbox" title="Recent inbox messages" role="menuitem" aria-haspopup="true" aria-expanded="false" data-unread-count="0">
+            <svg aria-hidden="true" class="svg-icon iconInbox" width="20" height="18" viewBox="0 0 20 18"><path d="M4.63 1h10.56a2 2 0 0 1 1.94 1.35L20 10.79V15a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-4.21l2.78-8.44c.25-.8 1-1.36 1.85-1.35zm8.28 12l2-2h2.95l-2.44-7.32a1 1 0 0 0-.95-.68H5.35a1 1 0 0 0-.95.68L1.96 11h2.95l2 2h6z"></path></svg>
+            <span class="indicator-badge js-unread-count _important d-none">0</span>
+        </a>
+    </li>
+    <li class="-item achievements-button-item">
+        <a href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#" class="-link js-achievements-button" data-unread-class="_highlighted-positive" aria-label="Achievements" title="Recent achievements: reputation, badges, and privileges earned" role="menuitem" aria-haspopup="true" aria-expanded="false" data-unread-count="0" data-lit-up="false">
+            <svg aria-hidden="true" class="svg-icon iconAchievements" width="18" height="18" viewBox="0 0 18 18"><path d="M15 2V1H3v1H0v4c0 1.6 1.4 3 3 3v1c.4 1.5 3 2.6 5 3v2H5s-1 1.5-1 2h10c0-.4-1-2-1-2h-3v-2c2-.4 4.6-1.5 5-3V9c1.6-.2 3-1.4 3-3V2h-3zM3 7c-.5 0-1-.5-1-1V4h1v3zm8.4 2.5L9 8 6.6 9.4l1-2.7L5 5h3l1-2.7L10 5h2.8l-2.3 1.8 1 2.7h-.1zM16 6c0 .5-.5 1-1 1V4h1v2z"></path></svg>
+            <span class="indicator-badge js-unread-count _positive d-none">+0</span>
+        </a>
+    </li>
+    <li class="-item help-button-item">
+        <a href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#" class="-link js-help-button" title="Help Center and other resources" role="menuitem" aria-haspopup="true" aria-controls="topbar-help-dialog" data-ga="[&quot;top navigation&quot;,&quot;help menu click&quot;,null,null,null]" aria-expanded="false"><svg aria-hidden="true" class="svg-icon iconHelp" width="18" height="18" viewBox="0 0 18 18"><path d="M9 1a8 8 0 1 0 0 16A8 8 0 0 0 9 1zm.81 12.13c-.02.71-.55 1.15-1.24 1.13-.66-.02-1.17-.49-1.15-1.2.02-.72.56-1.18 1.22-1.16.7.03 1.2.51 1.17 1.23zM11.77 8c-.3.34-.65.65-1.02.91l-.53.37c-.26.2-.42.43-.5.69a4 4 0 0 0-.09.75c0 .05-.03.16-.18.16H7.88c-.16 0-.18-.1-.18-.15.03-.66.12-1.21.4-1.66.4-.49.88-.9 1.43-1.22.16-.12.28-.25.38-.39a1.34 1.34 0 0 0 .02-1.71c-.24-.31-.51-.46-1.03-.46-.51 0-.8.26-1.02.6-.21.33-.18.73-.18 1.1H5.75c0-1.38.35-2.25 1.1-2.76.52-.35 1.17-.5 1.93-.5 1 0 1.79.18 2.49.71.64.5.98 1.18.98 2.12 0 .57-.2 1.05-.48 1.44z"></path></svg></a>
+    </li>
+    <div class="topbar-dialog help-dialog js-help-dialog dno" id="topbar-help-dialog" role="menu">
+        <div class="modal-content">
+            <ul>
+                                    <li>
+                        <a href="https://unix.stackexchange.com/tour" class="js-gps-track" data-gps-track="help_popup.click({ item_type:1 })" data-ga="[&quot;top navigation&quot;,&quot;tour submenu click&quot;,null,null,null]">
+                            Tour
+                            <span class="item-summary">
+                                Start here for a quick overview of the site
+                            </span>
+                        </a>
+                    </li>
+                <li>
+                    <a href="https://unix.stackexchange.com/help" class="js-gps-track" data-gps-track="help_popup.click({ item_type:4 })" data-ga="[&quot;top navigation&quot;,&quot;help center&quot;,null,null,null]">
+                        Help Center
+                        <span class="item-summary">
+                            Detailed answers to any questions you might have
+                        </span>
+                    </a>
+                </li>
+                        <li>
+                            <a href="https://unix.meta.stackexchange.com/" class="js-gps-track" data-gps-track="help_popup.click({ item_type:2 })" data-ga="[&quot;top navigation&quot;,&quot;meta submenu click&quot;,null,null,null]">
+                                Meta
+                                <span class="item-summary">
+                                    Discuss the workings and policies of this site
+                                </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://stackoverflow.com/company/about" class="js-gps-track" data-gps-track="help_popup.click({ item_type:6 })" data-ga="[&quot;top navigation&quot;,&quot;about us submenu click&quot;,null,null,null]">
+                                About Us
+                                <span class="item-summary">
+                                    Learn more about Stack Overflow the company
+                                </span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://www.stackoverflowbusiness.com/?ref=topbar_help" class="js-gps-track" data-gps-track="help_popup.click({ item_type:7 })" data-ga="[&quot;top navigation&quot;,&quot;business submenu click&quot;,null,null,null]">
+                                Business
+                                <span class="item-summary">
+                                    Learn more about hiring developers or posting ads with us
+                                </span>
+                            </a>
+                        </li>
+            </ul>
+        </div>
+    </div>
+    <li class="-item site-switcher-item">
+        <a href="https://stackexchange.com/" class="-link js-site-switcher-button js-gps-track" data-gps-track="site_switcher.show" aria-label="Site switcher" title="A list of all 175 Stack Exchange sites" role="menuitem" aria-haspopup="true" aria-expanded="false" data-ga="[&quot;top navigation&quot;,&quot;stack exchange click&quot;,null,null,null]">
+            <svg aria-hidden="true" class="svg-icon iconStackExchange" width="18" height="18" viewBox="0 0 18 18"><path d="M15 1H3a2 2 0 0 0-2 2v2h16V3a2 2 0 0 0-2-2zM1 13c0 1.1.9 2 2 2h8v3l3-3h1a2 2 0 0 0 2-2v-2H1v2zm16-7H1v4h16V6z"></path></svg>
+        </a>
+    </li>
+
+            <li class="-ctas">
+                        <a href="https://unix.stackexchange.com/users/login?ssrc=head&amp;returnurl=https%3a%2f%2funix.stackexchange.com%2fquestions%2f106480%2fhow-to-copy-files-from-one-machine-to-another-using-ssh" class="login-link s-btn btn-topbar-clear py8 js-gps-track" rel="nofollow" data-gps-track="login.click" data-ga="[&quot;top navigation&quot;,&quot;login button click&quot;,null,null,null]">Log in</a>
+                        <a href="https://unix.stackexchange.com/users/signup?ssrc=head&amp;returnurl=https%3a%2f%2funix.stackexchange.com%2fquestions%2f106480%2fhow-to-copy-files-from-one-machine-to-another-using-ssh" class="login-link s-btn s-btn__primary py8 btn-topbar-primary" rel="nofollow" data-ga="[&quot;sign up&quot;,&quot;Sign Up Navigation&quot;,&quot;Header&quot;,null,null]">Sign up</a>
+
+            </li>
+
+    <li class="js-topbar-dialog-corral" role="presentation">
+
+
+    <div class="topbar-dialog siteSwitcher-dialog dno" role="menu">
+        <div class="header">
+            <h3><a href="https://unix.stackexchange.com/">current community</a>
+            </h3>
+        </div>
+        <div class="modal-content current-site-container">
+            <ul class="current-site">
+                    <li class="grid">
+                            <div class="fl1">
+            <a href="https://unix.stackexchange.com/" class="current-site-link site-link js-gps-track grid gs8 gsx" data-id="106" data-gps-track="site_switcher.click({ item_type:3 })">
+        <div class="favicon favicon-unix site-icon grid--cell" title="Unix &amp; Linux"></div>
+        <span class="grid--cell fl1">
+            Unix &amp; Linux
+        </span>
+    </a>
+
+    </div>
+    <div class="related-links">
+            <a href="https://unix.stackexchange.com/help" class="js-gps-track" data-gps-track="site_switcher.click({ item_type:14 })">help</a>
+                    <a href="https://chat.stackexchange.com/?tab=site&amp;host=unix.stackexchange.com" class="js-gps-track" data-gps-track="site_switcher.click({ item_type:6 })">chat</a>
+            </div>
+
+                    </li>
+                    <li class="related-site grid">
+                            <div class="L-shaped-icon-container">
+        <span class="L-shaped-icon"></span>
+    </div>
+
+                            <a href="https://unix.meta.stackexchange.com/" class="site-link js-gps-track grid gs8 gsx" data-id="108" data-gps-track="site.switch({ target_site:108, item_type:3 }),site_switcher.click({ item_type:4 })">
+        <div class="favicon favicon-unixmeta site-icon grid--cell" title="Unix &amp; Linux Meta"></div>
+        <span class="grid--cell fl1">
+            Unix &amp; Linux Meta
+        </span>
+    </a>
+
+                    </li>
+            </ul>
+        </div>
+
+        <div class="header" id="your-communities-header">
+            <h3>
+your communities            </h3>
+
+        </div>
+        <div class="modal-content" id="your-communities-section">
+
+                <div class="call-to-login">
+<a href="https://unix.stackexchange.com/users/signup?ssrc=site_switcher&amp;returnurl=https%3a%2f%2funix.stackexchange.com%2fquestions%2f106480%2fhow-to-copy-files-from-one-machine-to-another-using-ssh" class="login-link js-gps-track" data-gps-track="site_switcher.click({ item_type:10 })">Sign up</a> or <a href="https://unix.stackexchange.com/users/login?ssrc=site_switcher&amp;returnurl=https%3a%2f%2funix.stackexchange.com%2fquestions%2f106480%2fhow-to-copy-files-from-one-machine-to-another-using-ssh" class="login-link js-gps-track" data-gps-track="site_switcher.click({ item_type:11 })">log in</a> to customize your list.
+                </div>
+        </div>
+
+        <div class="header">
+            <h3><a href="https://stackexchange.com/sites">more stack exchange communities</a>
+            </h3>
+            <a href="https://stackoverflow.blog/" class="fr">company blog</a>
+        </div>
+        <div class="modal-content">
+                <div class="child-content"></div>
+        </div>        
+    </div>
+    </li>
+</ol>
+
+    </div>
+</header>
+    <div id="js-gdpr-consent-banner" class="p16 bg-black-700 ff-sans fc-white ps-fixed b0 l0 r0 z-banner" role="banner" aria-hidden="false">
+        <div class="wmx8 mx-auto grid jc-center" role="alertdialog" aria-describedby="notice-message">
+            <div class="grid--cell mr12" aria-label="notice-message">
+                <p class="mb0 lh-lg">
+                    By using our site, you acknowledge that you have read and understand our <a class="s-link s-link__inherit td-underline fc-white" target="_blank" href="https://stackoverflow.com/legal/cookie-policy">Cookie Policy</a>, <a class="s-link s-link__inherit td-underline fc-white" target="_blank" href="https://stackoverflow.com/legal/privacy-policy">Privacy Policy</a>, and our <a class="s-link s-link__inherit td-underline fc-white" target="_blank" href="https://stackoverflow.com/legal/terms-of-service/public">Terms of Service</a>.
+                </p>
+            </div>
+            <a class="grid--cell fc-white js-notice-close" aria-label="notice-dismiss">
+                <svg aria-hidden="true" class="svg-icon m0 iconClear" width="18" height="18" viewBox="0 0 18 18"><path d="M15 4.41L13.59 3 9 7.59 4.41 3 3 4.41 7.59 9 3 13.59 4.41 15 9 10.41 13.59 15 15 13.59 10.41 9 15 4.41z"></path></svg>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        StackExchange.ready(function () { StackExchange.topbar.init(); });
+        StackExchange.scrollPadding.setPaddingTop(50, 10);     </script>
+
+
+
+
+
+        <header class="site-header">
+            <div class="site-header--container">
+                <a class="site-header--link d-flex ai-center fs-headline1 fw-bold" href="https://unix.stackexchange.com/">
+                        <img class="h-auto wmx100" src="./How to copy files from one machine to another using ssh - Unix &amp; Linux Stack Exchange_files/logo.svg" alt="Unix &amp; Linux">
+                </a>
+
+            </div>
+        </header>
+
+    <div class="container">
+
+
+
+
+
+
+<div id="left-sidebar" data-is-here-when="md lg" class="left-sidebar js-pinned-left-sidebar ps-relative">
+    <div class="left-sidebar--sticky-container js-sticky-leftnav">
+        <nav role="navigation">
+            <ol class="nav-links">
+    <li>
+        <a href="https://unix.stackexchange.com/" class="pl8 js-gps-track nav-links--link" data-gps-track="top_nav.click({is_current:false, location:2, destination:8})">
+Home        </a>
+    </li>
+                <li>
+                    <ol class="nav-links">
+                            <li class=" youarehere">
+        <a id="nav-questions" href="https://unix.stackexchange.com/questions" class="pl8 js-gps-track nav-links--link" data-gps-track="top_nav.click({is_current:true, location:2, destination:1})">
+Questions        </a>
+    </li>
+
+    <li>
+        <a id="nav-tags" href="https://unix.stackexchange.com/tags" class="pl8 js-gps-track nav-links--link" data-gps-track="top_nav.click({is_current:false, location:2, destination:2})">
+Tags        </a>
+    </li>
+    <li>
+        <a id="nav-users" href="https://unix.stackexchange.com/users" class="pl8 js-gps-track nav-links--link" data-gps-track="top_nav.click({is_current:false, location:2, destination:3})">
+Users        </a>
+    </li>
+    <li>
+        <a id="nav-unanswered" href="https://unix.stackexchange.com/unanswered" class="pl8 js-gps-track nav-links--link" data-gps-track="top_nav.click({is_current:false, location:2, destination:5})">
+Unanswered        </a>
+    </li>
+                                                                    </ol>
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+
+
+</div>
+
+
+        <div id="content" class="">
+
+
+            
+
+
+<div itemprop="mainEntity" itemscope="" itemtype="http://schema.org/Question">
+    <link itemprop="image" href="https://cdn.sstatic.net/Sites/unix/img/apple-touch-icon.png?v=5cf7fe716a89">
+
+    <div class="inner-content clearfix">
+
+        
+
+                    <div id="question-header" class="grid sm:fd-column">
+                        <h1 itemprop="name" class="grid--cell fs-headline1 fl1 ow-break-word mb8"><a href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh" class="question-hyperlink">How to copy files from one machine to another using ssh [duplicate]</a></h1>
+
+                <div class="ml12 aside-cta grid--cell print:d-none sm:ml0 sm:mb12 sm:order-first sm:as-end">
+
+    <a href="https://unix.stackexchange.com/questions/ask" class="ws-nowrap s-btn s-btn__primary">
+        Ask Question
+    </a>
+
+                </div>
+            </div>
+            <div class="grid fw-wrap pb8 mb16 bb bc-black-2">
+                    <div class="grid--cell ws-nowrap mr16 mb8" title="2013-12-24 09:43:21Z">
+                        <span class="fc-light mr2">Asked</span>
+                        <time itemprop="dateCreated" datetime="2013-12-24T09:43:21">5 years, 11 months ago</time>
+                    </div>
+                        <div class="grid--cell ws-nowrap mr16 mb8">
+                            <span class="fc-light mr2">Active</span>
+                            <a href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh?lastactivity" class="s-link s-link__inherit" title="2019-11-21 21:22:18Z">19 days ago</a>
+                        </div>
+                    <div class="grid--cell ws-nowrap mb8" title="Viewed 2,723,121 times">
+                        <span class="fc-light mr2">Viewed</span>
+                        2.7m times
+                    </div>
+            </div>
+                    <div id="mainbar" role="main" aria-label="question and answers">
+
+                
+
+<div class="question" data-questionid="106480" id="question">
+
+    <style>.everyoneloves__top-leaderboard:empty,.everyoneloves__mid-leaderboard:empty,.everyoneloves__bot-mid-leaderboard:empty{
+            margin-bottom:0;
+}
+</style>
+<div id="dfp-tlb" class="everyonelovesstackoverflow everyoneloves__top-leaderboard" style="min-height: auto; height: auto; display: none;"></div>
+    <div class="post-layout">
+        <div class="votecell post-layout--left">
+            
+
+<div class="js-voting-container grid fd-column ai-stretch gs4 fc-black-200" data-post-id="106480">
+        <button class="js-vote-up-btn grid--cell s-btn s-btn__unset c-pointer" title="This question shows research effort; it is useful and clear" aria-pressed="false" aria-label="up vote" data-selected-classes="fc-theme-primary"><svg aria-hidden="true" class="svg-icon m0 iconArrowUpLg" width="36" height="36" viewBox="0 0 36 36"><path d="M2 26h32L18 10 2 26z"></path></svg></button>
+        <div class="js-vote-count grid--cell fc-black-500 fs-title grid fd-column ai-center" itemprop="upvoteCount" data-value="710">710</div>
+        <button class="js-vote-down-btn grid--cell s-btn s-btn__unset c-pointer" title="This question does not show any research effort; it is unclear or not useful" aria-pressed="false" aria-label="down vote" data-selected-classes="fc-theme-primary"><svg aria-hidden="true" class="svg-icon m0 iconArrowDownLg" width="36" height="36" viewBox="0 0 36 36"><path d="M2 10h32L18 26 2 10z"></path></svg></button>
+
+        <button class="js-favorite-btn s-btn s-btn__unset c-pointer py4 js-gps-track" aria-pressed="false" aria-label="favorite (367)" data-selected-classes="fc-yellow-600" data-gps-track="post.click({ item: 1, priv: 0, post_type: 1 })">
+            <svg aria-hidden="true" class="svg-icon iconStar" width="18" height="18" viewBox="0 0 18 18"><path d="M9 12.65l-5.29 3.63 1.82-6.15L.44 6.22l6.42-.17L9 0l2.14 6.05 6.42.17-5.1 3.9 1.83 6.16L9 12.65z"></path></svg>
+            <div class="js-favorite-count mt4" data-value="367">367</div>
+        </button>
+    
+
+
+</div>
+
+        </div>
+
+        
+
+
+<div class="postcell post-layout--right">
+    
+    <div class="post-text" itemprop="text">
+
+        <aside class="s-notice s-notice__info js-post-notice mb16" aria-hidden="false" role="status">
+            <div class="grid fd-column fw-nowrap"> 
+                <div class="grid fw-nowrap">
+                    <div class="grid--cell fl1 lh-lg">
+                        <div class="grid--cell fl1 lh-lg">
+                            <b>This question already has answers here</b>:
+                            
+                        </div>
+                    </div>
+                </div>
+                        <div class="grid--cell mb0 mt4">
+                            <a href="https://unix.stackexchange.com/questions/2857/copy-a-file-back-to-local-system-with-ssh" dir="ltr">Copy a file back to local system with ssh</a>
+                                <span class="question-originals-answer-count">
+                                    (9 answers)
+                                </span>
+                        </div>
+                                <div class="grid--cell mb0 mt8">Closed <span title="2013-12-25 07:43:41Z" class="relativetime">5 years ago</span>.</div>
+            </div>
+                    </aside>
+<p>I'm using Linux (centos) machine, I already connected to the other system using <code>ssh</code>. Now my question is how can I copy files from one system to another system?</p>
+
+<p>Suppose, in my environment, I have two system like <code>System A</code> and <code>System B</code>. I'm using <code>System A</code> machine and some other using <code>System B</code> machine.</p>
+
+<p>How can I copy a file from <code>System B</code> to <code>System A</code>?
+And, copy a file from <code>System A</code> to <code>System B</code>?</p>
+    </div>
+
+        <div class="post-taglist grid gs4 gsy fd-column">
+            <div class="grid ps-relative d-block">
+                <a href="https://unix.stackexchange.com/questions/tagged/ssh" class="post-tag js-gps-track" title="show questions tagged &#39;ssh&#39;" rel="tag">ssh</a> <a href="https://unix.stackexchange.com/questions/tagged/file-copy" class="post-tag js-gps-track" title="show questions tagged &#39;file-copy&#39;" rel="tag">file-copy</a> 
+            </div>
+        </div>
+
+    <div class="mb0 ">
+        <div class="mt16 grid gs8 gsy fw-wrap jc-end ai-start pt4">
+            <div class="grid--cell mr16" style="flex: 1 1 100px;">
+                <div class="post-menu"><a href="https://unix.stackexchange.com/q/106480" itemprop="url" class="js-share-link js-gps-track" title="short permalink to this question" data-gps-track="post.click({ item: 2, priv: 0, post_type: 1 })" data-controller="se-share-sheet s-popover" data-se-share-sheet-title="Share a link to this question" data-se-share-sheet-subtitle="" data-se-share-sheet-post-type="question" data-se-share-sheet-social="facebook twitter " data-se-share-sheet-location="1" data-s-popover-placement="bottom-start" aria-controls="se-share-sheet-0" data-action=" s-popover#toggle se-share-sheet#preventNavigation s-popover:show-&gt;se-share-sheet#willShow s-popover:shown-&gt;se-share-sheet#didShow">share</a><div class="s-popover z-dropdown" style="width: unset; max-width: 28em; position: absolute; transform: translate3d(240px, 423px, 0px); top: 0px; left: 0px; will-change: transform;" id="se-share-sheet-0" x-placement="top-start"><div class="s-popover--arrow"></div><div><span class="js-title fw-bold">Share a link to this question</span> <span class="js-subtitle"></span></div><div class="my8"><input type="text" class="js-input s-input wmn3 sm:wmn-initial" readonly=""></div><div class="d-flex jc-space-between mbn4"><button class="js-copy-link-btn s-btn s-btn__link">Copy link</button><div class="js-social-container"></div></div></div><span class="lsep">|</span><a href="https://unix.stackexchange.com/posts/106480/edit" class="suggest-edit-post js-gps-track" data-gps-track="post.click({ item: 6, priv: 0, post_type: 1 })" title="">improve this question</a></div>
+            </div>
+
+                <div class="post-signature grid--cell">
+<div class="user-info user-hover">
+    <div class="user-action-time">
+        <a href="https://unix.stackexchange.com/posts/106480/revisions" title="show all edits to this post" class="js-gps-track" data-gps-track="post.click({ item: 4, priv: 0, post_type: 1 })">edited <span title="2018-06-16 03:56:39Z" class="relativetime">Jun 16 '18 at 3:56</span></a>
+    </div>
+    <div class="user-gravatar32">
+        <a href="https://unix.stackexchange.com/users/265604/isaac"><div class="gravatar-wrapper-32"><img src="./How to copy files from one machine to another using ssh - Unix &amp; Linux Stack Exchange_files/UcjZr.jpg" alt="" width="32" height="32" class="bar-sm"></div></a>
+    </div>
+    <div class="user-details">
+        <a href="https://unix.stackexchange.com/users/265604/isaac">Isaac</a>
+        <div class="-flair">
+            <span class="reputation-score" title="reputation score 16,606" dir="ltr">16.6k</span><span title="1 gold badge" aria-hidden="true"><span class="badge1"></span><span class="badgecount">1</span></span><span class="v-visible-sr">1 gold badge</span><span title="27 silver badges" aria-hidden="true"><span class="badge2"></span><span class="badgecount">27</span></span><span class="v-visible-sr">27 silver badges</span><span title="69 bronze badges" aria-hidden="true"><span class="badge3"></span><span class="badgecount">69</span></span><span class="v-visible-sr">69 bronze badges</span>
+        </div>
+    </div>
+</div>                </div>
+            <div class="post-signature owner grid--cell">
+<div class="user-info ">
+    <div class="user-action-time">
+        asked <span title="2013-12-24 09:43:21Z" class="relativetime">Dec 24 '13 at 9:43</span>
+    </div>
+    <div class="user-gravatar32">
+        <a href="https://unix.stackexchange.com/users/53846/user3021349"><div class="gravatar-wrapper-32"><img src="./How to copy files from one machine to another using ssh - Unix &amp; Linux Stack Exchange_files/8c7a8e27c6c2bfbda2d1ae60b200f125" alt="" width="32" height="32" class="bar-sm"></div></a>
+    </div>
+    <div class="user-details" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <a href="https://unix.stackexchange.com/users/53846/user3021349">user3021349</a><span class="d-none" itemprop="name">user3021349</span>
+        <div class="-flair">
+            <span class="reputation-score" title="reputation score " dir="ltr">9,649</span><span title="8 gold badges" aria-hidden="true"><span class="badge1"></span><span class="badgecount">8</span></span><span class="v-visible-sr">8 gold badges</span><span title="16 silver badges" aria-hidden="true"><span class="badge2"></span><span class="badgecount">16</span></span><span class="v-visible-sr">16 silver badges</span><span title="21 bronze badges" aria-hidden="true"><span class="badge3"></span><span class="badgecount">21</span></span><span class="v-visible-sr">21 bronze badges</span>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+        <div class="js-post-notices post-layout--full">
+        </div>
+
+    <div class="post-layout--right">
+        <div id="comments-106480" class="comments js-comments-container bt bc-black-2 mt12 " data-post-id="106480" data-min-length="15">
+            <ul class="comments-list js-comments-list" data-remaining-comments-count="0" data-canpost="false" data-cansee="true" data-comments-unavailable="false" data-addlink-disabled="true">
+
+
+    <li id="comment-163443" class="comment js-comment " data-comment-id="163443">
+        <div class="js-comment-actions comment-actions">
+            <div class="comment-score js-comment-edit-hide">
+                    <span title="number of &#39;useful comment&#39; votes received" class="cool">1</span>
+            </div>
+                    </div>
+        <div class="comment-text js-comment-text-and-form">
+            <div class="comment-body js-comment-edit-hide">
+                
+                <span class="comment-copy">I find <code>scp</code> to be a cumber stone often. If it could suite your needs, try this out <a href="http://www.linuxjournal.com/article/8904" rel="nofollow noreferrer">linuxjournal.com/article/8904</a> It mounts the remote file system locally.</span>
+                
+                    –&nbsp;<a href="https://unix.stackexchange.com/users/29436/themeaningfulengineer" title="4,072 reputation" class="comment-user">TheMeaningfulEngineer</a>
+                <span class="comment-date" dir="ltr"><a class="comment-link" href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#comment163443_106480"><span title="2013-12-24 09:57:34Z" class="relativetime-clean">Dec 24 '13 at 9:57</span></a></span>
+                                                            </div>
+        </div>
+    </li>
+    <li id="comment-163500" class="comment js-comment " data-comment-id="163500">
+        <div class="js-comment-actions comment-actions">
+            <div class="comment-score js-comment-edit-hide">
+                    <span title="number of &#39;useful comment&#39; votes received" class="hot">29</span>
+            </div>
+                    </div>
+        <div class="comment-text js-comment-text-and-form">
+            <div class="comment-body js-comment-edit-hide">
+                
+                <span class="comment-copy">@Alan I think you mean "cumbersome"?  Cumber Stone is a <a href="http://en.wikipedia.org/wiki/Magic:_The_Gathering" rel="nofollow noreferrer">Magic</a> card  ;)</span>
+                
+                    –&nbsp;<a href="https://unix.stackexchange.com/users/12380/izkata" title="620 reputation" class="comment-user">Izkata</a>
+                <span class="comment-date" dir="ltr"><a class="comment-link" href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#comment163500_106480"><span title="2013-12-24 14:47:17Z" class="relativetime-clean">Dec 24 '13 at 14:47</span></a></span>
+                        <span title="this comment was edited 1 time">
+                            <svg aria-hidden="true" class="svg-icon va-text-bottom o50 iconPencilSm" width="14" height="14" viewBox="0 0 14 14"><path d="M11.1 1.71l1.13 1.12c.2.2.2.51 0 .71L11.1 4.7 9.21 2.86l1.17-1.15c.2-.2.51-.2.71 0zM2 10.12l6.37-6.43 1.88 1.88L3.88 12H2v-1.88z"></path></svg>
+                        </span>
+                                                            </div>
+        </div>
+    </li>
+    <li id="comment-163546" class="comment js-comment " data-comment-id="163546">
+        <div class="js-comment-actions comment-actions">
+            <div class="comment-score js-comment-edit-hide">
+                    <span title="number of &#39;useful comment&#39; votes received" class="cool">1</span>
+            </div>
+                    </div>
+        <div class="comment-text js-comment-text-and-form">
+            <div class="comment-body js-comment-edit-hide">
+                
+                <span class="comment-copy">somewhat related: <a href="http://www.pixelbeat.org/cmdline.html" rel="nofollow noreferrer">make an encrypted archive of local <code>dir/</code> on remote machine using <code>ssh</code></a>:      <code>tar -c dir/ | gzip | gpg -c | ssh user@remote 'dd of=dir.tar.gz.gpg'</code></span>
+                
+                    –&nbsp;<a href="https://unix.stackexchange.com/users/1321/jfs" title="714 reputation" class="comment-user">jfs</a>
+                <span class="comment-date" dir="ltr"><a class="comment-link" href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#comment163546_106480"><span title="2013-12-24 20:49:22Z" class="relativetime-clean">Dec 24 '13 at 20:49</span></a></span>
+                                                            </div>
+        </div>
+    </li>
+    <li id="comment-299102" class="comment js-comment " data-comment-id="299102">
+        <div class="js-comment-actions comment-actions">
+            <div class="comment-score js-comment-edit-hide">
+                    <span title="number of &#39;useful comment&#39; votes received" class="cool">2</span>
+            </div>
+                    </div>
+        <div class="comment-text js-comment-text-and-form">
+            <div class="comment-body js-comment-edit-hide">
+                
+                <span class="comment-copy">If you has access of the ftp of the remote server, we can also use <b>wget</b> to download like <code>$wget -r --level=9 --no-parent --reject "index.html*" ftp://&lt;USERID&gt;:&lt;PASSWORD&gt;@&lt;MACHINE-NAME&gt;/path/to</code> <a href="http://kspace.in/blog/2010/02/22/copy-files-using-wget/" rel="nofollow noreferrer">Reference1</a> <a href="http://stackoverflow.com/a/273776/3049065">Reference2</a></span>
+                
+                    –&nbsp;<a href="https://unix.stackexchange.com/users/94334/mahendran-sakkarai" title="101 reputation" class="comment-user">Mahendran Sakkarai</a>
+                <span class="comment-date" dir="ltr"><a class="comment-link" href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#comment299102_106480"><span title="2015-01-19 06:22:40Z" class="relativetime-clean">Jan 19 '15 at 6:22</span></a></span>
+                        <span title="this comment was edited 1 time">
+                            <svg aria-hidden="true" class="svg-icon va-text-bottom o50 iconPencilSm" width="14" height="14" viewBox="0 0 14 14"><path d="M11.1 1.71l1.13 1.12c.2.2.2.51 0 .71L11.1 4.7 9.21 2.86l1.17-1.15c.2-.2.51-.2.71 0zM2 10.12l6.37-6.43 1.88 1.88L3.88 12H2v-1.88z"></path></svg>
+                        </span>
+                                                            </div>
+        </div>
+    </li>
+    <li id="comment-1013534" class="comment js-comment " data-comment-id="1013534">
+        <div class="js-comment-actions comment-actions">
+            <div class="comment-score js-comment-edit-hide">
+                    <span title="number of &#39;useful comment&#39; votes received" class="cool">1</span>
+            </div>
+                    </div>
+        <div class="comment-text js-comment-text-and-form">
+            <div class="comment-body js-comment-edit-hide">
+                
+                <span class="comment-copy">Not duplicate, linked question specifically asks not to use <code>scp</code>; for that one <code>scp</code> is fine and most easy way as answer, so mods please remove duplicate flag as if somebody will go to other one, most useful answer will be missed out.</span>
+                
+                    –&nbsp;<a href="https://unix.stackexchange.com/users/266260/alexei-martianov" title="525 reputation" class="comment-user">Alexei Martianov</a>
+                <span class="comment-date" dir="ltr"><a class="comment-link" href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#comment1013534_106480"><span title="2019-10-11 12:13:33Z" class="relativetime-clean">Oct 11 at 12:13</span></a></span>
+                        <span title="this comment was edited 1 time">
+                            <svg aria-hidden="true" class="svg-icon va-text-bottom o50 iconPencilSm" width="14" height="14" viewBox="0 0 14 14"><path d="M11.1 1.71l1.13 1.12c.2.2.2.51 0 .71L11.1 4.7 9.21 2.86l1.17-1.15c.2-.2.51-.2.71 0zM2 10.12l6.37-6.43 1.88 1.88L3.88 12H2v-1.88z"></path></svg>
+                        </span>
+                                                            </div>
+        </div>
+    </li>
+            </ul>
+	    </div>
+
+        <div id="comments-link-106480" data-rep="50" data-anon="true">
+
+                    <a class="js-add-link comments-link disabled-link" title="Use comments to ask for more information or suggest improvements. Avoid answering questions in comments.">add a comment</a>
+                <span class="js-link-separator dno">&nbsp;|&nbsp;</span>
+            <a class="js-show-link comments-link dno" title="expand to show all comments on this post" href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#" onclick=""></a>
+        </div>         
+    </div>            </div>
+</div>
+
+
+
+                <div id="answers">
+
+                    <a name="tab-top"></a>
+                    <div id="answers-header">
+                        <div class="subheader answers-subheader">
+                            <h2 data-answercount="4">
+                                    4 Answers
+                                <span style="display:none;" itemprop="answerCount">4</span>
+                            </h2>
+                            <div>
+                                
+<div id="tabs">
+        <a href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh?answertab=active#tab-top" data-nav-xhref="" title="Answers with the latest activity first" data-value="active" data-shortcut="A">
+            active</a>
+        <a href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh?answertab=oldest#tab-top" data-nav-xhref="" title="Answers in the order they were provided" data-value="oldest" data-shortcut="O">
+            oldest</a>
+        <a class="youarehere is-selected " href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh?answertab=votes#tab-top" data-nav-xhref="" title="Answers with the highest score first" data-value="votes" data-shortcut="V">
+            votes</a>
+    </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+  
+<a name="106482"></a>
+<div id="answer-106482" class="answer" data-answerid="106482" itemprop="suggestedAnswer" itemscope="" itemtype="http://schema.org/Answer">
+    <div class="post-layout">
+        <div class="votecell post-layout--left">
+            
+
+<div class="js-voting-container grid fd-column ai-stretch gs4 fc-black-200" data-post-id="106482">
+        <button class="js-vote-up-btn grid--cell s-btn s-btn__unset c-pointer" title="This answer is useful" aria-pressed="false" aria-label="up vote" data-selected-classes="fc-theme-primary"><svg aria-hidden="true" class="svg-icon m0 iconArrowUpLg" width="36" height="36" viewBox="0 0 36 36"><path d="M2 26h32L18 10 2 26z"></path></svg></button>
+        <div class="js-vote-count grid--cell fc-black-500 fs-title grid fd-column ai-center" itemprop="upvoteCount" data-value="1022">1022</div>
+        <button class="js-vote-down-btn grid--cell s-btn s-btn__unset c-pointer" title="This answer is not useful" aria-pressed="false" aria-label="down vote" data-selected-classes="fc-theme-primary"><svg aria-hidden="true" class="svg-icon m0 iconArrowDownLg" width="36" height="36" viewBox="0 0 36 36"><path d="M2 10h32L18 26 2 10z"></path></svg></button>
+
+    
+            <div class="js-accepted-answer-indicator grid--cell fc-green-500 ta-center py4 d-none" title="loading when this answer was accepted..." tabindex="0" role="note" aria-label="accepted">
+                <svg aria-hidden="true" class="svg-icon iconCheckmarkLg" width="36" height="36" viewBox="0 0 36 36"><path d="M6 14l8 8L30 6v8L14 30l-8-8v-8z"></path></svg>
+            </div>
+
+
+</div>
+
+        </div>
+
+        
+
+
+<div class="answercell post-layout--right">
+        
+    <div class="post-text" itemprop="text">
+<p>Syntax: </p>
+
+<pre><code>scp &lt;source&gt; &lt;destination&gt;
+</code></pre>
+
+<p>To copy a file from <code>B</code> to <code>A</code> while logged into <code>B</code>:</p>
+
+<pre><code>scp /path/to/file username@a:/path/to/destination
+</code></pre>
+
+<p>To copy a file from <code>B</code> to <code>A</code> while logged into <code>A</code>:</p>
+
+<pre><code>scp username@b:/path/to/file /path/to/destination
+</code></pre>
+    </div>
+    <div class="grid mb0 fw-wrap ai-start jc-end gs8 gsy">
+        <time itemprop="dateCreated" datetime="2013-12-24T09:48:54"></time>
+        <div class="grid--cell mr16" style="flex: 1 1 100px;">
+            <div class="post-menu"><a href="https://unix.stackexchange.com/a/106482" itemprop="url" class="js-share-link js-gps-track" title="short permalink to this answer" data-gps-track="post.click({ item: 2, priv: 0, post_type: 2 })" data-controller="se-share-sheet s-popover" data-se-share-sheet-title="Share a link to this answer" data-se-share-sheet-subtitle="" data-se-share-sheet-post-type="answer" data-se-share-sheet-social="facebook twitter " data-se-share-sheet-location="2" data-s-popover-placement="bottom-start" aria-controls="se-share-sheet-1" data-action=" s-popover#toggle se-share-sheet#preventNavigation s-popover:show-&gt;se-share-sheet#willShow s-popover:shown-&gt;se-share-sheet#didShow">share</a><div class="s-popover z-dropdown" style="width: unset; max-width: 28em; position: absolute; transform: translate3d(251px, 1131px, 0px); top: 0px; left: 0px; will-change: transform;" id="se-share-sheet-1" x-placement="top-start"><div class="s-popover--arrow"></div><div><span class="js-title fw-bold">Share a link to this answer</span> <span class="js-subtitle"></span></div><div class="my8"><input type="text" class="js-input s-input wmn3 sm:wmn-initial" readonly=""></div><div class="d-flex jc-space-between mbn4"><button class="js-copy-link-btn s-btn s-btn__link">Copy link</button><div class="js-social-container"></div></div></div><span class="lsep">|</span><a href="https://unix.stackexchange.com/posts/106482/edit" class="suggest-edit-post js-gps-track" data-gps-track="post.click({ item: 6, priv: 0, post_type: 2 })" title="">improve this answer</a></div>
+        </div>
+    <div class="post-signature grid--cell fl0">
+<div class="user-info user-hover">
+    <div class="user-action-time">
+        <a href="https://unix.stackexchange.com/posts/106482/revisions" title="show all edits to this post" class="js-gps-track" data-gps-track="post.click({ item: 4, priv: 0, post_type: 2 })">edited <span title="2016-08-18 14:11:11Z" class="relativetime">Aug 18 '16 at 14:11</span></a>
+    </div>
+    <div class="user-gravatar32">
+        <a href="https://unix.stackexchange.com/users/65525/halosghost"><div class="gravatar-wrapper-32"><img src="./How to copy files from one machine to another using ssh - Unix &amp; Linux Stack Exchange_files/BWGZf.jpg" alt="" width="32" height="32" class="bar-sm"></div></a>
+    </div>
+    <div class="user-details">
+        <a href="https://unix.stackexchange.com/users/65525/halosghost">HalosGhost</a>
+        <div class="-flair">
+            <span class="reputation-score" title="reputation score " dir="ltr">4,046</span><span title="9 gold badges" aria-hidden="true"><span class="badge1"></span><span class="badgecount">9</span></span><span class="v-visible-sr">9 gold badges</span><span title="23 silver badges" aria-hidden="true"><span class="badge2"></span><span class="badgecount">23</span></span><span class="v-visible-sr">23 silver badges</span><span title="36 bronze badges" aria-hidden="true"><span class="badge3"></span><span class="badgecount">36</span></span><span class="v-visible-sr">36 bronze badges</span>
+        </div>
+    </div>
+</div>    </div>
+
+
+
+    <div class="post-signature grid--cell fl0">
+<div class="user-info ">
+    <div class="user-action-time">
+        answered <span title="2013-12-24 09:48:54Z" class="relativetime">Dec 24 '13 at 9:48</span>
+    </div>
+    <div class="user-gravatar32">
+        <a href="https://unix.stackexchange.com/users/20246/dopeghoti"><div class="gravatar-wrapper-32"><img src="./How to copy files from one machine to another using ssh - Unix &amp; Linux Stack Exchange_files/4ec95d6cafb464f4db81d7823d968adb.png" alt="" width="32" height="32" class="bar-sm"></div></a>
+    </div>
+    <div class="user-details" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <a href="https://unix.stackexchange.com/users/20246/dopeghoti">DopeGhoti</a><span class="d-none" itemprop="name">DopeGhoti</span>
+        <div class="-flair">
+            <span class="reputation-score" title="reputation score 51,432" dir="ltr">51.4k</span><span title="5 gold badges" aria-hidden="true"><span class="badge1"></span><span class="badgecount">5</span></span><span class="v-visible-sr">5 gold badges</span><span title="67 silver badges" aria-hidden="true"><span class="badge2"></span><span class="badgecount">67</span></span><span class="v-visible-sr">67 silver badges</span><span title="101 bronze badges" aria-hidden="true"><span class="badge3"></span><span class="badgecount">101</span></span><span class="v-visible-sr">101 bronze badges</span>
+        </div>
+    </div>
+</div>
+
+    </div>
+    </div>
+    
+</div>
+        <div class="js-post-notices post-layout--full">
+        </div>
+
+    <div class="post-layout--right">
+        <div id="comments-106482" class="comments js-comments-container bt bc-black-2 mt12 " data-post-id="106482" data-min-length="15">
+            <ul class="comments-list js-comments-list" data-remaining-comments-count="17" data-canpost="false" data-cansee="true" data-comments-unavailable="false" data-addlink-disabled="true">
+
+
+    <li id="comment-163523" class="comment js-comment " data-comment-id="163523">
+        <div class="js-comment-actions comment-actions">
+            <div class="comment-score js-comment-edit-hide">
+                    <span title="number of &#39;useful comment&#39; votes received" class="supernova">100</span>
+            </div>
+                    </div>
+        <div class="comment-text js-comment-text-and-form">
+            <div class="comment-body js-comment-edit-hide">
+                
+                <span class="comment-copy">To clarify, you typically don't use <code>scp</code> to copy a file to or from your local machine (System A) while logged in to a remote server (System B) with <code>ssh</code>. <code>scp</code> will log you into the remote server, copy the file, then log you out again in one process, so just run it from a shell on your local machine. That being said, you can use <code>scp</code> if you're logged into System B via SSH and want to copy files between System B and System C.</span>
+                
+                    –&nbsp;<a href="https://unix.stackexchange.com/users/47607/garrett-albright" title="457 reputation" class="comment-user">Garrett Albright</a>
+                <span class="comment-date" dir="ltr"><a class="comment-link" href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#comment163523_106482"><span title="2013-12-24 16:40:37Z" class="relativetime-clean">Dec 24 '13 at 16:40</span></a></span>
+                                                            </div>
+        </div>
+    </li>
+    <li id="comment-242503" class="comment js-comment " data-comment-id="242503">
+        <div class="js-comment-actions comment-actions">
+            <div class="comment-score js-comment-edit-hide">
+                    <span title="number of &#39;useful comment&#39; votes received" class="cool">2</span>
+            </div>
+                    </div>
+        <div class="comment-text js-comment-text-and-form">
+            <div class="comment-body js-comment-edit-hide">
+                
+                <span class="comment-copy">@DopeGhoti. Yes, you can't move files between two remote computers. Either the source or destination must be a local file. However, if you log in to a remote machine with ssh, you can copy files between two remote machines on that machine's command-line.</span>
+                
+                    –&nbsp;<a href="https://unix.stackexchange.com/users/43446/gee-bee" title="101 reputation" class="comment-user">Gee-Bee</a>
+                <span class="comment-date" dir="ltr"><a class="comment-link" href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#comment242503_106482"><span title="2014-08-08 19:48:26Z" class="relativetime-clean">Aug 8 '14 at 19:48</span></a></span>
+                                                            </div>
+        </div>
+    </li>
+    <li id="comment-333504" class="comment js-comment " data-comment-id="333504">
+        <div class="js-comment-actions comment-actions">
+            <div class="comment-score js-comment-edit-hide">
+                    <span title="number of &#39;useful comment&#39; votes received" class="cool">3</span>
+            </div>
+                    </div>
+        <div class="comment-text js-comment-text-and-form">
+            <div class="comment-body js-comment-edit-hide">
+                
+                <span class="comment-copy">Also, an important thing to remember is that you can only scp to a folder on the target machine to which you have permissions. If you are trying to copy it to a destination to which the target user does not have permission, first copy the file to the user's home directory or sub directory and then ssh into the target machine and sudo move it over to the final destination</span>
+                
+                    –&nbsp;<a href="https://unix.stackexchange.com/users/60631/shaveenk" title="101 reputation" class="comment-user">shaveenk</a>
+                <span class="comment-date" dir="ltr"><a class="comment-link" href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#comment333504_106482"><span title="2015-04-25 20:30:52Z" class="relativetime-clean">Apr 25 '15 at 20:30</span></a></span>
+                                                            </div>
+        </div>
+    </li>
+    <li id="comment-361597" class="comment js-comment " data-comment-id="361597">
+        <div class="js-comment-actions comment-actions">
+            <div class="comment-score js-comment-edit-hide">
+                    <span title="number of &#39;useful comment&#39; votes received" class="warm">9</span>
+            </div>
+                    </div>
+        <div class="comment-text js-comment-text-and-form">
+            <div class="comment-body js-comment-edit-hide">
+                
+                <span class="comment-copy">Remember -r (recursive) and -p (preserve system metadata): scp -rp &lt;file1&gt; &lt;file2&gt;</span>
+                
+                    –&nbsp;<a href="https://unix.stackexchange.com/users/121637/rutrus" title="101 reputation" class="comment-user">Rutrus</a>
+                <span class="comment-date" dir="ltr"><a class="comment-link" href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#comment361597_106482"><span title="2015-07-01 07:23:27Z" class="relativetime-clean">Jul 1 '15 at 7:23</span></a></span>
+                                                            </div>
+        </div>
+    </li>
+    <li id="comment-486500" class="comment js-comment " data-comment-id="486500">
+        <div class="js-comment-actions comment-actions">
+            <div class="comment-score js-comment-edit-hide">
+                    <span title="number of &#39;useful comment&#39; votes received" class="warm">8</span>
+            </div>
+                    </div>
+        <div class="comment-text js-comment-text-and-form">
+            <div class="comment-body js-comment-edit-hide">
+                
+                <span class="comment-copy">Yes, use <code>-P</code> to specify the TCP port on the remote host.  This catches me every time, because <code>ssh</code> uses <code>-p</code>.</span>
+                
+                    –&nbsp;<a href="https://unix.stackexchange.com/users/20246/dopeghoti" title="51,432 reputation" class="comment-user">DopeGhoti</a>
+                <span class="comment-date" dir="ltr"><a class="comment-link" href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#comment486500_106482"><span title="2016-04-28 18:22:23Z" class="relativetime-clean">Apr 28 '16 at 18:22</span></a></span>
+                        <span title="this comment was edited 1 time">
+                            <svg aria-hidden="true" class="svg-icon va-text-bottom o50 iconPencilSm" width="14" height="14" viewBox="0 0 14 14"><path d="M11.1 1.71l1.13 1.12c.2.2.2.51 0 .71L11.1 4.7 9.21 2.86l1.17-1.15c.2-.2.51-.2.71 0zM2 10.12l6.37-6.43 1.88 1.88L3.88 12H2v-1.88z"></path></svg>
+                        </span>
+                                                            </div>
+        </div>
+    </li>
+            </ul>
+	    </div>
+
+        <div id="comments-link-106482" data-rep="50" data-anon="true">
+
+                    <a class="js-add-link comments-link dno" title="Use comments to ask for more information or suggest improvements. Avoid comments like “+1” or “thanks”."></a>
+                <span class="js-link-separator dno">&nbsp;|&nbsp;</span>
+            <a class="js-show-link comments-link " title="expand to show all comments on this post" href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#" onclick="">show <b>17</b> more comments</a>
+        </div>         
+    </div>    </div>
+</div>
+<div id="dfp-mlb" class="everyonelovesstackoverflow everyoneloves__mid-leaderboard" data-dfp-zone="true" style="display: none;"></div>
+  
+<a name="106485"></a>
+<div id="answer-106485" class="answer" data-answerid="106485" itemprop="suggestedAnswer" itemscope="" itemtype="http://schema.org/Answer">
+    <div class="post-layout">
+        <div class="votecell post-layout--left">
+            
+
+<div class="js-voting-container grid fd-column ai-stretch gs4 fc-black-200" data-post-id="106485">
+        <button class="js-vote-up-btn grid--cell s-btn s-btn__unset c-pointer" title="This answer is useful" aria-pressed="false" aria-label="up vote" data-selected-classes="fc-theme-primary"><svg aria-hidden="true" class="svg-icon m0 iconArrowUpLg" width="36" height="36" viewBox="0 0 36 36"><path d="M2 26h32L18 10 2 26z"></path></svg></button>
+        <div class="js-vote-count grid--cell fc-black-500 fs-title grid fd-column ai-center" itemprop="upvoteCount" data-value="112">112</div>
+        <button class="js-vote-down-btn grid--cell s-btn s-btn__unset c-pointer" title="This answer is not useful" aria-pressed="false" aria-label="down vote" data-selected-classes="fc-theme-primary"><svg aria-hidden="true" class="svg-icon m0 iconArrowDownLg" width="36" height="36" viewBox="0 0 36 36"><path d="M2 10h32L18 26 2 10z"></path></svg></button>
+
+    
+            <div class="js-accepted-answer-indicator grid--cell fc-green-500 ta-center py4 d-none" title="loading when this answer was accepted..." tabindex="0" role="note" aria-label="accepted">
+                <svg aria-hidden="true" class="svg-icon iconCheckmarkLg" width="36" height="36" viewBox="0 0 36 36"><path d="M6 14l8 8L30 6v8L14 30l-8-8v-8z"></path></svg>
+            </div>
+
+
+</div>
+
+        </div>
+
+        
+
+
+<div class="answercell post-layout--right">
+        
+    <div class="post-text" itemprop="text">
+<p>In case if you need an alternate approach.</p>
+
+<p>Install sshfs. if you use ubuntu/debian:</p>
+
+<pre><code>sudo apt-get install sshfs
+</code></pre>
+
+<p>or, if you use centos/rhel:</p>
+
+<pre><code>sudo yum install fuse-sshfs
+</code></pre>
+
+<p>or, in macOS</p>
+
+<pre><code>brew install sshfs
+</code></pre>
+
+<p>Create an empty dir</p>
+
+<pre><code>mkdir /home/user/testdir
+</code></pre>
+
+<p>"link" or "mount" the two directories</p>
+
+<pre><code>sshfs user@server.com:/remote/dir /home/user/testdir
+</code></pre>
+
+<p>"unlink" the dirs</p>
+
+<pre><code>fusermount -u /home/user/testdir
+</code></pre>
+
+<p>On BSD and macOS, to unmount the filesystem:</p>
+
+<pre><code>umount mountpoint
+</code></pre>
+
+<p>or</p>
+
+<pre><code>diskutil unmount mountpoint
+</code></pre>
+
+<p>For more see here, <a href="http://www.linuxjournal.com/article/8904" rel="nofollow noreferrer">linuxjournal.com</a> <a href="https://github.com/libfuse/sshfs" rel="nofollow noreferrer">libfuse/sshfs</a></p>
+    </div>
+    <div class="grid mb0 fw-wrap ai-start jc-end gs8 gsy">
+        <time itemprop="dateCreated" datetime="2013-12-24T09:58:03"></time>
+        <div class="grid--cell mr16" style="flex: 1 1 100px;">
+            <div class="post-menu"><a href="https://unix.stackexchange.com/a/106485" itemprop="url" class="js-share-link js-gps-track" title="short permalink to this answer" data-gps-track="post.click({ item: 2, priv: 0, post_type: 2 })" data-controller="se-share-sheet s-popover" data-se-share-sheet-title="Share a link to this answer" data-se-share-sheet-subtitle="" data-se-share-sheet-post-type="answer" data-se-share-sheet-social="facebook twitter " data-se-share-sheet-location="2" data-s-popover-placement="bottom-start" aria-controls="se-share-sheet-2" data-action=" s-popover#toggle se-share-sheet#preventNavigation s-popover:show-&gt;se-share-sheet#willShow s-popover:shown-&gt;se-share-sheet#didShow">share</a><div class="s-popover z-dropdown" style="width: unset; max-width: 28em; position: absolute; transform: translate3d(240px, 2382px, 0px); top: 0px; left: 0px; will-change: transform;" id="se-share-sheet-2" x-placement="top-start"><div class="s-popover--arrow"></div><div><span class="js-title fw-bold">Share a link to this answer</span> <span class="js-subtitle"></span></div><div class="my8"><input type="text" class="js-input s-input wmn3 sm:wmn-initial" readonly=""></div><div class="d-flex jc-space-between mbn4"><button class="js-copy-link-btn s-btn s-btn__link">Copy link</button><div class="js-social-container"></div></div></div><span class="lsep">|</span><a href="https://unix.stackexchange.com/posts/106485/edit" class="suggest-edit-post js-gps-track" data-gps-track="post.click({ item: 6, priv: 0, post_type: 2 })" title="">improve this answer</a></div>
+        </div>
+    <div class="post-signature grid--cell fl0">
+<div class="user-info ">
+    <div class="user-action-time">
+        <a href="https://unix.stackexchange.com/posts/106485/revisions" title="show all edits to this post" class="js-gps-track" data-gps-track="post.click({ item: 4, priv: 0, post_type: 2 })">edited <span title="2019-11-21 21:22:18Z" class="relativetime">Nov 21 at 21:22</span></a>
+    </div>
+    <div class="user-gravatar32">
+        <a href="https://unix.stackexchange.com/users/318405/rakib-fiha"><div class="gravatar-wrapper-32"><img src="./How to copy files from one machine to another using ssh - Unix &amp; Linux Stack Exchange_files/picture" alt="" width="32" height="32" class="bar-sm"></div></a>
+    </div>
+    <div class="user-details">
+        <a href="https://unix.stackexchange.com/users/318405/rakib-fiha">Rakib Fiha</a>
+        <div class="-flair">
+            <span class="reputation-score" title="reputation score " dir="ltr">149</span><span title="1 silver badge" aria-hidden="true"><span class="badge2"></span><span class="badgecount">1</span></span><span class="v-visible-sr">1 silver badge</span><span title="16 bronze badges" aria-hidden="true"><span class="badge3"></span><span class="badgecount">16</span></span><span class="v-visible-sr">16 bronze badges</span>
+        </div>
+    </div>
+</div>    </div>
+
+
+
+    <div class="post-signature grid--cell fl0">
+<div class="user-info ">
+    <div class="user-action-time">
+        answered <span title="2013-12-24 09:58:03Z" class="relativetime">Dec 24 '13 at 9:58</span>
+    </div>
+    <div class="user-gravatar32">
+        <a href="https://unix.stackexchange.com/users/53243/ruban-savvy"><div class="gravatar-wrapper-32"><img src="./How to copy files from one machine to another using ssh - Unix &amp; Linux Stack Exchange_files/iK4Go.jpg" alt="" width="32" height="32" class="bar-sm"></div></a>
+    </div>
+    <div class="user-details" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <a href="https://unix.stackexchange.com/users/53243/ruban-savvy">Ruban Savvy</a><span class="d-none" itemprop="name">Ruban Savvy</span>
+        <div class="-flair">
+            <span class="reputation-score" title="reputation score " dir="ltr">6,245</span><span title="7 gold badges" aria-hidden="true"><span class="badge1"></span><span class="badgecount">7</span></span><span class="v-visible-sr">7 gold badges</span><span title="24 silver badges" aria-hidden="true"><span class="badge2"></span><span class="badgecount">24</span></span><span class="v-visible-sr">24 silver badges</span><span title="42 bronze badges" aria-hidden="true"><span class="badge3"></span><span class="badgecount">42</span></span><span class="v-visible-sr">42 bronze badges</span>
+        </div>
+    </div>
+</div>
+
+    </div>
+    </div>
+    
+</div>
+        <div class="js-post-notices post-layout--full">
+        </div>
+
+    <div class="post-layout--right">
+        <div id="comments-106485" class="comments js-comments-container bt bc-black-2 mt12 " data-post-id="106485" data-min-length="15">
+            <ul class="comments-list js-comments-list" data-remaining-comments-count="1" data-canpost="false" data-cansee="true" data-comments-unavailable="false" data-addlink-disabled="true">
+
+
+    <li id="comment-163554" class="comment js-comment " data-comment-id="163554">
+        <div class="js-comment-actions comment-actions">
+            <div class="comment-score js-comment-edit-hide">
+                    <span title="number of &#39;useful comment&#39; votes received" class="cool">4</span>
+            </div>
+                    </div>
+        <div class="comment-text js-comment-text-and-form">
+            <div class="comment-body js-comment-edit-hide">
+                
+                <span class="comment-copy">The question specifically states that the OS in question is CentOS; not Debian-derived.  <code>apt-get</code> is a Debianism; the correct package manager would be <code>yum</code> or, for really old flavors of CentOS, <code>up2date</code> or <code>rpm</code>.</span>
+                
+                    –&nbsp;<a href="https://unix.stackexchange.com/users/20246/dopeghoti" title="51,432 reputation" class="comment-user">DopeGhoti</a>
+                <span class="comment-date" dir="ltr"><a class="comment-link" href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#comment163554_106485"><span title="2013-12-24 21:30:41Z" class="relativetime-clean">Dec 24 '13 at 21:30</span></a></span>
+                                                            </div>
+        </div>
+    </li>
+    <li id="comment-236149" class="comment js-comment " data-comment-id="236149">
+        <div class="js-comment-actions comment-actions">
+            <div class="comment-score js-comment-edit-hide">
+                    <span title="number of &#39;useful comment&#39; votes received" class="hot">29</span>
+            </div>
+                    </div>
+        <div class="comment-text js-comment-text-and-form">
+            <div class="comment-body js-comment-edit-hide">
+                
+                <span class="comment-copy">+1 the answer for this question may be off context, but it still helped me, and as far as I can see, others too.</span>
+                
+                    –&nbsp;<a href="https://unix.stackexchange.com/users/61077/osirisgothra" title="156 reputation" class="comment-user">osirisgothra</a>
+                <span class="comment-date" dir="ltr"><a class="comment-link" href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#comment236149_106485"><span title="2014-07-23 15:27:39Z" class="relativetime-clean">Jul 23 '14 at 15:27</span></a></span>
+                        <span title="this comment was edited 1 time">
+                            <svg aria-hidden="true" class="svg-icon va-text-bottom o50 iconPencilSm" width="14" height="14" viewBox="0 0 14 14"><path d="M11.1 1.71l1.13 1.12c.2.2.2.51 0 .71L11.1 4.7 9.21 2.86l1.17-1.15c.2-.2.51-.2.71 0zM2 10.12l6.37-6.43 1.88 1.88L3.88 12H2v-1.88z"></path></svg>
+                        </span>
+                                                            </div>
+        </div>
+    </li>
+    <li id="comment-342987" class="comment js-comment " data-comment-id="342987">
+        <div class="js-comment-actions comment-actions">
+            <div class="comment-score js-comment-edit-hide">
+                    <span title="number of &#39;useful comment&#39; votes received" class="warm">9</span>
+            </div>
+                    </div>
+        <div class="comment-text js-comment-text-and-form">
+            <div class="comment-body js-comment-edit-hide">
+                
+                <span class="comment-copy">Not related, but it's a one million dollar answer xD</span>
+                
+                    –&nbsp;<a href="https://unix.stackexchange.com/users/31708/ramy-al-zuhouri" title="103 reputation" class="comment-user">Ramy Al Zuhouri</a>
+                <span class="comment-date" dir="ltr"><a class="comment-link" href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#comment342987_106485"><span title="2015-05-15 16:55:42Z" class="relativetime-clean">May 15 '15 at 16:55</span></a></span>
+                                                            </div>
+        </div>
+    </li>
+    <li id="comment-482666" class="comment js-comment " data-comment-id="482666">
+        <div class="js-comment-actions comment-actions">
+            <div class="comment-score js-comment-edit-hide">
+            </div>
+                    </div>
+        <div class="comment-text js-comment-text-and-form">
+            <div class="comment-body js-comment-edit-hide">
+                
+                <span class="comment-copy">If I understand correctly, this gives ACCESS to the remote files, but does not COPY them?</span>
+                
+                    –&nbsp;<a href="https://unix.stackexchange.com/users/166599/toolmakersteve" title="101 reputation" class="comment-user">ToolmakerSteve</a>
+                <span class="comment-date" dir="ltr"><a class="comment-link" href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#comment482666_106485"><span title="2016-04-20 02:46:58Z" class="relativetime-clean">Apr 20 '16 at 2:46</span></a></span>
+                                                            </div>
+        </div>
+    </li>
+    <li id="comment-557781" class="comment js-comment " data-comment-id="557781">
+        <div class="js-comment-actions comment-actions">
+            <div class="comment-score js-comment-edit-hide">
+            </div>
+                    </div>
+        <div class="comment-text js-comment-text-and-form">
+            <div class="comment-body js-comment-edit-hide">
+                
+                <span class="comment-copy">@ToolmakerSteve you're perfectly right: it creates a fake directory (mount), so that you can use all your preferred tools to copy or move things: <code>cp</code>, <code>mv</code>, <code>rm</code>, <code>rsync</code>, <code>unison</code>... The <code>scp</code> command would only be able to copy files.</span>
+                
+                    –&nbsp;<a href="https://unix.stackexchange.com/users/113214/yvan" title="101 reputation" class="comment-user">Yvan</a>
+                <span class="comment-date" dir="ltr"><a class="comment-link" href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#comment557781_106485"><span title="2016-10-19 05:38:14Z" class="relativetime-clean">Oct 19 '16 at 5:38</span></a></span>
+                        <span title="this comment was edited 1 time">
+                            <svg aria-hidden="true" class="svg-icon va-text-bottom o50 iconPencilSm" width="14" height="14" viewBox="0 0 14 14"><path d="M11.1 1.71l1.13 1.12c.2.2.2.51 0 .71L11.1 4.7 9.21 2.86l1.17-1.15c.2-.2.51-.2.71 0zM2 10.12l6.37-6.43 1.88 1.88L3.88 12H2v-1.88z"></path></svg>
+                        </span>
+                                                            </div>
+        </div>
+    </li>
+            </ul>
+	    </div>
+
+        <div id="comments-link-106485" data-rep="50" data-anon="true">
+
+                    <a class="js-add-link comments-link dno" title="Use comments to ask for more information or suggest improvements. Avoid comments like “+1” or “thanks”."></a>
+                <span class="js-link-separator dno">&nbsp;|&nbsp;</span>
+            <a class="js-show-link comments-link " title="expand to show all comments on this post" href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#" onclick="">show <b>1</b> more comment</a>
+        </div>         
+    </div>    </div>
+</div>
+
+  
+<a name="106508"></a>
+<div id="answer-106508" class="answer" data-answerid="106508" itemprop="suggestedAnswer" itemscope="" itemtype="http://schema.org/Answer">
+    <div class="post-layout">
+        <div class="votecell post-layout--left">
+            
+
+<div class="js-voting-container grid fd-column ai-stretch gs4 fc-black-200" data-post-id="106508">
+        <button class="js-vote-up-btn grid--cell s-btn s-btn__unset c-pointer" title="This answer is useful" aria-pressed="false" aria-label="up vote" data-selected-classes="fc-theme-primary"><svg aria-hidden="true" class="svg-icon m0 iconArrowUpLg" width="36" height="36" viewBox="0 0 36 36"><path d="M2 26h32L18 10 2 26z"></path></svg></button>
+        <div class="js-vote-count grid--cell fc-black-500 fs-title grid fd-column ai-center" itemprop="upvoteCount" data-value="46">46</div>
+        <button class="js-vote-down-btn grid--cell s-btn s-btn__unset c-pointer" title="This answer is not useful" aria-pressed="false" aria-label="down vote" data-selected-classes="fc-theme-primary"><svg aria-hidden="true" class="svg-icon m0 iconArrowDownLg" width="36" height="36" viewBox="0 0 36 36"><path d="M2 10h32L18 26 2 10z"></path></svg></button>
+
+    
+            <div class="js-accepted-answer-indicator grid--cell fc-green-500 ta-center py4 d-none" title="loading when this answer was accepted..." tabindex="0" role="note" aria-label="accepted">
+                <svg aria-hidden="true" class="svg-icon iconCheckmarkLg" width="36" height="36" viewBox="0 0 36 36"><path d="M6 14l8 8L30 6v8L14 30l-8-8v-8z"></path></svg>
+            </div>
+
+
+</div>
+
+        </div>
+
+        
+
+
+<div class="answercell post-layout--right">
+        
+    <div class="post-text" itemprop="text">
+<p>Sometimes you need to get fancy with tar:</p>
+
+<pre><code>tar -C / -cf - \
+  opt/widget etc/widget etc/cron.d/widget etc/init.d/widget \
+  --exclude=opt/widget/local.conf | 
+  ssh otherhost tar -C / -xvf -
+</code></pre>
+    </div>
+    <div class="grid mb0 fw-wrap ai-start jc-end gs8 gsy">
+        <time itemprop="dateCreated" datetime="2013-12-24T15:17:27"></time>
+        <div class="grid--cell mr16" style="flex: 1 1 100px;">
+            <div class="post-menu"><a href="https://unix.stackexchange.com/a/106508" itemprop="url" class="js-share-link js-gps-track" title="short permalink to this answer" data-gps-track="post.click({ item: 2, priv: 0, post_type: 2 })" data-controller="se-share-sheet s-popover" data-se-share-sheet-title="Share a link to this answer" data-se-share-sheet-subtitle="" data-se-share-sheet-post-type="answer" data-se-share-sheet-social="facebook twitter " data-se-share-sheet-location="2" data-s-popover-placement="bottom-start" aria-controls="se-share-sheet-3" data-action=" s-popover#toggle se-share-sheet#preventNavigation s-popover:show-&gt;se-share-sheet#willShow s-popover:shown-&gt;se-share-sheet#didShow">share</a><div class="s-popover z-dropdown" style="width: unset; max-width: 28em; position: absolute; transform: translate3d(240px, 2913px, 0px); top: 0px; left: 0px; will-change: transform;" id="se-share-sheet-3" x-placement="top-start"><div class="s-popover--arrow"></div><div><span class="js-title fw-bold">Share a link to this answer</span> <span class="js-subtitle"></span></div><div class="my8"><input type="text" class="js-input s-input wmn3 sm:wmn-initial" readonly=""></div><div class="d-flex jc-space-between mbn4"><button class="js-copy-link-btn s-btn s-btn__link">Copy link</button><div class="js-social-container"></div></div></div><span class="lsep">|</span><a href="https://unix.stackexchange.com/posts/106508/edit" class="suggest-edit-post js-gps-track" data-gps-track="post.click({ item: 6, priv: 0, post_type: 2 })" title="">improve this answer</a></div>
+        </div>
+
+
+
+    <div class="post-signature grid--cell fl0">
+<div class="user-info user-hover">
+    <div class="user-action-time">
+        answered <span title="2013-12-24 15:17:27Z" class="relativetime">Dec 24 '13 at 15:17</span>
+    </div>
+    <div class="user-gravatar32">
+        <a href="https://unix.stackexchange.com/users/22619/dan-garthwaite"><div class="gravatar-wrapper-32"><img src="./How to copy files from one machine to another using ssh - Unix &amp; Linux Stack Exchange_files/cd21906acfda6c65b79a5e98ad239389.jpeg" alt="" width="32" height="32" class="bar-sm"></div></a>
+    </div>
+    <div class="user-details" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <a href="https://unix.stackexchange.com/users/22619/dan-garthwaite">Dan Garthwaite</a><span class="d-none" itemprop="name">Dan Garthwaite</span>
+        <div class="-flair">
+            <span class="reputation-score" title="reputation score " dir="ltr">4,508</span><span title="1 gold badge" aria-hidden="true"><span class="badge1"></span><span class="badgecount">1</span></span><span class="v-visible-sr">1 gold badge</span><span title="11 silver badges" aria-hidden="true"><span class="badge2"></span><span class="badgecount">11</span></span><span class="v-visible-sr">11 silver badges</span><span title="9 bronze badges" aria-hidden="true"><span class="badge3"></span><span class="badgecount">9</span></span><span class="v-visible-sr">9 bronze badges</span>
+        </div>
+    </div>
+</div>
+
+    </div>
+    </div>
+    
+</div>
+        <div class="js-post-notices post-layout--full">
+        </div>
+
+    <div class="post-layout--right">
+        <div id="comments-106508" class="comments js-comments-container bt bc-black-2 mt12 " data-post-id="106508" data-min-length="15">
+            <ul class="comments-list js-comments-list" data-remaining-comments-count="0" data-canpost="false" data-cansee="true" data-comments-unavailable="false" data-addlink-disabled="true">
+
+
+    <li id="comment-426884" class="comment js-comment " data-comment-id="426884">
+        <div class="js-comment-actions comment-actions">
+            <div class="comment-score js-comment-edit-hide">
+                    <span title="number of &#39;useful comment&#39; votes received" class="warm">12</span>
+            </div>
+                    </div>
+        <div class="comment-text js-comment-text-and-form">
+            <div class="comment-body js-comment-edit-hide">
+                
+                <span class="comment-copy">Creativity?  This is how we used to share tape drives.  :)</span>
+                
+                    –&nbsp;<a href="https://unix.stackexchange.com/users/22619/dan-garthwaite" title="4,508 reputation" class="comment-user">Dan Garthwaite</a>
+                <span class="comment-date" dir="ltr"><a class="comment-link" href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#comment426884_106508"><span title="2015-12-08 15:01:48Z" class="relativetime-clean">Dec 8 '15 at 15:01</span></a></span>
+                                                            </div>
+        </div>
+    </li>
+    <li id="comment-561632" class="comment js-comment " data-comment-id="561632">
+        <div class="js-comment-actions comment-actions">
+            <div class="comment-score js-comment-edit-hide">
+            </div>
+                    </div>
+        <div class="comment-text js-comment-text-and-form">
+            <div class="comment-body js-comment-edit-hide">
+                
+                <span class="comment-copy">Can you tell us what this does? For example I have no idea what 'cron' has to do with copying file!</span>
+                
+                    –&nbsp;<a href="https://unix.stackexchange.com/users/194092/aliqandil" title="101 reputation" class="comment-user">aliqandil</a>
+                <span class="comment-date" dir="ltr"><a class="comment-link" href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#comment561632_106508"><span title="2016-10-28 15:00:06Z" class="relativetime-clean">Oct 28 '16 at 15:00</span></a></span>
+                                                            </div>
+        </div>
+    </li>
+    <li id="comment-561722" class="comment js-comment " data-comment-id="561722">
+        <div class="js-comment-actions comment-actions">
+            <div class="comment-score js-comment-edit-hide">
+                    <span title="number of &#39;useful comment&#39; votes received" class="cool">2</span>
+            </div>
+                    </div>
+        <div class="comment-text js-comment-text-and-form">
+            <div class="comment-body js-comment-edit-hide">
+                
+                <span class="comment-copy">@aliqandil  opt/widget etc/widget etc/cron.d/widget etc/init.d/widget are individual files to be included in the tar archive.  The point was to illustrate why sometimes you need to get fancy.  This series of commands streams the tar archive over an ssh connection and unarchives it on the other side.  Thus no tar archive is ever written to disk.  I use this sometimes to cherry pick files to copy in one command.</span>
+                
+                    –&nbsp;<a href="https://unix.stackexchange.com/users/22619/dan-garthwaite" title="4,508 reputation" class="comment-user">Dan Garthwaite</a>
+                <span class="comment-date" dir="ltr"><a class="comment-link" href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#comment561722_106508"><span title="2016-10-28 18:51:45Z" class="relativetime-clean">Oct 28 '16 at 18:51</span></a></span>
+                        <span title="this comment was edited 1 time">
+                            <svg aria-hidden="true" class="svg-icon va-text-bottom o50 iconPencilSm" width="14" height="14" viewBox="0 0 14 14"><path d="M11.1 1.71l1.13 1.12c.2.2.2.51 0 .71L11.1 4.7 9.21 2.86l1.17-1.15c.2-.2.51-.2.71 0zM2 10.12l6.37-6.43 1.88 1.88L3.88 12H2v-1.88z"></path></svg>
+                        </span>
+                                                            </div>
+        </div>
+    </li>
+    <li id="comment-561775" class="comment js-comment " data-comment-id="561775">
+        <div class="js-comment-actions comment-actions">
+            <div class="comment-score js-comment-edit-hide">
+            </div>
+                    </div>
+        <div class="comment-text js-comment-text-and-form">
+            <div class="comment-body js-comment-edit-hide">
+                
+                <span class="comment-copy">Ow! I taught the first '/' was the source path! (What is it?) So that was a silly question! Thanks. :)</span>
+                
+                    –&nbsp;<a href="https://unix.stackexchange.com/users/194092/aliqandil" title="101 reputation" class="comment-user">aliqandil</a>
+                <span class="comment-date" dir="ltr"><a class="comment-link" href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#comment561775_106508"><span title="2016-10-28 21:01:01Z" class="relativetime-clean">Oct 28 '16 at 21:01</span></a></span>
+                        <span title="this comment was edited 1 time">
+                            <svg aria-hidden="true" class="svg-icon va-text-bottom o50 iconPencilSm" width="14" height="14" viewBox="0 0 14 14"><path d="M11.1 1.71l1.13 1.12c.2.2.2.51 0 .71L11.1 4.7 9.21 2.86l1.17-1.15c.2-.2.51-.2.71 0zM2 10.12l6.37-6.43 1.88 1.88L3.88 12H2v-1.88z"></path></svg>
+                        </span>
+                                                            </div>
+        </div>
+    </li>
+    <li id="comment-561942" class="comment js-comment " data-comment-id="561942">
+        <div class="js-comment-actions comment-actions">
+            <div class="comment-score js-comment-edit-hide">
+                    <span title="number of &#39;useful comment&#39; votes received" class="cool">3</span>
+            </div>
+                    </div>
+        <div class="comment-text js-comment-text-and-form">
+            <div class="comment-body js-comment-edit-hide">
+                
+                <span class="comment-copy">Tar will chdir to "/" thus all the following paths are relative to "/".</span>
+                
+                    –&nbsp;<a href="https://unix.stackexchange.com/users/22619/dan-garthwaite" title="4,508 reputation" class="comment-user">Dan Garthwaite</a>
+                <span class="comment-date" dir="ltr"><a class="comment-link" href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#comment561942_106508"><span title="2016-10-29 14:27:18Z" class="relativetime-clean">Oct 29 '16 at 14:27</span></a></span>
+                                                            </div>
+        </div>
+    </li>
+            </ul>
+	    </div>
+
+        <div id="comments-link-106508" data-rep="50" data-anon="true">
+
+                    <a class="js-add-link comments-link disabled-link" title="Use comments to ask for more information or suggest improvements. Avoid comments like “+1” or “thanks”.">add a comment</a>
+                <span class="js-link-separator dno">&nbsp;|&nbsp;</span>
+            <a class="js-show-link comments-link dno" title="expand to show all comments on this post" href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#" onclick=""></a>
+        </div>         
+    </div>    </div>
+</div>
+
+  
+<a name="106534"></a>
+<div id="answer-106534" class="answer" data-answerid="106534" itemprop="suggestedAnswer" itemscope="" itemtype="http://schema.org/Answer">
+    <div class="post-layout">
+        <div class="votecell post-layout--left">
+            
+
+<div class="js-voting-container grid fd-column ai-stretch gs4 fc-black-200" data-post-id="106534">
+        <button class="js-vote-up-btn grid--cell s-btn s-btn__unset c-pointer" title="This answer is useful" aria-pressed="false" aria-label="up vote" data-selected-classes="fc-theme-primary"><svg aria-hidden="true" class="svg-icon m0 iconArrowUpLg" width="36" height="36" viewBox="0 0 36 36"><path d="M2 26h32L18 10 2 26z"></path></svg></button>
+        <div class="js-vote-count grid--cell fc-black-500 fs-title grid fd-column ai-center" itemprop="upvoteCount" data-value="19">19</div>
+        <button class="js-vote-down-btn grid--cell s-btn s-btn__unset c-pointer" title="This answer is not useful" aria-pressed="false" aria-label="down vote" data-selected-classes="fc-theme-primary"><svg aria-hidden="true" class="svg-icon m0 iconArrowDownLg" width="36" height="36" viewBox="0 0 36 36"><path d="M2 10h32L18 26 2 10z"></path></svg></button>
+
+    
+            <div class="js-accepted-answer-indicator grid--cell fc-green-500 ta-center py4 d-none" title="loading when this answer was accepted..." tabindex="0" role="note" aria-label="accepted">
+                <svg aria-hidden="true" class="svg-icon iconCheckmarkLg" width="36" height="36" viewBox="0 0 36 36"><path d="M6 14l8 8L30 6v8L14 30l-8-8v-8z"></path></svg>
+            </div>
+
+
+</div>
+
+        </div>
+
+        
+
+
+<div class="answercell post-layout--right">
+        
+    <div class="post-text" itemprop="text">
+<p>If you want to keep the files on both systems in sync then have a look at the <code>rsync</code> program:</p>
+
+<p><a href="http://www.cyberciti.biz/tips/linux-use-rsync-transfer-mirror-files-directories.html" rel="noreferrer">(see tutorial here)</a></p>
+    </div>
+    <div class="grid mb0 fw-wrap ai-start jc-end gs8 gsy">
+        <time itemprop="dateCreated" datetime="2013-12-24T21:30:31"></time>
+        <div class="grid--cell mr16" style="flex: 1 1 100px;">
+            <div class="post-menu"><a href="https://unix.stackexchange.com/a/106534" itemprop="url" class="js-share-link js-gps-track" title="short permalink to this answer" data-gps-track="post.click({ item: 2, priv: 0, post_type: 2 })" data-controller="se-share-sheet s-popover" data-se-share-sheet-title="Share a link to this answer" data-se-share-sheet-subtitle="" data-se-share-sheet-post-type="answer" data-se-share-sheet-social="facebook twitter " data-se-share-sheet-location="2" data-s-popover-placement="bottom-start" aria-controls="se-share-sheet-4" data-action=" s-popover#toggle se-share-sheet#preventNavigation s-popover:show-&gt;se-share-sheet#willShow s-popover:shown-&gt;se-share-sheet#didShow">share</a><div class="s-popover z-dropdown" style="width: unset; max-width: 28em; position: absolute; transform: translate3d(240px, 3358px, 0px); top: 0px; left: 0px; will-change: transform;" id="se-share-sheet-4" x-placement="top-start"><div class="s-popover--arrow"></div><div><span class="js-title fw-bold">Share a link to this answer</span> <span class="js-subtitle"></span></div><div class="my8"><input type="text" class="js-input s-input wmn3 sm:wmn-initial" readonly=""></div><div class="d-flex jc-space-between mbn4"><button class="js-copy-link-btn s-btn s-btn__link">Copy link</button><div class="js-social-container"></div></div></div><span class="lsep">|</span><a href="https://unix.stackexchange.com/posts/106534/edit" class="suggest-edit-post js-gps-track" data-gps-track="post.click({ item: 6, priv: 0, post_type: 2 })" title="">improve this answer</a></div>
+        </div>
+    <div class="post-signature grid--cell fl0">
+<div class="user-info ">
+    <div class="user-action-time">
+        <a href="https://unix.stackexchange.com/posts/106534/revisions" title="show all edits to this post" class="js-gps-track" data-gps-track="post.click({ item: 4, priv: 0, post_type: 2 })">edited <span title="2015-10-15 08:32:03Z" class="relativetime">Oct 15 '15 at 8:32</span></a>
+    </div>
+    <div class="user-gravatar32">
+        <a href="https://unix.stackexchange.com/users/9199/mathieu-rodic"><div class="gravatar-wrapper-32"><img src="./How to copy files from one machine to another using ssh - Unix &amp; Linux Stack Exchange_files/f9047f5d438178c9530b93f39f0126c2.jpeg" alt="" width="32" height="32" class="bar-sm"></div></a>
+    </div>
+    <div class="user-details">
+        <a href="https://unix.stackexchange.com/users/9199/mathieu-rodic">Mathieu Rodic</a>
+        <div class="-flair">
+            <span class="reputation-score" title="reputation score " dir="ltr">103</span><span title="4 bronze badges" aria-hidden="true"><span class="badge3"></span><span class="badgecount">4</span></span><span class="v-visible-sr">4 bronze badges</span>
+        </div>
+    </div>
+</div>    </div>
+
+
+
+    <div class="post-signature grid--cell fl0">
+<div class="user-info ">
+    <div class="user-action-time">
+        answered <span title="2013-12-24 21:30:31Z" class="relativetime">Dec 24 '13 at 21:30</span>
+    </div>
+    <div class="user-gravatar32">
+        <a href="https://unix.stackexchange.com/users/53688/kiffin"><div class="gravatar-wrapper-32"><img src="./How to copy files from one machine to another using ssh - Unix &amp; Linux Stack Exchange_files/8881081a77368d17711c1e667364bce8.png" alt="" width="32" height="32" class="bar-sm"></div></a>
+    </div>
+    <div class="user-details" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+        <a href="https://unix.stackexchange.com/users/53688/kiffin">Kiffin</a><span class="d-none" itemprop="name">Kiffin</span>
+        <div class="-flair">
+            <span class="reputation-score" title="reputation score " dir="ltr">308</span><span title="1 silver badge" aria-hidden="true"><span class="badge2"></span><span class="badgecount">1</span></span><span class="v-visible-sr">1 silver badge</span><span title="5 bronze badges" aria-hidden="true"><span class="badge3"></span><span class="badgecount">5</span></span><span class="v-visible-sr">5 bronze badges</span>
+        </div>
+    </div>
+</div>
+
+    </div>
+    </div>
+    
+</div>
+        <div class="js-post-notices post-layout--full">
+        </div>
+
+    <div class="post-layout--right">
+        <div id="comments-106534" class="comments js-comments-container bt bc-black-2 mt12 " data-post-id="106534" data-min-length="15">
+            <ul class="comments-list js-comments-list" data-remaining-comments-count="0" data-canpost="false" data-cansee="true" data-comments-unavailable="false" data-addlink-disabled="true">
+
+
+    <li id="comment-1027903" class="comment js-comment " data-comment-id="1027903">
+        <div class="js-comment-actions comment-actions">
+            <div class="comment-score js-comment-edit-hide">
+            </div>
+                    </div>
+        <div class="comment-text js-comment-text-and-form">
+            <div class="comment-body js-comment-edit-hide">
+                
+                <span class="comment-copy">This is a real professional tool.</span>
+                
+                    –&nbsp;<a href="https://unix.stackexchange.com/users/194152/jacouh" title="113 reputation" class="comment-user">jacouh</a>
+                <span class="comment-date" dir="ltr"><a class="comment-link" href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#comment1027903_106534"><span title="2019-11-22 10:22:36Z" class="relativetime-clean">Nov 22 at 10:22</span></a></span>
+                                                            </div>
+        </div>
+    </li>
+            </ul>
+	    </div>
+
+        <div id="comments-link-106534" data-rep="50" data-anon="true">
+
+                    <a class="js-add-link comments-link disabled-link" title="Use comments to ask for more information or suggest improvements. Avoid comments like “+1” or “thanks”.">add a comment</a>
+                <span class="js-link-separator dno">&nbsp;|&nbsp;</span>
+            <a class="js-show-link comments-link dno" title="expand to show all comments on this post" href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#" onclick=""></a>
+        </div>         
+    </div>    </div>
+</div>
+
+
+
+
+                            <h2 class="bottom-notice" data-loc="1">
+Not the answer you're looking for?                                Browse other questions tagged <a href="https://unix.stackexchange.com/questions/tagged/ssh" class="post-tag" title="show questions tagged &#39;ssh&#39;" rel="tag">ssh</a> <a href="https://unix.stackexchange.com/questions/tagged/file-copy" class="post-tag" title="show questions tagged &#39;file-copy&#39;" rel="tag">file-copy</a>  or <a href="https://unix.stackexchange.com/questions/ask">ask your own question</a>.                            </h2>
+                </div>
+            </div>
+                            <div id="sidebar" class="show-votes" role="complementary" aria-label="sidebar">
+                <div class="s-sidebarwidget s-sidebarwidget__yellow s-anchors s-anchors__default mb16" data-tracker="cb=1">
+                <div class="s-sidebarwidget--header s-sidebarwidget__small-bold-text">
+                    Blog
+                </div>
+            <ul class="s-sidebarwidget--content s-sidebarwidget__items pt0 pr16 pb0 pl16">
+    <li class="s-sidebarwidget--item grid">
+        <div class="grid--cell1 fl-shrink0">
+                <a href="https://stackoverflow.blog/2019/12/10/podcast-searching-for-the-next-frontier-with-chris-dixon/?cb=1" data-ga="[&quot;community bulletin board&quot;,&quot;Blog&quot;,&quot;https://stackoverflow.blog/2019/12/10/podcast-searching-for-the-next-frontier-with-chris-dixon/&quot;,null,null]">
+<div class="favicon favicon-stackexchangemeta" title="Meta Stack Exchange"></div>                </a>
+        </div>
+        <div class="grid--cell">
+            <a href="https://stackoverflow.blog/2019/12/10/podcast-searching-for-the-next-frontier-with-chris-dixon/?cb=1" class="js-gps-track" data-ga="[&quot;community bulletin board&quot;,&quot;Blog&quot;,&quot;https://stackoverflow.blog/2019/12/10/podcast-searching-for-the-next-frontier-with-chris-dixon/&quot;,null,null]" data-gps-track="communitybulletin.click({ priority: 1, position: 0 })">Podcast: Searching For The Next Frontier with Chris Dixon</a>
+        </div>
+    </li>
+            </ul>
+            <ul class="s-sidebarwidget--content s-sidebarwidget__items pt0 pr16 pb0 pl16">
+    <li class="s-sidebarwidget--item grid">
+        <div class="grid--cell1 fl-shrink0">
+                <a href="https://stackoverflow.blog/2019/12/09/tis-the-season-for-hats-join-us-for-winter-bash-2019/?cb=1" data-ga="[&quot;community bulletin board&quot;,&quot;Blog&quot;,&quot;https://stackoverflow.blog/2019/12/09/tis-the-season-for-hats-join-us-for-winter-bash-2019/&quot;,null,null]">
+<div class="favicon favicon-stackexchangemeta" title="Meta Stack Exchange"></div>                </a>
+        </div>
+        <div class="grid--cell">
+            <a href="https://stackoverflow.blog/2019/12/09/tis-the-season-for-hats-join-us-for-winter-bash-2019/?cb=1" class="js-gps-track" data-ga="[&quot;community bulletin board&quot;,&quot;Blog&quot;,&quot;https://stackoverflow.blog/2019/12/09/tis-the-season-for-hats-join-us-for-winter-bash-2019/&quot;,null,null]" data-gps-track="communitybulletin.click({ priority: 1, position: 1 })">‘Tis the Season for Hats! Join Us for Winter Bash 2019</a>
+        </div>
+    </li>
+            </ul>
+
+</div>
+<div id="dfp-tsb" class="everyonelovesstackoverflow everyoneloves__top-sidebar" data-dfp-zone="true" style="display: none;"></div><div id="hireme"></div>
+                <div class="module sidebar-linked">
+	<h4 id="h-linked">Linked</h4>
+	<div class="linked" data-tracker="lq=1">
+
+<div class="spacer js-gps-track" data-gps-track="linkedquestion.click({ source_post_id: 106480, target_question_id: 2857, position: 0 })">
+	<a href="https://unix.stackexchange.com/q/2857?lq=1" title="Vote score (upvotes - downvotes)">
+		<div class="answer-votes answered-accepted large">260</div>
+	</a>
+	<a href="https://unix.stackexchange.com/questions/2857/copy-a-file-back-to-local-system-with-ssh?noredirect=1&amp;lq=1" class="question-hyperlink">Copy a file back to local system with ssh</a>
+</div>
+<div class="spacer js-gps-track" data-gps-track="linkedquestion.click({ source_post_id: 106480, target_question_id: 389127, position: 1 })">
+	<a href="https://unix.stackexchange.com/q/389127?lq=1" title="Vote score (upvotes - downvotes)">
+		<div class="answer-votes  default">-3</div>
+	</a>
+	<a href="https://unix.stackexchange.com/questions/389127/how-can-i-move-a-file-from-a-linux-computer-to-my-mac-laptop?noredirect=1&amp;lq=1" class="question-hyperlink">How can I move a file from a linux computer to my mac laptop?</a>
+</div>
+<div class="spacer js-gps-track" data-gps-track="linkedquestion.click({ source_post_id: 106480, target_question_id: 327058, position: 2 })">
+	<a href="https://unix.stackexchange.com/q/327058?lq=1" title="Vote score (upvotes - downvotes)">
+		<div class="answer-votes answered-accepted default">2</div>
+	</a>
+	<a href="https://unix.stackexchange.com/questions/327058/transferring-70tb-data-from-one-remote-server-to-another?noredirect=1&amp;lq=1" class="question-hyperlink">Transferring 70TB data from one remote server to another</a>
+</div>
+<div class="spacer js-gps-track" data-gps-track="linkedquestion.click({ source_post_id: 106480, target_question_id: 172222, position: 3 })">
+	<a href="https://unix.stackexchange.com/q/172222?lq=1" title="Vote score (upvotes - downvotes)">
+		<div class="answer-votes  default">0</div>
+	</a>
+	<a href="https://unix.stackexchange.com/questions/172222/using-something-like-scp-but-when-ive-logged-in-already?noredirect=1&amp;lq=1" class="question-hyperlink">Using something like scp but when I've logged in already</a>
+</div>			</div>
+</div>
+
+                    <div class="module sidebar-related">
+                        <h4 id="h-related">Related</h4>
+                        <div class="related js-gps-related-questions" data-tracker="rq=1">
+                            <div class="spacer js-gps-track"><a href="https://unix.stackexchange.com/q/2857?rq=1" title="Vote score (upvotes - downvotes)"><div class="answer-votes answered-accepted large">260</div></a><a href="https://unix.stackexchange.com/questions/2857/copy-a-file-back-to-local-system-with-ssh?rq=1" class="question-hyperlink">Copy a file back to local system with ssh</a></div><div class="spacer js-gps-track"><a href="https://unix.stackexchange.com/q/4552?rq=1" title="Vote score (upvotes - downvotes)"><div class="answer-votes answered-accepted default">5</div></a><a href="https://unix.stackexchange.com/questions/4552/copy-text-from-one-terminal-into-another?rq=1" class="question-hyperlink">Copy text from one terminal into another</a></div><div class="spacer js-gps-track"><a href="https://unix.stackexchange.com/q/105763?rq=1" title="Vote score (upvotes - downvotes)"><div class="answer-votes answered-accepted default">2</div></a><a href="https://unix.stackexchange.com/questions/105763/copy-files-via-a-complex-ssh-connection?rq=1" class="question-hyperlink">Copy files via a complex ssh connection?</a></div><div class="spacer js-gps-track"><a href="https://unix.stackexchange.com/q/136165?rq=1" title="Vote score (upvotes - downvotes)"><div class="answer-votes answered-accepted default">6</div></a><a href="https://unix.stackexchange.com/questions/136165/java-code-to-copy-files-from-one-linux-machine-to-another-linux-machine?rq=1" class="question-hyperlink">Java code to copy files from one linux machine to another linux machine</a></div><div class="spacer js-gps-track"><a href="https://unix.stackexchange.com/q/301896?rq=1" title="Vote score (upvotes - downvotes)"><div class="answer-votes answered-accepted default">2</div></a><a href="https://unix.stackexchange.com/questions/301896/how-to-copy-multiple-files-with-a-same-name-from-children-directory-to-another-d?rq=1" class="question-hyperlink">How to copy multiple files with a same name from children directory to another directory without losing the parent directory?</a></div><div class="spacer js-gps-track"><a href="https://unix.stackexchange.com/q/313668?rq=1" title="Vote score (upvotes - downvotes)"><div class="answer-votes default">2</div></a><a href="https://unix.stackexchange.com/questions/313668/how-to-copy-only-good-files-from-one-directory-to-another?rq=1" class="question-hyperlink">How to copy only good files from one directory to another?</a></div><div class="spacer js-gps-track"><a href="https://unix.stackexchange.com/q/325286?rq=1" title="Vote score (upvotes - downvotes)"><div class="answer-votes default">1</div></a><a href="https://unix.stackexchange.com/questions/325286/pipe-data-onto-another-machine-with-nologin?rq=1" class="question-hyperlink">Pipe data onto another machine with nologin</a></div><div class="spacer js-gps-track"><a href="https://unix.stackexchange.com/q/372439?rq=1" title="Vote score (upvotes - downvotes)"><div class="answer-votes answered-accepted default">4</div></a><a href="https://unix.stackexchange.com/questions/372439/setting-ssh-bridge-on-remote-machine?rq=1" class="question-hyperlink">Setting SSH bridge on remote machine</a></div>
+                        </div>
+                    </div>
+
+<div id="hot-network-questions" class="module tex2jax_ignore">
+    <h4>
+        <a href="https://stackexchange.com/questions?tab=hot" class="js-gps-track s-link s-link__inherit" data-gps-track="posts_hot_network.click({ item_type:1, location:11 })">
+            Hot Network Questions
+        </a>
+    </h4>
+    <ul>
+            <li>
+                <div class="favicon favicon-gaming" title="Arqade"></div><a href="https://gaming.stackexchange.com/questions/361247/how-does-surf-crit-in-a-multi-battle" class="js-gps-track question-hyperlink mb0" data-gps-track="site.switch({ item_type:11, target_site:41 }); posts_hot_network.click({ item_type:2, location:11 })">
+                    How does Surf crit in a multi-battle?
+                </a>
+
+            </li>
+            <li>
+                <div class="favicon favicon-physics" title="Physics Stack Exchange"></div><a href="https://physics.stackexchange.com/questions/518938/conversion-of-mass-into-energy-with-100-efficiency" class="js-gps-track question-hyperlink mb0" data-gps-track="site.switch({ item_type:11, target_site:151 }); posts_hot_network.click({ item_type:2, location:11 })">
+                    Conversion of mass into energy with 100% efficiency
+                </a>
+
+            </li>
+            <li>
+                <div class="favicon favicon-serverfault" title="Server Fault"></div><a href="https://serverfault.com/questions/995130/will-iptables-rules-continue-to-work-if-an-interface-has-been-deleted-and-create" class="js-gps-track question-hyperlink mb0" data-gps-track="site.switch({ item_type:11, target_site:2 }); posts_hot_network.click({ item_type:2, location:11 })">
+                    Will iptables rules continue to work if an interface has been deleted and created again?
+                </a>
+
+            </li>
+            <li>
+                <div class="favicon favicon-space" title="Space Exploration Stack Exchange"></div><a href="https://space.stackexchange.com/questions/40338/was-there-really-a-shuttle-toilet-training-device-with-a-boresight-camera" class="js-gps-track question-hyperlink mb0" data-gps-track="site.switch({ item_type:11, target_site:508 }); posts_hot_network.click({ item_type:2, location:11 })">
+                    Was there really a shuttle toilet training device with a "boresight camera"?
+                </a>
+
+            </li>
+            <li>
+                <div class="favicon favicon-politics" title="Politics Stack Exchange"></div><a href="https://politics.stackexchange.com/questions/48578/isnt-social-security-set-up-as-a-pension-fund-as-opposed-to-a-direct-transfers" class="js-gps-track question-hyperlink mb0" data-gps-track="site.switch({ item_type:11, target_site:475 }); posts_hot_network.click({ item_type:2, location:11 })">
+                    Isn't Social Security set up as a Pension Fund as opposed to a Direct Transfers Scheme?
+                </a>
+
+            </li>
+            <li class="js-hidden" style="">
+                <div class="favicon favicon-rpg" title="Role-playing Games Stack Exchange"></div><a href="https://rpg.stackexchange.com/questions/160946/simulating-these-special-dice-on-more-regular-dice" class="js-gps-track question-hyperlink mb0" data-gps-track="site.switch({ item_type:11, target_site:122 }); posts_hot_network.click({ item_type:2, location:11 })">
+                    Simulating these special dice on more regular dice
+                </a>
+
+            </li>
+            <li class="js-hidden" style="">
+                <div class="favicon favicon-codegolf" title="Code Golf Stack Exchange"></div><a href="https://codegolf.stackexchange.com/questions/196872/smallest-fibonacci-multiples" class="js-gps-track question-hyperlink mb0" data-gps-track="site.switch({ item_type:11, target_site:200 }); posts_hot_network.click({ item_type:2, location:11 })">
+                    Smallest Fibonacci Multiples
+                </a>
+
+            </li>
+            <li class="js-hidden" style="">
+                <div class="favicon favicon-worldbuilding" title="Worldbuilding Stack Exchange"></div><a href="https://worldbuilding.stackexchange.com/questions/163226/could-the-unarmed-knight-be-successful-in-a-battle" class="js-gps-track question-hyperlink mb0" data-gps-track="site.switch({ item_type:11, target_site:579 }); posts_hot_network.click({ item_type:2, location:11 })">
+                    Could the Unarmed Knight be successful in a battle?
+                </a>
+
+            </li>
+            <li class="js-hidden" style="">
+                <div class="favicon favicon-bicycles" title="Bicycles Stack Exchange"></div><a href="https://bicycles.stackexchange.com/questions/65433/when-is-it-not-okay-to-cheap-out-on-bike-parts" class="js-gps-track question-hyperlink mb0" data-gps-track="site.switch({ item_type:11, target_site:126 }); posts_hot_network.click({ item_type:2, location:11 })">
+                    When is it not okay to cheap out on bike parts?
+                </a>
+
+            </li>
+            <li class="js-hidden" style="">
+                <div class="favicon favicon-academia" title="Academia Stack Exchange"></div><a href="https://academia.stackexchange.com/questions/141264/what-are-the-ethical-implications-of-lying-to-get-into-a-course" class="js-gps-track question-hyperlink mb0" data-gps-track="site.switch({ item_type:11, target_site:415 }); posts_hot_network.click({ item_type:2, location:11 })">
+                    What are the ethical implications of lying to get into a course?
+                </a>
+
+            </li>
+            <li class="js-hidden" style="">
+                <div class="favicon favicon-tex" title="TeX - LaTeX Stack Exchange"></div><a href="https://tex.stackexchange.com/questions/519987/missing-number-treated-as-zero-to-be-read-again" class="js-gps-track question-hyperlink mb0" data-gps-track="site.switch({ item_type:11, target_site:85 }); posts_hot_network.click({ item_type:2, location:11 })">
+                    Missing number, treated as zero. &lt;to be read again&gt; *
+                </a>
+
+            </li>
+            <li class="js-hidden" style="">
+                <div class="favicon favicon-photo" title="Photography Stack Exchange"></div><a href="https://photo.stackexchange.com/questions/113510/how-important-is-quick-release-for-a-tripod" class="js-gps-track question-hyperlink mb0" data-gps-track="site.switch({ item_type:11, target_site:61 }); posts_hot_network.click({ item_type:2, location:11 })">
+                    How important is quick release for a tripod?
+                </a>
+
+            </li>
+            <li class="js-hidden" style="">
+                <div class="favicon favicon-rpg" title="Role-playing Games Stack Exchange"></div><a href="https://rpg.stackexchange.com/questions/161077/can-a-creature-with-only-a-swim-speed-even-move-while-on-land" class="js-gps-track question-hyperlink mb0" data-gps-track="site.switch({ item_type:11, target_site:122 }); posts_hot_network.click({ item_type:2, location:11 })">
+                    Can a creature with only a swim speed even move while on land?
+                </a>
+
+            </li>
+            <li class="js-hidden" style="">
+                <div class="favicon favicon-ux" title="User Experience Stack Exchange"></div><a href="https://ux.stackexchange.com/questions/130561/monthly-budget-screen-need-to-take-into-account-whether-its-early-late-in-the" class="js-gps-track question-hyperlink mb0" data-gps-track="site.switch({ item_type:11, target_site:102 }); posts_hot_network.click({ item_type:2, location:11 })">
+                    Monthly budget screen - need to take into account whether it's early/late in the month
+                </a>
+
+            </li>
+            <li class="js-hidden" style="">
+                <div class="favicon favicon-workplace" title="The Workplace Stack Exchange"></div><a href="https://workplace.stackexchange.com/questions/149421/can-i-be-fired-the-same-day-that-i-hand-in-my-notice" class="js-gps-track question-hyperlink mb0" data-gps-track="site.switch({ item_type:11, target_site:423 }); posts_hot_network.click({ item_type:2, location:11 })">
+                    Can I be fired the same day that I hand in my notice?
+                </a>
+
+            </li>
+            <li class="js-hidden" style="">
+                <div class="favicon favicon-rpg" title="Role-playing Games Stack Exchange"></div><a href="https://rpg.stackexchange.com/questions/161091/is-lasts-until-dispelled-a-duration" class="js-gps-track question-hyperlink mb0" data-gps-track="site.switch({ item_type:11, target_site:122 }); posts_hot_network.click({ item_type:2, location:11 })">
+                    Is "lasts until dispelled" a duration?
+                </a>
+
+            </li>
+            <li class="js-hidden" style="">
+                <div class="favicon favicon-mathematica" title="Mathematica Stack Exchange"></div><a href="https://mathematica.stackexchange.com/questions/211106/generating-all-2x2-matrices-with-entries-from-0-to-3-whose-det-is-1-with-mod-2-a" class="js-gps-track question-hyperlink mb0" data-gps-track="site.switch({ item_type:11, target_site:387 }); posts_hot_network.click({ item_type:2, location:11 })">
+                    Generating all 2x2 matrices with entries from 0 to 3 whose det is 1 with mod 2 arithmetic
+                </a>
+
+            </li>
+            <li class="js-hidden" style="">
+                <div class="favicon favicon-politics" title="Politics Stack Exchange"></div><a href="https://politics.stackexchange.com/questions/48568/does-removing-the-us-president-from-office-through-impeachment-affect-the-validi" class="js-gps-track question-hyperlink mb0" data-gps-track="site.switch({ item_type:11, target_site:475 }); posts_hot_network.click({ item_type:2, location:11 })">
+                    Does removing the US president from office through impeachment affect the validity of the decisions they made?
+                </a>
+
+            </li>
+            <li class="js-hidden" style="">
+                <div class="favicon favicon-electronics" title="Electrical Engineering Stack Exchange"></div><a href="https://electronics.stackexchange.com/questions/471065/is-dc-5v-and-2a-dangerous-to-me" class="js-gps-track question-hyperlink mb0" data-gps-track="site.switch({ item_type:11, target_site:135 }); posts_hot_network.click({ item_type:2, location:11 })">
+                    Is DC 5V and 2A dangerous to me?
+                </a>
+
+            </li>
+            <li class="js-hidden" style="">
+                <div class="favicon favicon-parenting" title="Parenting Stack Exchange"></div><a href="https://parenting.stackexchange.com/questions/39267/how-to-answer-my-5-year-old-why-i-can-tell-her-what-she-has-to-do-and-why-she-ca" class="js-gps-track question-hyperlink mb0" data-gps-track="site.switch({ item_type:11, target_site:228 }); posts_hot_network.click({ item_type:2, location:11 })">
+                    How to answer my 5 year old why I can tell her what she has to do and why she can't tell me
+                </a>
+
+            </li>
+            <li class="js-hidden" style="">
+                <div class="favicon favicon-codereview" title="Code Review Stack Exchange"></div><a href="https://codereview.stackexchange.com/questions/233741/advent-of-code-2019-day-4" class="js-gps-track question-hyperlink mb0" data-gps-track="site.switch({ item_type:11, target_site:196 }); posts_hot_network.click({ item_type:2, location:11 })">
+                    Advent of Code 2019: Day 4
+                </a>
+
+            </li>
+            <li class="js-hidden" style="">
+                <div class="favicon favicon-softwareengineering" title="Software Engineering Stack Exchange"></div><a href="https://softwareengineering.stackexchange.com/questions/402250/why-is-javascript-not-compiled-to-bytecode-before-sending-over-the-network" class="js-gps-track question-hyperlink mb0" data-gps-track="site.switch({ item_type:11, target_site:131 }); posts_hot_network.click({ item_type:2, location:11 })">
+                    Why is JavaScript not compiled to bytecode before sending over the network?
+                </a>
+
+            </li>
+            <li class="js-hidden" style="">
+                <div class="favicon favicon-scifi" title="Science Fiction &amp; Fantasy Stack Exchange"></div><a href="https://scifi.stackexchange.com/questions/224126/why-did-george-lucas-set-star-wars-in-the-past-instead-of-the-future" class="js-gps-track question-hyperlink mb0" data-gps-track="site.switch({ item_type:11, target_site:186 }); posts_hot_network.click({ item_type:2, location:11 })">
+                    Why did George Lucas set Star Wars in the past instead of the future?
+                </a>
+
+            </li>
+            <li class="js-hidden" style="">
+                <div class="favicon favicon-politics" title="Politics Stack Exchange"></div><a href="https://politics.stackexchange.com/questions/48565/why-dont-all-states-switch-to-all-postal-voting" class="js-gps-track question-hyperlink mb0" data-gps-track="site.switch({ item_type:11, target_site:475 }); posts_hot_network.click({ item_type:2, location:11 })">
+                    Why don't all States switch to all postal voting?
+                </a>
+
+            </li>
+    </ul>
+
+        
+</div>
+
+            </div>
+    </div>
+<script>StackExchange.ready(function(){$.get('/posts/106480/ivc/6148');});</script>
+<noscript><div><img src="/posts/106480/ivc/6148" class="dno" alt="" width="0" height="0"></div></noscript><div style="display:none" id="prettify-lang"></div></div>
+
+
+        </div>
+    </div>
+
+
+<script>;try{(function(a){function b(a){return'string'==typeof a?document.getElementById(a):a}function c(a){return a=b(a),!!a&&'none'===getComputedStyle(a).display}function d(a){return!c(a)}function e(a){return!!a}function f(a){return /^\s*$/.test(b(a).innerHTML)}function g(a){var b=a.style;b.height=b.maxHeight=b.minHeight='auto',b.display='none',[].forEach.call(a.children,g)}function h(a,b){var c;return function(){return a&&(c=a.call(b||this,arguments),a=null),c}}function i(a){var b=document.createElement('script');b.src=a,document.body.appendChild(b)}function j(a){return k([],a)}function k(a,b){return a.push=function(a){return b(),delete this.push,this.push(a)},a}function l(){try{return!new Function('return async()=>{};')}catch(a){return!0}}function m(){return'undefined'!=typeof googletag&&!!googletag.apiReady}function n(){m()||(googletag={cmd:j(A)})}function o(){var a=document.createElement('div');a.className='adsbox',a.id='clc-abd',a.style.position='absolute',a.style.pointerEvents='none',a.innerHTML='&nbsp;',document.body.appendChild(a)}function p(a){var b=a.serviceName,c=a.slot,d=a.lineItemId;try{var e=c.getSlotElementId(),f=[];e||f.push('id=0');var h=document.getElementById(e);if(!e||h?h.hasAttribute('data-clc-stalled')&&f.push('st=1'):f.push('el=0'),0!==f.length)return void B(f.join('&'));if(-1!==x.dh.indexOf(d))g(h);else if(d&&(h.setAttribute('data-clc-prefilled','true'),'dfp-msb'==e)){var i=document.getElementById('hireme');g(i)}h.setAttribute('data-clc-ready','true')}catch(a){var j=document.querySelector('#dfp-tsb, #dfp-isb, #clc-tsb');j&&j.setAttribute('data-clc-ready','true'),B('e=1')}}function q(){return Object.keys(F.ids)}function r(a){var b=F.ids[a],c=F.slots[b];'function'==typeof c&&(c=c(a));return{path:'/'+C+'/'+E+'/'+b+'/'+D,sizes:c,zone:b}}function s(a){return!(clc.collapse&&void 0!==clc.collapse[a])||!!clc.collapse[a]}function t(a,b){'dfp-isb'===a&&b.setTargeting('Sidebar',['Inline']),'dfp-tsb'===a&&b.setTargeting('Sidebar',['Right']);var c=r(a),d=c.path,e=c.sizes,f=c.zone,g=googletag.defineSlot(d,e,a);s(f)&&g.setCollapseEmptyDiv(!0,!0),g.addService(b),!1}function u(b){var c=a.dfp&&a.dfp.targeting||{};Object.keys(c).forEach(function(a){b.setTargeting(a,c[a])})}function v(a){var g=a.map(b).filter(e);return{eligible:g.filter(f).filter(d),ineligible:g.filter(c)}}function w(b){if(void 0===b&&(b=q()),!m())return n(),void googletag.cmd.push(function(){return w(b)});var c=v(b),d=c.eligible,e=c.ineligible;if(e.forEach(g),0!==d.length){x.abd&&o(),googletag.destroySlots();var f=googletag.pubads();x.sf&&(f.setForceSafeFrame(!0),f.setSafeFrameConfig({allowOverlayExpansion:!0,allowPushExpansion:!0,sandbox:!0})),f.enableSingleRequest(),a.sreEvent||(f.addEventListener('slotRenderEnded',p),a.sreEvent=!0),u(f),d.forEach(function(a){t(a.id,f),a.setAttribute('data-dfp-zone','true')}),googletag.enableServices(),d.forEach(function(a){googletag.display(a.id)})}}var x=function(a){for(var b=[],c=1;c<arguments.length;c++)b[c-1]=arguments[c];for(var d,e=0,f=b;e<f.length;e++)for(var g in d=f[e],d)a[g]=d[g];return a}({"lib":"https://cdn.sstatic.net/clc/clc.min.js?v=d86ede4e666e","style":"https://cdn.sstatic.net/clc/styles/clc.min.css?v=308d7ccd0858","u":"https://clc.stackoverflow.com/markup.js","wa":true,"kt":2000,"tto":true,"h":"clc.stackoverflow.com","allowed":"^(((talent\\.)?stackoverflow)|(blog\\.codinghorror)|(serverfault|askubuntu)|([^\\.]+\\.stackexchange))\\.com$","wv":true,"al":false,"dh":[5171832659],"abd":true},a.options||{}),y=h(function(){var a=x.lib;l()&&(a=a.replace(/(\.min)?\.js(\?v=[0-9a-fA-F]+)?$/,'.ie$1.js$2')),i(a)}),z=a.cmd||[];Array.isArray(z)&&(0<z.length?y():k(z,y));var A=h(function(){i('https://www.googletagservices.com/tag/js/gpt.js')}),B=function(a){new Image().src='https://'+x.h+'/stalled.gif?'+a},C='248424177',D=/^\/tags\//.test(location.pathname)||/^\/questions\/tagged\//.test(location.pathname)?'tag-pages':/^\/$/.test(location.pathname)||/^\/home/.test(location.pathname)?'home-page':'question-pages',E=location.hostname;var F={slots:{lb:[[728,90]],mlb:[[728,90]],smlb:[[728,90]],bmlb:[[728,90]],sb:function(a){return'dfp-tsb'===a?[[300,250],[300,600]]:[[300,250]]},"tag-sponsorship":[[730,135]],"mobile-below-question":[[320,50],[300,250]],msb:[[300,250],[300,600]]},ids:{"dfp-tlb":'lb',"dfp-mlb":'mlb',"dfp-smlb":'smlb',"dfp-bmlb":'bmlb',"dfp-tsb":'sb',"dfp-isb":'sb',"dfp-tag":'tag-sponsorship',"dfp-msb":'msb',"dfp-m-aq":'mobile-below-question',"clc-tlb":'lb',"clc-mlb":'mlb',"clc-tsb":'sb'}};(function(){var b=x.al;b&&z.push(function(){return a.load()})})(),n(),a.dfp={load:w},a.options=x,a.cmd=z})(this.clc=this.clc||{})}catch(a){window.console.error(a)}</script>    <script>
+        var clc = clc || {};
+        clc.collapse = { sb: !0, 'tag-sponsorship': !0, lb:!0, mlb:!0, smlb:!0, bmlb:!0, 'mobile-below-question':!0};
+        clc.options = clc.options || {};
+        clc.options.sf = !1;
+        clc.options.hb = !1;
+        clc.cmd = clc.cmd || [];
+        clc.cmd.push(function () { window.clc_request='Aoo1BGVFftcIAAAAAPCfAQALAAAAAgAAAAAPAAAAfHNzaHxmaWxlLWNvcHl8ANtfg9GXDnDjvxQ'; clc.load(); });
+                clc.dfp = clc.dfp || {};
+        clc.dfp.targeting = {Registered:['false'],'ron-tag':['ssh','file-copy'],Community:['true'],NumberOfAnswers:['4']};
+        var googletag = googletag || {};
+        googletag.cmd = googletag.cmd || [];
+        googletag.cmd.push(function () { clc.dfp.load(); });
+    </script><script src="./How to copy files from one machine to another using ssh - Unix &amp; Linux Stack Exchange_files/clc.min.js"></script><script src="./How to copy files from one machine to another using ssh - Unix &amp; Linux Stack Exchange_files/gpt.js"></script>
+    
+    <footer id="footer" class="site-footer js-footer" role="contentinfo">
+        <div class="site-footer--container">
+            
+            <nav class="site-footer--nav">
+                    <div class="site-footer--col site-footer--col__visible js-footer-col" data-name="default">
+                        <h5 class="-title"><a href="https://unix.stackexchange.com/">Unix &amp; Linux</a></h5>
+                        <ul class="-list js-primary-footer-links">
+                                    <li class="-item"><a class="js-gps-track -link" data-gps-track="footer.click({ location: 2, link: 2 })" href="https://unix.stackexchange.com/tour">Tour</a></li>
+                                <li class="-item"><a href="https://unix.stackexchange.com/help" class="js-gps-track -link" data-gps-track="footer.click({ location: 2, link: 3 })">Help</a></li>
+                                    <li class="-item"><a class="js-gps-track -link" data-gps-track="footer.click({ location: 2, link: 5 })" href="https://chat.stackexchange.com/?tab=site&amp;host=unix.stackexchange.com">Chat</a></li>
+                            <li class="-item"><a class="js-gps-track -link" data-gps-track="footer.click({ location: 2, link: 13 })" href="https://unix.stackexchange.com/contact">Contact</a></li>
+                                <li class="-item"><a class="js-gps-track -link" data-gps-track="footer.click({ location: 2, link: 14 })" href="https://unix.meta.stackexchange.com/">Feedback</a></li>
+                                                            <li class="-item"><a onclick="StackExchange.switchMobile(&quot;on&quot;)" class="js-gps-track -link" data-gps-track="footer.click({ location: 2, link: 12 })">Mobile</a></li>
+                        <li class="-item"><a class="-link" role="button">Disable Responsiveness</a></li></ul>
+                    </div>
+                <div class="site-footer--col site-footer--col__visible js-footer-col" data-name="default">
+                    <h5 class="-title"><a class="js-gps-track" data-gps-track="footer.click({ location: 2, link: 1 })" href="https://stackoverflow.com/company/about">Company</a></h5>
+                    <ul class="-list">
+                                                    <li class="-item"><a href="https://stackoverflow.com/" class="js-gps-track -link" data-gps-track="footer.click({ location: 2, link: 15})">Stack Overflow</a></li>
+                            <li class="-item"><a href="https://www.stackoverflowbusiness.com/" class="js-gps-track -link" data-gps-track="footer.click({ location: 2, link: 19 })">Stack Overflow Business</a></li>
+                            <li class="-item"><a href="https://stackoverflow.com/jobs" class="js-gps-track -link" data-gps-track="footer.click({ location: 2, link: 17})">Developer Jobs</a></li>
+                                <li class="-item"><a class="js-gps-track -link" data-gps-track="footer.click({ location: 2, link: 1 })" href="https://stackoverflow.com/company/about">About</a></li>
+                        <li class="-item"><a class="js-gps-track -link" data-gps-track="footer.click({ location: 2, link: 27 })" href="https://stackoverflow.com/company/press">Press</a></li>
+                        <li class="-item"><a class="js-gps-track -link" data-gps-track="footer.click({ location: 2, link: 7 })" href="https://stackoverflow.com/legal">Legal</a></li>
+                        <li class="-item"><a class="js-gps-track -link" data-gps-track="footer.click({ location: 2, link: 8 })" href="https://stackoverflow.com/legal/privacy-policy">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div class="site-footer--col site-footer--categories-nav site-footer--col__visible">
+                    <a href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#" class="site-footer--back js-footer-back"><svg aria-hidden="true" class="svg-icon iconArrowLeftAlt" width="18" height="18" viewBox="0 0 18 18"><path d="M10.58 16L12 14.59 6.4 9 12 3.41 10.57 2l-7 7 7 7z"></path></svg></a>
+                    <div>
+                        <h5 class="-title"><a href="https://stackexchange.com/" data-gps-track="footer.click({ location: 2, link: 30 })">Stack Exchange<br> Network</a></h5>
+                        <ul class="-list">
+                            <li class="-item"><a href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#" class="-link _expandable js-footer-category-trigger js-gps-track" data-gps-track="footer.click({ location: 2, link: 24 })" data-target="Technology">Technology</a></li>
+                            <li class="-item"><a href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#" class="-link _expandable js-footer-category-trigger js-gps-track" data-gps-track="footer.click({ location: 2, link: 24 })" data-target="Life / Arts">Life / Arts</a></li>
+                            <li class="-item"><a href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#" class="-link _expandable js-footer-category-trigger js-gps-track" data-gps-track="footer.click({ location: 2, link: 24 })" data-target="Culture / Recreation">Culture / Recreation</a></li>
+                            <li class="-item"><a href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#" class="-link _expandable js-footer-category-trigger js-gps-track" data-gps-track="footer.click({ location: 2, link: 24 })" data-target="Science">Science</a></li>
+                            <li class="-item"><a href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh#" class="-link _expandable js-footer-category-trigger js-gps-track" data-gps-track="footer.click({ location: 2, link: 24 })" data-target="Other">Other</a></li>
+
+                        </ul>
+                    </div>
+                </div>
+                <div class="site-footer--categories">
+                    <div class="site-footer--col site-footer--category js-footer-col" data-name="Technology">
+        <ul class="-list">
+                <li class="-item"><a href="https://stackoverflow.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="professional and enthusiast programmers">Stack Overflow</a></li>
+                <li class="-item"><a href="https://serverfault.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="system and network administrators">Server Fault</a></li>
+                <li class="-item"><a href="https://superuser.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="computer enthusiasts and power users">Super User</a></li>
+                <li class="-item"><a href="https://webapps.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="power users of web applications">Web Applications</a></li>
+                <li class="-item"><a href="https://askubuntu.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="Ubuntu users and developers">Ask Ubuntu</a></li>
+                <li class="-item"><a href="https://webmasters.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="pro webmasters">Webmasters</a></li>
+                <li class="-item"><a href="https://gamedev.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="professional and independent game developers">Game Development</a></li>
+                    </ul></div><div class="site-footer--col site-footer--category js-footer-col" data-name="Technology"><ul class="-list">
+                <li class="-item"><a href="https://tex.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="users of TeX, LaTeX, ConTeXt, and related typesetting systems">TeX - LaTeX</a></li>
+                <li class="-item"><a href="https://softwareengineering.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="professionals, academics, and students working within the systems development life cycle">Software Engineering</a></li>
+                <li class="-item"><a href="https://unix.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="users of Linux, FreeBSD and other Un*x-like operating systems">Unix &amp; Linux</a></li>
+                <li class="-item"><a href="https://apple.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="power users of Apple hardware and software">Ask Different (Apple)</a></li>
+                <li class="-item"><a href="https://wordpress.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="WordPress developers and administrators">WordPress Development</a></li>
+                <li class="-item"><a href="https://gis.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="cartographers, geographers and GIS professionals">Geographic Information Systems</a></li>
+                <li class="-item"><a href="https://electronics.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="electronics and electrical engineering professionals, students, and enthusiasts">Electrical Engineering</a></li>
+                    </ul></div><div class="site-footer--col site-footer--category js-footer-col" data-name="Technology"><ul class="-list">
+                <li class="-item"><a href="https://android.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="enthusiasts and power users of the Android operating system">Android Enthusiasts</a></li>
+                <li class="-item"><a href="https://security.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="information security professionals">Information Security</a></li>
+                <li class="-item"><a href="https://dba.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="database professionals who wish to improve their database skills and learn from others in the community">Database Administrators</a></li>
+                <li class="-item"><a href="https://drupal.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="Drupal developers and administrators">Drupal Answers</a></li>
+                <li class="-item"><a href="https://sharepoint.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="SharePoint enthusiasts">SharePoint</a></li>
+                <li class="-item"><a href="https://ux.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="user experience researchers and experts">User Experience</a></li>
+                <li class="-item"><a href="https://mathematica.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="users of Wolfram Mathematica">Mathematica</a></li>
+                    </ul></div><div class="site-footer--col site-footer--category js-footer-col" data-name="Technology"><ul class="-list">
+                <li class="-item"><a href="https://salesforce.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="Salesforce administrators, implementation experts, developers and anybody in-between">Salesforce</a></li>
+                <li class="-item"><a href="https://expressionengine.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="administrators, end users, developers and designers for ExpressionEngine® CMS">ExpressionEngine® Answers</a></li>
+                <li class="-item"><a href="https://pt.stackoverflow.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="programadores profissionais e entusiastas">Stack Overflow em Português</a></li>
+                <li class="-item"><a href="https://blender.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="people who use Blender to create 3D graphics, animations, or games">Blender</a></li>
+                <li class="-item"><a href="https://networkengineering.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="network engineers">Network Engineering</a></li>
+                <li class="-item"><a href="https://crypto.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="software developers, mathematicians and others interested in cryptography">Cryptography</a></li>
+                <li class="-item"><a href="https://codereview.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="peer programmer code reviews">Code Review</a></li>
+                    </ul></div><div class="site-footer--col site-footer--category js-footer-col" data-name="Technology"><ul class="-list">
+                <li class="-item"><a href="https://magento.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="users of the Magento e-Commerce platform">Magento</a></li>
+                <li class="-item"><a href="https://softwarerecs.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="people seeking specific software recommendations">Software Recommendations</a></li>
+                <li class="-item"><a href="https://dsp.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="practitioners of the art and science of signal, image and video processing">Signal Processing</a></li>
+                <li class="-item"><a href="https://emacs.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="those using, extending or developing Emacs">Emacs</a></li>
+                <li class="-item"><a href="https://raspberrypi.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="users and developers of hardware and software for Raspberry Pi">Raspberry Pi</a></li>
+                <li class="-item"><a href="https://ru.stackoverflow.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="программистов">Stack Overflow на русском</a></li>
+                <li class="-item"><a href="https://codegolf.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="programming puzzle enthusiasts and code golfers">Code Golf</a></li>
+                    </ul></div><div class="site-footer--col site-footer--category js-footer-col" data-name="Technology"><ul class="-list">
+                <li class="-item"><a href="https://es.stackoverflow.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="programadores y profesionales de la informática">Stack Overflow en español</a></li>
+                <li class="-item"><a href="https://ethereum.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="users of Ethereum, the decentralized application platform and smart contract enabled blockchain">Ethereum</a></li>
+                <li class="-item"><a href="https://datascience.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="Data science professionals, Machine Learning specialists, and those interested in learning more about the field">Data Science</a></li>
+                <li class="-item"><a href="https://arduino.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="developers of open-source hardware and software that is compatible with Arduino">Arduino</a></li>
+                <li class="-item"><a href="https://bitcoin.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="Bitcoin crypto-currency enthusiasts">Bitcoin</a></li>
+                <li class="-item"><a href="https://sqa.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="software quality control experts, automation engineers, and software testers">Software Quality Assurance &amp; Testing</a></li>
+                <li class="-item"><a href="https://sound.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="sound engineers, producers, editors, and enthusiasts">Sound Design</a></li>
+                    </ul></div><div class="site-footer--col site-footer--category js-footer-col" data-name="Technology"><ul class="-list">
+                <li class="-item"><a href="https://windowsphone.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="enthusiasts and power users of Windows Phone OS">Windows Phone</a></li>
+                            <li class="-item">
+                    <a href="https://stackexchange.com/sites#technology" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 26 })">
+                        <strong>
+                            more (27)
+                        </strong>
+                    </a>
+                </li>
+        </ul>
+    </div>
+    <div class="site-footer--col site-footer--category js-footer-col" data-name="Life / Arts">
+        <ul class="-list">
+                <li class="-item"><a href="https://photo.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="professional, enthusiast and amateur photographers">Photography</a></li>
+                <li class="-item"><a href="https://scifi.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="science fiction and fantasy enthusiasts">Science Fiction &amp; Fantasy</a></li>
+                <li class="-item"><a href="https://graphicdesign.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="Graphic Design professionals, students, and enthusiasts">Graphic Design</a></li>
+                <li class="-item"><a href="https://movies.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="movie and tv enthusiasts">Movies &amp; TV</a></li>
+                <li class="-item"><a href="https://music.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="musicians, students, and enthusiasts">Music: Practice &amp; Theory</a></li>
+                <li class="-item"><a href="https://worldbuilding.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="writers/artists using science, geography and culture to construct imaginary worlds and settings">Worldbuilding</a></li>
+                <li class="-item"><a href="https://video.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="engineers, producers, editors, and enthusiasts spanning the fields of video, and media creation">Video Production</a></li>
+                    </ul></div><div class="site-footer--col site-footer--category js-footer-col" data-name="Life / Arts"><ul class="-list">
+                <li class="-item"><a href="https://cooking.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="professional and amateur chefs">Seasoned Advice (cooking)</a></li>
+                <li class="-item"><a href="https://diy.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="contractors and serious DIYers">Home Improvement</a></li>
+                <li class="-item"><a href="https://money.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="people who want to be financially literate">Personal Finance &amp; Money</a></li>
+                <li class="-item"><a href="https://academia.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="academics and those enrolled in higher education">Academia</a></li>
+                <li class="-item"><a href="https://law.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="legal professionals, students, and others with experience or interest in law">Law</a></li>
+                <li class="-item"><a href="https://fitness.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="physical fitness professionals, athletes, trainers, and those providing health-related needs">Physical Fitness</a></li>
+                <li class="-item"><a href="https://gardening.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="gardeners and landscapers">Gardening &amp; Landscaping</a></li>
+                    </ul></div><div class="site-footer--col site-footer--category js-footer-col" data-name="Life / Arts"><ul class="-list">
+                <li class="-item"><a href="https://parenting.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="parents, grandparents, nannies and others with a parenting role">Parenting</a></li>
+                            <li class="-item">
+                    <a href="https://stackexchange.com/sites#lifearts" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 26 })">
+                        <strong>
+                            more (11)
+                        </strong>
+                    </a>
+                </li>
+        </ul>
+    </div>
+    <div class="site-footer--col site-footer--category js-footer-col" data-name="Culture / Recreation">
+        <ul class="-list">
+                <li class="-item"><a href="https://english.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="linguists, etymologists, and serious English language enthusiasts">English Language &amp; Usage</a></li>
+                <li class="-item"><a href="https://skeptics.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="scientific skepticism">Skeptics</a></li>
+                <li class="-item"><a href="https://judaism.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="those who base their lives on Jewish law and tradition and anyone interested in learning more">Mi Yodeya (Judaism)</a></li>
+                <li class="-item"><a href="https://travel.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="road warriors and seasoned travelers">Travel</a></li>
+                <li class="-item"><a href="https://christianity.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="committed Christians, experts in Christianity and those interested in learning more">Christianity</a></li>
+                <li class="-item"><a href="https://ell.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="speakers of other languages learning English">English Language Learners</a></li>
+                <li class="-item"><a href="https://japanese.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="students, teachers, and linguists wanting to discuss the finer points of the Japanese language">Japanese Language</a></li>
+                    </ul></div><div class="site-footer--col site-footer--category js-footer-col" data-name="Culture / Recreation"><ul class="-list">
+                <li class="-item"><a href="https://chinese.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="students, teachers, and linguists wanting to discuss the finer points of the Chinese language">Chinese Language</a></li>
+                <li class="-item"><a href="https://french.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="students, teachers, and linguists wanting to discuss the finer points of the French language">French Language</a></li>
+                <li class="-item"><a href="https://german.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="speakers of German wanting to discuss the finer points of the language and translation">German Language</a></li>
+                <li class="-item"><a href="https://hermeneutics.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="professors, theologians, and those interested in exegetical analysis of biblical texts">Biblical Hermeneutics</a></li>
+                <li class="-item"><a href="https://history.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="historians and history buffs">History</a></li>
+                <li class="-item"><a href="https://spanish.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="linguists, teachers, students and Spanish language enthusiasts in general wanting to discuss the finer points of the language">Spanish Language</a></li>
+                <li class="-item"><a href="https://islam.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="Muslims, experts in Islam, and those interested in learning more about Islam">Islam</a></li>
+                    </ul></div><div class="site-footer--col site-footer--category js-footer-col" data-name="Culture / Recreation"><ul class="-list">
+                <li class="-item"><a href="https://rus.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="лингвистов и энтузиастов русского языка">Русский язык</a></li>
+                <li class="-item"><a href="https://russian.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="students, teachers, and linguists wanting to discuss the finer points of the Russian language">Russian Language</a></li>
+                <li class="-item"><a href="https://gaming.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="passionate videogamers on all platforms">Arqade (gaming)</a></li>
+                <li class="-item"><a href="https://bicycles.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="people who build and repair bicycles, people who train cycling, or commute on bicycles">Bicycles</a></li>
+                <li class="-item"><a href="https://rpg.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="gamemasters and players of tabletop, paper-and-pencil role-playing games">Role-playing Games</a></li>
+                <li class="-item"><a href="https://anime.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="anime and manga fans">Anime &amp; Manga</a></li>
+                <li class="-item"><a href="https://puzzling.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="those who create, solve, and study puzzles">Puzzling</a></li>
+                    </ul></div><div class="site-footer--col site-footer--category js-footer-col" data-name="Culture / Recreation"><ul class="-list">
+                <li class="-item"><a href="https://mechanics.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="mechanics and DIY enthusiast owners of cars, trucks, and motorcycles">Motor Vehicle Maintenance &amp; Repair</a></li>
+                <li class="-item"><a href="https://boardgames.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="people who like playing board games, designing board games or modifying the rules of existing board games">Board &amp; Card Games</a></li>
+                <li class="-item"><a href="https://bricks.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="LEGO® and building block enthusiasts">Bricks</a></li>
+                <li class="-item"><a href="https://homebrew.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="dedicated home brewers and serious enthusiasts">Homebrewing</a></li>
+                <li class="-item"><a href="https://martialarts.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="students and teachers of all martial arts">Martial Arts</a></li>
+                <li class="-item"><a href="https://outdoors.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="people who love being outdoors enjoying nature and wilderness, and learning about the required skills and equipment">The Great Outdoors</a></li>
+                <li class="-item"><a href="https://poker.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="serious players and enthusiasts of poker">Poker</a></li>
+                    </ul></div><div class="site-footer--col site-footer--category js-footer-col" data-name="Culture / Recreation"><ul class="-list">
+                <li class="-item"><a href="https://chess.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="serious players and enthusiasts of chess">Chess</a></li>
+                <li class="-item"><a href="https://sports.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="participants in team and individual sport activities">Sports</a></li>
+                            <li class="-item">
+                    <a href="https://stackexchange.com/sites#culturerecreation" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 26 })">
+                        <strong>
+                            more (16)
+                        </strong>
+                    </a>
+                </li>
+        </ul>
+    </div>
+    <div class="site-footer--col site-footer--category js-footer-col" data-name="Science">
+        <ul class="-list">
+                <li class="-item"><a href="https://mathoverflow.net/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="professional mathematicians">MathOverflow</a></li>
+                <li class="-item"><a href="https://math.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="people studying math at any level and professionals in related fields">Mathematics</a></li>
+                <li class="-item"><a href="https://stats.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="people interested in statistics, machine learning, data analysis, data mining, and data visualization">Cross Validated (stats)</a></li>
+                <li class="-item"><a href="https://cstheory.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="theoretical computer scientists and researchers in related fields">Theoretical Computer Science</a></li>
+                <li class="-item"><a href="https://physics.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="active researchers, academics and students of physics">Physics</a></li>
+                <li class="-item"><a href="https://chemistry.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="scientists, academics, teachers, and students in the field of chemistry">Chemistry</a></li>
+                <li class="-item"><a href="https://biology.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="biology researchers, academics, and students">Biology</a></li>
+                    </ul></div><div class="site-footer--col site-footer--category js-footer-col" data-name="Science"><ul class="-list">
+                <li class="-item"><a href="https://cs.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="students, researchers and practitioners of computer science">Computer Science</a></li>
+                <li class="-item"><a href="https://philosophy.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="those interested in the study of the fundamental nature of knowledge, reality, and existence">Philosophy</a></li>
+                <li class="-item"><a href="https://linguistics.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="professional linguists and others with an interest in linguistic research and theory">Linguistics</a></li>
+                <li class="-item"><a href="https://psychology.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="practitioners, researchers, and students in cognitive science, psychology, neuroscience, and psychiatry">Psychology &amp; Neuroscience</a></li>
+                <li class="-item"><a href="https://scicomp.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="scientists using computers to solve scientific problems">Computational Science</a></li>
+                            <li class="-item">
+                    <a href="https://stackexchange.com/sites#science" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 26 })">
+                        <strong>
+                            more (8)
+                        </strong>
+                    </a>
+                </li>
+        </ul>
+    </div>
+    <div class="site-footer--col site-footer--category js-footer-col" data-name="Other">
+        <ul class="-list">
+                <li class="-item"><a href="https://meta.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="meta-discussion of the Stack Exchange family of Q&amp;A websites">Meta Stack Exchange</a></li>
+                <li class="-item"><a href="https://stackapps.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="apps, scripts, and development with the Stack Exchange API">Stack Apps</a></li>
+                <li class="-item"><a href="https://api.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="programmatic interaction with Stack Exchange sites">API</a></li>
+                <li class="-item"><a href="https://data.stackexchange.com/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 25 })" title="querying Stack Exchange data using SQL">Data</a></li>
+                    </ul>
+    </div>
+                </div>
+            </nav>
+            <div class="site-footer--copyright fs-fine">
+                <ul class="-list">
+                    <li class="-item"><a class="js-gps-track -link" data-gps-track="footer.click({ location: 2, link:4 })" href="https://stackoverflow.blog/?blb=1">Blog</a></li>
+                    <li class="-item"><a href="https://www.facebook.com/officialstackoverflow/" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 31 })">Facebook</a></li>
+                    <li class="-item"><a href="https://twitter.com/stackoverflow" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 32 })">Twitter</a></li>
+                    <li class="-item"><a href="https://linkedin.com/company/stack-overflow" class="-link js-gps-track" data-gps-track="footer.click({ location: 2, link: 33 })">LinkedIn</a></li>
+                </ul>
+
+                <p class="mt-auto mb24">
+site design / logo © 2019 Stack Exchange Inc; user contributions licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/" class="js-gps-track" data-gps-track="footer.click({ location: 2, link: 34 })" rel="license">cc by-sa 4.0</a>
+                            with <a href="https://stackoverflow.blog/2009/06/25/attribution-required/" class="js-gps-track" data-gps-track="footer.click({ location: 2, link:35 })" rel="license">attribution required</a>.
+                    <span id="svnrev">rev&nbsp;2019.12.11.35602</span>
+                </p>
+            </div>
+        </div>
+
+            <div class="site-footer--extra ai-center">
+                Linux is a registered trademark of Linus Torvalds. UNIX is a registered trademark of The Open Group. <br>This site is not affiliated with Linus Torvalds or The Open Group in any way.
+            </div>
+            </footer>
+            <script>StackExchange.ready(function () { StackExchange.responsiveness.addSwitcher(); })</script>
+    <noscript>
+        <div id="noscript-warning">Unix &amp; Linux Stack Exchange works best with JavaScript enabled
+            <img src="https://pixel.quantserve.com/pixel/p-c1rF4kxgLUzNc.gif" alt="" class="dno">
+        </div>
+    </noscript>
+
+<script>
+            (function(i, s, o, g, r, a, m) {
+                i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function() { (i[r].q = i[r].q || []).push(arguments) }, i[r].l = 1 * new Date(); a = s.createElement(o),
+                m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m);
+            })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+            StackExchange.ready(function () {
+
+                StackExchange.ga.init({
+                    sendTitles: true,
+                    tracker: window.ga,
+                    trackingCodes: [
+                        'UA-108242619-5'
+                    ],
+                        checkDimension: 'dimension42'
+                });
+
+
+
+                    StackExchange.ga.setDimension('dimension2', '|ssh|file-copy|');
+
+                    StackExchange.ga.setDimension('dimension3', 'Questions/Show');
+
+
+                StackExchange.ga.trackPageView();
+            });
+            
+/**/
+            
+            var _qevents = _qevents || [],
+            _comscore = _comscore || [];
+            (function() {
+                var ssl = 'https:' == document.location.protocol,
+                    s = document.getElementsByTagName('script')[0],
+                    qc = document.createElement('script');
+                 qc.async = true;
+                    qc.src = (ssl ? 'https://secure' : 'http://edge') + '.quantserve.com/quant.js';
+                    s.parentNode.insertBefore(qc, s);
+                    _qevents.push({ qacct: "p-c1rF4kxgLUzNc" });
+/**/
+                 var sc = document.createElement('script');
+                    sc.async = true;
+                    sc.src = (ssl ? 'https://sb' : 'http://b') + '.scorecardresearch.com/beacon.js';
+                    s.parentNode.insertBefore(sc, s);
+                    _comscore.push({ c1: "2", c2: "17440561" });
+            })();
+            
+
+</script>
+            
+    
+    
+<div class="adsbox" id="clc-abd" style="position: absolute; pointer-events: none;">&nbsp;</div><script src="./How to copy files from one machine to another using ssh - Unix &amp; Linux Stack Exchange_files/markup.js"></script></body><span class="gr__tooltip"><span class="gr__tooltip-content"></span><i class="gr__tooltip-logo"></i><span class="gr__triangle"></span></span></html>
