@@ -1,23 +1,27 @@
 # Foxhound Security Solution
+1. PostgreSQl Database Setup
+2. Spark Setup
+3. Java Setup
+4. Cassandra Setup
+5. Cassandra - Django Integration
+6. Celery, Redis and Django Integration
+7. Apache Spark and Django Integration
 
-## db setup:
-
+## PostgreSQL Database setup:
 Export the following paths in your terminal, or in the .bashrc file:
 
-    export FH_DB_NAME='your_db_name'
-    export FH_DB_USER='your_db_username' 
-    export FH_DB_PASSWORD='your_db_password'
-    
-    
-## Add the __foxhound__ module to your virtualenvironment
+    export FH_DB_NAME='fhdb'
+    export FH_DB_USER='foxhounduser'
+    export FH_DB_PASSWORD='foxhound123'
+
+### Add the __foxhound__ module to your virtualenvironment
 * Open the *bin/activate* file.
 * Add the following line to the bottom of the file:
 
-        export PYTHONPATH="/home/username/path_to_foxhound_repo/foxhound"
-
-
-
-
+```
+export PYTHONPATH="/home/username/path_to_foxhound_repo/foxhound"
+```
+___
 ## Spark Setup to your local Computer
 
 ### Step 1:  Adding 127.0.0.1 as master in hosts file
@@ -76,7 +80,7 @@ $ tar xvf spark-2.4.4-bin-hadoop2.7.tgz
 Move Spark software files
 Use the following command to move the spark software files to respective directory (/usr/local/bin)
 ```
-$ sudo mv spark-2.3.0-bin-hadoop2.7 /usr/local/spark
+$ sudo mv spark-2.4.4-bin-hadoop2.7 /usr/local/spark
 ```
 Set up the environment for Spark
 Edit bashrc file.
@@ -94,7 +98,7 @@ $ source ~/.bashrc
 ```
 
 ### Step 5: Spark Master Configuration
-Do the following procedures 
+Do the following procedures
 Edit spark-env.sh
 Move to spark conf folder and create a copy of template of spark-env.sh and rename it.
 ```
@@ -182,7 +186,7 @@ if __name__ == "__main__":
 
     spark.stop()
 ```
-
+___
 
 # Pre-Cassandra setup
 
@@ -190,44 +194,37 @@ if __name__ == "__main__":
 
 ```
 sudo update-alternatives --config java
-
 ```
 This is what the output would look like if you’ve installed all versions of Java in this tutorial:
-
 There are many choices for the alternative java (providing /usr/bin/java).
-
+```
   Selection    Path                                            Priority   Status
 ------------------------------------------------------------
 * 0            /usr/lib/jvm/java-11-openjdk-amd64/bin/java      1101      auto mode
   1            /usr/lib/jvm/java-11-openjdk-amd64/bin/java      1101      manual mode
   2            /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java   1081      manual mode
-  3            /usr/lib/jvm/java-8-oracle/jre/bin/java          1081      manual mode
+```
 
-Choose the number associated with the Java version to use it as the default(/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java), 
+Choose the number associated with the Java version to use it as the default(/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java),
 You can do this for other Java commands, such as the compiler (javac):
 ```
 sudo update-alternatives --config javac
 ```
-
+set JAVA_HOME path in environment
 ```
 sudo nano /etc/environment
 ```
 At the end of this file, add the following line, making sure to replace the highlighted path with your own copied path:
-
 ```
 JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/"
 ```
 Modifying this file will set the JAVA_HOME path for all users on your system.
-
-Save the file and exit the editor.
-
+Save the file and exit the editor
 Now reload this file to apply the changes to your current session:
-
 ```
 source /etc/environment
 ```
-
-
+___
 # Installing Cassandra to your local machine
 
 ### Step 1: Add the Cassandra Repository File
@@ -246,21 +243,16 @@ curl https://www.apache.org/dist/cassandra/KEYS | sudo apt-key add -
 sudo apt update
 sudo apt install cassandra
 ```
-
 ### Step 4: Enable and Start Cassandra
 ```
 sudo systemctl enable cassandra
 sudo systemctl start cassandra
-
 ```
-
 ### Step 5: Verify The Installation
 ```
 sudo systemctl status cassandra
 ```
-
 ### Step 6: Configure Cassandra to run in sinlge node mode
-
 ```
 sudo systemctl stop cassandra
 sudo nano /etc/cassandra/cassandra.yaml
@@ -269,7 +261,7 @@ sudo nano /etc/cassandra/cassandra.yaml
 ```
 . . .
 
-cluster_name: 'FoxhoundClustere'
+cluster_name: 'FoxhoundCluster'
 
 . . .
 
@@ -290,15 +282,19 @@ rpc_address: 127.0.0.1
 
 endpoint_snitch: GossipingPropertyFileSnitch
 
-. . . 
+. . .
 
+```
+At the bottom of the file, add in the auto_bootstrap directive by pasting in this line:
+```
+auto_bootstrap: false
 ```
 
 ### Step 7: Configuring Cassandra-env.sh
 
 ```
 sudo nano /etc/cassandra/cassandra-env.sh
-``` 
+```
 
 look for line JVM_OPTS="$JVM_OPTS -
 
@@ -306,8 +302,7 @@ replace the line with
 ```
 JVM_OPTS="$JVM_OPTS -Djava.rmi.server.hostname=127.0.0.1
 ```
-Save the file and restart the cassandra using 
-
+Save the file and restart the cassandra using
 ```
 sudo systemctl restart cassandra.service
 ```
@@ -324,20 +319,19 @@ To modify the firewall rules, open the rules file for IPv4.
 ```
 sudo nano /etc/iptables/rules.v4
 ```
-```
 Copy and paste the following line within the INPUT chain,
+```
 -A INPUT -p tcp -s 127.0.0.1 -m multiport --dports 7000,9042 -m state --state NEW,ESTABLISHED -j ACCEPT
 ```
 After adding the rule, save and close the file, then restart IPTables.
 ```
 sudo service netfilter-persistent  restart
 ```
-
-
 ### check the cluster status
 ```
 $ sudo nodetool status
 ```
+something like this should appear
 ```
 Datacenter: dc1
 ===============
@@ -346,31 +340,57 @@ Status=Up/Down
 --  Address    Load       Tokens       Owns (effective)  Host ID                               Rack
 UN  127.0.0.1  203.61 KiB  256          100.0%            2e2fad33-e7db-462d-89e6-4b36482a3829  rack1
 ```
+___
+# 5. Cassandra - Django Integration
+activate your foxhound virtual environment
+```
+$ pip install pip install django-cassandra-engine
+```
 
+```
+$ python manage.py sync_cassandra
+$ python manage.py makemigrations
+$ python manage.py migrate
+```
+____
+# 6 Celery, Redis and Django Integration
+activate your foxhound virtual environment
+```
+$ pip install celery[redis] redis-server redis
+```
+check if redis-server is working by command
+```
+$ redis-cli ping
+```
+should reply PONG
+
+navigate to backend directory in cmd
+check if celery is accepting tasks or not
+```
+(venv) ....backend$ celery worker -A backend --loglevel=info
+```
 something like this should appear
-
-
-At the bottom of the file, add in the auto_bootstrap directive by pasting in this line:
 ```
-auto_bootstrap: false
+ -------------- celery@keshavchaurasia-xps v4.3.0 (rhubarb)
+---- **** -----
+--- * ***  * -- Linux-5.0.0-37-generic-x86_64-with-Ubuntu-18.04-bionic 2019-12-13 01:11:33
+-- * - **** ---
+- ** ---------- [config]
+- ** ---------- .> app:         backend:0x7fdc831cf4a8
+- ** ---------- .> transport:   redis://localhost:6379//
+- ** ---------- .> results:     redis://localhost:6379/
+- *** --- * --- .> concurrency: 4 (prefork)
+-- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
+--- ***** -----
+ -------------- [queues]
+                .> celery           exchange=celery(direct) key=celery
+
+
+[tasks]
+  . backend.celery.debug_task
+  . core.tasks.test
 ```
-
-
-
-
-First, restart the Cassandra daemon on each.
-```
-sudo service cassandra start
-```
-
-To check the status of the cassandra db
-```
-sudo nodetool status
-```
-
-
-
-
+___
 # Notes:
 > Please create a branch when you are creating a new feature. However small it may be, please create a new branch.
 
