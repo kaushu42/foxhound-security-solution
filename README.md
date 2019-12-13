@@ -184,6 +184,48 @@ if __name__ == "__main__":
 ```
 
 
+# Pre-Cassandra setup
+
+### Make sure you have specific version of JDK set as default that is 1.8
+
+```
+sudo update-alternatives --config java
+
+```
+This is what the output would look like if you’ve installed all versions of Java in this tutorial:
+
+There are many choices for the alternative java (providing /usr/bin/java).
+
+  Selection    Path                                            Priority   Status
+------------------------------------------------------------
+* 0            /usr/lib/jvm/java-11-openjdk-amd64/bin/java      1101      auto mode
+  1            /usr/lib/jvm/java-11-openjdk-amd64/bin/java      1101      manual mode
+  2            /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java   1081      manual mode
+  3            /usr/lib/jvm/java-8-oracle/jre/bin/java          1081      manual mode
+
+Choose the number associated with the Java version to use it as the default(/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java), 
+You can do this for other Java commands, such as the compiler (javac):
+```
+sudo update-alternatives --config javac
+```
+
+```
+sudo nano /etc/environment
+```
+At the end of this file, add the following line, making sure to replace the highlighted path with your own copied path:
+
+```
+JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/"
+```
+Modifying this file will set the JAVA_HOME path for all users on your system.
+
+Save the file and exit the editor.
+
+Now reload this file to apply the changes to your current session:
+
+```
+source /etc/environment
+```
 
 
 # Installing Cassandra to your local machine
@@ -223,11 +265,110 @@ sudo systemctl status cassandra
 sudo systemctl stop cassandra
 sudo nano /etc/cassandra/cassandra.yaml
 ```
-change the name of the cluster_name to FoxhoundCluster
+
 ```
-cluster\_name:'FoxhoundCluster'
- 
+. . .
+
+cluster_name: 'FoxhoundClustere'
+
+. . .
+
+seed_provider:
+  - class_name: org.apache.cassandra.locator.SimpleSeedProvider
+    parameters:
+         - seeds: "127.0.0.1"
+
+. . .
+
+listen_address: 127.0.0.1
+
+. . .
+
+rpc_address: 127.0.0.1
+
+. . .
+
+endpoint_snitch: GossipingPropertyFileSnitch
+
+. . . 
+
 ```
+
+### Step 7: Configuring Cassandra-env.sh
+
+```
+sudo nano /etc/cassandra/cassandra-env.sh
+``` 
+
+look for line JVM_OPTS="$JVM_OPTS -
+
+replace the line with
+```
+JVM_OPTS="$JVM_OPTS -Djava.rmi.server.hostname=127.0.0.1
+```
+Save the file and restart the cassandra using 
+
+```
+sudo systemctl restart cassandra.service
+```
+
+### Step 8: Configuring the Firewall
+
+```
+sudo apt install iptables-persistent
+```
+continue pressing all yeses
+
+To modify the firewall rules, open the rules file for IPv4.
+
+```
+sudo nano /etc/iptables/rules.v4
+```
+```
+Copy and paste the following line within the INPUT chain,
+-A INPUT -p tcp -s 127.0.0.1 -m multiport --dports 7000,9042 -m state --state NEW,ESTABLISHED -j ACCEPT
+```
+After adding the rule, save and close the file, then restart IPTables.
+```
+sudo service netfilter-persistent  restart
+```
+
+
+### check the cluster status
+```
+$ sudo nodetool status
+```
+```
+Datacenter: dc1
+===============
+Status=Up/Down
+|/ State=Normal/Leaving/Joining/Moving
+--  Address    Load       Tokens       Owns (effective)  Host ID                               Rack
+UN  127.0.0.1  203.61 KiB  256          100.0%            2e2fad33-e7db-462d-89e6-4b36482a3829  rack1
+```
+
+something like this should appear
+
+
+At the bottom of the file, add in the auto_bootstrap directive by pasting in this line:
+```
+auto_bootstrap: false
+```
+
+
+
+
+First, restart the Cassandra daemon on each.
+```
+sudo service cassandra start
+```
+
+To check the status of the cassandra db
+```
+sudo nodetool status
+```
+
+
 
 
 # Notes:
