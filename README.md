@@ -298,9 +298,13 @@ sudo nano /etc/cassandra/cassandra-env.sh
 
 look for line JVM_OPTS="$JVM_OPTS -
 
-replace the line with
+Uncomment the line with
 ```
-JVM_OPTS="$JVM_OPTS -Djava.rmi.server.hostname=127.0.0.1
+JVM_OPTS="$JVM_OPTS -Djava.rmi.server.hostname=<public name>"
+
+and replace with
+
+JVM_OPTS="$JVM_OPTS -Djava.rmi.server.hostname=127.0.0.1"
 ```
 Save the file and restart the cassandra using
 ```
@@ -346,17 +350,12 @@ activate your foxhound virtual environment
 ```
 $ pip install pip install django-cassandra-engine
 ```
-
-```
-$ python manage.py sync_cassandra
-$ python manage.py makemigrations
-$ python manage.py migrate
-```
 ____
-# 6 Celery, Redis and Django Integration
+# 6. Celery, Redis and Django Integration
 activate your foxhound virtual environment
 ```
-$ pip install celery[redis] redis-server redis
+(venv)$ pip install celery[redis] 
+sudo apt-get install redis-server
 ```
 check if redis-server is working by command
 ```
@@ -389,6 +388,14 @@ something like this should appear
 [tasks]
   . backend.celery.debug_task
   . core.tasks.test
+```
+
+____
+# 7. Running Django Migrations
+```
+$ python manage.py sync_cassandra
+$ python manage.py makemigrations
+$ python manage.py migrate
 ```
 ___
 # Notes:
