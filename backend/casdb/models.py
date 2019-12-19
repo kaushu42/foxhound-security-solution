@@ -33,4 +33,4 @@ class TrafficLogs(DjangoCassandraModel):
     packets_received = columns.BigInt(required=False)
     packets_sent = columns.BigInt(required=False)
     time_elapsed = columns.BigInt(required=False)
-    logged_datetime = columns.DateTime(required=False)
+    logged_datetime = columns.Text(required=False)
