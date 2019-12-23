@@ -51,6 +51,8 @@ class AutoEncoder:
 
     def train_model(self, X, model_path):
         try:
+            # print('model found')
+            self._create_architecture(X.shape[1])
             self._model = load_model(model_path+'/model.h5')
         except FileNotFoundError:
             self._create_architecture(X.shape[1])
