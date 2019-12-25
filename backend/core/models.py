@@ -382,3 +382,26 @@ class DBLock(models.Model):
 
     def __str__(self):
         return self.__repr__()
+
+
+class MISDailyIP(models.Model):
+    date = models.DateField(null=True)
+    address = models.CharField(max_length=50)
+    tenant_id = models.ForeignKey(Tenant, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.address
+
+    def __repr__(self):
+        return self.address
+
+    class Meta:
+        abstract = True
+
+
+class MISDailySourceIP(MISDailyIP):
+    pass
+
+
+class MISDailyDestinationIP(MISDailyIP):
+    pass
