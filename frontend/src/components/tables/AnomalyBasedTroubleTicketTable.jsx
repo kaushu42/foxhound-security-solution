@@ -253,7 +253,8 @@ class AnomalyBasedTroubleTicketTable extends Component {
                 console.log("tt detail data", this.state.ttDetail)
             })
         }   
-        var dataToShow = (<p>
+        var dataToShow = (
+        <Fragment>
             <b>Created Date: </b>{(new Date(record.created_datetime).toUTCString()).replace(" GMT", "")} 
             <br/><b>Bytes Sent: </b> {record.bytes_sent}
             <br/><b>Bytes Received: </b> {record.bytes_received} 
@@ -266,8 +267,23 @@ class AnomalyBasedTroubleTicketTable extends Component {
             <br/><b>Session End Reason: </b> {record.session_end_reason}
             <br/><b>Inbound Interface: </b> {record.inbound_interface}
             <br/><b>Outbound Interface: </b> {record.outbound_interface} 
-        </p>);
-
+            {this.state.ttDetail ? (
+                <Fragment>
+                    <hr></hr>
+                    <b>Details:</b>
+                    <br />
+                    <ul>
+                    <li>The average bytes sent is <b>{this.state.ttDetail.bytes_sent_average.toFixed(0)}</b> and actual bytes sent is <b>{record.bytes_sent}.</b></li>
+                    <li>The average bytes received is <b>{this.state.ttDetail.bytes_received_average.toFixed(0)}</b> and actual bytes received is <b>{record.bytes_received}.</b></li>
+                    <li>The average packets sent is <b>{this.state.ttDetail.packets_sent_average.toFixed(0)}</b> and actual packets sent is <b>{record.packets_sent}.</b></li>
+                    <li>The average packets received is <b>{this.state.ttDetail.packets_received_average.toFixed(0)}</b> and actual packets received is <b>{record.packets_received}.</b></li>
+                    <li>This application is used <b>{this.state.ttDetail.application.count}</b> with average packets sent <b>{this.state.ttDetail.application.packets}</b>. The total data used is <b>{this.state.ttDetail.application.bytes.toFixed(0)}</b></li>
+                    </ul>
+                    <hr></hr>
+                </Fragment>
+            ): null}
+        </Fragment>
+        );
         return dataToShow
     }
     
@@ -322,7 +338,7 @@ class AnomalyBasedTroubleTicketTable extends Component {
         if(expanded){
             keys.push(record.id);
         }
-        this.setState({expandedRowKeys: keys});
+        this.setState({expandedRowKeys: keys, ttDetail: null});
     }
 
     render() {
