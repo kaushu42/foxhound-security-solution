@@ -1,10 +1,12 @@
+import os
 import findspark
 findspark.init()
 from pyspark.sql import SparkSession
-
 from pyspark.sql import SQLContext
 from pyspark import SparkContext
 
+SPARK_MASTER_URL = os.environ.get('SPARK_MASTER_URL','master[*]')
+CASSANDRA_NODES = os.environ.get('CASSANDRA_NODES').split(",")
 class Spark:
    __sparkSession = None
    __sqlContext = None
@@ -15,7 +17,7 @@ class Spark:
       """ Static access method. """
       if Spark.__sparkContext == None and Spark.__sqlContext == None and Spark.__sparkContext== None :
          Spark()
-      Spark.__sparkSession = SparkSession.builder.appName("foxhound").getOrCreate()
+      Spark.__sparkSession = SparkSession.builder.master(SPARK_MASTER_URL).appName("foxhound").config('spark.cassandra.connection.host', ','.join(CASSANDRA_NODES)).getOrCreate()
       Spark.__sparkContext =SparkContext.getOrCreate()
       Spark.__sqlContext = SQLContext(Spark.__sparkContext)
       return Spark.__sparkSession,Spark.__sparkContext,Spark.__sqlContext
