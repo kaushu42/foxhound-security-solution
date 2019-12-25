@@ -20,11 +20,11 @@ logging.basicConfig(
 )
 logging.info(f'Script ran on {datetime.datetime.now()}')
 try:
-    seedutils.seed()
+    # seedutils.seed()
 
-    # run.ml_engine()
-    run.dc_engine()
-    run.db_engine(utils.get_db_engine(), logging)
+    run.ml_engine()
+    # run.dc_engine()
+    # run.db_engine(utils.get_db_engine(), logging, verbose=False)
     run.tt_engine()
 
 except Exception as e:
