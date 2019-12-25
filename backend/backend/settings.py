@@ -80,7 +80,7 @@ DATABASES = {
         'ENGINE': 'django_cassandra_engine',
         'NAME': 'casdb',
         'TEST_NAME': 'test_db',
-        'HOST': '127.0.0.1',
+        'HOST': os.environ.get('CASSANDRA_NODES', '127.0.0.1'),
         'OPTIONS': {
             'replication': {
                 'strategy_class': 'SimpleStrategy',
