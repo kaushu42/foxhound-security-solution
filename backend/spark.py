@@ -1,9 +1,9 @@
+from pyspark import SparkContext
+from pyspark.sql import SQLContext
+from pyspark.sql import SparkSession
 import os
 import findspark
 findspark.init()
-from pyspark.sql import SparkSession
-from pyspark.sql import SQLContext
-from pyspark import SparkContext
 
 SPARK_MASTER_URL = os.environ.get('SPARK_MASTER_URL','master[*]')
 CASSANDRA_NODES = os.environ.get('CASSANDRA_NODES').split(",")

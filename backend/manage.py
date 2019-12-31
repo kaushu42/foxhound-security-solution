@@ -2,11 +2,12 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-from spark import Spark
+# from spark import Spark
+
 
 def main():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
-    ss,sc,sqlc = Spark.initSparkSession();
+    # ss,sc,sqlc = Spark.initSparkSession();
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

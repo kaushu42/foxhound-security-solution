@@ -20,7 +20,7 @@ class Tenant(models.Model):
         VirtualSystem, on_delete=models.CASCADE,
         null=True
     )
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=250)
 
     def __str__(self):
         return self.name
@@ -30,7 +30,7 @@ class Tenant(models.Model):
 
 
 class FirewallRule(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=250)
     tenant = models.ForeignKey(
         Tenant, on_delete=models.CASCADE, null=True)
 
@@ -42,7 +42,7 @@ class FirewallRule(models.Model):
 
 
 class Domain(models.Model):
-    name = models.CharField(max_length=50
+    name = models.CharField(max_length=250
                             )
     url = models.CharField(max_length=250)
     tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE,
@@ -225,7 +225,7 @@ class Country(models.Model):
         IPAddress, on_delete=models.CASCADE,
         null=True
     )
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=250)
     iso_code = models.CharField(max_length=5)
 
     def __repr__(self):
@@ -269,7 +269,7 @@ class TenantIPAddressInfo(TenantInfo):
 
 
 class TenantApplicationInfo(TenantInfo):
-    application = models.CharField(max_length=50)
+    application = models.CharField(max_length=250)
 
     def __repr__(self):
         return f'{self.firewall_rule.tenant}-{self.application}'
@@ -386,7 +386,7 @@ class DBLock(models.Model):
 
 class MISDailyIP(models.Model):
     date = models.DateField(null=True)
-    address = models.CharField(max_length=50)
+    address = models.CharField(max_length=250)
     tenant_id = models.ForeignKey(Tenant, on_delete=models.CASCADE)
 
     def __str__(self):
