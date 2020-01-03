@@ -26,7 +26,9 @@ def dc_engine(verbose=True):
     pa = fh.dc_engine.PaloAltoEngine(
         config.TRAFFIC_LOGS_INPUT_DIR,
         config.TRAFFIC_LOGS_OUTPUT_DIR,
-        config.GRANULARIZED_LOG_PATH)
+        config.GRANULARIZED_LOG_PATH,
+        spark_session=config.SPARK
+    )
     pa.run(verbose=verbose)
 
 

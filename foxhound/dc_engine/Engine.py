@@ -2,7 +2,9 @@ from abc import ABC, abstractmethod
 import csv
 import os
 
-import pandas as pd
+import pyspark
+from pyspark.sql import SparkSession
+from pyspark.sql import SQLContext
 
 
 class Engine(ABC):
@@ -11,7 +13,8 @@ class Engine(ABC):
         self,
         input_path: str,
         log_detail_output_path: str,
-        log_granular_hour_output_path: str
+        log_granular_hour_output_path: str,
+        spark_session: pyspark.sql.session.SparkSession
     ):
         if (
             isinstance(input_path, str) and
@@ -43,13 +46,14 @@ class Engine(ABC):
 
         self._input_csvs = self.get_input_csv_paths()
         self._output_csvs = self.get_output_csv_paths()
+        self.spark = spark_session
 
     @abstractmethod
-    def _process(self, data: pd.DataFrame):
+    def _process(self, data: pyspark.sql.dataframe.DataFrame):
         pass
 
     @abstractmethod
-    def _granularize(self, data: pd.DataFrame):
+    def _granularize(self, data: pyspark.sql.dataframe.DataFrame):
         pass
 
     def _check_data_dirs_valid(self):
@@ -75,13 +79,18 @@ class Engine(ABC):
         return sorted(csvs)
 
     def _read_csv(self, csv_path: str):
-        return pd.read_csv(csv_path)
+        return self.spark.read.csv(csv_path, header=True)
+        # return pd.read_csv(csv_path)
 
-    def _dump(self, input_filename: str, data: pd.DataFrame, output_dir):
+    def _dump(
+            self,
+            input_filename: str,
+            data: pyspark.sql.dataframe.DataFrame,
+            output_dir
+    ):
         filename = input_filename.split('/')[-1]
-        data.index.name = 'row_number'
         output_filename = os.path.join(output_dir, filename)
-        data.to_csv(output_filename, index=True)
+        data.write.csv(output_filename, mode='overwrite')
         print(f'\tWritten to {output_filename}')
 
     def _run_one(self, csv_path: str):
@@ -91,14 +100,14 @@ class Engine(ABC):
         self._dump(
             csv_path,
             log_detail,
-            self._LOG_DETAIL_OUTPUT_PATH
+            self._LOG_DETAIL_OUTPUT_PATH,
         )
         self._dump(
             csv_path,
             log_detail_granular_hour,
             self._LOG_GRANULAR_HOUR_OUTPUT_PATH
         )
-        os.remove(csv_path)
+        # os.remove(csv_path)
         print(f'Log file at {csv_path} deleted.')
 
     def run(self, verbose=False):
