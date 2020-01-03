@@ -51,6 +51,11 @@ class PaloAltoEngine(Engine):
         df = df.toDF(*header_name)
         return df
 
+    def _get_col_name(self, s):
+        # WARNING: RETURNS WHOLE STRING EXCEPT THE LAST CHARACTER
+        # IF NO PARENTHESES IN STRING
+        return s[s.find("(")+1:s.find(")")]
+
     def _granularize(self, df):
         df = self._rename_columns(df)
         df = df.withColumn('logged_datetime', to_timestamp(
@@ -71,4 +76,16 @@ class PaloAltoEngine(Engine):
             'packets_sent': 'sum',
             'packets_received': 'sum'
         })
+
+        agg_col_names = [
+            'sum(time_elapsed)',
+            'sum(bytes_received)',
+            'sum(packets_received)',
+            'avg(repeat_count)',
+            'sum(bytes_sent)',
+            'sum(packets_sent)'
+        ]
+
+        for col_name in agg_col_names:
+            df = df.withColumnRenamed(col_name, self._get_col_name(col_name))
         return df

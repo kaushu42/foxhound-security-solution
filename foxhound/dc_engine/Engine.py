@@ -90,7 +90,7 @@ class Engine(ABC):
     ):
         filename = input_filename.split('/')[-1]
         output_filename = os.path.join(output_dir, filename)
-        data.write.csv(output_filename, mode='overwrite')
+        data.write.csv(output_filename, mode='overwrite', header=True)
         print(f'\tWritten to {output_filename}')
 
     def _run_one(self, csv_path: str):
