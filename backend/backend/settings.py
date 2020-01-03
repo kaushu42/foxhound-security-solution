@@ -32,7 +32,8 @@ INSTALLED_APPS = [
     'profile_api',
     'log_api',
     'session',
-    'casdb'
+    'casdb',
+    'celery'
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -156,7 +157,8 @@ CORS_ORIGIN_ALLOW_ALL = True
 # CELERY STUFF
 BROKER_URL = 'redis://localhost:6379/'
 CELERY_BROKER_URL = 'redis://localhost:6379/'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_RESULT_BACKEND = 'db+postgresql://foxhounduser:foxhound123@localhost/fhdb'
+#CELERY_RESULT_BACKEND = 'redis://localhost:6379'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'

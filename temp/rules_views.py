@@ -192,8 +192,21 @@ def edit_rule(request):
             "error": "Input does not match any rules"
         })
     lock_rule_table()
-    results.delete()
-    unlock_rule_table()
+    f = open(os.path.join(BASE_DIR, DELETE_RULE_FILENAME), 'w')
+    try:
+        for rule in results:
+            f.write(f'{rule.id}\n')
+            print(rule)
+    except django.db.utils.DataError as e:
+        print(e)
+        unlock_rule_table()
+        return Response({
+            "traceback": str(traceback.format_exc()),
+            "exception": str(e)
+        }, status=HTTP_400_BAD_REQUEST)
+    f.close()
+    DELETE_RULE_SCRIPT = os.path.join(BASE_DIR, '../scripts/delete_rules.py')
+    subprocess.Popen([sys.executable, DELETE_RULE_SCRIPT])
     firewall_rule = FirewallRule.objects.filter(tenant__id=tenant_id)[0]
     rule_name = f'{source_ip}--{destination_ip}--{application}'
     user = get_user_from_token(request)
@@ -208,4 +221,6 @@ def edit_rule(request):
         is_anomalous_rule=False,
         verified_by_user=user
     ).save()
+
     return Response(serializer.data)
+
