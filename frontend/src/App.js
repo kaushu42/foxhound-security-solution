@@ -19,6 +19,7 @@ import ChangePassword from "./views/layout/ChangePassword";
 import TrafficLogs from "./views/processedlogs/TrafficLogs";
 import ThreatLogs from "./views/processedlogs/ThreatLogs";
 import ChangeAlias from "./views/ChangeAlias";
+import BackgoundJob from "./views/BackgroundJob";
 
 class App extends Component {
   render() {
@@ -48,7 +49,12 @@ class App extends Component {
             activePageKey={"changealias"}
             component={ChangeAlias}
           />
-
+          <AuthenticatedRoute
+            auth_token={this.props.auth_token}
+            path="/backgroundjob"
+            activePageKey={"backgroundjob"}
+            component={BackgoundJob}
+          />
           {/*Processed Logs*/}
 
           <AuthenticatedRoute
