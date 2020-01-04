@@ -33,7 +33,8 @@ INSTALLED_APPS = [
     'log_api',
     'session',
     'casdb',
-    'celery'
+    'celery',
+    'mis'
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
