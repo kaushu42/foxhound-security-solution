@@ -384,52 +384,34 @@ class DBLock(models.Model):
         return self.__repr__()
 
 
-class MISDailyIP(models.Model):
-    date = models.DateField(null=True)
-    address = models.CharField(max_length=250)
-    tenant_id = models.ForeignKey(Tenant, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.address
-
-    def __repr__(self):
-        return self.address
-
-    class Meta:
-        abstract = True
-
-
-class MISDailySourceIP(MISDailyIP):
-    pass
-
-
-class MISDailyDestinationIP(MISDailyIP):
-    pass
-
-
 class CeleryTaskmeta(models.Model):
     id = models.IntegerField(primary_key=True)
-    task_id = models.CharField(unique=True, max_length=155, blank=True, null=True)
+    task_id = models.CharField(
+        unique=True, max_length=155, blank=True, null=True)
     status = models.CharField(max_length=50, blank=True, null=True)
     result = models.BinaryField(blank=True, null=True)
     date_done = models.DateTimeField(blank=True, null=True)
     traceback = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'celery_taskmeta'
 
 
 class CeleryTasksetmeta(models.Model):
     id = models.IntegerField(primary_key=True)
-    taskset_id = models.CharField(unique=True, max_length=155, blank=True, null=True)
+    taskset_id = models.CharField(
+        unique=True, max_length=155, blank=True, null=True)
     result = models.BinaryField(blank=True, null=True)
     date_done = models.DateTimeField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'celery_tasksetmeta'
 
+
 class BackgroundJob(models.Model):
-    tenant = models.ForeignKey(Tenant,on_delete=models.CASCADE,related_name="tenant_background_job")
-    task = models.ForeignKey(CeleryTasksetmeta,on_delete=models.CASCADE,related_name="task_background_job")
+    tenant = models.ForeignKey(
+        Tenant, on_delete=models.CASCADE, related_name="tenant_background_job")
+    task = models.ForeignKey(
+        CeleryTasksetmeta, on_delete=models.CASCADE, related_name="task_background_job")
