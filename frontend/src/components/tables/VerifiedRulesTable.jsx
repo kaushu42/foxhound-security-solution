@@ -1,6 +1,6 @@
 import React, {Component, Fragment} from 'react';
 import {connect} from "react-redux";
-import {Spin, Table, Drawer, Icon, Button, Form, Input, Row, Col, Statistic} from 'antd';
+import {Spin, Table, Drawer, Icon, Button, Form, Input, Row, Col, Statistic, Card, Select} from 'antd';
 import {
     fetchVerifiedRulesData,
     updatePagination, 
@@ -12,7 +12,7 @@ import {axiosHeader, drawerInfoStyle, ROOT_URL} from "../../utils";
 import moment from "moment";
 import QuickIpView from "../../views/QuickIpView"
 import {search} from "../../actions/ipSearchAction";
-
+const { Search } = Input;
 
 class VerifiedRulesTable extends Component {
 
@@ -23,7 +23,6 @@ class VerifiedRulesTable extends Component {
                 title: 'Created Date',
                 dataIndex: 'created_date_time',
                 key: 'created_date_time',
-                // render: text => moment(text).format("YYYY-MM-DD, HH:MM:SS"),
                 render: text => (new Date(text).toUTCString()).replace(" GMT", "")
             },
             {
@@ -139,6 +138,10 @@ class VerifiedRulesTable extends Component {
         this.handleFetchVerifiedRulesData(this.state.params)
     }
 
+    filterData = (v) =>{
+        console.log(v)
+    }
+    
     render(){
         const {selectedVerifiedRecordToReject} = this.props;
         const expandedRowRender = record => <p><b>Verified Date: </b>{moment(record.verified_date_time).format("YYYY-MM-DD, HH:MM:SS")} <br/><b>Verified By: </b> {record.verified_by_user.username} </p>;
@@ -147,17 +150,67 @@ class VerifiedRulesTable extends Component {
             <Fragment>
                 {this.props.rejectVerifiedRuleError ? <p style={{color:'red'}}>{this.props.rejectVerifiedRuleErrorMessage }</p>: null }
                 {this.props.rejectVerifiedRuleSuccess ? <p style={{color:'green'}}>{this.props.rejectVerifiedRuleSuccessMessage} </p>: null }
-
-                <div style={{marginBottom:24,padding:24,background:'#fbfbfb',border: '1px solid #d9d9d9',borderRadius: 6}}>
-                    <Table
-                        rowKey={record => record.id}
-                        expandedRowRender={expandedRowRender}
-                        columns={this.state.columns}
-                        dataSource = {this.props.verifiedRulesData}
-                        pagination={this.props.verifiedRulePagination}
-                        onChange={this.handleTableChange}
-                    />
-                </div>
+                <Spin spinning={this.props.verifiedRulesLoading}>
+                {/* <div style={{marginBottom:24,padding:24,background:'#fbfbfb',border: '1px solid #d9d9d9',borderRadius: 6}}> */}
+                <Card title={
+                    <Fragment>
+                    <Row gutter={[16, 16]}>
+                        <Col xs={24} sm={24} md={24} lg={6} xl={6}>
+                            <Search 
+                                id="searchSourceIp"
+                                placeholder="Search Source IP" 
+                                onSearch={value => this.filterData(value)} 
+                                enterButton 
+                            />
+                        </Col>
+                        <Col xs={24} sm={24} md={24} lg={6} xl={6}>
+                            <Search 
+                                id="searchDestinationIp"
+                                placeholder="Search Destination IP" 
+                                onSearch={value => this.filterData(value)} 
+                                enterButton 
+                            />
+                        </Col>
+                        <Col xs={24} sm={24} md={24} lg={6} xl={6}>
+                                <Search 
+                                    id="searchAlias"
+                                    placeholder="Search Alias" 
+                                    onSearch={value => this.filterData(value)} 
+                                    enterButton 
+                                />
+                            </Col>
+                        <Col xs={24} sm={24} md={24} lg={6} xl={6}>
+                            <Select
+                                id="filterApplication"
+                                mode="multiple"
+                                allowClear={true}
+                                optionFilterProp="children"
+                                style={{width:"100%"}}
+                                filterOption={(input, option) =>
+                                option.props.children
+                                    .toLowerCase()
+                                    .indexOf(input.toLowerCase()) >= 0
+                                }
+                                placeholder="Application"
+                                onChange={value => this.filterData(value)}
+                            >
+                                {null}
+                            </Select>
+                        </Col>
+                    </Row>
+                    </Fragment>
+                }>
+                <Table
+                    rowKey={record => record.id}
+                    expandedRowRender={expandedRowRender}
+                    columns={this.state.columns}
+                    dataSource = {this.props.verifiedRulesData}
+                    pagination={this.props.verifiedRulePagination}
+                    onChange={this.handleTableChange}
+                />
+                </Card>
+                </Spin>
+                {/* </div> */}
                 <Drawer
                     id={"RejectDrawer"}
                     visible={this.props.verifiedRuleRejectDrawerLoading}

@@ -12,12 +12,10 @@ import { filterSelectDataServiceAsync } from "../../services/filterSelectDataSer
 import moment from "moment"
 const { Option } = Select;
 const { TextArea } = Input;
-
+const { Search } = Input;
 
 const USER_LIST_API = `${ROOT_URL}tt/users/`;
 const FETCH_TT_DETAIL = `${ROOT_URL}tt/detail/`;
-
-const { Search } = Input;
 
 class AnomalyBasedTroubleTicketTable extends Component {
     constructor(props){
@@ -351,6 +349,15 @@ class AnomalyBasedTroubleTicketTable extends Component {
         this.setState({expandedRowKeys: keys, ttDetail: null});
     }
 
+    filterData = (v) =>{
+        console.log(v)
+        this.setState({
+            data: null,
+            loading: true
+        })
+        this.fetch()
+    }
+    
     render() {
         const title = () => <h3>Anomaly Based Trouble Tickets</h3>
         const expandedRowRender = (record) => <p>
@@ -379,7 +386,7 @@ class AnomalyBasedTroubleTicketTable extends Component {
                             <Search 
                                 id="searchSourceIp"
                                 placeholder="Search Source IP" 
-                                onSearch={value => console.log(value)} 
+                                onSearch={value => this.filterData(value)} 
                                 enterButton 
                             />
                         </Col>
@@ -387,7 +394,7 @@ class AnomalyBasedTroubleTicketTable extends Component {
                             <Search 
                                 id="searchDestinationIp"
                                 placeholder="Search Destination IP" 
-                                onSearch={value => console.log(value)} 
+                                onSearch={value => this.filterData(value)} 
                                 enterButton 
                             />
                         </Col>
@@ -404,7 +411,7 @@ class AnomalyBasedTroubleTicketTable extends Component {
                                     .indexOf(input.toLowerCase()) >= 0
                                 }
                                 placeholder="Application"
-                                onChange={v => console.log(v)}
+                                onChange={value => this.filterData(value)}
                             >
                                 {applicationSelectListItem}
                             </Select>
@@ -413,7 +420,7 @@ class AnomalyBasedTroubleTicketTable extends Component {
                             <Search 
                                 id="searchLog"
                                 placeholder="Search Log Name" 
-                                onSearch={value => console.log(value)} 
+                                onSearch={value => this.filterData(value)} 
                                 enterButton 
                             />
                         </Col>
