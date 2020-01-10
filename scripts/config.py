@@ -1,6 +1,8 @@
-import os
-
 from pyspark.sql import SparkSession
+import os
+import findspark
+
+findspark.init()
 
 
 def create_directory(path):
@@ -42,6 +44,8 @@ SPARK_MASTER_URL = "spark://127.0.0.1:7077"
 SPARK_MASTER_LOCAL_URL = "master[*]"
 CLUSTER_SEEDS = ['172.16.3.36', '172.16.3.37', '127.0.0.1'][-1]
 SPARK_APP_NAME = 'foxhound'
+#SPARK = SparkSession.builder.getOrCreate()
+
 SPARK = SparkSession.builder.master(
     SPARK_MASTER_URL
 ).appName(
