@@ -174,7 +174,7 @@ class MLEngine(AutoEncoder):
                         df, standarizer = self.normalize_data(df)
                         print(
                             f'**************** Training model for {csv_path}****************')
-                        self.train_model(df)
+                        self.train_model(df, model_path)
                         print(
                             f'**************** Trained model for {csv_path}****************')
                         self._save_model_params(

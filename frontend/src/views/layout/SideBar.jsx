@@ -34,6 +34,12 @@ class SideBar extends Component {
                                     <span>Change Alias Name</span>
                                 </a>
                             </Menu.Item>
+                            <Menu.Item key="backgroundjob">
+                                <a href={"/backgroundjob"} >
+                                    <Icon type="link" />
+                                    <span>Background Jobs</span>
+                                </a>
+                            </Menu.Item>
                         </Menu.ItemGroup>
 
                         <Menu.ItemGroup key={"Rules"} title="Rules">
