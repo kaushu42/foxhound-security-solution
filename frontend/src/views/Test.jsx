@@ -13,11 +13,11 @@ class Test extends Component {
             <Fragment>
                 {/* <Worldmapchart /> */}
                 {/* <RequestOriginWorldChart /> */}
-                {/* <AnomalyBasedTroubleTicketTable /> */}
+                <AnomalyBasedTroubleTicketTable />
                 {/* <VerifiedRulesTable /> */}
                 {/* <IpAsSourceSankeyChart /> */}
                 {/* <ChangeAlias /> */}
-                <BlacklistAddress></BlacklistAddress>
+                {/* <BlacklistAddress /> */}
             </Fragment>
             )
     }

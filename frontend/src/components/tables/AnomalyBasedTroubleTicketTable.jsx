@@ -1,14 +1,14 @@
 import React, {Component, Fragment} from 'react';
-import {Avatar, Button, Form, List, Select, Spin, Statistic, Table, Tag} from 'antd';
+import {Avatar, Button, Form, List, Select, Spin, Statistic, Table, Tag, Input} from 'antd';
 import reqwest from "reqwest";
 import {drawerInfoStyle, ROOT_URL} from "../../utils";
 import {connect} from "react-redux";
 import { Drawer} from 'antd';
 import { Card, Col, Row } from 'antd';
 import axios from 'axios';
-import { Input } from 'antd';
 import QuickIpView from "../../views/QuickIpView"
 import {search} from "../../actions/ipSearchAction";
+import { filterSelectDataServiceAsync } from "../../services/filterSelectDataService";
 import moment from "moment"
 const { Option } = Select;
 const { TextArea } = Input;
@@ -17,6 +17,7 @@ const { TextArea } = Input;
 const USER_LIST_API = `${ROOT_URL}tt/users/`;
 const FETCH_TT_DETAIL = `${ROOT_URL}tt/detail/`;
 
+const { Search } = Input;
 
 class AnomalyBasedTroubleTicketTable extends Component {
     constructor(props){
@@ -28,6 +29,7 @@ class AnomalyBasedTroubleTicketTable extends Component {
             recordFollowUpAssignedTo : this.props.current_session_user_id,
             recordFollowUpData : [],
             followUpDrawerVisible : false,
+            applicationData: [],
             columns : [
                 {
                     title: 'Id',
@@ -212,6 +214,14 @@ class AnomalyBasedTroubleTicketTable extends Component {
     componentDidMount() {
         this.fetch();
         this.fetchSelectUserList();
+        filterSelectDataServiceAsync(this.props.auth_token)
+            .then(response => {
+                const filter_data = response.data;
+                this.setState({
+                    applicationData: filter_data.application,
+                });
+            })
+            .catch(error => console.log(error));
     }
 
     fetchSelectUserList = () =>{
@@ -357,10 +367,60 @@ class AnomalyBasedTroubleTicketTable extends Component {
             <br/><b>Inbound Interface: </b> {record.inbound_interface}
             <br/><b>Outbound Interface: </b> {record.outbound_interface} 
         </p>
+        const applicationSelectListItem = this.state.applicationData.map(
+            data => <Option key={data[0]}>{data[1]}</Option>
+          );
         return (
             <Fragment>
+                <Card title={
+                    <Fragment>
+                    <Row gutter={[16, 16]}>
+                        <Col xs={24} sm={24} md={24} lg={6} xl={6}>
+                            <Search 
+                                id="searchSourceIp"
+                                placeholder="Search Source IP" 
+                                onSearch={value => console.log(value)} 
+                                enterButton 
+                            />
+                        </Col>
+                        <Col xs={24} sm={24} md={24} lg={6} xl={6}>
+                            <Search 
+                                id="searchDestinationIp"
+                                placeholder="Search Destination IP" 
+                                onSearch={value => console.log(value)} 
+                                enterButton 
+                            />
+                        </Col>
+                        <Col xs={24} sm={24} md={24} lg={6} xl={6}>
+                            <Select
+                                id="filterApplication"
+                                mode="multiple"
+                                allowClear={true}
+                                optionFilterProp="children"
+                                style={{width:"100%"}}
+                                filterOption={(input, option) =>
+                                option.props.children
+                                    .toLowerCase()
+                                    .indexOf(input.toLowerCase()) >= 0
+                                }
+                                placeholder="Application"
+                                onChange={v => console.log(v)}
+                            >
+                                {applicationSelectListItem}
+                            </Select>
+                        </Col>
+                        <Col xs={24} sm={24} md={24} lg={6} xl={6}>
+                            <Search 
+                                id="searchLog"
+                                placeholder="Search Log Name" 
+                                onSearch={value => console.log(value)} 
+                                enterButton 
+                            />
+                        </Col>
+                    </Row>
+                    </Fragment>
+                }>
                 <Table
-                    bordered
                     columns={this.state.columns}
                     expandedRowRender={this.handleTTDetail}
                     expandedRowKeys={this.state.expandedRowKeys}
@@ -371,6 +431,7 @@ class AnomalyBasedTroubleTicketTable extends Component {
                     loading={this.state.loading}
                     onChange={this.handleTableChange}
                 />
+                </Card>
                 <Drawer title="Follow Up"
                         width={650}
                         placement="right"
@@ -470,7 +531,8 @@ class AnomalyBasedTroubleTicketTable extends Component {
 const mapStateToProps = state => {
     return {
         auth_token : state.auth.auth_token,
-        current_session_user_id : state.auth.current_session_user_id
+        current_session_user_id : state.auth.current_session_user_id,
+        application: state.filter.application,
     }
 }
 

@@ -161,32 +161,11 @@ class DashboardFilter extends Component {
             <Col xs={24} sm={24} md={24} lg={8} xl={8}>
               <RangePicker
                 style={{ width: "100%" }}
-                //defaultValue={[moment(new Date(new Date().getFullYear(),new Date().getMonth(),new Date().getDay())),moment(new Date(new Date().getFullYear(),new Date().getMonth(),new Date().getDay()))]}
                 size={"default"}
                 id="RangePicker"
                 onChange={(e, v) => this.handleRangePickerChange(e, v)}
               />
             </Col>
-            {/* <Col xs={24} sm={24} md={24} lg={8} xl={8}>
-              <Select
-                id="IpAddress"
-                size={"default"}
-                mode="multiple"
-                loading={this.state.loading_ip_address_select}
-                allowClear={true}
-                optionFilterProp="children"
-                filterOption={(input, option) =>
-                  option.props.children
-                    .toLowerCase()
-                    .indexOf(input.toLowerCase()) >= 0
-                }
-                style={{ width: "100%" }}
-                placeholder="IP Address"
-                onChange={v => this.handleIpAddressRuleFilterChange(v)}
-              >
-                {ipAddressSelectListItem}
-              </Select>
-            </Col> */}
             <Col xs={24} sm={24} md={24} lg={8} xl={8}>
               <Select
                 id="FirewallRule"
