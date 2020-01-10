@@ -15,7 +15,8 @@ import {
     Spin,
     Statistic,
     Table,
-    Tag
+    Tag,
+    Card
 } from 'antd';
 import {
     acceptRule,
@@ -34,6 +35,7 @@ import QuickIpView from "../../views/QuickIpView";
 import moment from "moment";
 import '../../views/rules/rules.css'
 import axios from "axios";
+const { Search } = Input;
 
 class UnverifiedRulesTable extends Component {
 
@@ -204,6 +206,10 @@ class UnverifiedRulesTable extends Component {
         this.setState({quickIpView: false})
     }
 
+    filterData = (v) =>{
+        console.log(v)
+    }
+    
     render(){
         const {selectedRecordToAccept,selectedRecordToReject,selectedRecordToUpdate} = this.props;
         const {blackListData} = this.state;
@@ -231,10 +237,57 @@ class UnverifiedRulesTable extends Component {
                     <Alert message="Success" type="success" closeText="Close Now" showIcon description={this.props.updateUnverifiedRuleSuccessMessage} />
                     : null }
                 <Spin spinning={this.props.unverifiedRulesLoading}>
-                    <div style={{marginBottom:24,padding:24,background:'#fbfbfb',border: '1px solid #d9d9d9',borderRadius: 6}}>
+                    {/* <div style={{marginBottom:24,padding:24,background:'#fbfbfb',border: '1px solid #d9d9d9',borderRadius: 6}}> */}
+                    <Card title={
+                    <Fragment>
+                        <Row gutter={[16, 16]}>
+                            <Col xs={24} sm={24} md={24} lg={6} xl={6}>
+                                <Search 
+                                    id="searchSourceIp"
+                                    placeholder="Search Source IP" 
+                                    onSearch={value => this.filterData(value)} 
+                                    enterButton 
+                                />
+                            </Col>
+                            <Col xs={24} sm={24} md={24} lg={6} xl={6}>
+                                <Search 
+                                    id="searchDestinationIp"
+                                    placeholder="Search Destination IP" 
+                                    onSearch={value => this.filterData(value)} 
+                                    enterButton 
+                                />
+                            </Col>
+                            <Col xs={24} sm={24} md={24} lg={6} xl={6}>
+                                <Search 
+                                    id="searchAlias"
+                                    placeholder="Search Alias" 
+                                    onSearch={value => this.filterData(value)} 
+                                    enterButton 
+                                />
+                            </Col>
+                            <Col xs={24} sm={24} md={24} lg={6} xl={6}>
+                                <Select
+                                    id="filterApplication"
+                                    mode="multiple"
+                                    allowClear={true}
+                                    optionFilterProp="children"
+                                    style={{width:"100%"}}
+                                    filterOption={(input, option) =>
+                                    option.props.children
+                                        .toLowerCase()
+                                        .indexOf(input.toLowerCase()) >= 0
+                                    }
+                                    placeholder="Application"
+                                    onChange={value => this.filterData(value)}
+                                >
+                                    {null}
+                                </Select>
+                            </Col>
+                        </Row>
+                    </Fragment>
+                    }>
                         <Table
                             rowKey={record => record.id}
-                            size={"small"}
                             expandedRowRender = {expandedRowRender}
                             columns={this.state.columns}
                             dataSource = {this.props.unverifiedRulesData}
@@ -250,7 +303,7 @@ class UnverifiedRulesTable extends Component {
 
                             }}
                         />
-                    </div>
+                    </Card>
                 </Spin>
                 <Drawer
                     id={"RejectDrawer"}

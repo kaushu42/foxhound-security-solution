@@ -1,6 +1,6 @@
 import React, {Component, Fragment} from 'react';
 import {connect} from "react-redux";
-import {Alert, Avatar, Button, Col, Drawer, Form, Icon, Input, List, Row, Select, Spin, Statistic, Table} from 'antd';
+import {Alert, Avatar, Button, Col, Drawer, Form, Icon, Input, List, Row, Select, Card, Spin, Statistic, Table} from 'antd';
 import {
     fetchAnomalousRulesData,
     acceptRule,
@@ -12,6 +12,7 @@ import {contentLayout, drawerInfoStyle} from "../../utils";
 import {search} from "../../actions/ipSearchAction";
 import QuickIpView from "../../views/QuickIpView";
 import moment from "moment";
+const { Search } = Input;
 
 class AnomalousRulesTable extends Component {
 
@@ -138,6 +139,10 @@ class AnomalousRulesTable extends Component {
         this.setState({quickIpView: false})
     }
 
+    filterData = (v) =>{
+        console.log(v)
+    }
+
     render(){
         const {selectedRecordToAccept} = this.props;
         const expandedRowRender = record => <p><b>Flagged Date: </b>{moment(record.verified_date_time).format("YYYY-MM-DD, HH:MM:SS")} <br/><b>Flagged By: </b> {record.verified_by_user.username} </p>;
@@ -150,7 +155,55 @@ class AnomalousRulesTable extends Component {
                     <Alert message="Success" type="success" closeText="Close Now" showIcon description={this.props.acceptAnomalousRuleSuccessMessage} />
                     : null }
                 <Spin spinning={this.props.anomalousRulesLoading}>
-                    <div style={{marginBottom:24,padding:24,background:'#fbfbfb',border: '1px solid #d9d9d9',borderRadius: 6}}>
+                    {/* <div style={{marginBottom:24,padding:24,background:'#fbfbfb',border: '1px solid #d9d9d9',borderRadius: 6}}> */}
+                    <Card title={
+                        <Fragment>
+                        <Row gutter={[16, 16]}>
+                            <Col xs={24} sm={24} md={24} lg={6} xl={6}>
+                                <Search 
+                                    id="searchSourceIp"
+                                    placeholder="Search Source IP" 
+                                    onSearch={value => this.filterData(value)} 
+                                    enterButton 
+                                />
+                            </Col>
+                            <Col xs={24} sm={24} md={24} lg={6} xl={6}>
+                                <Search 
+                                    id="searchDestinationIp"
+                                    placeholder="Search Destination IP" 
+                                    onSearch={value => this.filterData(value)} 
+                                    enterButton 
+                                />
+                            </Col>
+                            <Col xs={24} sm={24} md={24} lg={6} xl={6}>
+                                    <Search 
+                                        id="searchAlias"
+                                        placeholder="Search Alias" 
+                                        onSearch={value => this.filterData(value)} 
+                                        enterButton 
+                                    />
+                                </Col>
+                            <Col xs={24} sm={24} md={24} lg={6} xl={6}>
+                                <Select
+                                    id="filterApplication"
+                                    mode="multiple"
+                                    allowClear={true}
+                                    optionFilterProp="children"
+                                    style={{width:"100%"}}
+                                    filterOption={(input, option) =>
+                                    option.props.children
+                                        .toLowerCase()
+                                        .indexOf(input.toLowerCase()) >= 0
+                                    }
+                                    placeholder="Application"
+                                    onChange={value => this.filterData(value)}
+                                >
+                                    {null}
+                                </Select>
+                            </Col>
+                        </Row>
+                        </Fragment>
+                    }>
                         <Table
                             id={"AnomalousTable"}
                             rowKey={record => record.id}
@@ -160,7 +213,7 @@ class AnomalousRulesTable extends Component {
                             pagination={this.props.anomalousRulePagination}
                             onChange={this.handleTableChange}
                         />
-                    </div>
+                    </Card>
                 </Spin>
                 <Drawer
                     id={"AcceptDrawer"}
