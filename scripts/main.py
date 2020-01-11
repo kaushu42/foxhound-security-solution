@@ -12,7 +12,6 @@ import config
 import seedutils
 import utils
 import run
-from foxhound.mis_engine import MISEngine
 
 LOG_FILE = os.path.join(config.LOG_PATH, f'{os.path.basename(__file__)}.log')
 logging.basicConfig(
@@ -22,9 +21,7 @@ logging.basicConfig(
 logging.info(f'Script ran on {datetime.datetime.now()}')
 try:
     # seedutils.seed()
-    mis = MISEngine(config.SPARK, utils.get_db_engine(
-    ), config.TRAFFIC_LOGS_INPUT_DIR, config.TRAFFIC_LOGS_OUTPUT_DIR)
-    mis.run()
+    run.mis_engine()
     # run.ml_engine()
     # run.dc_engine()
     # run.db_engine(utils.get_db_engine(), logging, verbose=False)

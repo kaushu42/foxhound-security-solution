@@ -16,6 +16,9 @@ from sqlalchemy import create_engine
 
 class MISEngine(object):
     def __init__(self, spark_session, db_engine, input_dir, output_dir):
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
         self._spark = spark_session
         self._db_engine = db_engine
         self._INPUT_DIR = input_dir
@@ -245,6 +248,7 @@ class MISEngine(object):
         df.toPandas().to_csv(os.path.join(output_dir, csv_filename, filename), index=False)
 
     def run(self):
+
         self._read_csv(
             "Silverlining-PAVM-Primary_traffic_2019_11_05_last_calendar_day.csv")
         df = self._preprocess()

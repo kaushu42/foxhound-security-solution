@@ -1,11 +1,11 @@
 import os
-
 import foxhound as fh
 from foxhound.ml_engine.Initialize import Initialize
 from foxhound.ml_engine.MLEngine import MLEngine
 from foxhound.tt_engine.TTAnomaly import TTAnomaly
-
+from foxhound.mis_engine.MISEngine import MISEngine
 import config
+import utils
 
 
 def ml_engine(init=True, mle=True, create_model=True, predict=True):
@@ -53,3 +53,9 @@ def tt_engine(delete_logs=False):
         for log in anomaly_logs:
             os.remove(log)
             logging.info(f'{log} deleted!')
+
+
+def mis_engine():
+    mis = MISEngine(config.SPARK, utils.get_db_engine(
+    ), config.TRAFFIC_LOGS_INPUT_DIR, config.MIS_OUTPUT_INPUT_DIR)
+    mis.run()

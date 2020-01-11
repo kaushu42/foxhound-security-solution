@@ -21,6 +21,7 @@ FH_DB_PASSWORD = "FH_DB_PASSWORD"
 HOST = "localhost"
 PORT = 5432
 
+MIS_OUTPUT_INPUT_DIR = os.path.join(BASE_PATH, '../outputs/mis')
 TRAFFIC_LOGS_INPUT_DIR = os.path.join(BASE_PATH, '../inputs/traffic_logs')
 TRAFFIC_LOGS_OUTPUT_DIR = os.path.join(BASE_PATH, '../outputs/traffic_logs')
 TENANT_PROFILE_OUTPUT_DIR = os.path.join(
