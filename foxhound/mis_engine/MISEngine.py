@@ -30,7 +30,7 @@ class MISEngine(object):
                                   'Bytes Sent', 'Bytes Received', 'Repeat Count', 'Packets Received', 'Packets Sent',
                                   'Start Time', 'Elapsed Time (sec)', 'Virtual System']
         self._HEADER_NAMES = ["source_ip", "destination_ip", "application",
-                              "protocol", "source_zone", "destination_zone", "firewall_rule",
+                              "protocol", "source_zone", "destination_zone", "firewall_rule_id",
                               "inbound_interface", "outbound_interface", "action", "category",
                               "session_end_reason", "row_number", "source_port", "destination_port",
                               "bytes_sent", "bytes_received", "repeat_count", "packets_received",
@@ -89,9 +89,9 @@ class MISEngine(object):
     def _extract_mis_daily(self, df):
         GROUPING_COLUMNS = ['logged_datetime', 'firewall_rule',
                             'source_zone', 'destination_zone', 'application', 'protocol']
-        COLUMN_HEADERS = ['logged_datetime', 'firewall_rule', 'source_zone', 'destination_zone', 'application', 'protocol',
+        COLUMN_HEADERS = ['logged_datetime', 'source_zone', 'destination_zone', 'application', 'protocol',
                           'avg_repeat_count', 'sum_bytes_sent', 'sum_bytes_received', 'sum_packets_received', 'sum_packets_sent',
-                          'sum_time_elapsed', 'count_events']
+                          'sum_time_elapsed', 'count_events', 'firewall_rule_id']
         grouped_df = df.groupby(*GROUPING_COLUMNS)
         grouped_agg = grouped_df.agg({
             'repeat_count': 'mean',
@@ -118,38 +118,42 @@ class MISEngine(object):
         return pd.read_sql_table(table_name, self._db_engine)
 
     def _extract_mis_new_source_ip(self, df):
-        ip_from_db = self._get_table("core_tenantipaddressinfo")
+        ip_from_db = self._get_table("mis_dailysourceip")
         ip_from_db = pd.merge(
             ip_from_db,
             self._get_table("core_firewallrule").reset_index(),
             left_on="firewall_rule_id",
             right_on="id", how="inner")[["firewall_rule_id", "address"]].drop_duplicates()
         ip_from_db_df = self._spark.createDataFrame(ip_from_db)
-        source_ip = [i for i in df.select('firewall_rule', 'source_ip').distinct(
+        source_ip = [i for i in df.select('firewall_rule_id', 'source_ip').distinct(
         ).collect() if ipaddress.ip_address(i.source_ip).is_private]
         unique_source_ip_df = self._spark.createDataFrame(source_ip)
         new_unique_source_ip = unique_source_ip_df.subtract(ip_from_db_df)
+        new_unique_source_ip = new_unique_source_ip.withColumn(
+            'logged_datetime', to_timestamp('2020/01/11', 'yyyy/MM/dd'))
         # COLUMN_HEADERS = ["logged_datetime","address","firewall_rule"]
-        COLUMN_HEADERS = ["source_ip", "firewall_rule"]
+        COLUMN_HEADERS = ["logged_datetime", "address", "firewall_rule_id"]
         new_unique_source_ip = new_unique_source_ip.select(*COLUMN_HEADERS)
         new_unique_source_ip = self._set_uuid(new_unique_source_ip)
         return new_unique_source_ip
 
     def _extract_mis_new_destination_ip(self, df):
-        ip_from_db = self._get_table("core_tenantipaddressinfo")
+        ip_from_db = self._get_table("mis_dailydestinationip")
         ip_from_db = pd.merge(
             ip_from_db,
             self._get_table("core_firewallrule").reset_index(),
             left_on="firewall_rule_id",
             right_on="id", how="inner")[["firewall_rule_id", "address"]].drop_duplicates()
         ip_from_db_df = self._spark.createDataFrame(ip_from_db)
-        destination_ip = [i for i in df.select('firewall_rule', 'destination_ip').distinct(
+        destination_ip = [i for i in df.select('firewall_rule_id', 'destination_ip').distinct(
         ).collect() if ipaddress.ip_address(i.destination_ip).is_private]
         unique_destination_ip_df = self._spark.createDataFrame(destination_ip)
         new_unique_destination_ip = unique_destination_ip_df.subtract(
             ip_from_db_df)
+        new_unique_destination_ip = new_unique_destination_ip.withColumn(
+            'logged_datetime', to_timestamp('2020/01/11', 'yyyy/MM/dd'))
         # COLUMN_HEADERS = ["logged_datetime","address","firewall_rule"]
-        COLUMN_HEADERS = ["destination_ip", "firewall_rule"]
+        COLUMN_HEADERS = ["logged_datetime", "address", "firewall_rule_id"]
         new_unique_destination_ip = new_unique_destination_ip.select(
             *COLUMN_HEADERS)
         new_unique_destination_ip = self._set_uuid(new_unique_destination_ip)
@@ -165,12 +169,14 @@ class MISEngine(object):
         application_from_db_df = self._spark.createDataFrame(
             application_from_db)
         application = [i for i in df.select(
-            'firewall_rule', 'application').distinct().collect()]
+            'firewall_rule_id', 'application').distinct().collect()]
         unique_application_df = self._spark.createDataFrame(application)
         new_unique_application = unique_application_df.subtract(
             application_from_db_df)
+        new_unique_application = new_unique_application.withColumn(
+            'logged_datetime', to_timestamp('2020/01/11', 'yyyy/MM/dd'))
         # COLUMN_HEADERS = ["logged_datetime","address","firewall_rule"]
-        COLUMN_HEADERS = ["application", "firewall_rule"]
+        COLUMN_HEADERS = ["logged_datetime", "name", "firewall_rule_id"]
         new_unique_application = new_unique_application.select(*COLUMN_HEADERS)
         new_unique_application = self._set_uuid(new_unique_application)
         return new_unique_application
