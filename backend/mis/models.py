@@ -7,41 +7,49 @@ from django_cassandra_engine.models import DjangoCassandraModel
 
 class DailyIP(models.Model):
     logged_datetime = models.DateField(null=True)
-    address = models.CharField(max_length=250)
+    processed_datetime = models.DateField(null=True)
     firewall_rule = models.ForeignKey(FirewallRule, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.address
-
-    def __repr__(self):
-        return self.address
 
     class Meta:
         abstract = True
 
 
 class DailySourceIP(DailyIP):
-    pass
+    source_address = models.CharField(max_length=250)
+
+    def __str__(self):
+        return self.source_address
+
+    def __repr__(self):
+        return self.source_address
 
 
 class DailyDestinationIP(DailyIP):
-    pass
+    source_address = models.CharField(max_length=250)
+
+    def __str__(self):
+        return self.destination_address
+
+    def __repr__(self):
+        return self.destination_address
 
 
 class DailyApplication(models.Model):
     logged_datetime = models.DateField(null=True)
-    name = models.CharField(max_length=250)
+    processed_datetime = models.DateField(null=True)
+    application_name = models.CharField(max_length=250)
     firewall_rule = models.ForeignKey(FirewallRule, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.name
+        return self.application_name
 
     def __repr__(self):
-        return self.name
+        return self.application_name
 
 
 class Daily(models.Model):
     logged_datetime = models.DateField(null=True)
+    processed_datetime = models.DateField(null=True)
     firewall_rule = models.ForeignKey(FirewallRule, on_delete=models.CASCADE)
     source_zone = models.CharField(max_length=250, null=True)
     destination_zone = models.CharField(max_length=250, null=True)
@@ -64,6 +72,7 @@ class Daily(models.Model):
 
 class DailyBlacklistEvent(models.Model):
     logged_datetime = models.DateTimeField(null=True)
+    processed_datetime = models.DateField(null=True)
     firewall_rule = models.ForeignKey(FirewallRule, on_delete=models.CASCADE)
     source_ip = models.CharField(max_length=250, null=True)
     destination_ip = models.CharField(max_length=250, null=True)
@@ -100,6 +109,7 @@ class DailyResponseToBlackListEvent(DailyBlacklistEvent):
 
 class DailyPerSourceDestinationPair(models.Model):
     logged_datetime = models.DateTimeField(null=True)
+    processed_datetime = models.DateField(null=True)
     firewall_rule = models.ForeignKey(FirewallRule, on_delete=models.CASCADE)
     source_ip = models.CharField(max_length=250, null=True)
     destination_ip = models.CharField(max_length=250, null=True)
@@ -115,29 +125,33 @@ class DailyPerSourceDestinationPair(models.Model):
 
 class MisDailySourceIP(DjangoCassandraModel):
     id = columns.UUID(primary_key=True, default=uuid.uuid4)
-    date = columns.DateTime(required=False)
-    firewall_rule = columns.Text(required=False)
-    address = columns.Text(required=False)
+    logged_datetime = columns.DateTime(required=False)
+    processed_datetime = columns.DateTime(required=False)
+    firewall_rule_id = columns.Integer(required=False)
+    source_address = columns.Text(required=False)
 
 
 class MisDailyDestinationIP(DjangoCassandraModel):
     id = columns.UUID(primary_key=True, default=uuid.uuid4)
-    date = columns.DateTime(required=False)
-    firewall_rule = columns.Text(required=False)
-    address = columns.Text(required=False)
+    logged_datetime = columns.DateTime(required=False)
+    processed_datetime = columns.DateTime(required=False)
+    firewall_rule_id = columns.Integer(required=False)
+    destination_address = columns.Text(required=False)
 
 
 class MisDailyApplication(DjangoCassandraModel):
     id = columns.UUID(primary_key=True, default=uuid.uuid4)
-    date = columns.DateTime(required=False)
-    firewall_rule = columns.Text(required=False)
-    application = columns.Text(required=False)
+    logged_datetime = columns.DateTime(required=False)
+    processed_datetime = columns.DateTime(required=False)
+    firewall_rule_id = columns.Integer(required=False)
+    application_name = columns.Text(required=False)
 
 
 class MisDaily(DjangoCassandraModel):
     id = columns.UUID(primary_key=True, default=uuid.uuid4)
     logged_datetime = columns.DateTime(required=False)
-    firewall_rule = columns.Text(required=False)
+    processed_datetime = columns.DateTime(required=False)
+    firewall_rule_id = columns.Integer(required=False)
     source_zone = columns.Text(required=False)
     destination_zone = columns.Text(required=False)
     application = columns.Text(required=False)
@@ -154,7 +168,8 @@ class MisDaily(DjangoCassandraModel):
 class MisDailyRequestFromBlackListEvent(DjangoCassandraModel):
     id = columns.UUID(primary_key=True, default=uuid.uuid4)
     logged_datetime = columns.DateTime(required=False)
-    firewall_rule = columns.Text(required=False)
+    processed_datetime = columns.DateTime(required=False)
+    firewall_rule_id = columns.Text(required=False)
     source_ip = columns.Text(required=False)
     destination_ip = columns.Text(required=False)
     application = columns.Text(required=False)
@@ -180,7 +195,8 @@ class MisDailyRequestFromBlackListEvent(DjangoCassandraModel):
 class MisDailyResponseToBlackListEvent(DjangoCassandraModel):
     id = columns.UUID(primary_key=True, default=uuid.uuid4)
     logged_datetime = columns.DateTime(required=False)
-    firewall_rule = columns.Text(required=False)
+    processed_datetime = columns.DateTime(required=False)
+    firewall_rule_id = columns.Integer(required=False)
     source_ip = columns.Text(required=False)
     destination_ip = columns.Text(required=False)
     application = columns.Text(required=False)
@@ -206,7 +222,8 @@ class MisDailyResponseToBlackListEvent(DjangoCassandraModel):
 class MisDailyPerSourceDestinationPair(DjangoCassandraModel):
     id = columns.UUID(primary_key=True, default=uuid.uuid4)
     logged_datetime = columns.DateTime(required=False)
-    firewall_rule = columns.Text(required=False)
+    processed_datetime = columns.DateTime(required=False)
+    firewall_rule_id = columns.Integer(required=False)
     source_ip = columns.Text(required=False)
     destination_ip = columns.Text(required=False)
     destination_port = columns.Integer()
