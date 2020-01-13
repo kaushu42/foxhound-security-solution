@@ -1,1 +1,1 @@
-from . import RuleEngine
+from .RuleEngine import RuleEngine

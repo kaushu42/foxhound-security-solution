@@ -8,12 +8,19 @@ from pyspark.sql import SparkSession
 from pyspark.sql.types import StructField, StructType, StringType, IntegerType
 from pyspark.sql.functions import concat, col, lit
 
+TMP_FILE_PATH = '/tmp/rules.csv'
+
 
 class RuleEngine:
     def __init__(self, csv_path, db_engine, spark_session):
-        self.df = spark.read.csv(csv_path, header=True)
-        self._db_engine = db_engine
         self.spark = spark_session
+        self._db_engine = db_engine
+        self.df = self._read_csv(csv_path)
+
+    def _read_csv(self, csv_path):
+        if not os.path.exists(csv_path):
+            raise FileNotFoundError(f'{csv_path} does not exist.')
+        return self.spark.read.csv(csv_path, header=True)
 
     def _get_cols(self):
         CSV_COLS = [
@@ -56,10 +63,10 @@ class RuleEngine:
         RULES_TABLE = 'rules_rule'
         firewall_rules = pd.read_sql_table(
             FIREWALL_RULE_TABLE, self._db_engine)
-        firewall_rules = spark.createDataFrame(firewall_rules)
+        firewall_rules = self.spark.createDataFrame(firewall_rules)
         rules_table = pd.read_sql_table('rules_rule', self._db_engine)[db_cols]
         schema = self._get_schema()
-        rules_table = spark.createDataFrame(rules_table, schema=schema)
+        rules_table = self.spark.createDataFrame(rules_table, schema=schema)
         return firewall_rules, rules_table
 
     def _add_columns(self, df):
@@ -86,7 +93,6 @@ class RuleEngine:
         df.write.csv(out_path, header=True, mode='overwrite')
 
     def write(self):
-        TMP_FILE_PATH = '/tmp/kaush.csv'
         # Only keep these cols
         CSV_COLS, DB_COLS, TEMP_COLS, OLD_COLS, NEW_COLS = self._get_cols()
 

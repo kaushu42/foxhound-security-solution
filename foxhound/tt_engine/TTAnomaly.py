@@ -84,6 +84,8 @@ class TTAnomaly:
         )
         # if traffic_log.count() != 1:
         #     raise Exception("Only 1 object must have been returned")
+        print(
+            f'*****************\n\n{log_name}\n\n\n\n********************')
         if traffic_log.count() == 0:
             raise Exception("No logs")
         traffic_log = traffic_log[0]

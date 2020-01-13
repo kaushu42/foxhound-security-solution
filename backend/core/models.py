@@ -415,3 +415,51 @@ class BackgroundJob(models.Model):
         Tenant, on_delete=models.CASCADE, related_name="tenant_background_job")
     task = models.ForeignKey(
         CeleryTasksetmeta, on_delete=models.CASCADE, related_name="task_background_job")
+
+
+class Filter(models.Model):
+    application = models.CharField(max_length=250)
+    source_zone = models.CharField(max_length=250)
+    destination_zone = models.CharField(max_length=250)
+    firewall_rule = models.CharField(max_length=250)
+    protocol = models.CharField(max_length=10)
+
+
+class StagingFilter(models.Model):
+    application = models.CharField(max_length=250)
+    source_zone = models.CharField(max_length=250)
+    destination_zone = models.CharField(max_length=250)
+    firewall_rule = models.CharField(max_length=250)
+    protocol = models.CharField(max_length=10)
+
+
+class RequestOriginChart(models.Model):
+    filter = models.ForeignKey(Filter, on_delete=models.CASCADE)
+    firewall_rule = models.CharField(max_length=250)
+    country_name = models.CharField(max_length=100)
+    country_code = models.CharField(max_length=10)
+    count = models.BigIntegerField()
+
+
+class ApplicationChart(models.Model):
+    firewall_rule = models.CharField(max_length=250)
+    logged_datetime = models.DateTimeField()
+    application = models.CharField(max_length=250)
+    bytes = models.BigIntegerField()
+
+
+class TimeSeriesChart(models.Model):
+    filter = models.ForeignKey(Filter, on_delete=models.CASCADE)
+    firewall_rule = models.CharField(max_length=250)
+    logged_datetime = models.DateTimeField()
+    bytes_sent = models.BigIntegerField()
+    bytes_received = models.BigIntegerField()
+
+
+class IPChart(models.Model):
+    filter = models.ForeignKey(Filter, on_delete=models.CASCADE)
+    firewall_rule = models.CharField(max_length=250)
+    logged_datetime = models.DateTimeField()
+    address = models.CharField(max_length=15)
+    bytes_sent = models.BigIntegerField()
+    bytes_received = models.BigIntegerField()

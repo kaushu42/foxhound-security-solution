@@ -3,11 +3,24 @@ import re
 import datetime
 import enum
 import math
+from collections import defaultdict
 
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 
 import pandas as pd
+
+import os
+import subprocess
+import datetime
+
+import pandas as pd
+from sqlalchemy.engine import create_engine
+from sqlalchemy.orm import sessionmaker
+from pyspark.sql import SparkSession
+from pyspark.sql.types import StructField, StructType, StringType, IntegerType, TimestampType
+from pyspark.sql.functions import concat, col, lit, count
+
 
 from tqdm import tqdm
 
@@ -45,7 +58,7 @@ class DBEngine(object):
             self,
             log_input_dir: str,
             granular_hour_input_dir: str,
-            *, db_engine, db_path, logging
+            *, db_engine, db_path, spark_session, logging
     ):
         if not isinstance(log_input_dir, str):
             raise TypeError('Log input directory must be a string')
@@ -56,6 +69,7 @@ class DBEngine(object):
         if not isinstance(db_engine, sqlalchemy.engine.base.Engine):
             raise TypeError('db_engine must be an sqlalchemy engine instance')
 
+        self.spark = spark_session
         self._LOG_DETAIL_INPUT_DIR = log_input_dir
         self._GRANULAR_HOUR_INPUT_DIR = granular_hour_input_dir
 
@@ -433,56 +447,32 @@ class DBEngine(object):
         cursor.connection.commit()
         os.remove(TMP_FILENAME)
 
-    def _write_rules(self, data):
-        data = data[['firewall_rule_id', 'source_ip_id',
-                     'destination_ip_id', 'application_id',
-                     ]].drop_duplicates()
-        firewall_rules = pd.read_sql_table(
-            'core_firewallrule', self._db_engine)
-        mapped = pd.merge(
-            data, firewall_rules,
-            left_on='firewall_rule_id', right_on='name')[
-            ['id', 'source_ip_id', 'destination_ip_id', 'application_id']]
-        rules_table = pd.read_sql_table('rules_rule', self._db_engine)[
-            ['source_ip', 'destination_ip', 'application', 'firewall_rule_id']]
-        merged = mapped.merge(rules_table,
-                              how='left',
-                              left_on=['id', 'source_ip_id',
-                                       'destination_ip_id', 'application_id'],
-                              right_on=['firewall_rule_id', 'source_ip',
-                                        'destination_ip', 'application'],
-                              indicator=True)
-        new_rules = merged[merged['_merge'] == 'left_only'][[
-            'id', 'source_ip_id', 'destination_ip_id', 'application_id']]
+    def _read_csv_spark(self, csv_path):
+        if not os.path.exists(csv_path):
+            raise FileNotFoundError(f'{csv_path} does not exist.')
+        return self.spark.read.csv(csv_path, header=True)
 
-        new_rules['name'] = new_rules['source_ip_id'] + '--' + \
-            new_rules['destination_ip_id'] + '--' + new_rules['application_id']
-        new_rules['created_date_time'] = pd.to_datetime(
-            datetime.datetime.utcnow())
-        new_rules['is_verified_rule'] = False
-        new_rules['is_anomalous_rule'] = False
-        new_rules['verified_date_time'] = new_rules['created_date_time']
-        new_rules['description'] = None
-        new_rules['verified_by_user_id'] = 1
-        new_rules = new_rules[['created_date_time', 'name', 'source_ip_id',
-                               'destination_ip_id', 'application_id',
-                               'description', 'is_verified_rule',
-                               'is_anomalous_rule', 'verified_date_time',
-                               'id', 'verified_by_user_id']]
-        new_rules.columns = [
+    def _write_rules(csv_path):
+        filenames = self._get_csv_paths(csv_path)
+        COLS = [
             'created_date_time', 'name', 'source_ip',
             'destination_ip', 'application', 'description',
             'is_verified_rule', 'is_anomalous_rule', 'verified_date_time',
             'firewall_rule_id', 'verified_by_user_id'
         ]
-        new_rules.to_csv(TMP_FILENAME, index=False)
-        cols = new_rules.columns
+
+        # Get postgres cursor
         cursor = self._db_engine.raw_connection().cursor()
-        with open(TMP_FILENAME) as f:
-            next(f)
-            cursor.copy_from(f, 'rules_rule', sep=',', columns=cols)
-        cursor.connection.commit()
-        os.remove(TMP_FILENAME)
+
+        # Write each rule csv to postgres
+        for file in filenames:
+            with open(file) as f:
+                try:
+                    next(f)  # Skip the header
+                except StopIteration:
+                    print(f'Empty file: {file}')
+                cursor.copy_from(f, 'rules_rule', sep=',', columns=COLS)
+            cursor.connection.commit()
 
     def _write_ip_info(self, id, data, ip_in_db):
         for date, ip_address in data:
@@ -504,55 +494,196 @@ class DBEngine(object):
                 )
                 self._session.add(appl)
 
-    def _write_info(self, data, traffic_log_id):
-        ip_in_db = pd.read_sql_table(
+    def isin(self, df, fieldname):
+        return df.__getattr__(fieldname).isin
+
+    def _write_info_to_csv(self):
+        self._write_ip_info_to_csv('source')
+        self._write_ip_info_to_csv('destination')
+        self._write_application_info_to_csv('application')
+
+    def _write_application_info_to_csv(self, type='application'):
+        df = self.spark.read.csv(f'/tmp/{type}.csv', header=True).toPandas()
+        df.rename(columns={'logged_datetime': 'created_date',
+                           'id': 'firewall_rule_id', 'application_id': 'application'}, inplace=True)
+        df.created_date = df.created_date.apply(lambda x: x.split()[0])
+        df.to_csv(f'/tmp/_{type}.csv', index=False)
+
+    def _write_ip_info_to_csv(self, type):
+        df = self.spark.read.csv(f'/tmp/{type}.csv', header=True).toPandas()
+        df.rename(columns={'logged_datetime': 'created_date',
+                           'id': 'firewall_rule_id'}, inplace=True)
+        df.created_date = df.created_date.apply(lambda x: x.split()[0])
+        df['alias'] = df['address']
+        df.to_csv(f'/tmp/_{type}.csv', index=False)
+
+    @staticmethod
+    def write_log_detail_for_row(row, traffic_log_id):
+        # Save the object to db here DO NOT COMMIT, COMMIT AT LAST
+        with open('/tmp/processedlogdetails.csv', 'w') as f:
+            f.write(f'{row.id},{log_id},{n_rows},{size}\n')
+        processed_log_detail = ProcessedLogDetail(
+            firewall_rule_id={row.id},
+            log_id={traffic_log_id},
+            n_rows={row.total},
+            size={row.total*468}
+        )
+        return processed_log_detail
+
+    def _get_group_uniques(self, df, get_field, group_field='firewall_rule_id'):
+        FROM_DB = defaultdict(set)
+        grouped = df.groupby(group_field)
+        for group_field_name, data in grouped:
+            FROM_DB[group_field_name] = set(
+                data.__getattr__(get_field).unique()
+            )
+        return FROM_DB
+
+    def _write_info_to_db(self):
+        IP_COLS = 'created_date,address,firewall_rule_id,alias'.split(',')
+        APPLICATION_COLS = 'created_date,application,firewall_rule_id'.split(
+            ',')
+        names = [
+            (
+                '/tmp/_source.csv',
+                'core_tenantipaddressinfo',
+                IP_COLS
+            ),
+            (
+                '/tmp/_destination.csv',
+                'core_tenantipaddressinfo',
+                IP_COLS
+            ),
+            (
+                '/tmp/_application.csv',
+                'core_tenantapplicationinfo',
+                APPLICATION_COLS
+            )
+        ]
+        cursor = self._db_engine.raw_connection().cursor()
+        for filename, table_name, cols in names:
+            with open(filename) as f:
+                try:
+                    next(f)  # Skip the header
+                except StopIteration:
+                    print(f'Empty file: {file}')
+                try:
+                    cursor.copy_from(f, table_name, sep=',', columns=cols)
+                except Exception as e:
+                    print(filename, table_name, cols)
+                    print(e)
+
+            cursor.connection.commit()
+
+    def _write_ip_and_application_info(self, df, field_name, items_in_db, firewall_rules, keep_fields, type):
+        df = df.filter(~self.isin(df, field_name)(items_in_db))
+        df = df.join(
+            firewall_rules,
+            on=[
+                df.__getattr__('firewall_rule_id') == firewall_rules.name
+            ]
+        )[keep_fields]
+        df.write.csv(f'/tmp/{type}.csv', header=True, mode='append')
+        return df
+
+    def _write_info(self, df, traffic_log_id):
+        import findspark
+        findspark.init()
+        IP_SCHEMA = StructType([
+            StructField('created_date', TimestampType()),
+            StructField('address', StringType()),
+            StructField('firewall_rule_id', IntegerType()),
+            StructField('alias', StringType()),
+        ])
+        APPLICATION_SCHEMA = StructType([
+            StructField('created_date', TimestampType()),
+            StructField('application',
+                        StringType()),
+            StructField(
+                'firewall_rule_id', IntegerType()),
+        ])
+
+        db_data = pd.read_sql_table(
             'core_tenantipaddressinfo',
             self._db_engine,
             index_col='id'
-        ).address.unique()
+        )
+        ip_in_db = self._get_group_uniques(db_data, 'address')
 
-        application_in_db = pd.read_sql_table(
+        db_data = pd.read_sql_table(
             'core_tenantapplicationinfo',
             self._db_engine,
             index_col='id'
-        ).application.unique()
-
-        # Write log info: size and row count
-        firewall_rules = pd.read_sql_table(
-            'core_firewallrule', self._db_engine)
-
-        log_info = data[['firewall_rule_id', 'source_port']]
-        log_info = log_info.groupby('firewall_rule_id').count().reset_index()
-        log_info = pd.merge(
-            log_info, firewall_rules,
-            left_on='firewall_rule_id', right_on='name'
         )
+        application_in_db = self._get_group_uniques(db_data, 'application')
 
-        for i, j in log_info.iterrows():
-            processed_log_detail = ProcessedLogDetail(
-                firewall_rule_id=int(j.id),
-                log_id=int(traffic_log_id),
-                n_rows=int(j.source_port),
-                size=int(j.source_port*SIZE_PER_LOG)
-            )
-            self._session.add(processed_log_detail)
+        # Get firewall rules from database
+        FIREWALL_RULE_TABLE = 'core_firewallrule'
+        firewall_rules = pd.read_sql_table(
+            FIREWALL_RULE_TABLE, self._db_engine)
+        firewall_rules_name_to_id = {
+            i: j for i, j in firewall_rules[['name', 'id']].values}
+        firewall_rules_id_to_name = {j: i for i,
+                                     j in firewall_rules_name_to_id.items()}
+        firewall_rules = self.spark.createDataFrame(firewall_rules.astype(str))
 
-        data.firewall_rule_id = data.firewall_rule_id.map(
-            firewall_rules.reset_index().set_index('name').id)
-        grouped = data.groupby('firewall_rule_id')
-        for index, df in grouped:
-            df.logged_datetime = pd.to_datetime(
-                df.logged_datetime).map(lambda x: x.date())
-            source = df[['logged_datetime', 'source_ip_id']].drop_duplicates()
-            source.columns = ['logged_datetime', 'ip']
-            destination = df[['logged_datetime',
-                              'destination_ip_id']].drop_duplicates()
-            destination.columns = ['logged_datetime', 'ip']
-            ip = pd.concat([source, destination]).drop_duplicates().values
-            application = df[['logged_datetime', 'application_id']
-                             ].drop_duplicates().values
-            self._write_ip_info(index, ip, ip_in_db)
-            self._write_application_info(index, application, application_in_db)
+        log_info = df[['firewall_rule_id', 'source_port']
+                      ].groupBy('firewall_rule_id')
+        log_info = log_info.agg(count('source_port').alias("total"))
+        log_info = log_info.join(
+            firewall_rules,
+            on=[
+                log_info.firewall_rule_id == firewall_rules.name
+            ]
+        )
+        # Apply function to df for saving the items to database
+        # log_info.rdd.map(
+        #     lambda x: DBEngine.write_log_detail_for_row(x, 100)
+        # ).collect()
+        log_info = log_info.toPandas()
+        log_info['size'] = log_info['total'] * SIZE_PER_LOG
+        log_info['log_id'] = traffic_log_id
+        del log_info['firewall_rule_id']
+        log_info.rename(columns={
+            'total': 'n_rows',
+            'id': 'firewall_rule_id'
+        }, inplace=True)
+        log_info = log_info[['n_rows', 'size', 'firewall_rule_id', 'log_id']]
+        log_info.to_sql('core_processedlogdetail',
+                        self._db_engine, if_exists='append',
+                        index=False)
+
+        data = df[['firewall_rule_id', 'source_ip_id',
+                   'destination_ip_id', 'application_id', 'logged_datetime']]
+        groups = [x[0]
+                  for x in data.select("firewall_rule_id").distinct().collect()]
+
+        header_name = ['logged_datetime', 'address', 'firewall_rule_id']
+        for group in tqdm(groups):
+            # Get the current group data
+            group_data = data.filter(data.firewall_rule_id == group)
+
+            # Get all unique items from the csv
+            source = group_data.dropDuplicates(['firewall_rule_id', 'source_ip_id'])[
+                'logged_datetime', 'source_ip_id', 'firewall_rule_id']
+            source = source.toDF(*header_name)
+            destination = group_data.dropDuplicates(['firewall_rule_id', 'destination_ip_id'])[
+                'logged_datetime', 'destination_ip_id', 'firewall_rule_id']
+            destination = destination.toDF(*header_name)
+            application = group_data.dropDuplicates(['firewall_rule_id', 'application_id'])[
+                'logged_datetime', 'application_id', 'firewall_rule_id']
+
+            # Get only items not previously in db
+            self._write_ip_and_application_info(source, 'address', ip_in_db[firewall_rules_name_to_id[group]], firewall_rules, [
+                'logged_datetime', 'address', 'id'], type='source')
+            self._write_ip_and_application_info(destination, 'address', ip_in_db[firewall_rules_name_to_id[group]], firewall_rules, [
+                'logged_datetime', 'address', 'id'], type='destination')
+            self._write_ip_and_application_info(application, 'application_id', application_in_db[firewall_rules_name_to_id[group]], firewall_rules, [
+                'logged_datetime', 'application_id', 'id'], type='application')
+
+            self._write_info_to_csv()
+            self._write_info_to_db()
+            subprocess.call(['rm', '/tmp/*.csv', '-rf'])
 
     def _write_granular(self, csv, traffic_log):
         if not traffic_log.is_granular_hour_written:
@@ -571,42 +702,39 @@ class DBEngine(object):
         self.logging.info("Reading tables...")
         dfs = self._read_tables_from_db()
         self.logging.info("Reading csv...")
-        data = self._read_csv(csv)
-        self.logging.info("Getting unique items...")
-        params = self._get_unique(data, dfs)
-        import time
-        start = time.time()
-        if not traffic_log.is_log_detail_written:
-            self.logging.info('Writing new items to db')
-            self._write_new_items_to_db(params, verbose=verbose)
-            del params
-            dfs = self._read_tables_from_db()
-            data = self._map_to_foreign_key(data, dfs)
-            del dfs
-            self.logging.info('Writing logs to db')
-            self._write_log(data, traffic_log.id,
-                            table_name='core_trafficlogdetail')
-            traffic_log.is_log_detail_written = True
-            del data
-            self._session.commit()
-        print('Detail: ', time.time()-start)
-        start = time.time()
-        data = self._read_csv(csv)
-        if not traffic_log.is_rule_written:
-            self.logging.info('Writing rules to db')
-            self._write_rules(data)
-            traffic_log.is_rule_written = True
-            self.logging.info('Cleaning rule db')
-            self.clean()
-            self._session.commit()
-        print('Rules: ', time.time()-start)
-        start = time.time()
+        # data = self._read_csv(csv)
+        # self.logging.info("Getting unique items...")
+        # params = self._get_unique(data, dfs)
+
+        # if not traffic_log.is_log_detail_written:
+        #     self.logging.info('Writing new items to db')
+        #     self._write_new_items_to_db(params, verbose=verbose)
+        #     del params
+        #     dfs = self._read_tables_from_db()
+        #     data = self._map_to_foreign_key(data, dfs)
+        #     del dfs
+        #     self.logging.info('Writing logs to db')
+        #     self._write_log(data, traffic_log.id,
+        #                     table_name='core_trafficlogdetail')
+        #     traffic_log.is_log_detail_written = True
+        #     del data
+        #     self._session.commit()
+        # print('Detail: ', time.time()-start)
+
+        # data = self._read_csv(csv)
+        # if not traffic_log.is_rule_written:
+        #     self.logging.info('Writing rules to db')
+        #     self._write_rules(RULES_PATH)
+        #     traffic_log.is_rule_written = True
+        #     self.logging.info('Cleaning rule db')
+        #     self.clean()
+        #     self._session.commit()
+        df = self._read_csv_spark(csv)
         if not traffic_log.is_info_written:
             self.logging.info('Writing log info in db')
-            self._write_info(data, traffic_log.id)
+            self._write_info(df, traffic_log.id)
             traffic_log.is_info_written = True
             self._session.commit()
-        print('Info: ', time.time()-start)
 
     def _get_date_from_filename(self, string):
         date = re.findall(r'[0-9]{4}_[0-9]{2}_[0-9]{2}',
@@ -649,7 +777,7 @@ class DBEngine(object):
 
     def run(self, verbose=False):
         self._run_for_detail(verbose=verbose)
-        self._run_for_granular_hour(verbose=verbose)
+        # self._run_for_granular_hour(verbose=verbose)
 
     def _check_data_dir_valid(self, data_dir: str):
         if not os.path.isdir(data_dir):

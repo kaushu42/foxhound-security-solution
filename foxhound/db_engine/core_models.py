@@ -326,7 +326,7 @@ class ProcessedLogDetail(Base):
     size = Column(BigInteger())
 
     def __repr__(self):
-        return f'{self.tenant}-{self.n_rows}-{self.size}'
+        return f'{self.firewall_rule_id}-{self.n_rows}-{self.size}'
 
     def __str__(self):
         return self.__repr__()

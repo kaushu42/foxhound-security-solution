@@ -1,0 +1,54 @@
+A, B | C, D, E | F, G
+Select * from table where F1 in {A, B} and F2 in {C, D, E} AND F3 in {F, G}
+
+CountryTable
+id | firewall_rule_id | filter_id | country_name | country_code | origin_count
+
+For origin_count: Map source to country -> groupby (country + filter_id) -> count()
+
+Application chart
+id | firewall_rule_id | logged_datetime | application | bytes_sum
+
+make logged_datetime granular
+groupby logged_datetime and application
+sum(bytes)
+
+Bandwidth usage
+id | firewall_rule_id | filter_id | logged_datetime | bytes_sum | packets_sum
+
+make logged_datetime granular
+groupby logged_datetime and filters
+sum(bytes)
+
+
+
+*** Dashboard is Complete ***
+
+
+
+IP_PROFILE
+
+Time series chart
+    Source Table
+        id | firewall_rule_id | filter_id | logged_datetime | ip_address(source) | bytes_sent_sum | bytes_received_sum
+    Destination Table
+        id | firewall_rule_id | filter_id | logged_datetime | ip_address(destination) | bytes_sent_sum | bytes_received_sum
+
+Works as Bandwidth usage in Dashboard
+
+Average_daily: DOES NOT REQUIRE NEW TABLE. USES TIME SERIES CHART TABLE.
+    Average-part: Query from time-series chart
+    Daily-part: Query from time-series chart using date
+
+Sankey: # MAYBE DO IN CASSANDRA???? # TABLE IS LIKE LOGDETAIL
+id | firewall_rule_id | filter_id | logged_datetime | ip_address(source) | ip_address(destination) | bytes_sent_sum | bytes_received_sum
+
+
+TABLE API FILTERS
+
+RULES:
+    - send application list at first
+    - source, dest, alias, application_id
+
+TT TABLE:
+    - source, dest, application_filter, log_name
