@@ -188,7 +188,7 @@ class MISEngine(object):
         COLUMN_HEADERS = ['logged_datetime', 'firewall_rule', 'source_ip', 'destination_ip', 'application',
                           'protocol', 'source_zone', 'destination_zone', 'inbound_interface', 'outbound_interface',
                           'action', 'category', 'session_end_reason', 'row_number', 'source_port', 'destination_port',
-                          'bytes_sent', 'bytes_received', 'repeat_count', 'packets_received', 'packets_sent', 'time_elapsed']
+                          'bytes_sent', 'bytes_received', 'repeat_count', 'packets_received', 'packets_sent', 'time_elapsed', 'firewall_rule_id']
         filtered_df = filtered_df.select(*COLUMN_HEADERS)
         filtered_df = self._set_uuid(filtered_df)
         return filtered_df
@@ -198,10 +198,10 @@ class MISEngine(object):
             "ip_address"].tolist()
         filtered_df = df.filter(
             col("destination_ip").isin(blacklisted_ip_from_db))
-        COLUMN_HEADERS = ['logged_datetime', 'firewall_rule', 'source_ip', 'destination_ip', 'application',
+        COLUMN_HEADERS = ['logged_datetime', 'source_ip', 'destination_ip', 'application',
                           'protocol', 'source_zone', 'destination_zone', 'inbound_interface', 'outbound_interface',
                           'action', 'category', 'session_end_reason', 'row_number', 'source_port', 'destination_port',
-                          'bytes_sent', 'bytes_received', 'repeat_count', 'packets_received', 'packets_sent', 'time_elapsed']
+                          'bytes_sent', 'bytes_received', 'repeat_count', 'packets_received', 'packets_sent', 'time_elapsed', 'firewall_rule_id']
         filtered_df = filtered_df.select(*COLUMN_HEADERS)
         filtered_df = self._set_uuid(filtered_df)
         return filtered_df
