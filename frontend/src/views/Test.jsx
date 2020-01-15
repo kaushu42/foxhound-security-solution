@@ -6,6 +6,8 @@ import VerifiedRulesTable from "../components/tables/VerifiedRulesTable"
 import IpAsSourceSankeyChart from "../components/charts/IpAsSourceSankeyChart";
 import ChangeAlias from "./ChangeAlias"
 import BlacklistAddress from "../components/BlacklistAddress"
+import NewSourceIPChart from "../components/charts/NewSourceIPChart"
+import NewDestinationIPChart from "../components/charts/NewDestinationIPChart"
 
 class Test extends Component {
     render() {
@@ -13,11 +15,13 @@ class Test extends Component {
             <Fragment>
                 {/* <Worldmapchart /> */}
                 {/* <RequestOriginWorldChart /> */}
-                <AnomalyBasedTroubleTicketTable />
+                {/* <AnomalyBasedTroubleTicketTable /> */}
                 {/* <VerifiedRulesTable /> */}
                 {/* <IpAsSourceSankeyChart /> */}
                 {/* <ChangeAlias /> */}
                 {/* <BlacklistAddress /> */}
+                {/* <NewSourceIPChart /> */}
+                <NewDestinationIPChart />
             </Fragment>
             )
     }

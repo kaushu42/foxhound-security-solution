@@ -25,7 +25,7 @@ class DailySourceIP(DailyIP):
 
 
 class DailyDestinationIP(DailyIP):
-    source_address = models.CharField(max_length=250)
+    destination_address = models.CharField(max_length=250)
 
     def __str__(self):
         return self.destination_address

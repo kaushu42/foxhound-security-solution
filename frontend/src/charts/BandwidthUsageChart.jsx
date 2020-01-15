@@ -8,7 +8,6 @@ import { ROOT_URL } from "../utils";
 require("highcharts/modules/exporting")(Highcharts);
 import "./chart.css";
 const FETCH_API = `${ROOT_URL}dashboard/usage/`;
-import moment from "moment";
 
 class BandwidthUsageChart extends Component {
   constructor(props) {
