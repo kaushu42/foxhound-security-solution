@@ -6,7 +6,6 @@ import numpy as np
 import pandas as pd
 
 import csv
-import pickle
 import joblib
 
 from .variables import features_list, categorical_features
@@ -133,7 +132,7 @@ class MLEngine(AutoEncoder):
         if os.path.exists(model_path) is not True:
             os.makedirs(model_path)
         self.save_model(model_path)
-        pickle.dump(params_dict, open(f'{model_path}/params.pkl', 'wb'))
+        joblib.dump(params_dict, f'{model_path}/params.sav')
 
         self.save_categorical_features_params(categorical_params, model_path)
 
@@ -151,7 +150,7 @@ class MLEngine(AutoEncoder):
             Contains model's parameters
         """
         model = self.load_model(model_path)
-        params = pickle.load(open(f'{model_path}/params.pkl', 'rb'))
+        params = joblib.load(f'{model_path}/params.pkl')
 
         # categorical_params = self.load_categorical_features_params(model_path)
 
