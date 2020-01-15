@@ -123,7 +123,7 @@ class Initialize():
 
                 self._save_to_csv(ip_df, ip_csv_path)
 
-    def parse_all_csv(self, mode):
+    def parse_all_csv(self):
         """Method to parse all history csv to create tenant profile
         """
         if os.path.exists(self._TENANT_PROFILE_DIR) is not True:

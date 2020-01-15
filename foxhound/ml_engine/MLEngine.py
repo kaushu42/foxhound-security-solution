@@ -130,7 +130,7 @@ class MLEngine(AutoEncoder):
 
         return params
 
-    def _update_categorical_params(self, df_params, model_path):
+    def _update_categorical_params(self, history_params, df_params):
         # To be called only once for one csv while detecting anomaly
         history_prop = history_params['proportion']
         history_total = history_params['total']
@@ -214,11 +214,13 @@ class MLEngine(AutoEncoder):
                     if len(df.index) > 1000:
                         categorical_params = self._get_categorical_params(df)
                         df, standarizer = self.normalize_data(df)
+
+                        training_for = ': '.join(csv_path.split('/')[-2:])[:-4]
                         print(
-                            f'**************** Training model for {csv_path}****************')
+                            f'**************** Training model for {training_for}****************')
                         self.train_model(df, self._model_path)
                         print(
-                            f'**************** Trained model for {csv_path}****************')
+                            f'**************** Trained model for {training_for}****************')
                         self._save_model_and_params(
                             {'standarizer': standarizer}, categorical_params
                             )
@@ -266,7 +268,7 @@ class MLEngine(AutoEncoder):
             True if anomaly found, List of indices that are anomalous, Reasons of anomaly
         """
         model, model_params, history_categorical_params = self._load_model_and_params()
-        df_categorical_params = self._get_categorical_params(ip_df)
+        df_categorical_params = self._get_categorical_params(df)
         updated_categorical_params = self._update_categorical_params(history_categorical_params, df_categorical_params)
 
         x = model_params['standarizer'].transform(df)
@@ -357,7 +359,6 @@ class MLEngine(AutoEncoder):
         anomalous_df['log_name'] = input_csv.split('/')[-1]
         print(
             f'{anomalous_without_model_count}/{len(anomalous_df.index)} : Anomalous without model')
-        print(anomalous_df.head(2))
         return anomalous_df
 
     def _predict_anomalies(self):
