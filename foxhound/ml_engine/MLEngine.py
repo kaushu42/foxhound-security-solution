@@ -7,8 +7,9 @@ import pandas as pd
 
 import csv
 import pickle
+import joblib
 
-from .variables import features_list
+from .variables import features_list, categorical_features
 from .model import AutoEncoder
 
 
@@ -60,6 +61,7 @@ class MLEngine(AutoEncoder):
         self._TENANT_PROFILE_DIR = tenant_profile_dir
         self._TENANT_MODEL_DIR = tenant_model_dir
         self._FEATURES = features_list
+        self._CATEGORICAL_FEATURES = categorical_features
         self._DAILY_CSV_DIR = daily_csv_path
         self._ANOMALIES_CSV_OUTPUT_DIR = anomalies_csv_output_path
 
@@ -118,7 +120,7 @@ class MLEngine(AutoEncoder):
                         c.writerow(df.columns)
                     c.writerow(row.values)
 
-    def _save_model_params(self, params_dict, model_path):
+    def _save_model_params(self, params_dict, model_path, categorical_params):
         """Method to save parameters of ml model
 
         Parameters
@@ -132,6 +134,8 @@ class MLEngine(AutoEncoder):
             os.makedirs(model_path)
         self.save_model(model_path)
         pickle.dump(params_dict, open(f'{model_path}/params.pkl', 'wb'))
+
+        self.save_categorical_features_params(categorical_params, model_path)
 
     def _load_model_params(self, model_path):
         """Method to load ml model's parameters
@@ -148,6 +152,8 @@ class MLEngine(AutoEncoder):
         """
         model = self.load_model(model_path)
         params = pickle.load(open(f'{model_path}/params.pkl', 'rb'))
+
+        # categorical_params = self.load_categorical_features_params(model_path)
 
         return model, params
 
@@ -169,8 +175,10 @@ class MLEngine(AutoEncoder):
                 for csv_file in sorted(os.listdir(tenant_profile_dir)):
                     csv_path = os.path.join(tenant_profile_dir, csv_file)
                     model_path = os.path.join(tenant_model_dir, csv_file[:-4])
+                    print(model_path)
                     df = pd.read_csv(csv_path)
                     if len(df.index) > 1000:
+                        categorical_params =  self.get_categorical_features_params(df)
                         df, standarizer = self.normalize_data(df)
                         print(
                             f'**************** Training model for {csv_path}****************')
@@ -178,28 +186,79 @@ class MLEngine(AutoEncoder):
                         print(
                             f'**************** Trained model for {csv_path}****************')
                         self._save_model_params(
-                            {'standarizer': standarizer}, model_path)
+                            {
+                                'standarizer': standarizer,
+                            },
+                            model_path,
+                            categorical_params
+                            )
+
                     else:
                         pass
 
-    def _get_anomaly_reasons(self, anomalies, features, mean, std):
-        """Method to get reasons for anomaly
+    def get_categorical_features_params(self, df):
+        total = len(df.index)
+        prop = dict([(category, dict(df[category].value_counts()/total)) for category in self._CATEGORICAL_FEATURES])
+        params = {'total': total, 'proportion': prop}
 
-        Arguments:
-            anomalies {Pandas DataFrame} -- Contains anomalies
-            features {str} -- Contains array of features to use for extracting reasons
-            mean {float} -- Contains array of means of each features
-            std {float} -- Contains array of standard deviation of each features
+        return params
 
-        Returns:
-            str -- Array of features as reason
-        """
+    def save_categorical_features_params(self, params, model_path):
+        joblib.dump(params, model_path+"/categorical_params.sav")
+
+    def load_categorical_features_params(self, model_path):
+        params = joblib.load(model_path+'/categorical_params.sav')
+
+        return params
+
+    def update_history_params(self, df_params, model_path):
+        # To be called only once for one csv while detecting anomaly
+
+        history_params = self.load_categorical_features_params(model_path)
+        history_prop = history_params['proportion']
+        history_total = history_params['total']
+
+        df_prop = df_params['proportion']
+        df_total = df_params['total']
+
+        history_ratio = history_total/(history_total+df_total)
+        df_ratio = df_total/(history_total+df_total)
+
+        updated_prop = dict([[feature, dict([(key, history_ratio*history_prop[feature].get(key, 0)+df_ratio*df_prop[feature].get(key, 0)) for key in history_prop[feature].keys()|df_prop[feature].keys()])] for feature in self._CATEGORICAL_FEATURES])
+        updated_total = history_total+df_total
+
+        max_prop = dict([(feature, updated_prop[feature][max(updated_prop[feature], key=updated_prop[feature].get)]) for feature in updated_prop])
+
+        updated_params = {'total': updated_total, 'proportion': updated_prop, 'max_proportion': max_prop}
+
+        return updated_params
+
+    def _get_anomaly_reasons(self, df, model_params, history_params, df_params, anomaly_prop_threshold):
+        anomalies = df.copy()
+
+        mean = model_params['standarizer'].mean_
+        std = np.sqrt(model_params['standarizer'].var_)
+
+        max_prop = history_params['max_proportion']
+        df_prop = df_params['proportion']
+
         truth_table = np.abs(anomalies-mean) > 3*std
-        reasons = [', '.join(features[row])
+
+        truth_table[self._CATEGORICAL_FEATURES] = False
+
+        proportion = lambda anomaly, features, params: pd.Series([params[feature].get(anomaly[feature], 0) for feature in features])
+
+        anomalies[self._CATEGORICAL_FEATURES] = anomalies.apply(lambda x: proportion(x, self._CATEGORICAL_FEATURES, df_prop), axis=1)
+        max_prop = np.array([max_prop[feature] for feature in self._CATEGORICAL_FEATURES])
+
+        truth_table[self._CATEGORICAL_FEATURES] = anomalies[self._CATEGORICAL_FEATURES] < (max_prop*anomaly_prop_threshold)
+
+        reasons = [', '.join(df.columns[row])
                    for index, row in truth_table.iterrows()]
+
         return reasons
 
-    def _predict(self, df, model_path):
+    def _predict(self, df, df_params, history_params, model_path):
         """Method to predict anomaly from tenant's dataframe using respective model
 
         Parameters
@@ -216,8 +275,7 @@ class MLEngine(AutoEncoder):
         """
         model, params = self._load_model_params(model_path)
         x = params['standarizer'].transform(df)
-        mean = params['standarizer'].mean_
-        std = np.sqrt(params['standarizer'].var_)
+
         preds = model.predict(x)
         mse = np.mean(np.power(x - preds, 2), axis=1)
         #plt.plot(out, 'ro')
@@ -225,7 +283,7 @@ class MLEngine(AutoEncoder):
 
         if len(indices) is not 0:
             reasons = self._get_anomaly_reasons(
-                df.iloc[indices], df.columns.values, mean, std
+                df.iloc[indices], params, history_params, df_params, 0.05
             )
             return True, indices, reasons
         else:
@@ -323,6 +381,9 @@ class MLEngine(AutoEncoder):
 
         truncated_df.session_end_reason_id.fillna('unknown', inplace=True)
 
+        private_ips_index = truncated_df.source_ip_id.apply(lambda x: ipaddress.ip_address(x).is_private)
+        truncated_df = truncated_df[private_ips_index]
+
         anomalous_df = df.head(0)
         anomalous_without_model_count = 0
         anomalous_features = []
@@ -331,44 +392,57 @@ class MLEngine(AutoEncoder):
             tenant_df = truncated_df[truncated_df['firewall_rule_id'] == tenant]
 
             ips = tenant_df['source_ip_id'].unique()
-            private_ips = ips[[ipaddress.ip_address(
-                ip).is_private for ip in ips]]
 
-            for ip in private_ips:
+            for ip in ips:
                 ip_csv_path = os.path.join(
                     self._TENANT_PROFILE_DIR, tenant, f'{ip}.csv')
                 model_path = os.path.join(
                     self._TENANT_MODEL_DIR, tenant, ip)
 
-                ip_df = tenant_df[tenant_df['source_ip_id'] == ip].copy()
+                ip_df = tenant_df[tenant_df['source_ip_id'] == ip]
                 #ip_df.reset_index(inplace=True)
                 #print(ip)
                 ip_df = ip_df.drop(
                     columns=['firewall_rule_id', 'source_ip_id'])
-                ip_df = self._preprocess(ip_df)
 
                 if os.path.exists(model_path) is True:
+                    ip_df = self._preprocess(ip_df)
+
+                    df_params = self.get_categorical_features_params(ip_df)
+                    history_params = self.update_history_params(df_params, model_path)
+
                     has_anomaly, indices, reasons = self._predict(
-                        ip_df, model_path)
+                        ip_df, df_params, history_params, model_path)
                     if has_anomaly:
                         anomalous_features.extend(reasons)
                         anomalous_df = pd.concat(
                             [anomalous_df, df.iloc[ip_df.index[indices]]],
                             axis=0
                         )
+                        # print(reasons)
+                        # print('************************')
                 else:
                     anomalous_without_model_count += len(ip_df.index)
                     anomalous_features.extend(['No model']*len(ip_df.index))
                     anomalous_df = pd.concat(
-                        [anomalous_df, df.iloc[ip_df.index]], axis=0)
+                        [anomalous_df, df.iloc[ip_df.index]],
+                        axis=0, ignore_index=True
+                        )
 
                 if save_data_for_ip_profile is True:
                     self._save_to_csv(ip_df, ip_csv_path)
+                    self.save_categorical_features_params(history_params, model_path)
                     #print(f'Saved data for ip {ip}')
+
+        anomalous_features_df = pd.DataFrame(
+            data=np.array(anomalous_features), columns=['Reasons']
+        )
+        anomalous_df = pd.concat([anomalous_df, anomalous_features_df], axis=1)
 
         anomalous_df['log_name'] = input_csv.split('/')[-1]
         print(
             f'{anomalous_without_model_count}/{len(anomalous_df.index)} : Anomalous without model')
+        print(anomalous_df.head(2))
         return anomalous_df
 
     def _predict_anomalies(self):
@@ -380,8 +454,8 @@ class MLEngine(AutoEncoder):
                 for csv in sorted(os.listdir(self._DAILY_CSV_DIR)):
                     print(f'**********Processing {csv} **********')
                     csv_file_path = os.path.join(self._DAILY_CSV_DIR, csv)
-                    anomalous_df.append(self.get_tenant_anomalies(
-                        csv_file_path, save_data_for_tenant_profile=False))
+                    anomalous_df.append(self.get_ip_anomalies(
+                        csv_file_path, save_data_for_ip_profile=False))
                     # print(anomalous_df)
 
                 anomalous_df = pd.concat(anomalous_df)
