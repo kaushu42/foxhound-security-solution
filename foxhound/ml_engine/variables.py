@@ -17,3 +17,14 @@ features_list = ['logged_datetime',
                  'packets_sent',
                  'time_elapsed',
                  'packets_received']
+
+categorical_features = [
+    'application_id',
+    'source_zone_id',
+#     'source_port',
+    'destination_port',
+    'protocol_id',
+    'category_id',
+    'action_id',
+    'session_end_reason_id',
+]

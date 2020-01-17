@@ -30,6 +30,9 @@ class Initialize():
         self._dir_to_parse = dir_to_parse
         self._TENANT_PROFILE_DIR = tenant_profile_dir
         self._features = features_list
+        self._TENANT_FEATURE = 'firewall_rule_id'
+        self._USER_FEATURE = 'source_ip_id'
+        self._TIME_FEATURE = 'logged_datetime'
 
     def _preprocess(self, df):
         """Method to preprocess dataframe
@@ -45,14 +48,12 @@ class Initialize():
             Dataframe after removing unnecessary features and numeric representation
         """
         temp = df.copy()
-        # temp['logged_datetime'] = temp['logged_datetime'].apply(
-        #     lambda x: x[-8:])
 
-        temp['logged_datetime'] = temp['logged_datetime'].apply(
+        temp[self._TIME_FEATURE] = temp[self._TIME_FEATURE].apply(
             lambda x: x[-8:-6])  # remove date information from dataframe
         temp['sin_time'] = temp.logged_datetime.apply(lambda x: np.sin((2*np.pi/24)*int(x)))
         temp['cos_time'] = temp.logged_datetime.apply(lambda x: np.cos((2*np.pi/24)*int(x)))
-        temp.drop(columns=['logged_datetime'], inplace=True)
+        temp.drop(columns=[self._TIME_FEATURE], inplace=True)
 
         rows = temp.values
         rows = [[sum([(weight+1)*char for weight, char in enumerate(list(bytearray(cell, encoding='utf8'))[::-1])])
@@ -84,40 +85,6 @@ class Initialize():
                         c.writerow(df.columns)
                     c.writerow(row.values)
 
-    def _create_tenant_profile(self, src_file_path, dest_path, features_list):
-        """Method to create tenant profile from daily csv file
-
-        Parameters
-        ----------
-        src_file_path : str
-            Location of input csv file to read
-        dest_path : str
-            Location of tenant profile directory to save tenant's profile to
-        features_list : list of strings
-            List of features to consider for analysis
-        """
-        df = pd.read_csv(src_file_path)
-        print("*************************")
-        df = df[features_list]  # feature selection
-        # df['logged_datetime'] = df['logged_datetime'].apply(
-        #     lambda x: x[-8:])  # remove date information from dataframe
-        #new
-        private_ips_index = df.source_ip_id.apply(lambda x: ipaddress.ip_address(x).is_private)
-        df = df[private_ips_index]
-
-        df.session_end_reason_id.fillna('unknown', inplace=True)
-
-        for tenant in df['firewall_rule_id'].unique():
-            tenant_path = os.path.join(dest_path, tenant)
-            if os.path.exists(tenant_path) is not True:
-                os.makedirs(tenant_path)
-            tenant_df = df[df['firewall_rule_id'] == tenant]
-            tenant_df.reset_index(inplace=True)
-            tenant_df = tenant_df.drop(columns=['index', 'firewall_rule_id'])
-            tenant_df = self._preprocess(tenant_df)
-            tenant_csv_path = os.path.join(tenant_path, (tenant+'.csv'))
-            self._save_to_csv(tenant_df, tenant_csv_path)
-
     def _create_ip_profile(self, src_file_path, dest_path, features_list):
         """Method to create tenant profile from daily csv file
 
@@ -133,44 +100,34 @@ class Initialize():
         df = pd.read_csv(src_file_path)
         print("*************************")
         df = df[features_list]  # feature selection
-        # df['logged_datetime'] = df['logged_datetime'].apply(
-        #     lambda x: x[-8:])  # remove date information from dataframe
 
         df.session_end_reason_id.fillna('unknown', inplace=True)
 
-        for tenant in df['firewall_rule_id'].unique():
+        for tenant in df[self._TENANT_FEATURE].unique():
             tenant_path = os.path.join(dest_path, tenant)
             if os.path.exists(tenant_path) is not True:
                 os.makedirs(tenant_path)
-            tenant_df = df[df['firewall_rule_id'] == tenant]
+            tenant_df = df[df[self._TENANT_FEATURE] == tenant]
 
-            ips = tenant_df['source_ip_id'].unique()
+            ips = tenant_df[self._USER_FEATURE].unique()
             private_ips = ips[[ipaddress.ip_address(
                 ip).is_private for ip in ips]]
-            print(tenant)
-            print(private_ips)
 
             for ip in sorted(private_ips):
-                print(len(private_ips))
-                print(f'Processing ip: {ip}')
                 ip_csv_path = os.path.join(tenant_path, (ip+'.csv'))
-                ip_df = tenant_df[tenant_df['source_ip_id'] == ip]
+                ip_df = tenant_df[tenant_df[self._USER_FEATURE] == ip]
                 ip_df.reset_index(inplace=True)
                 ip_df = ip_df.drop(
-                    columns=['index', 'firewall_rule_id', 'source_ip_id'])
-                print(f'Saving ip: {ip}')
+                    columns=['index', self._TENANT_FEATURE, self._USER_FEATURE])
                 ip_df = self._preprocess(ip_df)
 
                 self._save_to_csv(ip_df, ip_csv_path)
-                print(f'Sacved ip: {ip}')
 
-    def parse_all_csv(self, mode):
+    def parse_all_csv(self):
         """Method to parse all history csv to create tenant profile
         """
         if os.path.exists(self._TENANT_PROFILE_DIR) is not True:
             os.makedirs(self._TENANT_PROFILE_DIR)
-            print(
-                f'**********Directory {self._TENANT_PROFILE_DIR} created **********')
 
         if os.path.exists(self._dir_to_parse):
             files = os.listdir(self._dir_to_parse)
@@ -180,15 +137,9 @@ class Initialize():
                 csv_file_path = os.path.join(self._dir_to_parse, csv)
                 print(
                     f'[{count}/{total}]**********Processing {csv_file_path} file **********')
+                self._create_ip_profile(
+                    csv_file_path, self._TENANT_PROFILE_DIR, self._features)
 
-                if mode == 'tenant':
-                    self._create_tenant_profile(
-                        csv_file_path, self._TENANT_PROFILE_DIR, self._features)
-                elif mode == 'ip':
-                    self._create_ip_profile(
-                        csv_file_path, self._TENANT_PROFILE_DIR, self._features)
-                else:
-                    raise TypeError('Not a valid mode')
                 count = count+1
         else:
             print(f'{self._dir_to_parse} doesnt exist')
