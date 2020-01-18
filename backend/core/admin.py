@@ -18,5 +18,7 @@ admin.site.register(models.TrafficLog)
 admin.site.register(models.TrafficLogDetail)
 admin.site.register(models.ProcessedLogDetail)
 admin.site.register(models.BlacklistedIP)
+admin.site.register(models.Filter)
+admin.site.register(models.TimeSeriesChart)
 admin.site.site_title = 'FoxHound Security Solutions'
 admin.site.site_header = 'FoxHound'
