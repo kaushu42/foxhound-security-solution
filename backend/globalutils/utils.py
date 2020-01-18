@@ -9,7 +9,11 @@ from django.db.models.functions import (
 from django.db.models import Sum
 from django.db.models import Q
 
-from core.models import TrafficLogDetailGranularHour
+from core.models import (
+    TrafficLogDetailGranularHour,
+    FirewallRule,
+    Filter
+)
 from core.models import DBLock
 
 
@@ -289,3 +293,24 @@ def unlock_rule_table():
     lock = DBLock.objects.get(table_name='rules_rule')
     lock.is_locked = False
     lock.save()
+
+
+def get_firewall_rules_id_from_tenant_id(tenant_id):
+    firewall_rules = FirewallRule.objects.filter(
+        tenant_id=tenant_id).values_list('id')
+    firewall_rules = {f[0] for f in firewall_rules}
+    return firewall_rules
+
+
+def get_firewall_rules_id_from_request(request):
+    tenant_id = get_tenant_id_from_token(request)
+    firewall_rules = get_firewall_rules_id_from_tenant_id(tenant_id)
+    return firewall_rules
+
+
+def get_filter_ids_from_request(request):
+    firewall_rules = get_firewall_rules_id_from_request(request)
+    filter_ids = Filter.objects.filter(
+        firewall_rule__in=firewall_rules).values_list('id')
+    filter_ids = {f[0] for f in filter_ids}
+    return filter_ids

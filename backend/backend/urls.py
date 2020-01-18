@@ -6,5 +6,6 @@ urlpatterns = [
     path('cassandra', index),
     path('', views.index),
     path('admin/', admin.site.urls),
-    path('api/v1/', include('apiv1.urls'))
+    path('api/v1/', include('apiv1.urls')),
+    path('api/v2/', include('apiv2.urls')),
 ]
