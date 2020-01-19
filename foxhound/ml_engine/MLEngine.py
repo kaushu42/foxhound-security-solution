@@ -338,22 +338,22 @@ class MLEngine(AutoEncoder):
                         anomalous_features.extend(reasons)
                         anomalous_df = pd.concat(
                             [anomalous_df, df.iloc[ip_df.index[indices]]],
-                            axis=0
+                            axis=0, ignore_index=True
                         )
                 else:
                     anomalous_without_model_count += len(ip_df.index)
-                    anomalous_features.extend(['No model']*len(ip_df.index))
-                    anomalous_df = pd.concat(
-                        [anomalous_df, df.iloc[ip_df.index]],
-                        axis=0, ignore_index=True
-                        )
+                    # commented to not put anomaly without model in anomaly csv
+                    # anomalous_features.extend(['No model']*len(ip_df.index))
+                    # anomalous_df = pd.concat(
+                    #     [anomalous_df, df.iloc[ip_df.index]],
+                    #     axis=0, ignore_index=True
+                    #     )
 
                 if save_data_for_ip_profile is True:
                     self._save_to_csv(ip_df, ip_csv_path)
                     self._save_categorical_params(updated_categorical_params)
-
         anomalous_features_df = pd.DataFrame(
-            data=np.array(anomalous_features), columns=['Reasons']
+            data=np.array(anomalous_features), columns=['reasons']
         )
         anomalous_df = pd.concat([anomalous_df, anomalous_features_df], axis=1)
         # print(
@@ -362,7 +362,8 @@ class MLEngine(AutoEncoder):
 
     def _predict_in_chunks(self, csv_file_path):
         n_chunks = 0
-        no_model_count = 0
+        ano_with_no_model_count = 0
+        ano_with_model_count = 0
         total_data_count = 0
 
         df = pd.read_csv(csv_file_path, usecols=self._FEATURES, chunksize=100000000)# 100 million
@@ -375,11 +376,11 @@ class MLEngine(AutoEncoder):
             self._save_to_csv(anomalous_df, os.path.join(
                 self._ANOMALIES_CSV_OUTPUT_DIR, str(dt.datetime.now().date())+'.csv')
             )
-            no_model_count += ano_without_model
-            total_data_count += len(anomalous_df.index)
+            ano_with_no_model_count += ano_without_model
+            ano_with_model_count += len(anomalous_df.index)
             n_chunks += 1
 
-        return no_model_count, total_data_count, n_chunks
+        return ano_with_model_count, ano_with_no_model_count, n_chunks
 
     def _predict_anomalies(self):
         """Method to predict anomalies from csvs' from input directory
@@ -394,10 +395,10 @@ class MLEngine(AutoEncoder):
                     file_name = csv_file_path.split('/')[-1]
                     print(
                         f'[{count}/{total}]********** Processing {file_name} **********')
-                    no_model_count, total_data_count, n_chunks = self._predict_in_chunks(csv_file_path)
+                    ano_with_model_count, ano_with_no_model_count, n_chunks = self._predict_in_chunks(csv_file_path)
                     print(f"[{count}/{total}]********** Processed {file_name} in {n_chunks} chunk **********")
                     print(
-                        f'[{count}/{total}]********** Predictions: [{no_model_count}/{total_data_count}] Anomalous without model **********'
+                        f'[{count}/{total}]********** Predictions: Anomalous model -> [{ano_with_model_count}] Anomalous without model -> [{ano_with_no_model_count}]  **********'
                     )
                     # print(anomalous_df)
             else:
