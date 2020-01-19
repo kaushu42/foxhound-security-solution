@@ -287,7 +287,7 @@ class MLEngine(AutoEncoder):
         else:
             return False, None, None, updated_categorical_params
 
-    def get_ip_anomalies(self, input_csv, save_data_for_ip_profile=False):
+    def get_ip_anomalies(self, df, save_data_for_ip_profile=False):
         """Method to get anomaly from input csv
 
         Parameters
@@ -302,8 +302,7 @@ class MLEngine(AutoEncoder):
         Pandas Dataframe
             Dataframe containing anomalous entries from the input csv
         """
-        df = pd.read_csv(input_csv)
-        truncated_df = df[self._FEATURES].copy()
+        truncated_df = df
 
         truncated_df.session_end_reason_id.fillna('unknown', inplace=True)
 
@@ -357,28 +356,50 @@ class MLEngine(AutoEncoder):
             data=np.array(anomalous_features), columns=['Reasons']
         )
         anomalous_df = pd.concat([anomalous_df, anomalous_features_df], axis=1)
+        # print(
+        #     f'{anomalous_without_model_count}/{len(anomalous_df.index)} : Anomalous without model')
+        return anomalous_df, anomalous_without_model_count
 
-        anomalous_df['log_name'] = input_csv.split('/')[-1]
-        print(
-            f'{anomalous_without_model_count}/{len(anomalous_df.index)} : Anomalous without model')
-        return anomalous_df
+    def _predict_in_chunks(self, csv_file_path):
+        n_chunks = 0
+        no_model_count = 0
+        total_data_count = 0
+
+        df = pd.read_csv(csv_file_path, usecols=self._FEATURES, chunksize=100000000)# 100 million
+
+        for df_chunk in df:
+            anomalous_df, ano_without_model = self.get_ip_anomalies(
+                df_chunk, save_data_for_ip_profile=False
+            )
+            anomalous_df['log_name'] = csv_file_path.split('/')[-1]
+            self._save_to_csv(anomalous_df, os.path.join(
+                self._ANOMALIES_CSV_OUTPUT_DIR, str(dt.datetime.now().date())+'.csv')
+            )
+            no_model_count += ano_without_model
+            total_data_count += len(anomalous_df.index)
+            n_chunks += 1
+
+        return no_model_count, total_data_count, n_chunks
 
     def _predict_anomalies(self):
         """Method to predict anomalies from csvs' from input directory
         """
         if os.path.exists(self._DAILY_CSV_DIR) is True:
-            if len(os.listdir(self._DAILY_CSV_DIR)) != 0:
-                anomalous_df = []
-                for csv in sorted(os.listdir(self._DAILY_CSV_DIR)):
-                    print(f'**********Processing {csv} **********')
+            files = sorted(os.listdir(self._DAILY_CSV_DIR))
+            total = len(files)
+            count = 1
+            if total is not 0:
+                for csv in files:
                     csv_file_path = os.path.join(self._DAILY_CSV_DIR, csv)
-                    anomalous_df.append(self.get_ip_anomalies(
-                        csv_file_path, save_data_for_ip_profile=False))
+                    file_name = csv_file_path.split('/')[-1]
+                    print(
+                        f'[{count}/{total}]********** Processing {file_name} **********')
+                    no_model_count, total_data_count, n_chunks = self._predict_in_chunks(csv_file_path)
+                    print(f"[{count}/{total}]********** Processed {file_name} in {n_chunks} chunk **********")
+                    print(
+                        f'[{count}/{total}]********** Predictions: [{no_model_count}/{total_data_count}] Anomalous without model **********'
+                    )
                     # print(anomalous_df)
-
-                anomalous_df = pd.concat(anomalous_df)
-                anomalous_df.to_csv(os.path.join(
-                    self._ANOMALIES_CSV_OUTPUT_DIR, str(dt.datetime.now().date())+'.csv'))
             else:
                 print("[Warning]: No csv to find anomaly, TRAFFIC_LOGS_OUTPUT_DIR is empty")
 
