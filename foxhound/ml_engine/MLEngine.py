@@ -118,10 +118,12 @@ class MLEngine(AutoEncoder):
         temp['cos_time'] = temp.logged_datetime.apply(lambda x: np.cos((2*np.pi/24)*int(x)))
         temp.drop(columns=[self._TIME_FEATURE], inplace=True)
 
-        rows = temp.values
+        columns = temp.columns
+        rows = temp = temp.values
+
         rows = [[sum([(weight+1)*char for weight, char in enumerate(list(bytearray(cell, encoding='utf8'))[::-1])])
                  if isinstance(cell, str) else cell for cell in row] for row in rows]
-        return pd.DataFrame(rows, index=df.index, columns=temp.columns)
+        return pd.DataFrame(rows, index=df.index, columns=columns)
 
     def _get_categorical_params(self, df):
         total = len(df.index)
