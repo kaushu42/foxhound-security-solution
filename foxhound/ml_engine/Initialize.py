@@ -123,7 +123,7 @@ class Initialize():
 
     def _parse_in_chunks(self, src_file_path, dest_path, features_list):
         n_chunks = 0
-        df = pd.read_csv(src_file_path, usecols=features_list, chunksize=1000000)
+        df = pd.read_csv(src_file_path, usecols=features_list, chunksize=100000000)# 100 million
 
         for df_chunk in df:
             self._create_ip_profile(df_chunk, dest_path)
@@ -138,10 +138,10 @@ class Initialize():
             os.makedirs(self._TENANT_PROFILE_DIR)
 
         if os.path.exists(self._dir_to_parse):
-            files = os.listdir(self._dir_to_parse)
+            files = sorted(os.listdir(self._dir_to_parse))
             total = len(files)
             count = 1
-            for csv in sorted(os.listdir(self._dir_to_parse)):
+            for csv in files:
                 csv_file_path = os.path.join(self._dir_to_parse, csv)
                 file_name = csv_file_path.split('/')[-1]
                 print(
