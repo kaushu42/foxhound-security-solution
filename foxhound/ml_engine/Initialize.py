@@ -55,10 +55,12 @@ class Initialize():
         temp['cos_time'] = temp.logged_datetime.apply(lambda x: np.cos((2*np.pi/24)*int(x)))
         temp.drop(columns=[self._TIME_FEATURE], inplace=True)
 
-        rows = temp.values
+        columns = temp.columns
+        rows = temp = temp.values
+
         rows = [[sum([(weight+1)*char for weight, char in enumerate(list(bytearray(cell, encoding='utf8'))[::-1])])
                  if isinstance(cell, str) else cell for cell in row] for row in rows]
-        return pd.DataFrame(rows, index=df.index, columns=temp.columns)
+        return pd.DataFrame(rows, index=df.index, columns=columns)
 
     def _save_to_csv(self, df, dest_file_path):
         """Method to save dataframe to respective tenant's csv if available, else create one
@@ -85,7 +87,7 @@ class Initialize():
                         c.writerow(df.columns)
                     c.writerow(row.values)
 
-    def _create_ip_profile(self, src_file_path, dest_path, features_list):
+    def _create_ip_profile(self, df, dest_path):
         """Method to create tenant profile from daily csv file
 
         Parameters
@@ -97,10 +99,6 @@ class Initialize():
         features_list : list of strings
             List of features to consider for analysis
         """
-        df = pd.read_csv(src_file_path)
-        print("*************************")
-        df = df[features_list]  # feature selection
-
         df.session_end_reason_id.fillna('unknown', inplace=True)
 
         for tenant in df[self._TENANT_FEATURE].unique():
@@ -123,6 +121,16 @@ class Initialize():
 
                 self._save_to_csv(ip_df, ip_csv_path)
 
+    def _parse_in_chunks(self, src_file_path, dest_path, features_list):
+        n_chunks = 0
+        df = pd.read_csv(src_file_path, usecols=features_list, chunksize=100000000)# 100 million
+
+        for df_chunk in df:
+            self._create_ip_profile(df_chunk, dest_path)
+            n_chunks += 1
+
+        return n_chunks
+
     def parse_all_csv(self):
         """Method to parse all history csv to create tenant profile
         """
@@ -130,16 +138,18 @@ class Initialize():
             os.makedirs(self._TENANT_PROFILE_DIR)
 
         if os.path.exists(self._dir_to_parse):
-            files = os.listdir(self._dir_to_parse)
+            files = sorted(os.listdir(self._dir_to_parse))
             total = len(files)
             count = 1
-            for csv in sorted(os.listdir(self._dir_to_parse)):
+            for csv in files:
                 csv_file_path = os.path.join(self._dir_to_parse, csv)
+                file_name = csv_file_path.split('/')[-1]
                 print(
-                    f'[{count}/{total}]**********Processing {csv_file_path} file **********')
-                self._create_ip_profile(
+                    f'[{count}/{total}]**********Processing {file_name} file **********')
+                n_chunks = self._parse_in_chunks(
                     csv_file_path, self._TENANT_PROFILE_DIR, self._features)
 
+                print(f"[{count}/{total}]********** Parsed {file_name} in {n_chunks} chunks **********")
                 count = count+1
         else:
             print(f'{self._dir_to_parse} doesnt exist')
