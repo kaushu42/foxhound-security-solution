@@ -4,6 +4,7 @@ from foxhound.ml_engine.Initialize import Initialize
 from foxhound.ml_engine.MLEngine import MLEngine
 from foxhound.tt_engine.TTAnomaly import TTAnomaly
 from foxhound.mis_engine.MISEngine import MISEngine
+from foxhound.chart_engine.ChartEngine import ChartEngine
 import config
 import utils
 
@@ -59,3 +60,8 @@ def mis_engine():
     mis = MISEngine(config.SPARK, utils.get_db_engine(
     ), config.TRAFFIC_LOGS_INPUT_DIR, config.MIS_OUTPUT_INPUT_DIR)
     mis.run()
+
+
+def chart_engine():
+    chart = ChartEngine(config.GRANULARIZED_LOG_PATH, spark=spark)
+    chart.run()
