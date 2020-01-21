@@ -22,7 +22,8 @@ class ChartEngine(BaseChart):
 
     def _get_file_paths(self, csv_path):
         file_paths = [
-            os.path.join(csv_path, f) for f in os.listdir(csv_path) if f.endswith('.csv')
+            os.path.join(csv_path, f)
+            for f in os.listdir(csv_path) if f.endswith('.csv')
         ]
         return file_paths
 
@@ -32,17 +33,20 @@ class ChartEngine(BaseChart):
 
     def _write_new_items_to_db_for_one(self, df, table, col_name):
         # Read table from db
-        tbl = pd.read_sql_table(table, self._db_engine, index_col='id')
+        tbl = self._read_table_from_postgres(table).select('name')
+        tbl = tbl.withColumnRenamed('name', col_name)
 
-        # Get distinct items from csv. Due to few number of items, it will fit in memory.
-        new_tbl = df.select(col_name).distinct().toPandas()
-        new_tbl.columns = tbl.columns
+        # Get distinct items from csv
+        new_tbl = df.select(col_name).distinct()
 
         # Select only items from csv that are not in db
-        new_tbl = new_tbl[~new_tbl.name.isin(tbl.name)]
+        new_tbl = new_tbl.join(
+            tbl, on=[col_name], how='leftanti').withColumnRenamed(
+                col_name, 'name'
+        )
 
-        # Write data to db
-        new_tbl.to_sql(table, self._db_engine, index=False, if_exists='append')
+        # Write to db
+        self._write_df_to_postgres(new_tbl, table)
 
     def _write_new_items_to_db(self, df):
         self._write_new_items_to_db_for_one(
@@ -68,7 +72,13 @@ class ChartEngine(BaseChart):
         query = '''
             CREATE UNIQUE INDEX idx_filter
             ON
-            core_filter(firewall_rule_id, application_id, destination_zone_id, source_zone_id, protocol_id);
+            core_filter(
+                firewall_rule_id,
+                application_id,
+                destination_zone_id,
+                source_zone_id,
+                protocol_id
+            );
         '''
         try:
             self._cursor.execute(query)
@@ -85,22 +95,35 @@ class ChartEngine(BaseChart):
         # Map firewall rules
         x = df.join(firewall_rules, on=[
             df.firewall_rule_id == firewall_rules.name
-        ]).drop('firewall_rule_id', 'name', 'tenant_id').withColumnRenamed('id', 'firewall_rule_id')
+        ]).drop(
+            'firewall_rule_id',
+            'name',
+            'tenant_id'
+        ).withColumnRenamed('id', 'firewall_rule_id')
 
         # Map Applications
         x = x.join(applications, on=[
             x.application_id == applications.name
-        ]).drop('application_id', 'name').withColumnRenamed('id', 'application_id')
+        ]).drop(
+            'application_id',
+            'name'
+        ).withColumnRenamed('id', 'application_id')
 
         # Map Source Zones
         x = x.join(zones, on=[
             x.source_zone_id == zones.name
-        ]).drop('source_zone_id', 'name').withColumnRenamed('id', 'source_zone_id')
+        ]).drop(
+            'source_zone_id',
+            'name'
+        ).withColumnRenamed('id', 'source_zone_id')
 
         # Map Destinaton Zones
         x = x.join(zones, on=[
             x.destination_zone_id == zones.name
-        ]).drop('destination_zone_id', 'name').withColumnRenamed('id', 'destination_zone_id')
+        ]).drop(
+            'destination_zone_id',
+            'name'
+        ).withColumnRenamed('id', 'destination_zone_id')
 
         # Map Protocols
         x = x.join(protocols, on=[
@@ -117,9 +140,9 @@ class ChartEngine(BaseChart):
         query = '''
             INSERT INTO core_filter(
                 source_zone_id,
-                destination_zone_id, 
-                application_id, 
-                firewall_rule_id, 
+                destination_zone_id,
+                application_id,
+                firewall_rule_id,
                 protocol_id
             )
             SELECT source_zone_id,
@@ -151,14 +174,15 @@ class ChartEngine(BaseChart):
     def run(self):
         for csv in self._csv_paths:
             df = self._spark.read.csv(csv, header=True)
+
+            print('**Writing new items to db**')
+            self._write_new_items_to_db(df)
+
             print('**Mapping to Foreign Keys**')
             df = self._map_df_to_fk(df)
 
             # Persist the dataframe for faster processing
             df.cache()
-
-            print('**Writing new items to db**')
-            self._write_new_items_to_db(df)
 
             print('**Processing Filters**')
             self._process_filters(df)
