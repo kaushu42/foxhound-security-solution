@@ -1,3 +1,38 @@
+import re
+import os
+import uuid
+import findspark
+import random
+import ipaddress
+import pandas as pd
+from sqlalchemy import create_engine
+from psycopg2 import sql, connect
+import datetime
+
+findspark.init()
+
+from pyspark.sql import SparkSession
+from pyspark.sql import SQLContext
+from pyspark.sql.types import StructField, StructType,DoubleType, LongType, StringType, IntegerType,DateType,TimestampType
+from pyspark.sql.functions import unix_timestamp, from_unixtime,to_timestamp,current_date,current_timestamp
+from pyspark.sql.functions import udf
+from pyspark.sql.functions import col,lit
+import pyspark.sql.functions as F
+
+os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.postgresql:postgresql:42.1.1 pyspark-shell'
+
+
+#SPARK_MASTER_URL = "spark://172.16.3.27:7077"
+SPARK_MASTER_LOCAL_URL = "master[*]"
+CLUSTER_SEEDS = ['127.0.0.1']
+OUTPUT_DIRECTORY = "./"
+INPUT_DIRECTORY = "./"
+DB_NAME = 'fhdb'
+FH_DB_USER = 'foxhounduser'
+FH_DB_PASSWORD = 'foxhound123'
+HOST = 'localhost'
+
+
 class MISEngine(object):
     def __init__(self, spark_session, db_engine, input_dir, output_dir):
         if not os.path.exists(output_dir):
@@ -78,13 +113,16 @@ class MISEngine(object):
                 s = StructField(column_name,StringType(),True)
             df_struct.append(s)
         schema = StructType(df_struct)
-        return spark.createDataFrame(df,schema)
+        return self._spark.createDataFrame(df,schema)
     
     def _get_date_from_csv_filename(self,csv_filename):
-        d = re.findall(r'[0-9]+', csv_filename)
-        return f'{d[0]}/{d[1]}/{d[2]}' 
+        #d = re.findall(r'[0-9]+', csv_filename)
+        d = re.findall(r'[0-9]{4}_[0-9]{2}_[0-9]{2}', csv_filename)[0].replace("_","/")
+        print(f'csv date obtained: {d}')
+        return d
     
     def _read_csv(self, csv_filename: str):
+        print(f"reading file {csv_filename}")
         self._csv_filename = csv_filename
         self._CSV_DATE = self._get_date_from_csv_filename(csv_filename)
         self._df = self._spark.read.csv(os.path.join(
@@ -146,7 +184,7 @@ class MISEngine(object):
             StructField("name",StringType(),True),
             StructField("tenant_id",IntegerType(),True)])
         firewall_rules_from_db = self._get_table("core_firewallrule")
-        firewall_rules_from_db = spark.createDataFrame(firewall_rules_from_db,firewall_rules_schema).select("name")
+        firewall_rules_from_db = self._spark.createDataFrame(firewall_rules_from_db,firewall_rules_schema).select("name")
         firewall_rules_from_csv = self._df.select("firewall_rule").distinct()
         new_firewall_rules = firewall_rules_from_csv.subtract(firewall_rules_from_db).toDF(*["name"])
         new_firewall_rules = new_firewall_rules.withColumn("tenant_id",lit(1))
@@ -356,28 +394,28 @@ class MISEngine(object):
                                              header=True,
                                              inferSchema=True)
 
-        mis_new_source_ip_csv = spark.read.csv(os.path.join(output_dir, csv_filename,"mis_new_source_ip.csv"),
+        mis_new_source_ip_csv = self._spark.read.csv(os.path.join(output_dir, csv_filename,"mis_new_source_ip.csv"),
                                                header=True,
                                                inferSchema=True)
 
-        mis_new_destination_ip_csv = spark.read.csv(os.path.join(output_dir, csv_filename,"mis_new_destination_ip.csv"),
+        mis_new_destination_ip_csv = self._spark.read.csv(os.path.join(output_dir, csv_filename,"mis_new_destination_ip.csv"),
                                                header=True,
                                                inferSchema=True)
 
-        mis_new_application_csv = spark.read.csv(os.path.join(output_dir, csv_filename,"mis_new_application.csv"),
+        mis_new_application_csv = self._spark.read.csv(os.path.join(output_dir, csv_filename,"mis_new_application.csv"),
                                                header=True,
                                                inferSchema=True)
         
-        mis_requests_from_blacklisted_ip_csv = spark.read.csv(os.path.join(output_dir, csv_filename,"mis_requests_from_blacklisted_ip.csv"),
+        mis_requests_from_blacklisted_ip_csv = self._spark.read.csv(os.path.join(output_dir, csv_filename,"mis_requests_from_blacklisted_ip.csv"),
                                                header=True,
                                                inferSchema=True)
 
-        mis_response_to_blacklisted_ip_csv = spark.read.csv(os.path.join(output_dir, csv_filename,"mis_response_to_blacklisted_ip.csv"),
+        mis_response_to_blacklisted_ip_csv = self._spark.read.csv(os.path.join(output_dir, csv_filename,"mis_response_to_blacklisted_ip.csv"),
                                                header=True,
                                                inferSchema=True)
 
         
-        mis_new_private_source_destination_pair_csv = spark.read.csv(os.path.join(output_dir, csv_filename,"mis_new_private_source_destination_pair.csv"),
+        mis_new_private_source_destination_pair_csv = self._spark.read.csv(os.path.join(output_dir, csv_filename,"mis_new_private_source_destination_pair.csv"),
                                                header=True,
                                                inferSchema=True)
 

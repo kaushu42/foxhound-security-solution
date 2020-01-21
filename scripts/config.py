@@ -10,6 +10,8 @@ def create_directory(path):
         os.mkdir(path)
 
 
+os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.postgresql:postgresql:42.1.1 pyspark-shell'
+
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 DATABASE_URL = 'https://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz'
