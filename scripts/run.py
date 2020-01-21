@@ -63,5 +63,9 @@ def mis_engine():
 
 
 def chart_engine():
-    chart = ChartEngine(config.GRANULARIZED_LOG_PATH, spark=spark)
+    chart = ChartEngine(
+        config.GRANULARIZED_LOG_PATH,
+        spark=config.SPARK,
+        db_engine=utils.get_db_engine()
+    )
     chart.run()
