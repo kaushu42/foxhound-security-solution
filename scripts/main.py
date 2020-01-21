@@ -26,6 +26,7 @@ try:
     run.dc_engine()
     run.db_engine(utils.get_db_engine(), logging, verbose=False)
     run.tt_engine()
+    run.chart_engine()
 
 except Exception as e:
     logging.exception(f'Terminated on {datetime.datetime.now()}')

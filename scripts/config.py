@@ -2,6 +2,9 @@ from pyspark.sql import SparkSession
 import os
 import findspark
 
+PG_DRIVER = '--packages org.postgresql:postgresql:42.1.1 pyspark-shell'
+os.environ['PYSPARK_SUBMIT_ARGS'] = PG_DRIVER
+
 findspark.init()
 
 
@@ -14,7 +17,8 @@ os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.postgresql:postgresql:42.1.1
 
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 
-DATABASE_URL = 'https://geolite.maxmind.com/download/geoip/database/GeoLite2-City.tar.gz'
+DATABASE_BASE_URL = 'https://geolite.maxmind.com/download/geoip/database'
+DATABASE_URL = f'{DATABASE_BASE_URL}/GeoLite2-City.tar.gz'
 
 FH_DB_NAME = "FH_DB_NAME"
 FH_DB_USER = "FH_DB_USER"
@@ -47,7 +51,6 @@ SPARK_MASTER_URL = "spark://127.0.0.1:7077"
 SPARK_MASTER_LOCAL_URL = "master[*]"
 CLUSTER_SEEDS = ['172.16.3.36', '172.16.3.37', '127.0.0.1'][-1]
 SPARK_APP_NAME = 'foxhound'
-#SPARK = SparkSession.builder.getOrCreate()
 
 SPARK = SparkSession.builder.master(
     SPARK_MASTER_URL

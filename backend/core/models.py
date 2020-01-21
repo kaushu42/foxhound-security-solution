@@ -394,7 +394,6 @@ class CeleryTaskmeta(models.Model):
     traceback = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = True
         db_table = 'celery_taskmeta'
 
 
@@ -406,7 +405,6 @@ class CeleryTasksetmeta(models.Model):
     date_done = models.DateTimeField(blank=True, null=True)
 
     class Meta:
-        managed = True
         db_table = 'celery_tasksetmeta'
 
 
@@ -417,45 +415,52 @@ class BackgroundJob(models.Model):
         CeleryTasksetmeta, on_delete=models.CASCADE, related_name="task_background_job")
 
 
-class Filter(models.Model):
-    application = models.CharField(max_length=250)
-    source_zone = models.CharField(max_length=250)
-    destination_zone = models.CharField(max_length=250)
+class BaseFilter(models.Model):
+    class Meta:
+        abstract = True
+    application = models.ForeignKey(Application, on_delete=models.CASCADE)
     firewall_rule = models.ForeignKey(FirewallRule, on_delete=models.CASCADE)
-    protocol = models.CharField(max_length=10)
+    protocol = models.ForeignKey(Protocol, on_delete=models.CASCADE)
 
 
-class StagingFilter(models.Model):
-    application = models.CharField(max_length=250)
-    source_zone = models.CharField(max_length=250)
-    destination_zone = models.CharField(max_length=250)
-    firewall_rule = models.ForeignKey(FirewallRule, on_delete=models.CASCADE)
-    protocol = models.CharField(max_length=10)
+class Filter(BaseFilter):
+    source_zone = models.ForeignKey(
+        Zone, on_delete=models.CASCADE, related_name=f'filter_source_zone')
+    destination_zone = models.ForeignKey(
+        Zone, on_delete=models.CASCADE, related_name='filter_destination_zone')
 
 
-class RequestOriginChart(models.Model):
+class BaseFilteredChart(models.Model):
+    class Meta:
+        abstract = True
     filter = models.ForeignKey(Filter, on_delete=models.CASCADE)
-    country_name = models.CharField(max_length=100)
-    country_code = models.CharField(max_length=10)
-    count = models.BigIntegerField()
+
+
+class StagingFilter(BaseFilter):
+    source_zone_id = models.IntegerField()
+    destination_zone_id = models.IntegerField()
 
 
 class ApplicationChart(models.Model):
     firewall_rule = models.ForeignKey(FirewallRule, on_delete=models.CASCADE)
     logged_datetime = models.DateTimeField()
-    application = models.CharField(max_length=250)
+    application = models.ForeignKey(Application, on_delete=models.CASCADE)
     bytes = models.BigIntegerField()
 
 
-class TimeSeriesChart(models.Model):
-    filter = models.ForeignKey(Filter, on_delete=models.CASCADE)
+class RequestOriginChart(BaseFilteredChart):
+    country_name = models.CharField(max_length=100)
+    country_code = models.CharField(max_length=10)
+    count = models.BigIntegerField()
+
+
+class TimeSeriesChart(BaseFilteredChart):
     logged_datetime = models.DateTimeField()
     bytes_sent = models.BigIntegerField()
     bytes_received = models.BigIntegerField()
 
 
-class IPChart(models.Model):
-    filter = models.ForeignKey(Filter, on_delete=models.CASCADE)
+class IPChart(BaseFilteredChart):
     logged_datetime = models.DateTimeField()
     address = models.CharField(max_length=15)
     bytes_sent = models.BigIntegerField()
