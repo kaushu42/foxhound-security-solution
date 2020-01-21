@@ -2,6 +2,8 @@ from pyspark.sql import SparkSession
 import os
 import findspark
 
+os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.postgresql:postgresql:42.1.1 pyspark-shell'
+
 findspark.init()
 
 
