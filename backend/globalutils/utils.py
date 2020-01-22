@@ -296,6 +296,9 @@ def unlock_rule_table():
 
 
 def get_firewall_rules_id_from_tenant_id(tenant_id):
+    '''
+    Returns all firewall rule ids belonging to a tenant
+    '''
     firewall_rules = FirewallRule.objects.filter(
         tenant_id=tenant_id).values_list('id')
     firewall_rules = {f[0] for f in firewall_rules}
@@ -303,12 +306,19 @@ def get_firewall_rules_id_from_tenant_id(tenant_id):
 
 
 def get_firewall_rules_id_from_request(request):
+    '''
+    A wrapper for get_firewall_rules_id_from_tenant_id
+    to get firewall rule ids directly from request
+    '''
     tenant_id = get_tenant_id_from_token(request)
     firewall_rules = get_firewall_rules_id_from_tenant_id(tenant_id)
     return firewall_rules
 
 
 def get_filter_ids_from_request(request):
+    '''
+    Get all possible filter ids for the tenant directly from request
+    '''
     firewall_rules = get_firewall_rules_id_from_request(request)
     filter_ids = Filter.objects.filter(
         firewall_rule__in=firewall_rules).values_list('id')

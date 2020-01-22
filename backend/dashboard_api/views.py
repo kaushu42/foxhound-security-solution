@@ -5,7 +5,16 @@ from rest_framework.response import Response
 
 from globalutils.utils import get_filter_ids_from_request
 
-from core.models import Filter, FirewallRule, TimeSeriesChart
+from core.models import (
+    Filter,
+    FirewallRule,
+    TimeSeriesChart,
+    Application,
+    Zone,
+    Protocol
+)
+
+from serializers.serializers import ApplicationSerializer
 
 
 class StatsApiView(APIView):
@@ -19,4 +28,31 @@ class StatsApiView(APIView):
                 bytes_received=Sum('bytes_received')
             )
         )
-        # return Response({"hello": 'ok'})
+
+
+class FiltersApiView(APIView):
+    def _get_objs(self, objects, field_name):
+        name = f'{field_name}__name'
+        return objects.values_list(
+            field_name,
+            name,
+        ).distinct().order_by(name)
+
+    def post(self, request):
+        filter_ids = get_filter_ids_from_request(request)
+        objects = Filter.objects.filter(id__in=filter_ids)
+
+        firewall_rule = self._get_objs(objects, 'firewall_rule')
+        application = self._get_objs(objects, 'application')
+        protocol = self._get_objs(objects, 'protocol')
+        source_zone = self._get_objs(objects, 'source_zone')
+        destination_zone = self._get_objs(objects, 'destination_zone')
+
+        response = {
+            "firewall_rule": firewall_rule,
+            "application": application,
+            "protocol": protocol,
+            "source_zone": source_zone,
+            "destination_zone": destination_zone
+        }
+        return Response(response)
