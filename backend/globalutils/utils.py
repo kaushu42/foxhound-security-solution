@@ -327,17 +327,23 @@ def _get_query_from_multiple_queries(queries):
     return Q()
 
 
-def get_filter_ids_from_request(request):
+def get_filter_ids_from_request(request, apply_filters=True):
     '''
     Get all possible filter ids for the tenant directly from request
     '''
     firewall_rules = get_firewall_rules_id_from_request(request)
-    filters = get_filters(request)
-    queries = _get_queries_except_date(filters)
-    query = _get_query_from_multiple_queries(queries)
-    filter_ids = Filter.objects.filter(
-        query,
-        firewall_rule__in=firewall_rules).values_list('id')
+    if not apply_filters:
+        filter_ids = Filter.objects.filter(
+            firewall_rule__in=firewall_rules
+        ).values_list('id')
+    else:
+        filters = get_filters(request)
+        queries = _get_queries_except_date(filters)
+        query = _get_query_from_multiple_queries(queries)
+        filter_ids = Filter.objects.filter(
+            query,
+            firewall_rule__in=firewall_rules
+        ).values_list('id')
     filter_ids = {f[0] for f in filter_ids}
     return filter_ids
 

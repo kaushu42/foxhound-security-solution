@@ -145,8 +145,10 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PAGINATION_CLASS':
     'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 10
+    'PAGE_SIZE': 10,
+    'DATETIME_FORMAT': '%s',
 }
+
 
 TOKEN_EXPIRED_AFTER_SECONDS = 10000000
 

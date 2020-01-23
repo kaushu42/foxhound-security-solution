@@ -19,15 +19,13 @@ from core.models import (
     Protocol
 )
 
-from serializers.serializers import ApplicationSerializer
+from serializers.serializers import (
+    TimeSeriesChartSerializer
+)
 
 
 class StatsApiView(APIView):
     def post(self, request):
-        '''
-        x   select * from filter where filters in request -> gives all ids of filters
-            select * from timeseries where filter in {} and date_range.
-        '''
         filter_ids = get_filter_ids_from_request(request)
 
         response = set_null_items_to_zero(
@@ -56,7 +54,10 @@ class FiltersApiView(APIView):
         ).distinct().order_by(name)
 
     def post(self, request):
-        filter_ids = get_filter_ids_from_request(request)
+        filter_ids = get_filter_ids_from_request(
+            request,
+            apply_filters=False
+        )
         objects = Filter.objects.filter(id__in=filter_ids)
 
         firewall_rule = self._get_objs(objects, 'firewall_rule')
@@ -73,3 +74,20 @@ class FiltersApiView(APIView):
             "destination_zone": destination_zone
         }
         return Response(response)
+
+
+class UsageApiView(APIView):
+    def post(self, request, format=None):
+        filter_ids = get_filter_ids_from_request(request)
+        objects = get_objects_with_date_filtered(
+            request,
+            TimeSeriesChart,
+            'logged_datetime',
+            filter__in=filter_ids,
+        )
+        serializer = TimeSeriesChartSerializer(objects, many=True)
+
+        return Response(serializer.data)
+
+    def get(self, request, format=None):
+        return self.post(request, format=format)

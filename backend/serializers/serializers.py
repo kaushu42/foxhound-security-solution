@@ -9,7 +9,8 @@ from core.models import (
     Application,
     Country,
     ProcessedLogDetail,
-    TenantIPAddressInfo
+    TenantIPAddressInfo,
+    TimeSeriesChart
 )
 from troubleticket.models import (
     TroubleTicketAnomaly,
@@ -206,3 +207,15 @@ class IPAliasModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = TenantIPAddressInfo
         fields = '__all__'
+
+
+class TimeSeriesChartSerializer(serializers.ModelSerializer):
+    date = serializers.DateTimeField(source='logged_datetime')
+
+    class Meta:
+        model = TimeSeriesChart
+        fields = [
+            'date',
+            'bytes_sent',
+            'bytes_received'
+        ]
