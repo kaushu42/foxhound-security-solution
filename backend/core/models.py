@@ -60,10 +60,6 @@ class TrafficLog(models.Model):
     processed_datetime = models.DateField(auto_now_add=True)
     log_date = models.DateField()
     log_name = models.CharField(max_length=200)
-    is_log_detail_written = models.BooleanField(null=True, default=False)
-    is_rule_written = models.BooleanField(null=True, default=False)
-    is_info_written = models.BooleanField(null=True, default=False)
-    is_granular_hour_written = models.BooleanField(null=True, default=False)
 
     def __repr__(self):
         return self.log_name
@@ -309,54 +305,22 @@ class TrafficLogDetailGranularHour(models.Model):
         TrafficLog,
         on_delete=models.CASCADE, null=True
     )
-    source_ip = models.ForeignKey(
-        IPAddress, on_delete=models.CASCADE, null=True,
-        related_name='granular_hour_source_ip'
-    )
-    destination_ip = models.ForeignKey(
-        IPAddress, on_delete=models.CASCADE, null=True,
-        related_name='granular_hour_destination_ip'
-    )
-    application = models.ForeignKey(
-        Application, on_delete=models.CASCADE, null=True,
-        related_name='granular_hour_application'
-    )
-    protocol = models.ForeignKey(
-        Protocol, on_delete=models.CASCADE, null=True,
-        related_name='granular_hour_protocol'
-    )
-    source_zone = models.ForeignKey(
-        Zone, on_delete=models.CASCADE, null=True,
-        related_name='granular_hour_source_zone'
-    )
-    destination_zone = models.ForeignKey(
-        Zone, on_delete=models.CASCADE, null=True,
-        related_name='granular_hour_destination_zone'
-    )
     firewall_rule = models.ForeignKey(
         FirewallRule, on_delete=models.CASCADE, null=True,
         related_name='granular_hour_firewall_rule'
     )
-    inbound_interface = models.ForeignKey(
-        Interface, on_delete=models.CASCADE, null=True,
-        related_name='granular_hour_inbound_interface'
-    )
-    outbound_interface = models.ForeignKey(
-        Interface, on_delete=models.CASCADE, null=True,
-        related_name='granular_hour_outbound_interface'
-    )
-    action = models.ForeignKey(
-        Action, on_delete=models.CASCADE, null=True,
-        related_name='granular_hour_action'
-    )
-    category = models.ForeignKey(
-        Category, on_delete=models.CASCADE, null=True,
-        related_name='granular_hour_category'
-    )
-    session_end_reason = models.ForeignKey(
-        SessionEndReason, on_delete=models.CASCADE, null=True,
-        related_name='granular_hour_session_end_reason'
-    )
+
+    source_ip = models.CharField(max_length=50, null=True)
+    destination_ip = models.CharField(max_length=50, null=True)
+    application = models.CharField(max_length=250, null=True)
+    protocol = models.CharField(max_length=50, null=True)
+    source_zone = models.CharField(max_length=250, null=True)
+    destination_zone = models.CharField(max_length=250, null=True)
+    inbound_interface = models.CharField(max_length=250, null=True)
+    outbound_interface = models.CharField(max_length=250, null=True)
+    action = models.CharField(max_length=250, null=True)
+    category = models.CharField(max_length=250, null=True)
+    session_end_reason = models.CharField(max_length=250, null=True)
     destination_port = models.PositiveIntegerField()
     bytes_sent = models.BigIntegerField()
     bytes_received = models.BigIntegerField()

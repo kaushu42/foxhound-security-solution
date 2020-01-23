@@ -21,12 +21,13 @@ logging.basicConfig(
 logging.info(f'Script ran on {datetime.datetime.now()}')
 try:
     seedutils.seed()
-    run.mis_engine()
-    run.ml_engine()
-    run.dc_engine()
-    run.db_engine(utils.get_db_engine(), logging, verbose=False)
-    run.tt_engine()
-    run.chart_engine()
+    # run.mis_engine()
+    # run.ml_engine()
+    # run.dc_engine()
+    run.rule_engine()
+    # run.db_engine(utils.get_db_engine(), logging, verbose=False)
+    # run.tt_engine()
+    # run.chart_engine()
 
 except Exception as e:
     logging.exception(f'Terminated on {datetime.datetime.now()}')

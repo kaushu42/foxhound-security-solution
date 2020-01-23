@@ -2,13 +2,6 @@ import uuid
 from cassandra.cqlengine import columns
 from django_cassandra_engine.models import DjangoCassandraModel
 
-class ExampleModel(DjangoCassandraModel):
-    example_id    = columns.UUID(primary_key=True, default=uuid.uuid4)
-    example_type  = columns.Integer(index=True)
-    created_at    = columns.DateTime()
-    description   = columns.Text(required=False)
-
-
 
 class TrafficLogs(DjangoCassandraModel):
     id = columns.UUID(primary_key=True, default=uuid.uuid4)
@@ -18,7 +11,7 @@ class TrafficLogs(DjangoCassandraModel):
     protocol = columns.Text(required=False)
     source_zone = columns.Text(required=False)
     destination_zone = columns.Text(required=False)
-    firewall_rule = columns.Text(required=False)
+    firewall_rule = columns.Integer(required=False)
     inbound_interface = columns.Text(required=False)
     outbound_interface = columns.Text(required=False)
     action = columns.Text(required=False)

@@ -1,85 +1,57 @@
 import os
 import datetime
 
-import pandas as pd
-from sqlalchemy.engine import create_engine
-from sqlalchemy.orm import sessionmaker
-from pyspark.sql import SparkSession
-from pyspark.sql.types import StructField, StructType, StringType, IntegerType
 from pyspark.sql.functions import concat, col, lit
-
-TMP_FILE_PATH = '/tmp/rules.csv'
 
 
 class RuleEngine:
-    def __init__(self, csv_path, db_engine, spark_session):
-        self.spark = spark_session
-        self._db_engine = db_engine
-        self.df = self._read_csv(csv_path)
+    def __init__(self, csv_path, *, spark):
+        self.spark = spark
+        self._csv_paths = self._get_csv_paths(csv_path)
 
-    def _read_csv(self, csv_path):
-        if not os.path.exists(csv_path):
-            raise FileNotFoundError(f'{csv_path} does not exist.')
-        return self.spark.read.csv(csv_path, header=True)
+    def _get_csv_paths(self, csv_path):
+        files = [
+            os.path.join(csv_path, f)
+            for f in os.listdir(csv_path) if f.endswith('.csv')]
+        return sorted(files)
 
-    def _get_cols(self):
-        CSV_COLS = [
-            'firewall_rule_id', 'source_ip_id',
-            'destination_ip_id', 'application_id',
-        ]
+    def _read_table_from_postgres(self, table):
+        url = 'postgresql://localhost/fhdb'
+        properties = {
+            'user': 'foxhounduser',
+            'password': 'foxhound123',
+            'driver': 'org.postgresql.Driver'
+        }
+        return self.spark.read.jdbc(
+            url='jdbc:%s' % url,
+            table=table,
+            properties=properties
+        )
 
-        TEMP_COLS = ['id', 'source_ip_id',
-                     'destination_ip_id', 'application_id']
+    def _write_df_to_postgres(self, df, table_name, mode='append'):
+        url = 'postgresql://localhost/fhdb'
+        df.write.format('jdbc').options(
+            url='jdbc:%s' % url,
+            driver='org.postgresql.Driver',
+            dbtable=table_name,
+            user='foxhounduser',
+            password='foxhound123').mode(mode).save()
 
-        DB_COLS = ['firewall_rule_id', 'source_ip',
-                   'destination_ip', 'application']
-
-        OLD_COLS = [
-            'created_date_time', 'name', 'source_ip_id',
-            'destination_ip_id', 'application_id',
-            'description', 'is_verified_rule',
-            'is_anomalous_rule', 'verified_date_time',
-            'id', 'verified_by_user_id']
-
-        NEW_COLS = [
-            'created_date_time', 'name', 'source_ip',
-            'destination_ip', 'application', 'description',
-            'is_verified_rule', 'is_anomalous_rule', 'verified_date_time',
-            'firewall_rule_id', 'verified_by_user_id'
-        ]
-
-        return CSV_COLS, DB_COLS, TEMP_COLS, OLD_COLS, NEW_COLS
-
-    def _get_schema(self):
-        return StructType([StructField('firewall_rule_id', IntegerType()),
-                           StructField('source_ip', StringType()),
-                           StructField('destination_ip', StringType()),
-                           StructField('application', StringType()),
-                           ])
-
-    def _get_tables(self, db_cols):
-        # Get firewall rules table and rules table
-        FIREWALL_RULE_TABLE = 'core_firewallrule'
-        RULES_TABLE = 'rules_rule'
-        firewall_rules = pd.read_sql_table(
-            FIREWALL_RULE_TABLE, self._db_engine)
-        firewall_rules = self.spark.createDataFrame(firewall_rules)
-        rules_table = pd.read_sql_table('rules_rule', self._db_engine)[db_cols]
-        schema = self._get_schema()
-        rules_table = self.spark.createDataFrame(rules_table, schema=schema)
+    def _read_tables_from_db(self):
+        firewall_rules = self._read_table_from_postgres('core_firewallrule')
+        rules_table = self._read_table_from_postgres('rules_rule').drop('id')
         return firewall_rules, rules_table
 
     def _add_columns(self, df):
         name = concat(
-            col("source_ip_id"),
+            col("source_ip"),
             lit("--"),
-            col("destination_ip_id"),
+            col("destination_ip"),
             lit("--"),
-            col("application_id")
+            col("application")
         ).alias('name')
 
         now = datetime.datetime.now()
-
         df = df.withColumn('name', name)
         df = df.withColumn('created_date_time', lit(now))
         df = df.withColumn('is_verified_rule', lit(False))
@@ -87,69 +59,42 @@ class RuleEngine:
         df = df.withColumn('verified_date_time', lit(now))
         df = df.withColumn('description', lit(''))
         df = df.withColumn('verified_by_user_id', lit(1))
+
         return df
 
-    def _write_to_csv(self, df, out_path):
-        df.write.csv(out_path, header=True, mode='overwrite')
+    def _run_for_one(self, csv_path):
+        df = self.spark.read.csv(csv_path, header=True)
+        df = df[['firewall_rule_id', 'application_id',
+                 'source_ip_id', 'destination_ip_id']].dropDuplicates()
 
-    def write(self):
-        # Only keep these cols
-        CSV_COLS, DB_COLS, TEMP_COLS, OLD_COLS, NEW_COLS = self._get_cols()
-
-        self.df = self.df[CSV_COLS].dropDuplicates()
-
-        # Get firewall rules from database
-        firewall_rules, rules_table = self._get_tables(DB_COLS)
-
-        # Replace firewall rule name with firewall rule id from database
-        df = self.df.join(
+        firewall_rules, rules_table = self._read_tables_from_db()
+        df = df.join(
             firewall_rules,
-            [self.df.firewall_rule_id == firewall_rules.name],
+            on=[
+                df.firewall_rule_id == firewall_rules.name
+            ],
             how='left'
-        )[TEMP_COLS]
+        ).drop('firewall_rule_id', 'name', 'tenant_id')\
+            .withColumnRenamed('id', 'firewall_rule_id')
 
-        # Join the rules from csv with rules from db to get new rules
         df = df.join(
             rules_table,
-            [
-                df.id == rules_table.firewall_rule_id,
+            on=[
+                df.application_id == rules_table.application,
                 df.source_ip_id == rules_table.source_ip,
                 df.destination_ip_id == rules_table.destination_ip,
-                df.application_id == rules_table.application,
+                df.firewall_rule_id == rules_table.firewall_rule_id
             ],
-            how='left',
-        )[TEMP_COLS]
+            how='leftanti'
+        ).withColumnRenamed('application_id', 'application')\
+            .withColumnRenamed('source_ip_id', 'source_ip')\
+            .withColumnRenamed('destination_ip_id', 'destination_ip')
 
         df = self._add_columns(df)
 
-        new_rules = df[OLD_COLS]
+        self._write_df_to_postgres(df, 'rules_rule')
 
-        for old, new in zip(OLD_COLS, NEW_COLS):
-            new_rules = new_rules.withColumnRenamed(old, new)
-        self._write_to_csv(new_rules, TMP_FILE_PATH)
-
-
-if __name__ == "__main__":
-    db_name = os.environ.get('FH_DB_NAME', '')
-    db_user = os.environ.get('FH_DB_USER', '')
-    db_password = os.environ.get('FH_DB_PASSWORD', '')
-    db_engine = create_engine(
-        f'postgresql://{db_user}:{db_password}@localhost:5432/{db_name}'
-    )
-    import findspark
-    findspark.init()
-    SPARK_MASTER_URL = "spark://127.0.0.1:7077"
-    SPARK_MASTER_LOCAL_URL = "master[*]"
-    CLUSTER_SEEDS = ['172.16.3.36', '172.16.3.37', '127.0.0.1'][-1]
-    SPARK_APP_NAME = 'foxhound'
-    spark = SparkSession.builder.master(
-        SPARK_MASTER_URL
-    ).appName(
-        SPARK_APP_NAME
-    ).config(
-        'spark.cassandra.connection.host',
-        ','.join(CLUSTER_SEEDS)
-    ).getOrCreate()
-    csv_path = '/home/kaush/projects/foxhound/outputs/traffic_logs/Silverlining-PAVM-Primary_traffic_2019_03_08_last_calendar_day.csv/part-00000-6251a05b-bebb-498b-a2be-dffae4dc6b8f-c000.csv'
-    rule = RuleEngine(csv_path, db_engine, spark)
-    rule.write()
+    def run(self):
+        for csv in self._csv_paths:
+            print('****Processing File:', csv)
+            self._run_for_one(csv)

@@ -5,6 +5,7 @@ from foxhound.ml_engine.MLEngine import MLEngine
 from foxhound.tt_engine.TTAnomaly import TTAnomaly
 from foxhound.mis_engine.MISEngine import MISEngine
 from foxhound.chart_engine.ChartEngine import ChartEngine
+from foxhound.rule_engine.RuleEngine import RuleEngine
 import config
 import utils
 
@@ -69,3 +70,11 @@ def chart_engine():
         db_engine=utils.get_db_engine()
     )
     chart.run()
+
+
+def rule_engine():
+    rule = RuleEngine(
+        config.GRANULARIZED_LOG_PATH,
+        spark=config.SPARK
+    )
+    rule.run()
