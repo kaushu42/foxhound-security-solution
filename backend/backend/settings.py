@@ -34,7 +34,8 @@ INSTALLED_APPS = [
     'session',
     'casdb',
     'celery',
-    'mis'
+    'mis',
+    'batch'
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
