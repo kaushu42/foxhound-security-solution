@@ -1,10 +1,10 @@
 let URL = "";
-if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
+if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
   // dev code
-  URL = "http://127.0.0.1:8000/api/v1/"
+  URL = "http://127.0.0.1:8000/api/v2/";
 } else {
   // production code
-  URL = "http://202.51.3.65/api/v1/";
+  URL = "http://202.51.3.65/api/v2/";
 }
 
 export const ROOT_URL = URL;
@@ -32,11 +32,9 @@ export const axiosHeader = auth_token => {
   };
 };
 
-
-export const bytesToSize = (bytes) => {
-  let sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-  if (bytes == 0) return '0 Byte';
+export const bytesToSize = bytes => {
+  let sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+  if (bytes == 0) return "0 Byte";
   let i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
-  return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
-}
-
+  return Math.round(bytes / Math.pow(1024, i), 2) + " " + sizes[i];
+};

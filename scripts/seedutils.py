@@ -36,7 +36,7 @@ def get_ip_db():
 def seed(run=True):
     if not run:
         return
-    get_ip_db()
+    #get_ip_db()
     utils.get_blacklisted_ip(engine)
     if session.query(VirtualSystem).count() == 0:
         print('Seeding database....')
