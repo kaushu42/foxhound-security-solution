@@ -3,7 +3,12 @@ from django.db.models import Sum
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from globalutils.utils import get_filter_ids_from_request
+from globalutils.utils import (
+    get_filter_ids_from_request,
+    get_objects_with_date_filtered,
+    set_null_items_to_zero
+)
+
 
 from core.models import (
     Filter,
@@ -19,14 +24,26 @@ from serializers.serializers import ApplicationSerializer
 
 class StatsApiView(APIView):
     def post(self, request):
+        '''
+        x   select * from filter where filters in request -> gives all ids of filters
+            select * from timeseries where filter in {} and date_range.
+        '''
         filter_ids = get_filter_ids_from_request(request)
 
-        return Response(
-            TimeSeriesChart.objects.filter(filter__in=filter_ids)
+        response = set_null_items_to_zero(
+            get_objects_with_date_filtered(
+                request, TimeSeriesChart,
+                'logged_datetime',
+                filter__in=filter_ids,
+            )
             .aggregate(
                 bytes_sent=Sum('bytes_sent'),
                 bytes_received=Sum('bytes_received')
             )
+        )
+
+        return Response(
+            response
         )
 
 

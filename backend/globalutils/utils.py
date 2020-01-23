@@ -295,6 +295,9 @@ def unlock_rule_table():
     lock.save()
 
 
+''' APIV2 starts here '''
+
+
 def get_firewall_rules_id_from_tenant_id(tenant_id):
     '''
     Returns all firewall rule ids belonging to a tenant
@@ -315,12 +318,51 @@ def get_firewall_rules_id_from_request(request):
     return firewall_rules
 
 
+def _get_query_from_multiple_queries(queries):
+    if queries:
+        result = queries.pop(0)
+        for query in queries:
+            result &= query
+        return result
+    return Q()
+
+
 def get_filter_ids_from_request(request):
     '''
     Get all possible filter ids for the tenant directly from request
     '''
     firewall_rules = get_firewall_rules_id_from_request(request)
+    filters = get_filters(request)
+    queries = _get_queries_except_date(filters)
+    query = _get_query_from_multiple_queries(queries)
     filter_ids = Filter.objects.filter(
+        query,
         firewall_rule__in=firewall_rules).values_list('id')
     filter_ids = {f[0] for f in filter_ids}
     return filter_ids
+
+
+def set_null_items_to_zero(dict):
+    for i in dict:
+        if dict[i] is None:
+            dict[i] = 0
+    return dict
+
+
+def get_objects_with_date_filtered(request, model, field_name, **kwargs):
+    filters = get_filters(request)
+    start_date = filters['start_date']
+
+    if not start_date:  # There was no date filter applied
+        return model.objects.filter(**kwargs)
+
+    end_date = filters['end_date']
+    query = {
+        **kwargs,
+        f'{field_name}__range': (
+            start_date,
+            end_date + datetime.timedelta(days=1)
+        ),
+    }
+    print(query)
+    return model.objects.filter(**query)
