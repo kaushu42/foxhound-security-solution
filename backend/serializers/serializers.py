@@ -212,3 +212,9 @@ class IPAliasModelSerializer(serializers.ModelSerializer):
 class TimeSeriesChartSerializer(serializers.Serializer):
     date = serializers.DateTimeField(source='logged_datetime')
     bytes = serializers.IntegerField()
+
+
+class ApplicationChartSerializer(serializers.Serializer):
+    date = serializers.DateTimeField()
+    bytes = serializers.IntegerField()
+    application = serializers.CharField()

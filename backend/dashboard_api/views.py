@@ -1,4 +1,4 @@
-from django.db.models import Sum
+from django.db.models import Sum, F, Max
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -6,7 +6,8 @@ from rest_framework.response import Response
 from globalutils.utils import (
     get_filter_ids_from_request,
     get_objects_with_date_filtered,
-    set_null_items_to_zero
+    set_null_items_to_zero,
+    get_firewall_rules_id_from_request,
 )
 
 
@@ -16,11 +17,13 @@ from core.models import (
     TimeSeriesChart,
     Application,
     Zone,
-    Protocol
+    Protocol,
+    ApplicationChart
 )
 
 from serializers.serializers import (
-    TimeSeriesChartSerializer
+    TimeSeriesChartSerializer,
+    ApplicationChartSerializer
 )
 
 
@@ -86,10 +89,39 @@ class UsageApiView(APIView):
             filter__in=filter_ids,
         ).values('logged_datetime').annotate(
             bytes=Sum('bytes_sent') + Sum('bytes_received'))
-        print(objects)
         serializer = TimeSeriesChartSerializer(objects, many=True)
+        max_bytes = objects.aggregate(Max('bytes'))
 
-        return Response(serializer.data)
+        return Response({
+            'data': serializer.data,
+            'max': max_bytes['bytes__max']
+        })
+
+    def get(self, request, format=None):
+        return self.post(request, format=format)
+
+
+class ApplicationApiView(APIView):
+    def post(self, request, format=None):
+        firewall_rule_ids = get_firewall_rules_id_from_request(request)
+        objects = get_objects_with_date_filtered(
+            request,
+            ApplicationChart,
+            'logged_datetime',
+            firewall_rule__in=firewall_rule_ids,
+        ).values('logged_datetime', 'application__name').annotate(
+            bytes=Sum('bytes')
+        ).values(
+            bytes=F('bytes'),
+            date=F('logged_datetime'),
+            application=F('application__name'),
+        )
+        max_bytes = objects.aggregate(Max('bytes'))
+        serializer = ApplicationChartSerializer(objects, many=True)
+        return Response({
+            'data': serializer.data,
+            'max': max_bytes['bytes__max']
+        })
 
     def get(self, request, format=None):
         return self.post(request, format=format)
