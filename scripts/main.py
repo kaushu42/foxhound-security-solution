@@ -36,11 +36,39 @@ try:
         batch = update_batch_state(
             batch, e, "EXIT", "FAILURE")
 
-    run.ml_engine()
-    # run.dc_engine()
+    # run.ml_engine()
+    batch = create_batch_log("BEFORE CSV DC ENGINE", "DC ENGINE",
+                             "DC ENGINE", "DC ENGINE STARTED", "RUNNING", "RUNNING")
+    try:
+        run.dc_engine()
+        batch = update_batch_state(
+            batch, "DC ENGINE COMPLETE", "STOPPED", "SUCCESS")
+    except Exception as e:
+        batch = update_batch_state(
+            batch, e, "EXIT", "FAILURE")
+
+    batch = create_batch_log("BEFORE CSV RULE ENGINE", "RULE ENGINE",
+                             "RULE ENGINE", "RULE ENGINE STARTED", "RUNNING", "RUNNING")
+    try:
+        run.rule_engine()
+        batch = update_batch_state(
+            batch, "RULE ENGINE COMPLETE", "STOPPED", "SUCCESS")
+    except Exception as e:
+        batch = update_batch_state(
+            batch, e, "EXIT", "FAILURE")
+
+    batch = create_batch_log("BEFORE CSV CHART ENGINE", "CHART ENGINE",
+                             "CHART ENGINE", "RULE ENGINE STARTED", "RUNNING", "RUNNING")
+    try:
+        run.chart_engine()
+        batch = update_batch_state(
+            batch, "CHART ENGINE COMPLETE", "STOPPED", "SUCCESS")
+    except Exception as e:
+        batch = update_batch_state(
+            batch, e, "EXIT", "FAILURE")
+
     # run.db_engine(utils.get_db_engine(), logging, verbose=False)
     # run.tt_engine()
-    # run.chart_engine()
 
 except Exception as e:
     logging.exception(f'Terminated on {datetime.datetime.now()}')

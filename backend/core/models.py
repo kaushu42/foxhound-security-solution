@@ -358,6 +358,7 @@ class CeleryTaskmeta(models.Model):
     traceback = models.TextField(blank=True, null=True)
 
     class Meta:
+        managed = False
         db_table = 'celery_taskmeta'
 
 
@@ -369,6 +370,7 @@ class CeleryTasksetmeta(models.Model):
     date_done = models.DateTimeField(blank=True, null=True)
 
     class Meta:
+        managed = False
         db_table = 'celery_tasksetmeta'
 
 

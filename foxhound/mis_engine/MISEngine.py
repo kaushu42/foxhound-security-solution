@@ -473,32 +473,32 @@ class MISEngine(object):
             mis_new_private_source_destination_pair_csv, "mis_dailypersourcedestinationpair", "append")
         print("*** mis daily private source destination pair db ****")
 
-        self._write_csv_to_cassandra(mis_daily_csv, "mis_daily", "append")
-        print("*** mis daily written to db ****")
+        # self._write_csv_to_cassandra(mis_daily_csv, "mis_daily", "append")
+        # print("*** mis daily written to db ****")
 
-        self._write_csv_to_cassandra(
-            mis_new_source_ip_csv, "mis_daily_source_ip", "append")
-        print("*** mis daily new source ip to db ****")
+        # self._write_csv_to_cassandra(
+        #     mis_new_source_ip_csv, "mis_daily_source_ip", "append")
+        # print("*** mis daily new source ip to db ****")
 
-        self._write_csv_to_cassandra(
-            mis_new_destination_ip_csv, "mis_daily_destination_ip", "append")
-        print("*** mis daily new destination ip to db ****")
+        # self._write_csv_to_cassandra(
+        #     mis_new_destination_ip_csv, "mis_daily_destination_ip", "append")
+        # print("*** mis daily new destination ip to db ****")
 
-        self._write_csv_to_cassandra(
-            mis_new_application_csv, "mis_daily_application", "append")
-        print("*** mis daily new application to db ****")
+        # self._write_csv_to_cassandra(
+        #     mis_new_application_csv, "mis_daily_application", "append")
+        # print("*** mis daily new application to db ****")
 
-        self._write_csv_to_cassandra(
-            mis_requests_from_blacklisted_ip_csv, "mis_daily_request_from_black_list_event", "append")
-        print("*** mis daily request from blacklisted ip events to db ****")
+        # self._write_csv_to_cassandra(
+        #     mis_requests_from_blacklisted_ip_csv, "mis_daily_request_from_black_list_event", "append")
+        # print("*** mis daily request from blacklisted ip events to db ****")
 
-        self._write_csv_to_cassandra(
-            mis_response_to_blacklisted_ip_csv, "mis_daily_response_to_black_list_event", "append")
-        print("*** mis daily response to blacklisted ip events to  db ****")
+        # self._write_csv_to_cassandra(
+        #     mis_response_to_blacklisted_ip_csv, "mis_daily_response_to_black_list_event", "append")
+        # print("*** mis daily response to blacklisted ip events to  db ****")
 
-        self._write_csv_to_cassandra(
-            mis_new_private_source_destination_pair_csv, "mis_daily_per_source_destination_pair", "append")
-        print("*** mis daily private source destination pair db ****")
+        # self._write_csv_to_cassandra(
+        #     mis_new_private_source_destination_pair_csv, "mis_daily_per_source_destination_pair", "append")
+        # print("*** mis daily private source destination pair db ****")
 
     def run(self):
         for root, dirs, files in os.walk(self._INPUT_DIR):
