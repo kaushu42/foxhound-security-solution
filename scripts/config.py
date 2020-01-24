@@ -1,11 +1,15 @@
 from pyspark.sql import SparkSession
 import os
 import findspark
-
-from ConfigParser import ConfigParser
 import ast
 
-config = ConfigParser()
+try:
+    import configparser
+except:
+    from six.moves import configparser
+
+
+config = configparser.ConfigParser()
 config.read('../config.ini')
 
 PG_DRIVER = ast.literal_eval(config.get("SPARK", "PG_DRIVER"))

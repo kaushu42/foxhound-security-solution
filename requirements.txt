@@ -9,6 +9,7 @@ autopep8==1.4.4
 backcall==0.1.0
 billiard==3.6.1.0
 bleach==3.1.0
+cassandra-driver==3.19.0
 celery==4.3.0
 certifi==2019.9.11
 chardet==3.0.4
@@ -21,6 +22,7 @@ Cython==0.29.12
 decorator==4.4.0
 defusedxml==0.6.0
 Django==2.2.5
+django-cassandra-engine==1.5.5
 django-cors-headers==3.1.1
 django-datatables-view==1.18.0
 django-extensions==2.1.9
@@ -92,12 +94,14 @@ protobuf==3.9.0
 psycopg2==2.8.3
 ptyprocess==0.6.0
 py==1.8.0
+py4j==0.10.7
 pycodestyle==2.5.0
 Pygments==2.4.2
 pylint==2.3.1
 pyparsing==2.4.2
 pyrsistent==0.15.4
 pyshark==0.4.2.9
+pyspark==2.4.4
 pystan==2.19.0.0
 python-dateutil==2.8.0
 python-slugify==3.0.3
