@@ -1,30 +1,48 @@
 import React, {Component, Fragment} from "react";
 import {connect} from "react-redux";
 
-import MasterLayout from "./layout/MasterLayout";
-import {contentLayout, drawerInfoStyle, ROOT_URL} from "../utils";
+import MasterLayout from "../layout/MasterLayout";
+import {contentLayout, drawerInfoStyle, ROOT_URL} from "../../utils";
 import axios from 'axios';
 import {Col, PageHeader, Row, Input, Button, Table, Drawer, Spin, Statistic, Alert} from "antd";
 import moment from "moment";
-import QuickIpView from "../views/QuickIpView"
-import {search} from "../actions/ipSearchAction";
+import QuickIpView from "../QuickIpView"
+import {search} from "../../actions/ipSearchAction";
 
-class BackgroundJob extends Component{
+class BatchMonitor extends Component{
     constructor(props){
         super(props);
         this.state = {
             columns: [
                 {
-                    title: 'Job Id'
+                    title: 'Start Date'
                 },
                 {
-                    title: 'Job Details'
+                    title: 'Log Name '
                 },
                 {
-                    title: 'Job Status'
+                    title: 'Batch Type'
                 },
                 {
-                    title: 'Job Result'
+                    title: 'Batch Subtype'
+                },
+                {
+                    title: 'Start Date'
+                },
+                {
+                    title: 'Message'
+                },
+                {
+                    title: 'State'
+                },
+                {
+                    title: 'Status'
+                },
+                {
+                    title: 'Exit Message'
+                },
+                {
+                    title: 'End Date'
                 },
             ]
         }
@@ -36,7 +54,7 @@ class BackgroundJob extends Component{
                 <MasterLayout activePageKey={this.props.activePageKey}>
                     <PageHeader
                         style={{background: '#fff'}}
-                        title={"Change IP Alias"}/>
+                        title={"Batch Monitor"}/>
                     <Row style = {contentLayout}>
                         <Table
                             rowKey={record => record.id}
@@ -53,4 +71,4 @@ class BackgroundJob extends Component{
     }                    
 }
 
-export default connect(null,null)(BackgroundJob);
+export default connect(null,null)(BatchMonitor);
