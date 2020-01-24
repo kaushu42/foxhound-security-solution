@@ -36,7 +36,7 @@ class BackgroundJob extends Component{
                 <MasterLayout activePageKey={this.props.activePageKey}>
                     <PageHeader
                         style={{background: '#fff'}}
-                        title={"Change IP Alias"}/>
+                        title={"Background Jobs"}/>
                     <Row style = {contentLayout}>
                         <Table
                             rowKey={record => record.id}

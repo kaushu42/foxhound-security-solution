@@ -8,7 +8,7 @@ import ChangeAlias from "./ChangeAlias"
 import BlacklistAddress from "../components/BlacklistAddress"
 import NewSourceIPChart from "../components/charts/NewSourceIPChart"
 import NewDestinationIPChart from "../components/charts/NewDestinationIPChart"
-
+import BandwidthUsageChart from "../charts/BandwidthUsageChart"
 class Test extends Component {
     render() {
         return (
@@ -21,7 +21,8 @@ class Test extends Component {
                 {/* <ChangeAlias /> */}
                 {/* <BlacklistAddress /> */}
                 {/* <NewSourceIPChart /> */}
-                <NewDestinationIPChart />
+                {/* <NewDestinationIPChart /> */}
+                <BandwidthUsageChart />
             </Fragment>
             )
     }
