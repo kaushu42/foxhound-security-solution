@@ -191,9 +191,9 @@ def edit_rule(request):
         return Response({
             "error": "Input does not match any rules"
         })
-    lock_rule_table()
+    # lock_rule_table()
     results.delete()
-    unlock_rule_table()
+    # unlock_rule_table()
     firewall_rule = FirewallRule.objects.filter(tenant__id=tenant_id)[0]
     rule_name = f'{source_ip}--{destination_ip}--{application}'
     user = get_user_from_token(request)
