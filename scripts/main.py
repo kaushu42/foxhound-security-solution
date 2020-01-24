@@ -29,12 +29,12 @@ try:
     batch = create_batch_log("BEFORE CSV MIS ENGINE", "MIS ENGINE",
                              "MIS ENGINE", "MIS EXTRACTION STARTED", "RUNNING", "RUNNING")
     try:
-        # run.mis_engine()
+        run.mis_engine()
         batch = update_batch_state(
             batch, "MIS EXTRACTION COMPLETE", "STOPPED", "SUCCESS")
-    except:
+    except Exception as e:
         batch = update_batch_state(
-            batch, "MIS EXTRACTION FAILED", "EXIT", "FAILURE")
+            batch, e, "EXIT", "FAILURE")
 
     run.ml_engine()
     # run.dc_engine()
