@@ -36,11 +36,7 @@ class BackgroundJob extends Component{
                 <MasterLayout activePageKey={this.props.activePageKey}>
                     <PageHeader
                         style={{background: '#fff'}}
-<<<<<<< HEAD:frontend/src/views/BackgroundJob.jsx
-                        title={"Background Jobs"}/>
-=======
                         title={"Background Job Monitor"}/>
->>>>>>> 1aeeb791743ae8202eb09c52c3868f7db1776bba:frontend/src/views/core/BackgroundJob.jsx
                     <Row style = {contentLayout}>
                         <Table
                             rowKey={record => record.id}
