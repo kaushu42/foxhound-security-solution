@@ -2,6 +2,9 @@ import operator
 import datetime
 import pytz
 
+import geoip2.database
+import geoip2.errors
+
 from rest_framework.authtoken.models import Token
 
 from django.db.models.functions import (
@@ -370,5 +373,19 @@ def get_objects_with_date_filtered(request, model, field_name, **kwargs):
             end_date + datetime.timedelta(days=1)
         ),
     }
-    print(query)
     return model.objects.filter(**query)
+
+
+reader = geoip2.database.Reader("./GeoLite2-City.mmdb")
+
+
+def get_country_name_and_code(ip):
+    try:
+        country = reader.city(ip).country
+        name = country.name
+        code = country.iso_code.lower()
+    except geoip2.errors.AddressNotFoundError:
+        name = 'Nepal'
+        code = 'np'
+
+    return name, code

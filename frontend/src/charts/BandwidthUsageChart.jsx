@@ -37,9 +37,6 @@ class BandwidthUsageChart extends Component {
             day: "%Y-%b-%d"
           }
         },
-        // time: {
-        //     timezoneOffset: -6 * 60
-        // },
         series: [
           {
             type: "spline",
@@ -47,6 +44,9 @@ class BandwidthUsageChart extends Component {
             data: []
           }
         ],
+        time:{
+          timezoneOffset: -5*60 - 45
+        },
         tooltip: {
           valueDecimals: 2
         }
@@ -96,47 +96,62 @@ class BandwidthUsageChart extends Component {
 
     axios.post(FETCH_API, bodyFormData, { headers }).then(res => {
       const response = res.data;
-      console.log("api data", response);
-      if (response["bytes_sent_max"] > 1000000000) {
-        response["bytes_sent"] = response["bytes_sent"].map(e => [
-          e[0] * 1000,
-          e[1] / (1024 * 1024 * 1024)
-        ]);
+      console.log("api data", response.data);
+      var i;
+      const bytes = []
+      if (response["max"] > 1000000000) {
+        for (i = 0; i<response.data.length; i++){
+          // console.log(response[i]['date']*1000)
+          bytes.push([response.data[i]['date']*1000, (response.data[i]['bytes'])/(1024*1024*1024)])
+        }
+        const chartData = {'bytes_sent':bytes}
+        console.log(chartData)
         this.setState({
-          data: response,
+          data:chartData,
           unit: "GB"
-        });
+        })
       }
-      if (
-        response["bytes_sent_max"] > 1000000 &&
-        response["bytes_sent_max"] < 1000000000
+      else if (
+        response["max"] > 1000000 &&
+        response["max"] < 1000000000
       ) {
-        response["bytes_sent"] = response["bytes_sent"].map(e => [
-          e[0] * 1000,
-          e[1] / (1024 * 1024)
-        ]);
+        for (i = 0; i<response.data.length; i++){
+          // console.log(response[i]['date']*1000)
+          bytes.push([response.data[i]['date']*1000, (response.data[i]['bytes'])/(1024*1024)])
+        }
+        const chartData = {'bytes_sent':bytes}
+        console.log(chartData)
         this.setState({
-          data: response,
+          data:chartData,
           unit: "MB"
-        });
+        })
       }
-      if (
-        response["bytes_sent_max"] > 1000 &&
-        response["bytes_sent_max"] < 1000000
+      else if (
+        response["max"] > 1000 &&
+        response["max"] < 1000000
       ) {
-        response["bytes_sent"] = response["bytes_sent"].map(e => [
-          e[0] * 1000,
-          e[1] / 1024
-        ]);
+        for (i = 0; i<response.data.length; i++){
+          // console.log(response[i]['date']*1000)
+          bytes.push([response.data[i]['date']*1000, (response.data[i]['bytes'])/1024])
+        }
+        const chartData = {'bytes_sent':bytes}
+        console.log(chartData)
         this.setState({
-          data: response,
+          data:chartData,
           unit: "KB"
-        });
-      } else {
+        })
+      } 
+      else {
+        for (i = 0; i<response.data.length; i++){
+          // console.log(response[i]['date']*1000)
+          bytes.push([response.data[i]['date']*1000, response.data[i]['bytes']])
+        }
+        const chartData = {'bytes_sent':bytes}
+        console.log(chartData)
         this.setState({
-          data: response,
-          unit: "Bytes"
-        });
+          data:chartData,
+          unit: "bytes"
+        })
       }
     });
   };
@@ -187,6 +202,9 @@ class BandwidthUsageChart extends Component {
     if (prevState.data !== this.state.data) {
       let dataSeries = this.state.data["bytes_sent"];
       // .map(e => [((e[0]*1000)),e[1]/1024/1024])
+      dataSeries.sort(function(a, b) {
+        return a[0] > b[0] ? 1 : -1;
+      });
       console.log("Bandwidth chart dataseries", dataSeries);
       this.updateChart(dataSeries, this.state.unit);
     }
