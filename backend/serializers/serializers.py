@@ -209,13 +209,6 @@ class IPAliasModelSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class TimeSeriesChartSerializer(serializers.ModelSerializer):
+class TimeSeriesChartSerializer(serializers.Serializer):
     date = serializers.DateTimeField(source='logged_datetime')
-
-    class Meta:
-        model = TimeSeriesChart
-        fields = [
-            'date',
-            'bytes_sent',
-            'bytes_received'
-        ]
+    bytes = serializers.IntegerField()

@@ -84,7 +84,9 @@ class UsageApiView(APIView):
             TimeSeriesChart,
             'logged_datetime',
             filter__in=filter_ids,
-        )
+        ).values('logged_datetime').annotate(
+            bytes=Sum('bytes_sent') + Sum('bytes_received'))
+        print(objects)
         serializer = TimeSeriesChartSerializer(objects, many=True)
 
         return Response(serializer.data)
