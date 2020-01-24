@@ -12,14 +12,17 @@ import findspark
 import random
 import ipaddress
 import pandas as pd
-import ast
 from sqlalchemy import create_engine
 from psycopg2 import sql, connect
-from ConfigParser import ConfigParser
 import datetime
+import ast
 
+try:
+    import configparser
+except:
+    from six.moves import configparser
+config = configparser.ConfigParser()
 
-config = ConfigParser()
 config.read('../config.ini')
 
 PG_DRIVER = ast.literal_eval(config.get("SPARK", "PG_DRIVER"))
