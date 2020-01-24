@@ -429,3 +429,4 @@ class IPChart(BaseFilteredChart):
     address = models.CharField(max_length=15)
     bytes_sent = models.BigIntegerField()
     bytes_received = models.BigIntegerField()
+    count = models.BigIntegerField(default=0)

@@ -1,4 +1,6 @@
-from django.db.models import Sum, F, Max
+from collections import defaultdict
+
+from django.db.models import Sum, F, Max, Count
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -8,6 +10,7 @@ from globalutils.utils import (
     get_objects_with_date_filtered,
     set_null_items_to_zero,
     get_firewall_rules_id_from_request,
+    get_country_name_and_code
 )
 
 
@@ -18,7 +21,8 @@ from core.models import (
     Application,
     Zone,
     Protocol,
-    ApplicationChart
+    ApplicationChart,
+    IPChart
 )
 
 from serializers.serializers import (
@@ -122,6 +126,51 @@ class ApplicationApiView(APIView):
             'data': serializer.data,
             'max': max_bytes['bytes__max']
         })
+
+    def get(self, request, format=None):
+        return self.post(request, format=format)
+
+
+class CountryApiView(APIView):
+    def post(self, request, format=None):
+        filter_ids = get_filter_ids_from_request(request)
+        objects = get_objects_with_date_filtered(
+            request,
+            IPChart,
+            'logged_datetime',
+            filter__in=filter_ids
+        ).values('address').annotate(
+            count=Sum('count')
+        )
+
+        response = defaultdict(int)
+
+        for obj in objects:
+            name, code = get_country_name_and_code(obj['address'])
+            response[code] += obj['count']
+
+        return Response(response)
+
+    def get(self, request, format=None):
+        return self.post(request, format=format)
+
+
+class CountryListApiView(APIView):
+    def post(self, request, format=None):
+        filter_ids = get_filter_ids_from_request(request)
+        objects = get_objects_with_date_filtered(
+            request,
+            IPChart,
+            'logged_datetime',
+            filter__in=filter_ids
+        ).values('address').annotate(
+            count=Count('address')
+        )
+
+        countries = set()
+        for obj in objects:
+            countries.add(get_country_name_and_code(obj['address']))
+        return Response(countries)
 
     def get(self, request, format=None):
         return self.post(request, format=format)

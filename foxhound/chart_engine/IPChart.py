@@ -24,9 +24,11 @@ class IPChart(BaseChart):
         # Aggregate the bytes
         grouped_df = grouped_df.agg({
             'bytes_sent': 'sum',
-            'bytes_received': 'sum'
+            'bytes_received': 'sum',
+            'source_ip_id': 'count'
         }).withColumnRenamed('sum(bytes_received)', 'bytes_received')\
-            .withColumnRenamed('sum(bytes_sent)', 'bytes_sent')
+            .withColumnRenamed('sum(bytes_sent)', 'bytes_sent')\
+            .withColumnRenamed('count(source_ip_id)', 'count')
 
         # Get the filters from db
         filters = self._read_table_from_postgres('core_filter')
@@ -43,10 +45,15 @@ class IPChart(BaseChart):
             'source_ip_id',
             'bytes_sent',
             'bytes_received',
-            'id'
+            'id',
+            'count'
         ]]\
             .withColumn('bytes_sent', grouped_df['bytes_sent'].cast("int"))\
-            .withColumn('bytes_received', grouped_df['bytes_received'].cast("int"))\
+            .withColumn(
+                'bytes_received',
+                grouped_df['bytes_received'].cast("int")
+        )\
+            .withColumn('count', grouped_df['count'].cast("int"))\
             .withColumnRenamed('source_ip_id', 'address')\
             .withColumnRenamed('id', 'filter_id')
 
