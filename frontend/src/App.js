@@ -19,7 +19,8 @@ import ChangePassword from "./views/layout/ChangePassword";
 import TrafficLogs from "./views/processedlogs/TrafficLogs";
 import ThreatLogs from "./views/processedlogs/ThreatLogs";
 import ChangeAlias from "./views/ChangeAlias";
-import BackgoundJob from "./views/BackgroundJob";
+import BackgoundJob from "./views/core/BackgroundJob";
+import BatchMonitor from "./views/core/BatchMonitor";
 
 class App extends Component {
   render() {
@@ -48,12 +49,6 @@ class App extends Component {
             path="/changealias"
             activePageKey={"changealias"}
             component={ChangeAlias}
-          />
-          <AuthenticatedRoute
-            auth_token={this.props.auth_token}
-            path="/backgroundjob"
-            activePageKey={"backgroundjob"}
-            component={BackgoundJob}
           />
           {/*Processed Logs*/}
 
@@ -116,6 +111,20 @@ class App extends Component {
             activePageKey={"change-password"}
             component={ChangePassword}
           />
+          {/* Core */}
+          <AuthenticatedRoute
+              auth_token={this.props.auth_token}
+              path="/backgroundjob"
+              activePageKey={"backgroundjob"}
+              component={BackgoundJob}
+          />
+          <AuthenticatedRoute
+              auth_token={this.props.auth_token}
+              path="/batch"
+              activePageKey={"batch"}
+              component={BatchMonitor}
+          />
+
         </Switch>
       </BrowserRouter>
     );

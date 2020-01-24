@@ -19,6 +19,7 @@
     "react-dom": "^16.11.0",
     "react-input-switch": "^2.2.1",
     "react-redux": "latest",
+    "react-redux-toastr": "^7.6.4",
     "react-router-dom": "latest",
     "react-scripts": "0.9.5",
     "reactjs-calendar-heatmap": "0.0.10",

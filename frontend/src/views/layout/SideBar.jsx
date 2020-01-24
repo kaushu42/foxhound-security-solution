@@ -34,12 +34,6 @@ class SideBar extends Component {
                                     <span>Change Alias Name</span>
                                 </a>
                             </Menu.Item>
-                            <Menu.Item key="backgroundjob">
-                                <a href={"/backgroundjob"} >
-                                    <Icon type="link" />
-                                    <span>Background Jobs</span>
-                                </a>
-                            </Menu.Item>
                         </Menu.ItemGroup>
 
                         <Menu.ItemGroup key={"Rules"} title="Rules">
@@ -117,6 +111,21 @@ class SideBar extends Component {
                                     <span>Change Log</span>
                                 </a>
                             </Menu.Item>
+                        </Menu.ItemGroup>
+                        <Menu.ItemGroup key={"Core"} title={"Core"}>
+                            <Menu.Item key="backgroundjob">
+                                <a href={"/backgroundjob"} >
+                                    <Icon type="link" />
+                                    <span>Background Job Monitor</span>
+                                </a>
+                            </Menu.Item>
+                            <Menu.Item key="batch">
+                                <a href={"/batch"} >
+                                    <Icon type="link" />
+                                    <span>Batch Monitor</span>
+                                </a>
+                            </Menu.Item>
+
                         </Menu.ItemGroup>
                     </Menu>
                 </Sider>

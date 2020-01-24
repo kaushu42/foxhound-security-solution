@@ -12,25 +12,32 @@ import findspark
 import random
 import ipaddress
 import pandas as pd
+import ast
 from sqlalchemy import create_engine
 from psycopg2 import sql, connect
+from ConfigParser import ConfigParser
 import datetime
 
-findspark.init()
+
+config = ConfigParser()
+config.read('../config.ini')
+
+PG_DRIVER = ast.literal_eval(config.get("SPARK", "PG_DRIVER"))
+SPARK_MASTER_URL = ast.literal_eval(config.get("SPARK", "SPARK_MASTER_URL"))
+CLUSTER_SEEDS = ast.literal_eval(config.get("SPARK", "CLUSTER_SEEDS"))
+SPARK_APP_NAME = ast.literal_eval(config.get("SPARK", "SPARK_APP_NAME"))
+SPARK_DB_URL = ast.literal_eval(config.get("SPARK", "SPARK_DB_URL"))
+SPARK_DB_DRIVER = ast.literal_eval(config.get("SPARK", "SPARK_DB_DRIVER"))
+SPARK_CASDB_DRIVER = ast.literal_eval(
+    config.get("SPARK", "SPARK_CASDB_DRIVER"))
 
 
-os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.postgresql:postgresql:42.1.1 pyspark-shell'
+HOST = ast.literal_eval(config.get("POSTGRES", "host"))
+DB_NAME = ast.literal_eval(config.get("POSTGRES", "db_name"))
+FH_DB_USER = ast.literal_eval(config.get("POSTGRES", "username"))
+FH_DB_PASSWORD = ast.literal_eval(config.get("POSTGRES", "password"))
 
-
-#SPARK_MASTER_URL = "spark://172.16.3.27:7077"
-SPARK_MASTER_LOCAL_URL = "master[*]"
-CLUSTER_SEEDS = ['127.0.0.1']
-OUTPUT_DIRECTORY = "./"
-INPUT_DIRECTORY = "./"
-DB_NAME = 'fhdb'
-FH_DB_USER = 'foxhounduser'
-FH_DB_PASSWORD = 'foxhound123'
-HOST = 'localhost'
+CAS_KEYSPACE = ast.literal_eval(config.get("CASSANDRA", "CAS_KEYSPACE"))
 
 
 class MISEngine(object):
@@ -163,20 +170,18 @@ class MISEngine(object):
             df_without_id = df.drop('id')
         else:
             df_without_id = df
-        url = 'postgresql://localhost/fhdb'
         df_without_id.write.format('jdbc').options(
-            url='jdbc:%s' % url,
-            driver='org.postgresql.Driver',
+            url='jdbc:%s' % SPARK_DB_URL,
+            driver=SPARK_DB_DRIVER,
             dbtable=table_name,
-            user='foxhounduser',
-            password='foxhound123').mode(mode).save()
+            user=FH_DB_USER,
+            password=FH_DB_PASSWORD).mode(mode).save()
         del df_without_id
 
     def _write_csv_to_cassandra(self, df, table_name, mode):
-        url = 'postgresql://localhost/fhdb'
-        df.write.format("org.apache.spark.sql.cassandra").mode(
+        df.write.format(SPARK_CASDB_DRIVER).mode(
             mode).options(
-            table=table_name, keyspace="casdb").save()
+            table=table_name, keyspace=CAS_KEYSPACE).save()
         del df
 
     def _write_new_firewall_rules_to_db(self):

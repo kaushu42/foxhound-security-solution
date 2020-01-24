@@ -36,7 +36,7 @@ try:
         batch = update_batch_state(
             batch, e, "EXIT", "FAILURE")
 
-    # run.ml_engine()
+    run.ml_engine()
     # run.dc_engine()
     # run.db_engine(utils.get_db_engine(), logging, verbose=False)
     # run.tt_engine()
