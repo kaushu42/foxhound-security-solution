@@ -50,7 +50,7 @@ class RulePaginatedView(PaginatedView):
 
 
 class RulesApiView(RulePaginatedView):
-    @lock_check
+    # @lock_check
     def get(self, request):
         tenant_id = get_tenant_id_from_token(request)
         objects = Rule.objects.filter(
@@ -66,7 +66,7 @@ class RulesApiView(RulePaginatedView):
 
 
 class UnverifiedRulesApiView(RulePaginatedView):
-    @lock_check
+    # @lock_check
     def post(self, request):
         tenant_id = get_tenant_id_from_token(request)
         objects = Rule.objects.filter(
@@ -85,7 +85,7 @@ class UnverifiedRulesApiView(RulePaginatedView):
 
 
 class VerifiedRulesApiView(RulePaginatedView):
-    @lock_check
+    # @lock_check
     def post(self, request):
         tenant_id = get_tenant_id_from_token(request)
         objects = Rule.objects.filter(
@@ -103,7 +103,7 @@ class VerifiedRulesApiView(RulePaginatedView):
 
 
 class AnomalousRulesApiView(RulePaginatedView):
-    @lock_check
+    # @lock_check
     def post(self, request):
         tenant_id = get_tenant_id_from_token(request)
         objects = Rule.objects.filter(
@@ -121,7 +121,7 @@ class AnomalousRulesApiView(RulePaginatedView):
 
 
 @api_view(['POST'])
-@lock_check
+# @lock_check
 def verify_rule(request, id):
     try:
         tenant_id = get_tenant_id_from_token(request)
@@ -142,7 +142,7 @@ def verify_rule(request, id):
 
 
 @api_view(['POST'])
-@lock_check
+# @lock_check
 def flag_rule(request, id):
     try:
         tenant_id = get_tenant_id_from_token(request)
@@ -163,7 +163,7 @@ def flag_rule(request, id):
 
 
 @api_view(['POST'])
-@lock_check
+# @lock_check
 def edit_rule(request):
     def handle_empty_regex(string):
         if string == '*':

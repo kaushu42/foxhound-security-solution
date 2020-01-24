@@ -29,7 +29,7 @@ try:
     batch = create_batch_log("BEFORE CSV MIS ENGINE", "MIS ENGINE",
                              "MIS ENGINE", "MIS EXTRACTION STARTED", "RUNNING", "RUNNING")
     try:
-        run.mis_engine()
+        # run.mis_engine()
         batch = update_batch_state(
             batch, "MIS EXTRACTION COMPLETE", "STOPPED", "SUCCESS")
     except Exception as e:
@@ -40,7 +40,7 @@ try:
     batch = create_batch_log("BEFORE CSV DC ENGINE", "DC ENGINE",
                              "DC ENGINE", "DC ENGINE STARTED", "RUNNING", "RUNNING")
     try:
-        run.dc_engine()
+        # run.dc_engine()
         batch = update_batch_state(
             batch, "DC ENGINE COMPLETE", "STOPPED", "SUCCESS")
     except Exception as e:
@@ -60,7 +60,7 @@ try:
     batch = create_batch_log("BEFORE CSV CHART ENGINE", "CHART ENGINE",
                              "CHART ENGINE", "RULE ENGINE STARTED", "RUNNING", "RUNNING")
     try:
-        run.chart_engine()
+        # run.chart_engine()
         batch = update_batch_state(
             batch, "CHART ENGINE COMPLETE", "STOPPED", "SUCCESS")
     except Exception as e:
