@@ -121,9 +121,16 @@ class ApplicationApiView(APIView):
             application=F('application__name'),
         )
         max_bytes = objects.aggregate(Max('bytes'))
+
+        data = defaultdict(list)
+        for obj in objects:
+            data[obj['application']].append(
+                [obj['date'].timestamp(), obj['bytes']]
+            )
+
         serializer = ApplicationChartSerializer(objects, many=True)
         return Response({
-            'data': serializer.data,
+            'data': data,
             'max': max_bytes['bytes__max']
         })
 
