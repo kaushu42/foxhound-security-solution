@@ -373,7 +373,7 @@ class RequestOriginWorldChart extends Component {
                   >
                     <Select.Option key={"bytes"}>Bytes</Select.Option>
                     <Select.Option key={"packets"}>Packets</Select.Option>
-                    <Select.Option key={"repeat"}>Count</Select.Option>
+                    <Select.Option key={"count"}>Count</Select.Option>
                   </Select>
               </Fragment>
             }
