@@ -9,44 +9,125 @@ import moment from "moment";
 import QuickIpView from "../QuickIpView"
 import {search} from "../../actions/ipSearchAction";
 
+const FETCH_API = `${ROOT_URL}batch/log/`
+
 class BatchMonitor extends Component{
     constructor(props){
         super(props);
         this.state = {
+            params : {},
+            pagination : {},
+            data: [],
+            loading: false,
             columns: [
                 {
-                    title: 'Start Date'
+                    title: 'Start Date',
+                    dataIndex:'start_date',
+                    key:'start_date',
+                    render: text => (new Date(parseInt(text)*1000).toUTCString()).replace(" GMT", "")
                 },
                 {
-                    title: 'Log Name '
+                    title: 'Log Name',
+                    dataIndex: 'log_name',
+                    key: 'log_name',
+                    render: text => <a>{text}</a>
                 },
                 {
-                    title: 'Batch Type'
+                    title: 'Batch Type',
+                    dataIndex: 'batch_type',
+                    key: 'batch_type',
+                    render: text => <a>{text}</a>
                 },
                 {
-                    title: 'Batch Subtype'
+                    title: 'Batch Subtype',
+                    dataIndex: 'batch_sub_type',
+                    key: 'batch_sub_type',
+                    render: text => <a>{text}</a>
                 },
                 {
-                    title: 'Start Date'
+                    title: 'Message',
+                    dataIndex: 'message',
+                    key: 'message',
+                    render: text => <a>{text}</a>
                 },
                 {
-                    title: 'Message'
+                    title: 'State',
+                    dataIndex: 'state',
+                    key: 'state',
+                    render: text => <a>{text}</a>
                 },
                 {
-                    title: 'State'
+                    title: 'Status',
+                    dataIndex: 'status',
+                    key: 'status',
+                    render: text => <a>{text}</a>
                 },
                 {
-                    title: 'Status'
+                    title: 'Exit Message',
+                    dataIndex: 'exit_message',
+                    key: 'exit_message',
+                    render: text => <a>{text}</a>
                 },
                 {
-                    title: 'Exit Message'
-                },
-                {
-                    title: 'End Date'
+                    title: 'End Date',
+                    dataIndex: 'end_date',
+                    key: 'end_date',
+                    render: text => (new Date(parseInt(text)*1000).toUTCString()).replace(" GMT", "")
                 },
             ]
         }
     }
+
+    componentDidMount() {
+        this.handleFetchData(this.state.params)
+    }
+
+    handleFetchData = (params = {}) => {
+        this.setState({
+            loading : true,
+            successMessage: null
+        });
+
+        const authorization = `Token ${this.props.auth_token}`;
+        let headers = {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: authorization
+        };
+
+        axios.post(FETCH_API, null,{headers, params})
+        .then(res=>{
+            const page = this.state.pagination;
+            page.total  = res.data.count;
+            this.setState({
+                data: res.data.results,
+                loading:false,
+                pagination: page
+            })
+        })
+        .catch(e => {
+            console.log("error",e);
+            this.setState({
+                successMessage : null,
+                errorMessage : "Something went wrong!!"
+            })
+        });
+    }
+
+    handleTableChange = (pagination, filters, sorter) => {
+        console.log('pagination',pagination);
+        console.log('filter',filters)
+        console.log('sorter',sorter)
+        const pager = { ...this.state.pagination};
+        pager.current = pagination.current;
+        this.state.pagination = pager,
+        this.handleFetchData({
+            page: pagination.current,
+            sortField: sorter.field,
+            sortOrder: sorter.order,
+            ...filters
+        });
+    };
 
     render(){
         return(
@@ -71,4 +152,10 @@ class BatchMonitor extends Component{
     }                    
 }
 
-export default connect(null,null)(BatchMonitor);
+const mapStateToProps = state => {
+    return{
+        auth_token: state.auth.auth_token
+    }
+}
+
+export default connect(mapStateToProps,null)(BatchMonitor);
