@@ -10,7 +10,7 @@ import QuickIpView from "../../views/QuickIpView";
 import { search } from "../../actions/ipSearchAction";
 const { Option } = Select;
 
-const FETCH_API = `${ROOT_URL}dashboard/top/application/`;
+const FETCH_API = `${ROOT_URL}dashboard/application/`;
 const FETCH_APPLICATION_LOG_API = `${ROOT_URL}log/application/`;
 
 class ApplicationLineChart extends Component {
@@ -184,10 +184,15 @@ class ApplicationLineChart extends Component {
     if (prevState.data !== this.state.data) {
       let dataSeries = [];
       Object.keys(this.state.data).forEach(key => {
+        let key_data = this.state.data[key].map(e => [e[0] * 1000, e[1] / 1024 / 1024]);
+        key_data.sort(function(a, b) {
+          return a[0] > b[0] ? 1 : -1;
+        });
+
         let tempSeries = {
           name: key,
           type: "spline",
-          data: this.state.data[key].map(e => [e[0] * 1000, e[1] / 1024 / 1024])
+          data: key_data
         };
         console.log(this.state.data[key]);
         dataSeries.push(tempSeries);
