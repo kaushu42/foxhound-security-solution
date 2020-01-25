@@ -161,7 +161,7 @@ class ApplicationApiView(APIView):
         top_apps = sorted(data, key=data.get, reverse=True)[:top_count]
 
         # Only send data of the top n applications
-        response = {i: temp[j] for i, j in zip(top_apps, temp)}
+        response = {i: temp[i] for i in top_apps}
 
         serializer = ApplicationChartSerializer(objects, many=True)
         return Response({
