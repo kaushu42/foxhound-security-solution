@@ -157,8 +157,8 @@ class UnverifiedRulesTable extends Component {
     }
 
     // componentDidUpdate(prevProps, prevState, snapshot) {
-    //     if(prevProps.selectedRecordToUpdate != this.props.selectedRecordToUpdate){
-    //         let record = this.props.selectedRecordToUpdate;
+    //     if(prevProps.selectedUnverifiedRecordToUpdate != this.props.selectedUnverifiedRecordToUpdate){
+    //         let record = this.props.selectedUnverifiedRecordToUpdate;
     //         this.setState({
     //             // input_source_ip : record.source_ip
     //         })
@@ -167,16 +167,16 @@ class UnverifiedRulesTable extends Component {
 
     handleAcceptRuleSubmit = (e) => {
         e.preventDefault();
-        const {auth_token,selectedRecordToAccept} = this.props;
+        const {auth_token,selectedUnverifiedRecordToAccept} = this.props;
         const description = this.description.state.value;
-        this.props.dispatchAcceptRule(auth_token,description, selectedRecordToAccept);
+        this.props.dispatchAcceptRule(auth_token,description, selectedUnverifiedRecordToAccept);
     }
 
     handleRejectRuleSubmit = (e) => {
         e.preventDefault();
-        const {auth_token,selectedRecordToReject} = this.props;
+        const {auth_token,selectedUnverifiedRecordToReject} = this.props;
         const description = this.description.state.value;
-        this.props.dispatchRejectRule(auth_token,description,selectedRecordToReject);
+        this.props.dispatchRejectRule(auth_token,description,selectedUnverifiedRecordToReject);
     }
 
     handleUpdateRuleSubmit = (e) => {
@@ -211,7 +211,7 @@ class UnverifiedRulesTable extends Component {
     }
     
     render(){
-        const {selectedRecordToAccept,selectedRecordToReject,selectedRecordToUpdate} = this.props;
+        const {selectedUnverifiedRecordToAccept,selectedUnverifiedRecordToReject,selectedUnverifiedRecordToUpdate} = this.props;
         const {blackListData} = this.state;
         console.log(blackListData);
 
@@ -313,21 +313,21 @@ class UnverifiedRulesTable extends Component {
                     onClose={this.props.dispatchHandleDrawerClose}
                     closable={true}
                     placement={'right'}>
-                    <Spin spinning={!selectedRecordToReject}>
+                    <Spin spinning={!selectedUnverifiedRecordToReject}>
                         {
-                            selectedRecordToReject ? (
+                            selectedUnverifiedRecordToReject ? (
                                 <Fragment>
                                     {this.props.rejectUnverifiedRuleError ? <p style={{color:'red'}}>{this.props.rejectUnverifiedRuleErrorMessage }</p>: null }
                                     {this.props.rejectUnverifiedRuleSuccess ? <p style={{color:'green'}}>{this.props.rejectUnverifiedRuleSuccessMessage} </p>: null }
                                     <Row type="flex" gutter={16}>
                                         <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
-                                            <Statistic title="Source IP" value={selectedRecordToReject.source_ip} />
+                                            <Statistic title="Source IP" value={selectedUnverifiedRecordToReject.source_ip} />
                                         </Col>
                                         <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
-                                            <Statistic title="Destination IP" value={selectedRecordToReject.destination_ip}/>
+                                            <Statistic title="Destination IP" value={selectedUnverifiedRecordToReject.destination_ip}/>
                                         </Col>
                                         <Col xs={24} sm={12} md={12} lg={24} xl={24} style={drawerInfoStyle}>
-                                            <Statistic title="Application" value={selectedRecordToReject.application}/>
+                                            <Statistic title="Application" value={selectedUnverifiedRecordToReject.application}/>
                                         </Col>
                                     </Row>
                                     <br />
@@ -335,7 +335,7 @@ class UnverifiedRulesTable extends Component {
                                     <Form style={{width:'100%'}} name={"rejectRuleForm"}>
                                             <Form.Item>
                                                 <label>Description</label>
-                                                <Input ref={node => (this.description = node)} defaultValue={selectedRecordToReject.description} />
+                                                <Input ref={node => (this.description = node)} defaultValue={selectedUnverifiedRecordToReject.description} />
                                             </Form.Item>
                                             <Button
                                                 type="primary"
@@ -360,21 +360,21 @@ class UnverifiedRulesTable extends Component {
                     closable={true}
                     onClose={this.props.dispatchHandleDrawerClose}
                     placement={'right'}>
-                    <Spin spinning={!selectedRecordToAccept}>
+                    <Spin spinning={!selectedUnverifiedRecordToAccept}>
                         {
-                            selectedRecordToAccept ? (
+                            selectedUnverifiedRecordToAccept ? (
                             <Fragment>
                                 {this.props.acceptUnverifiedRuleError ? <p style={{color:'red'}}>{this.props.acceptUnverifiedRuleErrorMessage }</p>: null }
                                 {this.props.acceptUnverifiedRuleSuccess ? <p style={{color:'green'}}>{this.props.acceptUnverifiedRuleSuccessMessage} </p>: null }
                                 <Row type="flex" gutter={16}>
                                     <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
-                                        <Statistic title="Source IP" value={selectedRecordToAccept.source_ip} />
+                                        <Statistic title="Source IP" value={selectedUnverifiedRecordToAccept.source_ip} />
                                     </Col>
                                     <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
-                                        <Statistic title="Destination IP" value={selectedRecordToAccept.destination_ip}/>
+                                        <Statistic title="Destination IP" value={selectedUnverifiedRecordToAccept.destination_ip}/>
                                     </Col>
                                     <Col xs={24} sm={12} md={12} lg={24} xl={24} style={drawerInfoStyle}>
-                                        <Statistic title="Application" value={selectedRecordToAccept.application}/>
+                                        <Statistic title="Application" value={selectedUnverifiedRecordToAccept.application}/>
                                     </Col>
                                 </Row>
                                 <br />
@@ -384,7 +384,7 @@ class UnverifiedRulesTable extends Component {
 
                                         <Form.Item>
                                                 <label>Description</label>
-                                                <Input ref={node => (this.description = node)} defaultValue={selectedRecordToAccept.description} />
+                                                <Input ref={node => (this.description = node)} defaultValue={selectedUnverifiedRecordToAccept.description} />
                                             </Form.Item>
                                             <Button
                                                 type="primary"
@@ -409,21 +409,21 @@ class UnverifiedRulesTable extends Component {
                     closable={true}
                     onClose={this.props.dispatchHandleDrawerClose}
                     placement={'right'}>
-                    <Spin spinning={!selectedRecordToUpdate}>
+                    <Spin spinning={!selectedUnverifiedRecordToUpdate}>
                         {
-                            selectedRecordToUpdate ? (
+                            selectedUnverifiedRecordToUpdate ? (
                                 <Fragment>
                                     {this.props.updateUnverifiedRuleError ? <p style={{color:'red'}}>{this.props.updateUnverifiedRuleErrorMessage }</p>: null }
                                     {this.props.updateUnverifiedRuleSuccess ? <p style={{color:'green'}}>{this.props.updateUnverifiedRuleSuccessMessage} </p>: null }
                                     <Row type="flex" gutter={16}>
                                         <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
-                                            <Statistic title="Source IP" value={selectedRecordToUpdate.source_ip} />
+                                            <Statistic title="Source IP" value={selectedUnverifiedRecordToUpdate.source_ip} />
                                         </Col>
                                         <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
-                                            <Statistic title="Destination IP" value={selectedRecordToUpdate.destination_ip}/>
+                                            <Statistic title="Destination IP" value={selectedUnverifiedRecordToUpdate.destination_ip}/>
                                         </Col>
                                         <Col xs={24} sm={12} md={12} lg={24} xl={24} style={drawerInfoStyle}>
-                                            <Statistic title="Application" value={selectedRecordToUpdate.application}/>
+                                            <Statistic title="Application" value={selectedUnverifiedRecordToUpdate.application}/>
                                         </Col>
                                     </Row>
                                     <br />
@@ -432,19 +432,19 @@ class UnverifiedRulesTable extends Component {
                                             <Form style={{width:'100%'}} name={"updateRuleForm"}>
                                             <Form.Item>
                                                 <label>Source IP</label>
-                                                <Input ref={node => (this.source_ip = node)}  defaultValue={selectedRecordToUpdate.source_ip} />
+                                                <Input ref={node => (this.source_ip = node)}  defaultValue={selectedUnverifiedRecordToUpdate.source_ip} />
                                             </Form.Item>
                                             <Form.Item>
                                                 <label>Destination IP</label>
-                                                <Input ref={node => (this.destination_ip = node)} defaultValue={selectedRecordToUpdate.destination_ip} />
+                                                <Input ref={node => (this.destination_ip = node)} defaultValue={selectedUnverifiedRecordToUpdate.destination_ip} />
                                             </Form.Item>
                                             <Form.Item>
                                                 <label>Application</label>
-                                                <Input ref={node => (this.application = node)} defaultValue={selectedRecordToUpdate.application} />
+                                                <Input ref={node => (this.application = node)} defaultValue={selectedUnverifiedRecordToUpdate.application} />
                                             </Form.Item>
                                                 <Form.Item>
                                                     <label>Description</label>
-                                                    <Input ref={node => (this.description = node)} defaultValue={selectedRecordToUpdate.description} />
+                                                    <Input ref={node => (this.description = node)} defaultValue={selectedUnverifiedRecordToUpdate.description} />
                                                 </Form.Item>
                                             <Button
                                                 type="primary"
@@ -490,14 +490,14 @@ const mapStateToProps = state => {
         acceptUnverifiedRuleError:state.unverifiedRule.acceptUnverifiedRuleError,
         acceptUnverifiedRuleSuccessMessage : state.unverifiedRule.acceptUnverifiedRuleSuccessMessage,
         acceptUnverifiedRuleErrorMessage: state.unverifiedRule.acceptUnverifiedRuleErrorMessage,
-        selectedRecordToAccept : state.unverifiedRule.selectedRecordToAccept,
+        selectedUnverifiedRecordToAccept : state.unverifiedRule.selectedUnverifiedRecordToAccept,
 
         rejectUnverifiedRuleLoading:state.unverifiedRule.rejectUnverifiedRuleLoading,
         rejectUnverifiedRuleSuccess:state.unverifiedRule.rejectUnverifiedRuleSuccess,
         rejectUnverifiedRuleError:state.unverifiedRule.rejectUnverifiedRuleError,
         rejectUnverifiedRuleSuccessMessage : state.unverifiedRule.rejectUnverifiedRuleSuccessMessage,
         rejectUnverifiedRuleErrorMessage: state.unverifiedRule.rejectUnverifiedRuleErrorMessage,
-        selectedRecordToReject : state.unverifiedRule.selectedRecordToReject,
+        selectedUnverifiedRecordToReject : state.unverifiedRule.selectedUnverifiedRecordToReject,
 
 
         updateUnverifiedRuleLoading:state.unverifiedRule.updateUnverifiedRuleLoading,
@@ -505,7 +505,7 @@ const mapStateToProps = state => {
         updateUnverifiedRuleError:state.unverifiedRule.updateUnverifiedRuleError,
         updateUnverifiedRuleSuccessMessage : state.unverifiedRule.updateUnverifiedRuleSuccessMessage,
         updateUnverifiedRuleErrorMessage: state.unverifiedRule.updateUnverifiedRuleErrorMessage,
-        selectedRecordToUpdate : state.unverifiedRule.selectedRecordToUpdate,
+        selectedUnverifiedRecordToUpdate : state.unverifiedRule.selectedUnverifiedRecordToUpdate,
 
 
 

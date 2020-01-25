@@ -1,7 +1,7 @@
 import {axiosHeader, ROOT_URL} from "../utils";
 import axios from 'axios';
 import {
-    ACCEPT_RULE_DRAWER_TOGGLE,
+    ACCEPT_UNVERIFIED_RULE_DRAWER_TOGGLE,
     ACCEPT_UNVERIFIED_RULE_BEGIN,
     ACCEPT_UNVERIFIED_RULE_COMPLETE,
     ACCEPT_UNVERIFIED_RULE_ERROR,
@@ -13,9 +13,9 @@ import {
     REJECT_UNVERIFIED_RULE_COMPLETE,
     REJECT_UNVERIFIED_RULE_ERROR,
     REJECT_UNVERIFIED_RULE_SUCCESS,
-    RULE_SELECTED_TO_ACCEPT,
-    RULE_SELECTED_TO_REJECT,
-    RULE_SELECTED_TO_UPDATE,
+    UNVERIFIED_RULE_SELECTED_TO_ACCEPT,
+    UNVERIFIED_RULE_SELECTED_TO_REJECT,
+    UNVERIFIED_RULE_SELECTED_TO_UPDATE,
     UNVERIFIED_RULES_DATA_FETCH_BEGIN,
     UNVERIFIED_RULES_DATA_FETCH_COMPLETE,
     UNVERIFIED_RULES_DATA_FETCH_ERROR,
@@ -65,7 +65,7 @@ export function fetchUnverifiedRulesDataFailure(error) {
 
 export function toggleAcceptDrawer(){
     return {
-        type:ACCEPT_RULE_DRAWER_TOGGLE
+        type:ACCEPT_UNVERIFIED_RULE_DRAWER_TOGGLE
     }
 }
 
@@ -90,14 +90,14 @@ export function handleDrawerClose(){
 
 export function selectRecordToAccept(record){
     return {
-        type : RULE_SELECTED_TO_ACCEPT,
+        type : UNVERIFIED_RULE_SELECTED_TO_ACCEPT,
         payload: record
     }
 }
 
 export function selectRecordToReject(record){
     return {
-        type : RULE_SELECTED_TO_REJECT,
+        type : UNVERIFIED_RULE_SELECTED_TO_REJECT,
         payload: record
     }
 }
@@ -105,7 +105,7 @@ export function selectRecordToReject(record){
 
 export function selectRecordToUpdate(record){
     return {
-        type : RULE_SELECTED_TO_UPDATE,
+        type : UNVERIFIED_RULE_SELECTED_TO_UPDATE,
         payload: record
     }
 }
