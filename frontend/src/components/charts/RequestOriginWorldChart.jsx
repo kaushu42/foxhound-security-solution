@@ -278,6 +278,7 @@ class RequestOriginWorldChart extends Component {
 
   render() {
     const { mapChartData } = this.props;
+    console.log("**** map chart data ***",mapChartData)
     const options = {
       chart: {},
       title: {
@@ -354,8 +355,8 @@ class RequestOriginWorldChart extends Component {
                     placeholder="Exclude countries...."
                   >
                     {countrySelectListData.map(data => (
-                      <Select.Option key={data["id"]}>
-                        {this.toTitleCase(data["name"])}
+                      <Select.Option key={data[1]}>
+                        {this.toTitleCase(data[0])}
                       </Select.Option>
                     ))}
                   </Select>
