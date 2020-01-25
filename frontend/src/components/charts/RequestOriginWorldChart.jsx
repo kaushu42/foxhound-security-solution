@@ -32,6 +32,7 @@ import { bytesToSize } from "../../utils";
 class RequestOriginWorldChart extends Component {
   state = {
     params: {},
+    basis: "count",
     columns: [
       {
         title: "Id",
@@ -181,7 +182,8 @@ class RequestOriginWorldChart extends Component {
       source_zone,
       destination_zone,
       excludeCountries,
-      ip_address
+      ip_address,
+      this.state.basis
     );
     dispatchFetchCountryListData(
       auth_token,
@@ -220,7 +222,8 @@ class RequestOriginWorldChart extends Component {
       String(prevProps.application) !== String(this.props.application) ||
       String(prevProps.protocol) !== String(this.props.protocol) ||
       String(prevProps.source_zone) !== String(this.props.source_zone) ||
-      String(prevProps.destination_zone) !== String(this.props.destination_zone)
+      String(prevProps.destination_zone) !== String(this.props.destination_zone) ||
+      String(prevState.basis) !== String(this.state.basis)
     ) {
       dispatchFetchRequestOriginMapData(
         auth_token,
@@ -232,7 +235,8 @@ class RequestOriginWorldChart extends Component {
         source_zone,
         destination_zone,
         excludeCountries,
-        ip_address
+        ip_address,
+        this.state.basis
       );
     }
   }
@@ -348,7 +352,7 @@ class RequestOriginWorldChart extends Component {
                         .toLowerCase()
                         .indexOf(input.toLowerCase()) >= 0
                     }
-                    style={{ width: "50%", float: "right" }}
+                    style={{ width: "50%" }}
                     onChange={exclude_countries =>
                       dispatchUpdateMapAfterCountryExcluding(exclude_countries)
                     }
@@ -361,6 +365,16 @@ class RequestOriginWorldChart extends Component {
                     ))}
                   </Select>
                 ) : null}
+                  <Select
+                    onChange={value => this.setState({ basis: value })}
+                    size={"default"}
+                    style={{ width: "50%", float:"right", paddingRight: 10, paddingLeft: 10 }}
+                    defaultValue={"count"}
+                  >
+                    <Select.Option key={"bytes"}>Bytes</Select.Option>
+                    <Select.Option key={"packets"}>Packets</Select.Option>
+                    <Select.Option key={"repeat"}>Count</Select.Option>
+                  </Select>
               </Fragment>
             }
             className={{ height: 450 }}
@@ -525,7 +539,8 @@ const mapDispatchToProps = dispatch => {
       source_zone,
       destination_zone,
       except_countries,
-      ip_address
+      ip_address,
+      basis
     ) =>
       dispatch(
         fetchRequestOriginMapData(
@@ -538,7 +553,8 @@ const mapDispatchToProps = dispatch => {
           source_zone,
           destination_zone,
           except_countries,
-          ip_address
+          ip_address,
+          basis
         )
       ),
     dispatchFetchCountryListData: (

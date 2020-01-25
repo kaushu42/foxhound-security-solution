@@ -158,7 +158,7 @@ export function updateMapAfterExcludingCountries(excluding_countries){
  }
 }
 
-export function fetchRequestOriginMapData(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries,ip_address){
+export function fetchRequestOriginMapData(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries,ip_address,basis){
  return (dispatch) => {
 
     console.log("***** FETCH REQUEST ORIGIN CHART *****")
@@ -174,7 +174,7 @@ export function fetchRequestOriginMapData(auth_token,start_date,end_date,firewal
      bodyFormData.set('protocol', protocol);
      bodyFormData.set('source_zone', source_zone);
      bodyFormData.set('destination_zone', destination_zone);
-
+     bodyFormData.set('basis', basis);
      axios.post(FETCH_API,bodyFormData,{headers})
          .then(res => {
              const response = res.data;

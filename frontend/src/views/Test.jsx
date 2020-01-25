@@ -15,7 +15,7 @@ class Test extends Component {
         return (
             <Fragment>
                 {/* <Worldmapchart /> */}
-                {/* <RequestOriginWorldChart /> */}
+                <RequestOriginWorldChart />
                 {/* <AnomalyBasedTroubleTicketTable /> */}
                 {/* <VerifiedRulesTable /> */}
                 {/* <IpAsSourceSankeyChart /> */}
@@ -24,7 +24,7 @@ class Test extends Component {
                 {/* <NewSourceIPChart /> */}
                 {/* <NewDestinationIPChart /> */}
                 {/* <BandwidthUsageChart /> */}
-                <ApplicationLineChart />
+                {/* <ApplicationLineChart /> */}
             </Fragment>
             )
     }

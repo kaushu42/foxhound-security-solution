@@ -7,7 +7,7 @@ require("highcharts/modules/exporting")(Highcharts);
 import axios from 'axios';
 import {connect} from "react-redux";
 import mapdata from "../../charts/mapdata";
-import {Card, Row, Spin, Drawer, Table} from "antd";
+import {Card, Row, Spin, Drawer, Table, Select} from "antd";
 import HighchartsReact from "highcharts-react-official";
 import moment from "moment";
 
@@ -26,6 +26,7 @@ class IpAsDestinationSankeyChart extends Component {
             selectedDestinationIp : null,
             selectedSourceToDestinationLogDrawerVisible : false,
             selectedSourceToDestinationLogData : [],
+            basis: "bytes",
             options : {
                 chart : {
                     margin : 50,
@@ -130,6 +131,7 @@ class IpAsDestinationSankeyChart extends Component {
         bodyFormData.set('protocol', this.props.protocol);
         bodyFormData.set('source_zone', this.props.source_zone);
         bodyFormData.set('destination_zone', this.props.destination_zone);
+        bodyFormData.set('basis', this.state.basis);
 
         axios.post(FETCH_API,bodyFormData,{headers}).
         then(res => {
@@ -174,7 +176,8 @@ class IpAsDestinationSankeyChart extends Component {
             (String(prevProps.application)!==String(this.props.application)) ||
             (String(prevProps.protocol)!==String(this.props.protocol)) ||
             (String(prevProps.source_zone)!==String(this.props.source_zone)) ||
-            (String(prevProps.destination_zone)!==String(this.props.destination_zone))
+            (String(prevProps.destination_zone)!==String(this.props.destination_zone)) ||
+            (String(prevState.basis)!==String(this.state.basis))
         ){
             this.handleFetchData();
         }
@@ -274,16 +277,33 @@ class IpAsDestinationSankeyChart extends Component {
     render() {
         return (
             <Fragment>
-                <Spin tip="Loading..." spinning={this.state.loading}>
-                    <Card>
+                <Card
+                    title={
+                    <Fragment>
+                        <div>
+                        <Select
+                            onChange={value => this.setState({ basis: value })}
+                            size={"default"}
+                            style={{ width: "50%", float:"right", paddingRight: 10, paddingLeft: 10 }}
+                            defaultValue={"bytes"}
+                        >
+                            <Select.Option key={"bytes"}>Bytes</Select.Option>
+                            <Select.Option key={"packets"}>Packets</Select.Option>
+                            <Select.Option key={"repeat"}>Count</Select.Option>
+                        </Select>
+                        </div>
+                    </Fragment>
+                    }
+                >
+                    <Spin tip="Loading..." spinning={this.state.loading}>
                         <HighchartsReact
                             allowChartUpdate={false}
                             highcharts={Highcharts}
                             ref = {'chart'}
                             options = {this.state.options}
                         />
-                    </Card>
-                </Spin>
+                    </Spin>
+                </Card>
                 <Drawer
                     title={`Logs for ${this.state.selectedSourceIp} to ${this.state.selectedDestinationIp}`}
                     width={1100}

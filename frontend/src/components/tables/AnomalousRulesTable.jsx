@@ -145,7 +145,7 @@ class AnomalousRulesTable extends Component {
 
     render(){
         const {selectedRecordToAccept} = this.props;
-        const expandedRowRender = record => <p><b>Flagged Date: </b>{moment(record.verified_date_time).format("YYYY-MM-DD, HH:MM:SS")} <br/><b>Flagged By: </b> {record.verified_by_user.username} </p>;
+        const expandedRowRender = record => <p><b>Flagged Date: </b>{(new Date(parseInt(record.verified_date_time)*1000).toUTCString()).replace(" GMT", "")} <br/><b>Flagged By: </b> {record.verified_by_user.username} </p>;
         return(
             <Fragment>
                 {this.props.acceptAnomalousRuleError ?
