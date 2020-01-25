@@ -40,7 +40,7 @@ class AutoEncoder:
 
         self._call_backs = [
             EarlyStopping(
-                monitor='val_loss', patience=3,
+                monitor='val_loss', patience=5,
                 restore_best_weights=True, verbose=self._verbose)
             ]
 
@@ -60,8 +60,8 @@ class AutoEncoder:
                 optimizer='adam', loss='mean_squared_error', metrics=['accuracy'])
         finally:
             self._model.fit(
-                X, X, epochs=100, batch_size=32, shuffle=True,
-                validation_split=0.1, verbose=self._verbose, callbacks=self._call_backs)
+                X, X, epochs=100, batch_size=256, shuffle=True,
+                validation_split=0.2, verbose=self._verbose, callbacks=self._call_backs)
 
     def save_model(self, model_path):
         self._model.save(f'{model_path}/model.h5')
