@@ -9,6 +9,7 @@ import BlacklistAddress from "../components/BlacklistAddress"
 import NewSourceIPChart from "../components/charts/NewSourceIPChart"
 import NewDestinationIPChart from "../components/charts/NewDestinationIPChart"
 import BandwidthUsageChart from "../charts/BandwidthUsageChart"
+import ApplicationLineChart from "../components/charts/ApplicationChart"
 class Test extends Component {
     render() {
         return (
@@ -22,7 +23,8 @@ class Test extends Component {
                 {/* <BlacklistAddress /> */}
                 {/* <NewSourceIPChart /> */}
                 {/* <NewDestinationIPChart /> */}
-                <BandwidthUsageChart />
+                {/* <BandwidthUsageChart /> */}
+                <ApplicationLineChart />
             </Fragment>
             )
     }

@@ -60,7 +60,7 @@ try:
     batch = create_batch_log("BEFORE CSV CHART ENGINE", "CHART ENGINE",
                              "CHART ENGINE", "RULE ENGINE STARTED", "RUNNING", "RUNNING")
     try:
-        # run.chart_engine()
+        run.chart_engine()
         batch = update_batch_state(
             batch, "CHART ENGINE COMPLETE", "STOPPED", "SUCCESS")
     except Exception as e:

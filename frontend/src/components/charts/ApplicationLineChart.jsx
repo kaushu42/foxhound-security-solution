@@ -353,6 +353,9 @@ class ApplicationLineChart extends Component {
           enabled: true
         }
       },
+      time:{
+        timezoneOffset: -5*60 - 45
+      },
       tooltip: {
         valueSuffix: " MB",
         shared: true,
