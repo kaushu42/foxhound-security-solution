@@ -161,7 +161,8 @@ export function updateMapAfterExcludingCountries(excluding_countries){
 export function fetchRequestOriginMapData(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries,ip_address){
  return (dispatch) => {
 
-    let headers = axiosHeader(auth_token);
+    console.log("***** FETCH REQUEST ORIGIN CHART *****")
+     let headers = axiosHeader(auth_token);
 
      let bodyFormData = new FormData();
      bodyFormData.set('except_countries', except_countries);
