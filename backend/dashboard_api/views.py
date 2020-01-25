@@ -107,31 +107,66 @@ class UsageApiView(APIView):
 
 class ApplicationApiView(APIView):
     def post(self, request, format=None):
+        top_count = int(request.data.get('topcount', 5))
+        # Send all applications if top_count is 0
+        # Assuming applications < 10000
+        top_count = top_count if top_count else 10000
         firewall_rule_ids = get_firewall_rules_id_from_request(request)
         objects = get_objects_with_date_filtered(
             request,
             ApplicationChart,
             'logged_datetime',
             firewall_rule__in=firewall_rule_ids,
-        ).values('logged_datetime', 'application__name').annotate(
+        )
+        # applications = []
+        # top_applications = objects.values(
+        #     'application__name'
+        # ).annotate(
+        #     bytes=Sum('bytes')
+        # ).order_by('-bytes')[:top_count]
+
+        # for application in top_applications:
+        #     applications.append(application['application__name'])
+
+        objects = objects.values(
+            'logged_datetime',
+            'application__name'
+        ).annotate(
             bytes=Sum('bytes')
         ).values(
             bytes=F('bytes'),
             date=F('logged_datetime'),
             application=F('application__name'),
         )
-        max_bytes = objects.aggregate(Max('bytes'))
 
-        data = defaultdict(list)
+        applications = []
+        max_bytes = 0
+
+        # To store the top applications
+        data = defaultdict(int)
+
+        # To store the data for each application
+        temp = defaultdict(list)
+
         for obj in objects:
-            data[obj['application']].append(
-                [obj['date'].timestamp(), obj['bytes']]
+            data[obj['application']] += obj['bytes']
+            timestamp = obj['date'].timestamp()
+            bytes = obj['bytes']
+            temp[obj['application']].append(
+                [timestamp, bytes]
             )
+            max_bytes = bytes if bytes > max_bytes else max_bytes
+
+        # Get the top n applications, sorted by bytes
+        top_apps = sorted(data, key=data.get, reverse=True)[:top_count]
+
+        # Only send data of the top n applications
+        response = {i: temp[j] for i, j in zip(top_apps, temp)}
 
         serializer = ApplicationChartSerializer(objects, many=True)
         return Response({
-            'data': data,
-            'max': max_bytes['bytes__max']
+            'data': response,
+            'max': max_bytes
         })
 
     def get(self, request, format=None):
