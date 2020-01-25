@@ -47,7 +47,7 @@ class UnverifiedRulesTable extends Component {
                 dataIndex: 'created_date_time',
                 key: 'created_date_time',
                 // render: text => moment(text).format("YYYY-MM-DD, HH:MM:SS"),
-                render: text => (new Date(text).toUTCString()).replace(" GMT", "")
+                render: text => (new Date(parseInt(text)*1000).toUTCString()).replace(" GMT", "")   
             },
             {   
                 title: 'Source IP',
