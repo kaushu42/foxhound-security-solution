@@ -20,8 +20,8 @@ import {
     COUNTRY_LOG_DATA_FETCH_LOADING
 } from "../actionTypes/RequestOriginChartActionType";
 
-const FETCH_API = `${ROOT_URL}dashboard/map/`;
-const FETCH_API_COUNTRY_NAMES = `${ROOT_URL}dashboard/countries/`;
+const FETCH_API = `${ROOT_URL}dashboard/country/`;
+const FETCH_API_COUNTRY_NAMES = `${ROOT_URL}dashboard/country_list/`;
 const FETCH_API_COUNTRY_LOGS = `${ROOT_URL}log/request-origin/`;
 
 export function fetchMapChartError(error) {
