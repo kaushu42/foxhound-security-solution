@@ -1,4 +1,5 @@
 import os
+
 import datetime as dt
 import ipaddress
 
@@ -213,7 +214,7 @@ class MLEngine(AutoEncoder):
                     self._model_path = os.path.join(tenant_model_dir, csv_file[:-4])
                     df = pd.read_csv(csv_path)
 
-                    if len(df.index) > 1000:
+                    if len(df.index) > 20000:
                         categorical_params = self._get_categorical_params(df)
                         df, standarizer = self.normalize_data(df)
 
@@ -332,7 +333,7 @@ class MLEngine(AutoEncoder):
 
                 if os.path.exists(self._model_path) is True:
                     ip_df = self._preprocess(ip_df)
-                    has_anomaly, indices, reasons, updated_categorical_params = self._predict(ip_df, 50)
+                    has_anomaly, indices, reasons, updated_categorical_params = self._predict(ip_df, 200)
 
                     if has_anomaly:
                         anomalous_features.extend(reasons)
@@ -366,19 +367,19 @@ class MLEngine(AutoEncoder):
         ano_with_model_count = 0
         total_data_count = 0
 
-        df = pd.read_csv(csv_file_path, usecols=self._FEATURES, chunksize=100000000)# 100 million
+        df = pd.read_csv(csv_file_path, usecols=self._FEATURES)# 100 million
 
-        for df_chunk in df:
-            anomalous_df, ano_without_model = self.get_ip_anomalies(
-                df_chunk, save_data_for_ip_profile=False
-            )
-            anomalous_df['log_name'] = csv_file_path.split('/')[-1]
-            self._save_to_csv(anomalous_df, os.path.join(
-                self._ANOMALIES_CSV_OUTPUT_DIR, str(dt.datetime.now().date())+'.csv')
-            )
-            ano_with_no_model_count += ano_without_model
-            ano_with_model_count += len(anomalous_df.index)
-            n_chunks += 1
+        # for df_chunk in df:
+        anomalous_df, ano_without_model = self.get_ip_anomalies(
+            df, save_data_for_ip_profile=False
+        )
+        anomalous_df['log_name'] = csv_file_path.split('/')[-1]
+        self._save_to_csv(anomalous_df, os.path.join(
+            self._ANOMALIES_CSV_OUTPUT_DIR, str(dt.datetime.now().date())+'.csv')
+        )
+        ano_with_no_model_count += ano_without_model
+        ano_with_model_count += len(anomalous_df.index)
+        n_chunks += 1
 
         return ano_with_model_count, ano_with_no_model_count, n_chunks
 
@@ -386,21 +387,35 @@ class MLEngine(AutoEncoder):
         """Method to predict anomalies from csvs' from input directory
         """
         if os.path.exists(self._DAILY_CSV_DIR) is True:
-            files = sorted(os.listdir(self._DAILY_CSV_DIR))
-            total = len(files)
-            count = 1
-            if total is not 0:
-                for csv in files:
-                    csv_file_path = os.path.join(self._DAILY_CSV_DIR, csv)
-                    file_name = csv_file_path.split('/')[-1]
-                    print(
-                        f'[{count}/{total}]********** Processing {file_name} **********')
-                    ano_with_model_count, ano_with_no_model_count, n_chunks = self._predict_in_chunks(csv_file_path)
-                    print(f"[{count}/{total}]********** Processed {file_name} in {n_chunks} chunk **********")
-                    print(
-                        f'[{count}/{total}]********** Predictions: Anomalous model -> [{ano_with_model_count}] Anomalous without model -> [{ano_with_no_model_count}]  **********'
-                    )
-                    # print(anomalous_df)
+            csv_folders = sorted(os.listdir(self._DAILY_CSV_DIR))
+            total_csv_folders = len(csv_folders)
+            csv_folder_count = 1
+            if total_csv_folders is not 0:
+                for csv_folder in csv_folders:
+                    csv_folder_path = os.path.join(self._DAILY_CSV_DIR, csv_folder)
+                    csv_folder_files = sorted([file for file in os.listdir(csv_folder_path) if file.endswith('.csv')])
+                    total_folder_files = len(csv_folder_files)
+                    csv_file_count = 1
+
+                    total_ano_with_model_count = 0
+                    for csv in csv_folder_files:
+                        # print(objgraph.show_most_common_types())
+                        if csv.endswith('.csv'):
+                            csv_file_path = os.path.join(csv_folder_path, csv)
+                            print(
+                                f'[{csv_folder_count}/{total_csv_folders}]->[Part: {csv_file_count}/{total_folder_files}] ********** Processing {csv_folder} file **********')
+                            ano_with_model_count, ano_with_no_model_count, n_chunks = self._predict_in_chunks(csv_file_path)
+                            print(f"[{csv_folder_count}/{total_csv_folders}]->[Part: {csv_file_count}/{total_folder_files}] ********** Processed {csv_folder} in {n_chunks} chunk **********")
+                            print(
+                                f'[{csv_folder_count}/{total_csv_folders}]->[Part: {csv_file_count}/{total_folder_files}] ********** Predictions: Anomalous model -> [{ano_with_model_count}] Anomalous without model -> [{ano_with_no_model_count}]  **********'
+                            )
+                            total_ano_with_model_count += ano_with_model_count
+                            # print(anomalous_df)
+                            csv_file_count += 1
+                        else:
+                            pass
+                    csv_folder_count += 1
+                    print(f'Total Anomaly: {total_ano_with_model_count} in file {csv_folder}')
             else:
                 print("[Warning]: No csv to find anomaly, TRAFFIC_LOGS_OUTPUT_DIR is empty")
 
