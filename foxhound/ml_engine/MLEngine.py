@@ -1,7 +1,5 @@
 import os
-import resource
-import objgraph
-import gc
+
 import datetime as dt
 import ipaddress
 
@@ -286,7 +284,6 @@ class MLEngine(AutoEncoder):
             reasons = self._get_anomaly_reasons(
                 df.iloc[indices], model_params, updated_categorical_params, df_categorical_params, 0.05
             )
-            del model
             return True, indices, reasons, updated_categorical_params
         else:
             return False, None, None, updated_categorical_params
@@ -362,7 +359,6 @@ class MLEngine(AutoEncoder):
         anomalous_df = pd.concat([anomalous_df, anomalous_features_df], axis=1)
         # print(
         #     f'{anomalous_without_model_count}/{len(anomalous_df.index)} : Anomalous without model')
-        del ip_df, anomalous_features_df, tenant_df
         return anomalous_df, anomalous_without_model_count
 
     def _predict_in_chunks(self, csv_file_path):
@@ -371,21 +367,19 @@ class MLEngine(AutoEncoder):
         ano_with_model_count = 0
         total_data_count = 0
 
-        df = pd.read_csv(csv_file_path, usecols=self._FEATURES, chunksize=100000000)# 100 million
+        df = pd.read_csv(csv_file_path, usecols=self._FEATURES)# 100 million
 
-        for df_chunk in df:
-            anomalous_df, ano_without_model = self.get_ip_anomalies(
-                df_chunk, save_data_for_ip_profile=False
-            )
-            anomalous_df['log_name'] = csv_file_path.split('/')[-1]
-            self._save_to_csv(anomalous_df, os.path.join(
-                self._ANOMALIES_CSV_OUTPUT_DIR, str(dt.datetime.now().date())+'.csv')
-            )
-            ano_with_no_model_count += ano_without_model
-            ano_with_model_count += len(anomalous_df.index)
-            n_chunks += 1
-
-        del anomalous_df, df
+        # for df_chunk in df:
+        anomalous_df, ano_without_model = self.get_ip_anomalies(
+            df, save_data_for_ip_profile=False
+        )
+        anomalous_df['log_name'] = csv_file_path.split('/')[-1]
+        self._save_to_csv(anomalous_df, os.path.join(
+            self._ANOMALIES_CSV_OUTPUT_DIR, str(dt.datetime.now().date())+'.csv')
+        )
+        ano_with_no_model_count += ano_without_model
+        ano_with_model_count += len(anomalous_df.index)
+        n_chunks += 1
 
         return ano_with_model_count, ano_with_no_model_count, n_chunks
 
@@ -405,12 +399,9 @@ class MLEngine(AutoEncoder):
 
                     total_ano_with_model_count = 0
                     for csv in csv_folder_files:
-                        res = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-                        print(f'\n Resource: {res} bytes | {res/1024} mb | {res/(1024*1024)} gb\n\n')
-                        print(objgraph.show_most_common_types())
+                        # print(objgraph.show_most_common_types())
                         if csv.endswith('.csv'):
                             csv_file_path = os.path.join(csv_folder_path, csv)
-                            file_name = csv_file_path.split('/')[-1]
                             print(
                                 f'[{csv_folder_count}/{total_csv_folders}]->[Part: {csv_file_count}/{total_folder_files}] ********** Processing {csv_folder} file **********')
                             ano_with_model_count, ano_with_no_model_count, n_chunks = self._predict_in_chunks(csv_file_path)
@@ -423,7 +414,6 @@ class MLEngine(AutoEncoder):
                             csv_file_count += 1
                         else:
                             pass
-                        gc.collect()
                     csv_folder_count += 1
                     print(f'Total Anomaly: {total_ano_with_model_count} in file {csv_folder}')
             else:
