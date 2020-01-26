@@ -333,7 +333,7 @@ class MLEngine(AutoEncoder):
 
                 if os.path.exists(self._model_path) is True:
                     ip_df = self._preprocess(ip_df)
-                    has_anomaly, indices, reasons, updated_categorical_params = self._predict(ip_df, 50)
+                    has_anomaly, indices, reasons, updated_categorical_params = self._predict(ip_df, 200)
 
                     if has_anomaly:
                         anomalous_features.extend(reasons)
