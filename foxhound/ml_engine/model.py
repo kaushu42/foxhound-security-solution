@@ -53,6 +53,7 @@ class AutoEncoder:
         try:
             # print('model found')
             # self._create_architecture(X.shape[1])
+            clear_session()
             self._model = load_model(model_path+'/model.h5')
         except:
             self._create_architecture(X.shape[1])
@@ -67,4 +68,7 @@ class AutoEncoder:
         self._model.save(f'{model_path}/model.h5')
 
     def load_model(self, model_path):
-        return load_model(f'{model_path}/model.h5')
+        clear_session()
+        self._model = load_model(f'{model_path}/model.h5')
+
+        return self._model
