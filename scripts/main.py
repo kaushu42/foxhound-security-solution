@@ -15,12 +15,12 @@ import run
 from batch_logger import create_batch_log, update_batch_state
 import batch_logger
 
-LOG_FILE = os.path.join(config.LOG_PATH, f'{os.path.basename(__file__)}.log')
-logging.basicConfig(
-    filename=LOG_FILE,
-    level=logging.DEBUG
-)
-logging.info(f'Script ran on {datetime.datetime.now()}')
+# LOG_FILE = os.path.join(config.LOG_PATH, f'{os.path.basename(__file__)}.log')
+# logging.basicConfig(
+#     filename=LOG_FILE,
+#     level=logging.DEBUG
+# )
+# logging.info(f'Script ran on {datetime.datetime.now()}')
 try:
     batch = create_batch_log("BEFORE CSV SEED RUNNING", "SEED", "DAILY SEED",
                              "SEEDING STARTED", "RUNNING", "RUNNING")
@@ -50,7 +50,7 @@ try:
     batch = create_batch_log("BEFORE CSV RULE ENGINE", "RULE ENGINE",
                              "RULE ENGINE", "RULE ENGINE STARTED", "RUNNING", "RUNNING")
     try:
-        run.rule_engine()
+        # run.rule_engine()
         batch = update_batch_state(
             batch, "RULE ENGINE COMPLETE", "STOPPED", "SUCCESS")
     except Exception as e:

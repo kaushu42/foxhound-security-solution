@@ -21,10 +21,16 @@ class TimeSeriesChart(BaseChart):
         # Aggregate the bytes values
         grouped_df = grouped_df.agg({
             'bytes_sent': 'sum',
-            'bytes_received': 'sum'
+            'bytes_received': 'sum',
+            'packets_sent': 'sum',
+            'packets_received': 'sum',
+            'application_id': 'count'
         })\
             .withColumnRenamed('sum(bytes_received)', 'bytes_received')\
-            .withColumnRenamed('sum(bytes_sent)', 'bytes_sent')
+            .withColumnRenamed('sum(bytes_sent)', 'bytes_sent')\
+            .withColumnRenamed('sum(packets_received)', 'packets_received')\
+            .withColumnRenamed('sum(packets_sent)', 'packets_sent')\
+            .withColumnRenamed('count(application_id)', 'count')
 
         # Get filters from db
         filters = self._read_table_from_postgres('core_filter')
@@ -40,9 +46,14 @@ class TimeSeriesChart(BaseChart):
             'logged_datetime',
             'bytes_sent',
             'bytes_received',
+            'packets_sent',
+            'packets_received',
+            'count',
             'id']].withColumnRenamed('id', 'filter_id')\
             .withColumn('bytes_sent', grouped_df['bytes_sent'].cast("int"))\
-            .withColumn('bytes_received', grouped_df['bytes_received'].cast("int"))
+            .withColumn('bytes_received', grouped_df['bytes_received'].cast("int"))\
+            .withColumn('packets_sent', grouped_df['packets_sent'].cast("int"))\
+            .withColumn('packets_received', grouped_df['packets_received'].cast("int"))
 
         # Write to db
         self._write_df_to_postgres(grouped_df, 'core_timeserieschart')
