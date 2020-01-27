@@ -396,7 +396,17 @@ class Filter(BaseFilter):
         Zone, on_delete=models.CASCADE, related_name='filter_destination_zone')
 
 
-class BaseFilteredChart(models.Model):
+class BaseChart(models.Model):
+    class Meta:
+        abstract = True
+    bytes_sent = models.BigIntegerField()
+    bytes_received = models.BigIntegerField()
+    packets_sent = models.BigIntegerField()
+    packets_received = models.BigIntegerField()
+    count = models.BigIntegerField(default=0)
+
+
+class BaseFilteredChart(BaseChart):
     class Meta:
         abstract = True
     filter = models.ForeignKey(Filter, on_delete=models.CASCADE)
@@ -407,40 +417,27 @@ class StagingFilter(BaseFilter):
     destination_zone_id = models.IntegerField()
 
 
-class ApplicationChart(models.Model):
+class ApplicationChart(BaseChart):
     firewall_rule = models.ForeignKey(FirewallRule, on_delete=models.CASCADE)
     logged_datetime = models.DateTimeField()
     application = models.ForeignKey(Application, on_delete=models.CASCADE)
-    bytes_sent = models.BigIntegerField()
-    bytes_received = models.BigIntegerField()
-    packets_sent = models.BigIntegerField()
-    packets_received = models.BigIntegerField()
-    count = models.BigIntegerField(default=0)
 
 
 class RequestOriginChart(BaseFilteredChart):
     country_name = models.CharField(max_length=100)
     country_code = models.CharField(max_length=10)
-    bytes_sent = models.BigIntegerField()
-    bytes_received = models.BigIntegerField()
-    packets_sent = models.BigIntegerField()
-    packets_received = models.BigIntegerField()
-    count = models.BigIntegerField(default=0)
 
 
 class TimeSeriesChart(BaseFilteredChart):
     logged_datetime = models.DateTimeField()
-    bytes_sent = models.BigIntegerField()
-    bytes_received = models.BigIntegerField()
-    packets_sent = models.BigIntegerField()
-    packets_received = models.BigIntegerField()
-    count = models.BigIntegerField(default=0)
+
 
 class IPChart(BaseFilteredChart):
     logged_datetime = models.DateTimeField()
     address = models.CharField(max_length=15)
-    bytes_sent = models.BigIntegerField()
-    bytes_received = models.BigIntegerField()
-    packets_sent = models.BigIntegerField()
-    packets_received = models.BigIntegerField()
-    count = models.BigIntegerField(default=0)
+
+
+class SankeyChart(BaseFilteredChart):
+    logged_datetime = models.DateTimeField()
+    source_ip = models.CharField(max_length=15)
+    destination_ip = models.CharField(max_length=15)
