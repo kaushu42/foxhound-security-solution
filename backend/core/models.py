@@ -411,24 +411,36 @@ class ApplicationChart(models.Model):
     firewall_rule = models.ForeignKey(FirewallRule, on_delete=models.CASCADE)
     logged_datetime = models.DateTimeField()
     application = models.ForeignKey(Application, on_delete=models.CASCADE)
-    bytes = models.BigIntegerField()
+    bytes_sent = models.BigIntegerField()
+    bytes_received = models.BigIntegerField()
+    packets_sent = models.BigIntegerField()
+    packets_received = models.BigIntegerField()
+    count = models.BigIntegerField(default=0)
 
 
 class RequestOriginChart(BaseFilteredChart):
     country_name = models.CharField(max_length=100)
     country_code = models.CharField(max_length=10)
-    count = models.BigIntegerField()
+    bytes_sent = models.BigIntegerField()
+    bytes_received = models.BigIntegerField()
+    packets_sent = models.BigIntegerField()
+    packets_received = models.BigIntegerField()
+    count = models.BigIntegerField(default=0)
 
 
 class TimeSeriesChart(BaseFilteredChart):
     logged_datetime = models.DateTimeField()
     bytes_sent = models.BigIntegerField()
     bytes_received = models.BigIntegerField()
-
+    packets_sent = models.BigIntegerField()
+    packets_received = models.BigIntegerField()
+    count = models.BigIntegerField(default=0)
 
 class IPChart(BaseFilteredChart):
     logged_datetime = models.DateTimeField()
     address = models.CharField(max_length=15)
     bytes_sent = models.BigIntegerField()
     bytes_received = models.BigIntegerField()
+    packets_sent = models.BigIntegerField()
+    packets_received = models.BigIntegerField()
     count = models.BigIntegerField(default=0)

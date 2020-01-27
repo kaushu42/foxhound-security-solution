@@ -43,7 +43,8 @@ class StatsApiView(APIView):
             )
             .aggregate(
                 bytes_sent=Sum('bytes_sent'),
-                bytes_received=Sum('bytes_received')
+                bytes_received=Sum('bytes_received'),
+                count=Sum('count')
             )
         )
 
@@ -92,13 +93,20 @@ class UsageApiView(APIView):
             'logged_datetime',
             filter__in=filter_ids,
         ).values('logged_datetime').annotate(
-            bytes=Sum('bytes_sent') + Sum('bytes_received'))
+            bytes=Sum('bytes_sent') + Sum('bytes_received'),
+            packets=Sum('packets_sent') + Sum('packets_received'),
+            count=Sum('count')
+        )
         serializer = TimeSeriesChartSerializer(objects, many=True)
-        max_bytes = objects.aggregate(Max('bytes'))
+        max = objects.aggregate(
+            max_bytes=Max('bytes'),
+            max_packets=Max('packets'),
+        )
 
         return Response({
             'data': serializer.data,
-            'max': max_bytes['bytes__max']
+            'max_bytes': max['max_bytes'],
+            'max_packets': max['max_packets'],
         })
 
     def get(self, request, format=None):
@@ -117,24 +125,17 @@ class ApplicationApiView(APIView):
             ApplicationChart,
             'logged_datetime',
             firewall_rule__in=firewall_rule_ids,
-        )
-        # applications = []
-        # top_applications = objects.values(
-        #     'application__name'
-        # ).annotate(
-        #     bytes=Sum('bytes')
-        # ).order_by('-bytes')[:top_count]
-
-        # for application in top_applications:
-        #     applications.append(application['application__name'])
-
-        objects = objects.values(
+        ).values(
             'logged_datetime',
             'application__name'
         ).annotate(
-            bytes=Sum('bytes')
+            bytes=Sum('bytes_sent')+Sum('bytes_received'),
+            packets=Sum('packets_sent')+Sum('packets_received'),
+            count=Sum('count'),
         ).values(
             bytes=F('bytes'),
+            packets=F('packets'),
+            count=F('count'),
             date=F('logged_datetime'),
             application=F('application__name'),
         )
@@ -152,8 +153,17 @@ class ApplicationApiView(APIView):
             data[obj['application']] += obj['bytes']
             timestamp = obj['date'].timestamp()
             bytes = obj['bytes']
+            packets = obj['packets']
+            count = obj['count']
+
+            # Data is sent in TBPC order
             temp[obj['application']].append(
-                [timestamp, bytes]
+                [
+                    timestamp,
+                    bytes,
+                    packets,
+                    count
+                ]
             )
             max_bytes = bytes if bytes > max_bytes else max_bytes
 
@@ -163,7 +173,6 @@ class ApplicationApiView(APIView):
         # Only send data of the top n applications
         response = {i: temp[i] for i in top_apps}
 
-        serializer = ApplicationChartSerializer(objects, many=True)
         return Response({
             'data': response,
             'max': max_bytes
@@ -182,16 +191,26 @@ class CountryApiView(APIView):
             'logged_datetime',
             filter__in=filter_ids
         ).values('address').annotate(
-            count=Sum('count')
+            count=Sum('count'),
+            bytes=Sum('bytes_sent')+Sum('bytes_received'),
+            packets=Sum('packets_sent')+Sum('packets_received'),
         )
 
-        response = defaultdict(int)
+        counts = defaultdict(int)
+        bytes = defaultdict(int)
+        packets = defaultdict(int)
 
         for obj in objects:
             name, code = get_country_name_and_code(obj['address'])
-            response[code] += obj['count']
+            counts[code] += obj['count']
+            bytes[code] += obj['bytes']
+            packets[code] += obj['packets']
 
-        return Response(response)
+        return Response({i: [
+            bytes[i],
+            packets[i],
+            counts[i],
+        ] for i in counts})
 
     def get(self, request, format=None):
         return self.post(request, format=format)
