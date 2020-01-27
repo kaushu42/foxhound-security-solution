@@ -138,18 +138,26 @@ class Initialize():
             os.makedirs(self._TENANT_PROFILE_DIR)
 
         if os.path.exists(self._dir_to_parse):
-            files = sorted(os.listdir(self._dir_to_parse))
-            total = len(files)
-            count = 1
-            for csv in files:
-                csv_file_path = os.path.join(self._dir_to_parse, csv)
-                file_name = csv_file_path.split('/')[-1]
-                print(
-                    f'[{count}/{total}]**********Processing {file_name} file **********')
-                n_chunks = self._parse_in_chunks(
-                    csv_file_path, self._TENANT_PROFILE_DIR, self._features)
+            csv_folders = sorted(os.listdir(self._dir_to_parse))
+            total_csv_folders = len(csv_folders)
+            csv_folder_count = 1
 
-                print(f"[{count}/{total}]********** Parsed {file_name} in {n_chunks} chunks **********")
-                count = count+1
+            for csv_folder in csv_folders:
+                csv_folder_path = os.path.join(self._dir_to_parse, csv_folder)
+                csv_folder_files = sorted([file for file in os.listdir(csv_folder_path) if file.endswith('.csv')])
+                total_folder_files = len(csv_folder_files)
+                csv_file_count = 1
+
+                for csv_file in csv_folder_files:
+                    if csv_file.endswith('.csv'):
+                        csv_file_path = os.path.join(csv_folder_path, csv_file)
+                        print(
+                            f'[{csv_folder_count}/{total_csv_folders}]->[Part: {csv_file_count}/{total_folder_files}]**********Processing {csv_folder} file **********')
+                        n_chunks = self._parse_in_chunks(
+                            csv_file_path, self._TENANT_PROFILE_DIR, self._features)
+
+                        print(f"[{csv_folder_count}/{total_csv_folders}]->[Part: {csv_file_count}/{total_folder_files}]********** Parsed {csv_folder} in {n_chunks} chunks **********")
+                        csv_file_count += 1
+                csv_folder_count += 1
         else:
             print(f'{self._dir_to_parse} doesnt exist')
