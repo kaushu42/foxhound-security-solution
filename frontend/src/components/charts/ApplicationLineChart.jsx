@@ -21,7 +21,7 @@ class ApplicationLineChart extends Component {
       loading: true,
       data: [],
       top_count: 5,
-      basis: "bytes_received",
+      basis: "bytes",
       selectedApplicationLogData: [],
       selectedApplicationLogDrawerVisible: false,
       selectedApplication: null,
@@ -353,6 +353,9 @@ class ApplicationLineChart extends Component {
           enabled: true
         }
       },
+      time:{
+        timezoneOffset: -5*60 - 45
+      },
       tooltip: {
         valueSuffix: " MB",
         shared: true,
@@ -439,13 +442,11 @@ class ApplicationLineChart extends Component {
                     onChange={value => this.setState({ basis: value })}
                     size={"default"}
                     style={{ width: "50%", paddingRight: 10, paddingLeft: 10 }}
-                    defaultValue={"bytes_received"}
+                    defaultValue={"bytes"}
                   >
-                    <Option key={"bytes_sent"}>Bytes Sent</Option>
-                    <Option key={"bytes_received"}>Bytes Received</Option>
-                    <Option key={"packets_sent"}>Packets Sent</Option>
-                    <Option key={"packets_received"}>Packets Received</Option>
-                    <Option key={"repeat_count"}>Repeat Count</Option>
+                    <Option key={"bytes"}>Bytes</Option>
+                    <Option key={"packets"}>Packets</Option>
+                    <Option key={"count"}>Count</Option>
                   </Select>
                 </div>
               </Fragment>

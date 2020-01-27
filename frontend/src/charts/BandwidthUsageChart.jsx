@@ -1,13 +1,15 @@
 import React, { Component, Fragment } from "react";
 import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
-import { Card, Row, Spin } from "antd";
+import { Card, Row, Spin, Select } from "antd";
 import { connect } from "react-redux";
 import axios from "axios";
 import { ROOT_URL } from "../utils";
 require("highcharts/modules/exporting")(Highcharts);
 import "./chart.css";
 const FETCH_API = `${ROOT_URL}dashboard/usage/`;
+const { Option } = Select;
+
 
 class BandwidthUsageChart extends Component {
   constructor(props) {
@@ -16,6 +18,7 @@ class BandwidthUsageChart extends Component {
       loading: true,
       data: [],
       unit: "",
+      basis: "bytes",
       options: {
         title: {
           text: "Bandwidth Usage View | Bytes Received"
@@ -93,6 +96,7 @@ class BandwidthUsageChart extends Component {
     bodyFormData.set("protocol", this.props.protocol);
     bodyFormData.set("source_zone", this.props.source_zone);
     bodyFormData.set("destination_zone", this.props.destination_zone);
+    bodyFormData.set("basis", this.state.basis);
 
     axios.post(FETCH_API, bodyFormData, { headers }).then(res => {
       const response = res.data;
@@ -105,7 +109,6 @@ class BandwidthUsageChart extends Component {
           bytes.push([response.data[i]['date']*1000, (response.data[i]['bytes'])/(1024*1024*1024)])
         }
         const chartData = {'bytes_sent':bytes}
-        console.log(chartData)
         this.setState({
           data:chartData,
           unit: "GB"
@@ -120,7 +123,6 @@ class BandwidthUsageChart extends Component {
           bytes.push([response.data[i]['date']*1000, (response.data[i]['bytes'])/(1024*1024)])
         }
         const chartData = {'bytes_sent':bytes}
-        console.log(chartData)
         this.setState({
           data:chartData,
           unit: "MB"
@@ -135,7 +137,6 @@ class BandwidthUsageChart extends Component {
           bytes.push([response.data[i]['date']*1000, (response.data[i]['bytes'])/1024])
         }
         const chartData = {'bytes_sent':bytes}
-        console.log(chartData)
         this.setState({
           data:chartData,
           unit: "KB"
@@ -147,7 +148,6 @@ class BandwidthUsageChart extends Component {
           bytes.push([response.data[i]['date']*1000, response.data[i]['bytes']])
         }
         const chartData = {'bytes_sent':bytes}
-        console.log(chartData)
         this.setState({
           data:chartData,
           unit: "bytes"
@@ -195,7 +195,8 @@ class BandwidthUsageChart extends Component {
       String(prevProps.application) !== String(this.props.application) ||
       String(prevProps.protocol) !== String(this.props.protocol) ||
       String(prevProps.source_zone) !== String(this.props.source_zone) ||
-      String(prevProps.destination_zone) !== String(this.props.destination_zone)
+      String(prevProps.destination_zone) !== String(this.props.destination_zone) ||
+      String(prevState.basis) !== String(this.state.basis)
     ) {
       this.handleFetchData();
     }
@@ -245,7 +246,24 @@ class BandwidthUsageChart extends Component {
   render() {
     return (
       <Fragment>
-        <Card>
+        <Card
+            title={
+              <Fragment>
+                <div>
+                  <Select
+                    onChange={value => this.setState({ basis: value })}
+                    size={"default"}
+                    style={{ width: "50%", float:"right", paddingRight: 10, paddingLeft: 10 }}
+                    defaultValue={"bytes"}
+                  >
+                    <Option key={"bytes"}>Bytes</Option>
+                    <Option key={"packets"}>Packets</Option>
+                    <Option key={"repeat"}>Count</Option>
+                  </Select>
+                </div>
+              </Fragment>
+            }
+          >
           <Spin tip={"loading..."} spinning={this.state.loading}>
             <HighchartsReact
               highcharts={Highcharts}

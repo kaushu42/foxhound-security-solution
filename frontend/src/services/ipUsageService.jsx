@@ -3,7 +3,7 @@ import axios from "axios";
 
 const FETCH_API = `${ROOT_URL}profile/time-series/`;
 
-export const ipUsageDataService = (auth_token,ip_address,props) => {
+export const ipUsageDataService = (auth_token,ip_address,basis,props) => {
     const authorization = `Token ${auth_token}`;
 
     let headers = {
@@ -21,7 +21,8 @@ export const ipUsageDataService = (auth_token,ip_address,props) => {
     bodyFormData.set('protocol', props.protocol);
     bodyFormData.set('source_zone', props.source_zone);
     bodyFormData.set('destination_zone', props.destination_zone);
-
+    bodyFormData.set('basis', basis);
+    
     return axios.post(
         FETCH_API,
         bodyFormData,

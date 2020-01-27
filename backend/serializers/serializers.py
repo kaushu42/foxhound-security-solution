@@ -12,6 +12,9 @@ from core.models import (
     TenantIPAddressInfo,
     TimeSeriesChart
 )
+
+from batch.models import Log as BatchMonitorLog
+
 from troubleticket.models import (
     TroubleTicketAnomaly,
     TroubleTicketFollowUpAnomaly
@@ -218,3 +221,9 @@ class ApplicationChartSerializer(serializers.Serializer):
     date = serializers.DateTimeField()
     bytes = serializers.IntegerField()
     application = serializers.CharField()
+
+
+class BatchLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BatchMonitorLog
+        fields = '__all__'

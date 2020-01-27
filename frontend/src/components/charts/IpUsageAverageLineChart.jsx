@@ -6,7 +6,7 @@ import HighchartsReact from 'highcharts-react-official';
 import NoDataToDisplay from 'highcharts/modules/no-data-to-display';
 NoDataToDisplay(Highcharts);
 import '../../charts/chart.css';
-import {Card, Spin, DatePicker} from "antd";
+import {Card, Spin, DatePicker, Select} from "antd";
 
 
 class IpUsageAverageDailyTrendChart extends Component {
@@ -18,6 +18,7 @@ class IpUsageAverageDailyTrendChart extends Component {
             average_daily_data : [],
             recent_data : [],
             unit : "",
+            basis: "bytes",
             options: {
                 chart: {
                     zoomType: 'x'
@@ -79,7 +80,7 @@ class IpUsageAverageDailyTrendChart extends Component {
         });
 
         const {auth_token,ip_address} = this.props;
-        ipUsageAverageTrendDataService(auth_token,ip_address,selectedDate).then(res => {
+        ipUsageAverageTrendDataService(auth_token,ip_address,this.state.basis, selectedDate).then(res => {
             console.log('fetching average data for ip',ip_address)
             const average_daily_data = res[0].data;
             const recent_data = res[1].data;
@@ -147,7 +148,8 @@ class IpUsageAverageDailyTrendChart extends Component {
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (
-            (String(prevProps.ip_address)!==String(this.props.ip_address))
+            (String(prevProps.ip_address)!==String(this.props.ip_address)) ||
+            (String(prevState.basis)!==String(this.state.basis)) 
             // (String(prevProps.date_range[0])!==String(this.props.date_range[0])) ||
             // (String(prevProps.date_range[1])!==String(this.props.date_range[1])) ||
             // (String(prevProps.firewall_rule)!==String(this.props.firewall_rule)) ||
@@ -228,9 +230,21 @@ class IpUsageAverageDailyTrendChart extends Component {
             <Fragment>
                 <Card
                     title = {
-                            <DatePicker 
-                                style={{ width: "50%", float: "right" }}
-                                onChange = {this.onChange}/>
+                            <Fragment>
+                                <DatePicker 
+                                    style={{ width: "50%"}}
+                                    onChange = {this.onChange}/>
+                                <Select
+                                    onChange={value => this.setState({ basis: value })}
+                                    size={"default"}
+                                    style={{ width: "50%", float:"right", paddingRight: 10, paddingLeft: 10 }}
+                                    defaultValue={"bytes"}
+                                >
+                                    <Select.Option key={"bytes"}>Bytes</Select.Option>
+                                    <Select.Option key={"packets"}>Packets</Select.Option>
+                                    <Select.Option key={"repeat"}>Count</Select.Option>
+                                </Select>
+                              </Fragment>
                     }>
                     <Spin tip="Loading..." spinning={this.state.loading}>
                         <div id={"container"}>

@@ -23,7 +23,7 @@ class VerifiedRulesTable extends Component {
                 title: 'Created Date',
                 dataIndex: 'created_date_time',
                 key: 'created_date_time',
-                render: text => (new Date(text).toUTCString()).replace(" GMT", "")
+                render: text => (new Date(parseInt(text)*1000).toUTCString()).replace(" GMT", "")            
             },
             {
                 title: 'Source IP',
@@ -144,7 +144,7 @@ class VerifiedRulesTable extends Component {
     
     render(){
         const {selectedVerifiedRecordToReject} = this.props;
-        const expandedRowRender = record => <p><b>Verified Date: </b>{moment(record.verified_date_time).format("YYYY-MM-DD, HH:MM:SS")} <br/><b>Verified By: </b> {record.verified_by_user.username} </p>;
+        const expandedRowRender = record => <p><b>Verified Date: </b>{(new Date(parseInt(record.verified_date_time)*1000).toUTCString()).replace(" GMT", "")} <br/><b>Verified By: </b> {record.verified_by_user.username} </p>;
         const title = () => <h3>Verified Rules</h3>
         return(
             <Fragment>

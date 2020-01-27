@@ -1,5 +1,5 @@
 import {
-    ACCEPT_RULE_DRAWER_TOGGLE,
+    ACCEPT_UNVERIFIED_RULE_DRAWER_TOGGLE,
     ACCEPT_UNVERIFIED_RULE_BEGIN,
     ACCEPT_UNVERIFIED_RULE_COMPLETE,
     ACCEPT_UNVERIFIED_RULE_ERROR,
@@ -10,9 +10,9 @@ import {
     REJECT_UNVERIFIED_RULE_COMPLETE,
     REJECT_UNVERIFIED_RULE_ERROR,
     REJECT_UNVERIFIED_RULE_SUCCESS,
-    RULE_SELECTED_TO_ACCEPT,
-    RULE_SELECTED_TO_REJECT,
-    RULE_SELECTED_TO_UPDATE,
+    UNVERIFIED_RULE_SELECTED_TO_ACCEPT,
+    UNVERIFIED_RULE_SELECTED_TO_REJECT,
+    UNVERIFIED_RULE_SELECTED_TO_UPDATE,
     UNVERIFIED_RULES_DATA_FETCH_BEGIN,
     UNVERIFIED_RULES_DATA_FETCH_COMPLETE,
     UNVERIFIED_RULES_DATA_FETCH_ERROR,
@@ -32,21 +32,21 @@ const initialState = {
     unverifiedRuleRejectDrawerLoading : false,
     unverifiedRuleUpdateDrawerLoading : false,
 
-    selectedRecordToAccept : null,
+    selectedUnverifiedRecordToAccept : null,
     acceptUnverifiedRuleLoading:false,
     acceptUnverifiedRuleSuccess:false,
     acceptUnverifiedRuleError:false,
     acceptUnverifiedRuleSuccessMessage : "Unknown Rule Verified Successfully",
     acceptUnverifiedRuleErrorMessage: "Unknown Rule Verify Error",
 
-    selectedRecordToReject : null,
+    selectedUnverifiedRecordToReject : null,
     rejectUnverifiedRuleLoading:false,
     rejectUnverifiedRuleSuccess:false,
     rejectUnverifiedRuleError:false,
     rejectUnverifiedRuleSuccessMessage : "Unknown Rule Flagged Successfully",
     rejectUnverifiedRuleErrorMessage: "Unknown Rule Flag Error",
 
-    selectedRecordToUpdate : null,
+    selectedUnverifiedRecordToUpdate : null,
     updateUnverifiedRuleLoading:false,
     updateUnverifiedRuleSuccess:false,
     updateUnverifiedRuleError:false,
@@ -82,7 +82,7 @@ const unverifiedRulesReducer = (state=initialState,action)=>{
                 ...state,
                 unverifiedRulesLoading: false
             }
-        case ACCEPT_RULE_DRAWER_TOGGLE :
+        case ACCEPT_UNVERIFIED_RULE_DRAWER_TOGGLE :
             return {
                 ...state,
                 unverifiedRuleAcceptDrawerLoading : !state.unverifiedRuleAcceptDrawerLoading
@@ -100,25 +100,25 @@ const unverifiedRulesReducer = (state=initialState,action)=>{
         case CLOSE_ALL_DRAWER:
             return{
                 ...state,
-                selectedRecordToUpdate : null,
+                selectedUnverifiedRecordToUpdate : null,
                 unverifiedRuleAcceptDrawerLoading: false,
                 unverifiedRuleRejectDrawerLoading: false,
                 unverifiedRuleUpdateDrawerLoading: false
             }
-        case RULE_SELECTED_TO_ACCEPT :
+        case UNVERIFIED_RULE_SELECTED_TO_ACCEPT :
             return {
                 ...state,
-                selectedRecordToAccept : action.payload
+                selectedUnverifiedRecordToAccept : action.payload
             }
-        case RULE_SELECTED_TO_REJECT :
+        case UNVERIFIED_RULE_SELECTED_TO_REJECT :
             return {
                 ...state,
-                selectedRecordToReject : action.payload
+                selectedUnverifiedRecordToReject : action.payload
             }
-        case RULE_SELECTED_TO_UPDATE :
+        case UNVERIFIED_RULE_SELECTED_TO_UPDATE :
             return {
                 ...state,
-                selectedRecordToUpdate : action.payload
+                selectedUnverifiedRecordToUpdate : action.payload
             }
         case ACCEPT_UNVERIFIED_RULE_BEGIN:
             return {
@@ -144,7 +144,7 @@ const unverifiedRulesReducer = (state=initialState,action)=>{
                 unverifiedRulesData: state.unverifiedRulesData.filter(function(value, index, arr){
                     return value.id != action.payload.id
                 }),
-                selectedRecordToAccept:null,
+                selectedUnverifiedRecordToAccept:null,
                 acceptUnverifiedRuleLoading: false
             }
         case REJECT_UNVERIFIED_RULE_BEGIN:
@@ -171,7 +171,7 @@ const unverifiedRulesReducer = (state=initialState,action)=>{
                 unverifiedRulesData: state.unverifiedRulesData.filter(function(value, index, arr){
                     return value.id != action.payload.id
                 }),
-                selectedRecordToReject:null,
+                selectedUnverifiedRecordToReject:null,
                 rejectUnverifiedRuleLoading: false
             }
         case UPDATE_UNVERIFIED_RULE_BEGIN:
@@ -195,27 +195,27 @@ const unverifiedRulesReducer = (state=initialState,action)=>{
         case UPDATE_UNVERIFIED_RULE_COMPLETE:
             return{
                 ...state,
-                selectedRecordToUpdate:null,
+                selectedUnverifiedRecordToUpdate:null,
                 updateUnverifiedRuleLoading: false
             }
         case CLEAN_ALL_STATE :
             return {
                 ...state,
-                selectedRecordToAccept : null,
+                selectedUnverifiedRecordToAccept : null,
                 acceptUnverifiedRuleLoading:false,
                 acceptUnverifiedRuleSuccess:false,
                 acceptUnverifiedRuleError:false,
                 acceptUnverifiedRuleSuccessMessage : "Unknown Rule Verified Successfully",
                 acceptUnverifiedRuleErrorMessage: "Unknown Rule Verify Error",
 
-                selectedRecordToReject : null,
+                selectedUnverifiedRecordToReject : null,
                 rejectUnverifiedRuleLoading:false,
                 rejectUnverifiedRuleSuccess:false,
                 rejectUnverifiedRuleError:false,
                 rejectUnverifiedRuleSuccessMessage : "Unknown Rule Flagged Successfully",
                 rejectUnverifiedRuleErrorMessage: "Unknown Rule Flag Error",
 
-                selectedRecordToUpdate : null,
+                selectedUnverifiedRecordToUpdate : null,
                 updateUnverifiedRuleLoading:false,
                 updateUnverifiedRuleSuccess:false,
                 updateUnverifiedRuleError:false,

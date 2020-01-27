@@ -9,4 +9,5 @@ urlpatterns = [
     path('session/', include('session.urls')),
     path('rules/', include('rules.urls')),
     path('alias/', include('alias_api.urls')),
+    path('batch/', include('batch.urls')),
 ]

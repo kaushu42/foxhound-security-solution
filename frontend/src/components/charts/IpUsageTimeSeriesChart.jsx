@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import "../../charts/chart.css";
-import { Card, Spin } from "antd";
+import { Card, Spin, Select } from "antd";
 import moment from "moment";
 import NoDataToDisplay from "highcharts/modules/no-data-to-display";
 import { ipUsageDataService } from "../../services/ipUsageService";
@@ -16,6 +16,7 @@ class IpUsageTimeSeriesChart extends Component {
       loading: true,
       data: [],
       unit: "",
+      basis: "bytes",
       options: {
         title: {
           text: "Bandwidth Usage View | Bytes Received"
@@ -67,7 +68,7 @@ class IpUsageTimeSeriesChart extends Component {
     });
 
     const { auth_token, ip_address } = this.props;
-    ipUsageDataService(auth_token, ip_address, this.props).then(res => {
+    ipUsageDataService(auth_token, ip_address, this.state.basis, this.props).then(res => {
       console.log("fetching current data for ip", ip_address);
       const data = res.data;
       if(data["bytes_received_max"]>1000000000){
@@ -131,7 +132,8 @@ class IpUsageTimeSeriesChart extends Component {
       String(prevProps.application) !== String(this.props.application) ||
       String(prevProps.protocol) !== String(this.props.protocol) ||
       String(prevProps.source_zone) !== String(this.props.source_zone) ||
-      String(prevProps.destination_zone) !== String(this.props.destination_zone)
+      String(prevProps.destination_zone) !== String(this.props.destination_zone) ||
+      String(prevState.basis) !== String(this.state.basis)
     ) {
       this.handleFetchData();
     }
@@ -190,7 +192,24 @@ class IpUsageTimeSeriesChart extends Component {
     console.log("loading", this.state.loading);
     return (
       <Fragment>
-        <Card>
+        <Card
+            title={
+              <Fragment>
+                <div>
+                  <Select
+                    onChange={value => this.setState({ basis: value })}
+                    size={"default"}
+                    style={{ width: "50%", float:"right", paddingRight: 10, paddingLeft: 10 }}
+                    defaultValue={"bytes"}
+                  >
+                    <Select.Option key={"bytes"}>Bytes</Select.Option>
+                    <Select.Option key={"packets"}>Packets</Select.Option>
+                    <Select.Option key={"count"}>Count</Select.Option>
+                  </Select>
+                </div>
+              </Fragment>
+            }
+          >
           <Spin tip="Loading..." spinning={this.state.loading}>
             <HighchartsReact highcharts={Highcharts} options={this.state.options} ref={"chart"} />
           </Spin>
