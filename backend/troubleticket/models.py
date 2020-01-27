@@ -39,17 +39,34 @@ class TroubleTicketAnomaly(TroubleTicket):
     log = models.ForeignKey(
         TrafficLog, on_delete=models.CASCADE, null=True
     )
-    row_number = models.IntegerField()
     firewall_rule = models.ForeignKey(
         FirewallRule, on_delete=models.CASCADE, null=True)
+
     assigned_to = models.ForeignKey(
         FoxhoundUser, on_delete=models.CASCADE,
         null=True
     )
+
     reasons = models.CharField(max_length=500, null=True)
 
+    source_ip = models.CharField(max_length=25, null=True)
+    destination_ip = models.CharField(max_length=25, null=True)
+    source_zone = models.CharField(max_length=250, null=True)
+    destination_zone = models.CharField(max_length=250, null=True)
+    application = models.CharField(max_length=250, null=True)
+    protocol = models.CharField(max_length=250, null=True)
+    category = models.CharField(max_length=250, null=True)
+    action = models.CharField(max_length=250, null=True)
+    session_end_reason = models.CharField(max_length=250, null=True)
+    bytes_sent = models.BigIntegerField(default=0)
+    bytes_received = models.BigIntegerField(default=0)
+    packets_sent = models.BigIntegerField(default=0)
+    packets_received = models.BigIntegerField(default=0)
+    source_port = models.IntegerField(default=0)
+    destination_port = models.IntegerField(default=0)
+
     def __str__(self):
-        return f'{self.log}-{self.row_number}'
+        return f'{self.log}'
 
     def __repr__(self):
         return self.__str__()
