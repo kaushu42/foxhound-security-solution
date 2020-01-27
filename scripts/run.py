@@ -14,7 +14,7 @@ def ml_engine(init=True, mle=True, create_model=True, predict=True):
     if init:
         init = Initialize(config.TRAFFIC_LOGS_OUTPUT_DIR,
                           config.TENANT_PROFILE_OUTPUT_DIR)
-        init.parse_all_csv('tenant')
+        init.parse_all_csv()
     if mle:
         mle = MLEngine(config.TENANT_PROFILE_OUTPUT_DIR,
                        config.TENANT_MODEL_OUTPUT_DIR,
