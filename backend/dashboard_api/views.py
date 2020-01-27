@@ -176,7 +176,7 @@ class ApplicationApiView(APIView):
         )
 
         applications = []
-        max_bytes = 0
+        max = 0
 
         # To store the top applications
         data = defaultdict(int)
@@ -187,20 +187,16 @@ class ApplicationApiView(APIView):
         for obj in objects:
             data[obj['application']] += obj['bytes']
             timestamp = obj['date'].timestamp()
-            bytes = obj['bytes']
-            packets = obj['packets']
-            count = obj['count']
+            value = obj[basis]
 
             # Data is sent in TBPC order
             temp[obj['application']].append(
                 [
                     timestamp,
-                    bytes,
-                    packets,
-                    count
+                    value
                 ]
             )
-            max_bytes = bytes if bytes > max_bytes else max_bytes
+            max = value if value > max else max
 
         # Get the top n applications, sorted by bytes
         top_apps = sorted(data, key=data.get, reverse=True)[:top_count]
@@ -210,7 +206,7 @@ class ApplicationApiView(APIView):
 
         return Response({
             'data': response,
-            'max': max_bytes
+            'max': max
         })
 
     def get(self, request, format=None):
@@ -220,6 +216,8 @@ class ApplicationApiView(APIView):
 class CountryApiView(APIView):
     def post(self, request, format=None):
         filter_ids = get_filter_ids_from_request(request)
+        basis = request.data.get('basis', 'bytes')
+
         objects = get_objects_with_date_filtered(
             request,
             IPChart,
@@ -231,21 +229,13 @@ class CountryApiView(APIView):
             packets=Sum('packets_sent')+Sum('packets_received'),
         )
 
-        counts = defaultdict(int)
-        bytes = defaultdict(int)
-        packets = defaultdict(int)
+        values = defaultdict(int)
 
         for obj in objects:
             name, code = get_country_name_and_code(obj['address'])
-            counts[code] += obj['count']
-            bytes[code] += obj['bytes']
-            packets[code] += obj['packets']
+            values[code] += obj[basis]
 
-        return Response({i: [
-            bytes[i],
-            packets[i],
-            counts[i],
-        ] for i in counts})
+        return Response({i: values[i] for i in values})
 
     def get(self, request, format=None):
         return self.post(request, format=format)
