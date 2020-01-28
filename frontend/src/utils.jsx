@@ -97,5 +97,18 @@ export const getDivisionFactorUnitsFromBasis = (max_data,basis) => {
       unit = "events"
     }
   }
-  return {"division_factor":division_factor,"unit":unit,"basis":basis}
-}
+  return {"division_factor":division_factor,"unit":unit,"basis":basis};
+};
+
+
+export const arrayMin = (arr) => {
+  return arr.reduce(function (p, v) {
+    return ( p < v ? p : v );
+  });
+};
+
+export const arrayMax = (arr) => {
+  return arr.reduce(function (p, v) {
+    return ( p > v ? p : v );
+  });
+};
