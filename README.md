@@ -331,7 +331,19 @@ After adding the rule, save and close the file, then restart IPTables.
 ```
 sudo service netfilter-persistent  restart
 ```
-### check the cluster status
+### Step 9: Remove Test Cluster data for FoxhoundClusterData
+6. Because the Debian packages start the Cassandra service automatically, you 
+must stop the server and clear the data:
+
+Doing this removes the default cluster_name (Test Cluster) from the system table. 
+All nodes must use the same cluster name.
+```
+$ sudo service cassandra stop
+$ sudo rm -rf /var/lib/cassandra/data/system/*
+```
+The distribution of Cassandra is ready for configuration.
+
+### Step 10: check the cluster status
 ```
 $ sudo nodetool status
 ```
