@@ -36,7 +36,7 @@ try:
         batch = update_batch_state(
             batch, e, "EXIT", "FAILURE")
 
-    # run.ml_engine()
+    run.ml_engine()
     batch = create_batch_log("BEFORE CSV DC ENGINE", "DC ENGINE",
                              "DC ENGINE", "DC ENGINE STARTED", "RUNNING", "RUNNING")
     try:
@@ -60,7 +60,7 @@ try:
     batch = create_batch_log("BEFORE CSV CHART ENGINE", "CHART ENGINE",
                              "CHART ENGINE", "RULE ENGINE STARTED", "RUNNING", "RUNNING")
     try:
-        run.chart_engine()
+        # run.chart_engine()
         batch = update_batch_state(
             batch, "CHART ENGINE COMPLETE", "STOPPED", "SUCCESS")
     except Exception as e:

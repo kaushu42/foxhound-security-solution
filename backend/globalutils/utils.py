@@ -330,7 +330,11 @@ def _get_query_from_multiple_queries(queries):
     return Q()
 
 
-def get_filter_ids_from_request(request, apply_filters=True):
+def get_filter_ids_from_request(
+        request,
+        apply_filters=True,
+        return_firewall_ids=False
+):
     '''
     Get all possible filter ids for the tenant directly from request
     '''
@@ -348,7 +352,10 @@ def get_filter_ids_from_request(request, apply_filters=True):
             firewall_rule__in=firewall_rules
         ).values_list('id')
     filter_ids = {f[0] for f in filter_ids}
-    return filter_ids
+    return filter_ids if not return_firewall_ids else (
+        filter_ids,
+        firewall_rules
+    )
 
 
 def set_null_items_to_zero(dict):

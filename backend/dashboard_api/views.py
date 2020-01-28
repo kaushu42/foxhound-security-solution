@@ -25,6 +25,13 @@ from core.models import (
     IPChart
 )
 
+from mis.models import (
+    DailySourceIP,
+    DailyDestinationIP
+)
+
+from rules.models import Rule
+
 from serializers.serializers import (
     TimeSeriesChartSerializer,
     ApplicationChartSerializer
@@ -33,7 +40,9 @@ from serializers.serializers import (
 
 class StatsApiView(APIView):
     def post(self, request):
-        filter_ids = get_filter_ids_from_request(request)
+        filter_ids, firewall_rule_ids = get_filter_ids_from_request(
+            request, return_firewall_ids=True
+        )
 
         response = set_null_items_to_zero(
             get_objects_with_date_filtered(
@@ -47,6 +56,24 @@ class StatsApiView(APIView):
                 count=Sum('count')
             )
         )
+        response['new_source_ip'] = get_objects_with_date_filtered(
+            request,
+            DailySourceIP,
+            'logged_datetime',
+            firewall_rule__in=firewall_rule_ids
+        ).count()
+        response['new_destination_ip'] = get_objects_with_date_filtered(
+            request,
+            DailyDestinationIP,
+            'logged_datetime',
+            firewall_rule__in=firewall_rule_ids
+        ).count()
+        response['new_rules'] = get_objects_with_date_filtered(
+            request,
+            Rule,
+            'created_date_time',
+            firewall_rule__in=firewall_rule_ids
+        ).count()
 
         return Response(
             response
@@ -87,6 +114,8 @@ class FiltersApiView(APIView):
 class UsageApiView(APIView):
     def post(self, request, format=None):
         filter_ids = get_filter_ids_from_request(request)
+        basis = request.data.get('basis', 'bytes')
+
         objects = get_objects_with_date_filtered(
             request,
             TimeSeriesChart,
@@ -97,16 +126,19 @@ class UsageApiView(APIView):
             packets=Sum('packets_sent') + Sum('packets_received'),
             count=Sum('count')
         )
-        serializer = TimeSeriesChartSerializer(objects, many=True)
+
+        data = []
+
+        for obj in objects:
+            data.append([obj['logged_datetime'].timestamp(), obj[basis]])
+
         max = objects.aggregate(
-            max_bytes=Max('bytes'),
-            max_packets=Max('packets'),
+            max=Max(basis),
         )
 
         return Response({
-            'data': serializer.data,
-            'max_bytes': max['max_bytes'],
-            'max_packets': max['max_packets'],
+            'data': data,
+            'max': max['max']
         })
 
     def get(self, request, format=None):
@@ -116,9 +148,12 @@ class UsageApiView(APIView):
 class ApplicationApiView(APIView):
     def post(self, request, format=None):
         top_count = int(request.data.get('topcount', 5))
+        basis = request.data.get('basis', 'bytes')
+
         # Send all applications if top_count is 0
         # Assuming applications < 10000
         top_count = top_count if top_count else 10000
+
         firewall_rule_ids = get_firewall_rules_id_from_request(request)
         objects = get_objects_with_date_filtered(
             request,
@@ -133,15 +168,15 @@ class ApplicationApiView(APIView):
             packets=Sum('packets_sent')+Sum('packets_received'),
             count=Sum('count'),
         ).values(
-            bytes=F('bytes'),
-            packets=F('packets'),
-            count=F('count'),
+            'bytes',
+            'packets',
+            'count',
             date=F('logged_datetime'),
             application=F('application__name'),
         )
 
         applications = []
-        max_bytes = 0
+        max = 0
 
         # To store the top applications
         data = defaultdict(int)
@@ -152,20 +187,16 @@ class ApplicationApiView(APIView):
         for obj in objects:
             data[obj['application']] += obj['bytes']
             timestamp = obj['date'].timestamp()
-            bytes = obj['bytes']
-            packets = obj['packets']
-            count = obj['count']
+            value = obj[basis]
 
             # Data is sent in TBPC order
             temp[obj['application']].append(
                 [
                     timestamp,
-                    bytes,
-                    packets,
-                    count
+                    value
                 ]
             )
-            max_bytes = bytes if bytes > max_bytes else max_bytes
+            max = value if value > max else max
 
         # Get the top n applications, sorted by bytes
         top_apps = sorted(data, key=data.get, reverse=True)[:top_count]
@@ -175,7 +206,7 @@ class ApplicationApiView(APIView):
 
         return Response({
             'data': response,
-            'max': max_bytes
+            'max': max
         })
 
     def get(self, request, format=None):
@@ -185,6 +216,8 @@ class ApplicationApiView(APIView):
 class CountryApiView(APIView):
     def post(self, request, format=None):
         filter_ids = get_filter_ids_from_request(request)
+        basis = request.data.get('basis', 'bytes')
+
         objects = get_objects_with_date_filtered(
             request,
             IPChart,
@@ -196,21 +229,13 @@ class CountryApiView(APIView):
             packets=Sum('packets_sent')+Sum('packets_received'),
         )
 
-        counts = defaultdict(int)
-        bytes = defaultdict(int)
-        packets = defaultdict(int)
+        values = defaultdict(int)
 
         for obj in objects:
             name, code = get_country_name_and_code(obj['address'])
-            counts[code] += obj['count']
-            bytes[code] += obj['bytes']
-            packets[code] += obj['packets']
+            values[code] += obj[basis]
 
-        return Response({i: [
-            bytes[i],
-            packets[i],
-            counts[i],
-        ] for i in counts})
+        return Response({i: values[i] for i in values})
 
     def get(self, request, format=None):
         return self.post(request, format=format)
