@@ -64,6 +64,9 @@ class TroubleTicketAnomaly(TroubleTicket):
     packets_received = models.BigIntegerField(default=0)
     source_port = models.IntegerField(default=0)
     destination_port = models.IntegerField(default=0)
+    repeat_count = models.IntegerField(default=0)
+    time_elapsed = models.IntegerField(default=0)
+    logged_datetime = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f'{self.log}'

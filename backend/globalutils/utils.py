@@ -390,7 +390,10 @@ def get_country_name_and_code(ip):
     try:
         country = reader.city(ip).country
         name = country.name
-        code = country.iso_code.lower()
+        try:
+            code = country.iso_code.lower()
+        except Exception as e:
+            code = 'unk'
     except geoip2.errors.AddressNotFoundError:
         name = 'Nepal'
         code = 'np'
