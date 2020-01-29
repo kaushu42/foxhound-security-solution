@@ -151,13 +151,16 @@ export function acceptRule(auth_token,description,record){
 
 
 
-export function fetchAnomalousRulesData(auth_token, params, pagination){
+export function fetchAnomalousRulesData(auth_token, params,  searchSourceIP,  searchDestinationIP, searchAlias, searchApplication,pagination){
     return(dispatch)=>{
 
         let headers = axiosHeader(auth_token);
 
         let bodyFormData = new FormData();
-
+        bodyFormData.set("source_ip", searchSourceIP);
+        bodyFormData.set("destination_ip", searchDestinationIP);
+        bodyFormData.set("alias", searchAlias);
+        bodyFormData.set("application", searchApplication);
         dispatch(fetchAnomalousRulesDataBegin());
         axios.post(FETCH_API,bodyFormData,{headers, params})
             .then(res => {

@@ -7,6 +7,7 @@ import NoDataToDisplay from 'highcharts/modules/no-data-to-display';
 NoDataToDisplay(Highcharts);
 import '../../charts/chart.css';
 import {Card, Spin, DatePicker, Select} from "antd";
+import {getDivisionFactorUnitsFromBasis} from '../../utils'
 
 
 class IpUsageAverageDailyTrendChart extends Component {
@@ -41,7 +42,7 @@ class IpUsageAverageDailyTrendChart extends Component {
                     }
                 },
                 title: {
-                    text: `Average Daily Trend for Bytes Received of ${this.props.ip_address}`
+                    text: null
                 },
                 series: [
                     {
@@ -84,43 +85,19 @@ class IpUsageAverageDailyTrendChart extends Component {
             console.log('fetching average data for ip',ip_address)
             const average_daily_data = res[0].data;
             const recent_data = res[1].data;
-            if(average_daily_data["bytes_received_max"]>1000000000){
-                average_daily_data["bytes_received"] = average_daily_data["bytes_received"].map(e => [((e[0]*1000)),e[1]/(1024*1024*1024)])
-                recent_data["bytes_received"] = recent_data["bytes_received"].map(e => [((e[0]*1000)),e[1]/(1024*1024*1024)])
-                this.setState({
-                    average_daily_data : average_daily_data,
-                    recent_data : recent_data,
-                    unit: "GB"
-                })
-            }
-            else if(average_daily_data["bytes_received_max"]>1000000 && average_daily_data["bytes_received_max"]<1000000000){
-                  average_daily_data["bytes_received"] = average_daily_data["bytes_received"].map(e => [((e[0]*1000)),e[1]/(1024*1024)])
-                  recent_data["bytes_received"] = recent_data["bytes_received"].map(e => [((e[0]*1000)),e[1]/(1024*1024)])
-                  this.setState({
-                      average_daily_data : average_daily_data,
-                      recent_data : recent_data,
-                      unit: "MB"
-                  })
-              }
-            else if(average_daily_data["bytes_received_max"]>1000 && average_daily_data["bytes_received_max"]<1000000){
-                  average_daily_data["bytes_received"] = average_daily_data["bytes_received"].map(e => [((e[0]*1000)),e[1]/(1024)])
-                  recent_data["bytes_received"] = recent_data["bytes_received"].map(e => [((e[0]*1000)),e[1]/(1024)])
-                  this.setState({
-                      average_daily_data : average_daily_data,
-                      recent_data : recent_data,
-                      unit: "KB"
-                  })
-              }
-            else{
-                  this.setState({
-                      average_daily_data : average_daily_data,
-                      recent_data : recent_data,
-                      unit: "Bytes"
-                  })
-            }            
             console.log('fetched data ',recent_data);
+            const data = [];
+            const v = getDivisionFactorUnitsFromBasis(average_daily_data["max"],this.state.basis)
+            const division_factor = v["division_factor"];
+            const unit = v["unit"];
+            for (var i = 0; i<average_daily_data.data.length; i++){
+                data.push([average_daily_data.data[i][0]*1000, (average_daily_data.data[i][1])/division_factor])
+            }
+            this.setState({
+                data: data,
+                unit: unit
+            })
         })
-
     }
 
 
@@ -183,11 +160,11 @@ class IpUsageAverageDailyTrendChart extends Component {
         // });
         this.chart.update({
             title : {
-              text : `Average Daily Trend for Bytes Received of ${this.props.ip_address}`
+              text : null
             },
             series: [
                 {
-                    name : 'Bytes Received' + '(' + unit + ')',
+                    name : this.state.basis + '(' + unit + ')',
                     type : 'spline',
                     data : recent_data
                 },
@@ -199,7 +176,7 @@ class IpUsageAverageDailyTrendChart extends Component {
             ],
             yAxis:{
                 title:{
-                    text:"Bytes Received",
+                    text: this.state.basis
                   },
                   labels :{
                       formatter: function () {
@@ -226,11 +203,15 @@ class IpUsageAverageDailyTrendChart extends Component {
 
     render() {
         console.log("loading",this.state.loading);
+        // const text = `Average Daily Trend for ${this.state.basis} of ${this.props.ip_address}`
         return (
             <Fragment>
                 <Card
                     title = {
                             <Fragment>
+                                <div style={{textAlign:"center"}}>
+                                <b>{`Average Daily Trend for ${this.state.basis} of ${this.props.ip_address}`}</b>
+                                <br></br>
                                 <DatePicker 
                                     style={{ width: "50%"}}
                                     onChange = {this.onChange}/>
@@ -244,6 +225,7 @@ class IpUsageAverageDailyTrendChart extends Component {
                                     <Select.Option key={"packets"}>Packets</Select.Option>
                                     <Select.Option key={"repeat"}>Count</Select.Option>
                                 </Select>
+                                </div>
                               </Fragment>
                     }>
                     <Spin tip="Loading..." spinning={this.state.loading}>

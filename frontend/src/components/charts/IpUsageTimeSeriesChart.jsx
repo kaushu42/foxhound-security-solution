@@ -7,6 +7,7 @@ import { Card, Spin, Select } from "antd";
 import moment from "moment";
 import NoDataToDisplay from "highcharts/modules/no-data-to-display";
 import { ipUsageDataService } from "../../services/ipUsageService";
+import {getDivisionFactorUnitsFromBasis} from '../../utils'
 NoDataToDisplay(Highcharts);
 
 class IpUsageTimeSeriesChart extends Component {
@@ -19,7 +20,7 @@ class IpUsageTimeSeriesChart extends Component {
       basis: "bytes",
       options: {
         title: {
-          text: "Bandwidth Usage View | Bytes Received"
+          text: null
         },
         chart: {
           zoomType: "x"
@@ -70,34 +71,18 @@ class IpUsageTimeSeriesChart extends Component {
     const { auth_token, ip_address } = this.props;
     ipUsageDataService(auth_token, ip_address, this.state.basis, this.props).then(res => {
       console.log("fetching current data for ip", ip_address);
-      const data = res.data;
-      if(data["bytes_received_max"]>1000000000){
-        data["bytes_received"] = data["bytes_received"].map(e => [((e[0]*1000)),e[1]/(1024*1024*1024)])
-        this.setState({
-            data : data,
-            unit: "GB"
-        })
+      const response = res.data;
+      const data = [];
+      const v = getDivisionFactorUnitsFromBasis(response["max"],this.state.basis)
+      const division_factor = v["division_factor"];
+      const unit = v["unit"];
+      for (var i = 0; i<response.data.length; i++){
+        data.push([response.data[i][0]*1000, (response.data[i][1])/division_factor])
       }
-      else if(data["bytes_received_max"]>1000000 && data["bytes_received_max"]<1000000000){
-          data["bytes_received"] = data["bytes_received"].map(e => [((e[0]*1000)),e[1]/(1024*1024)])
-          this.setState({
-              data : data,
-              unit: "MB"
-          })
-      }
-      else if(data["bytes_received_max"]>1000 && data["bytes_received_max"]<1000000){
-          data["bytes_received"] = data["bytes_received"].map(e => [((e[0]*1000)),e[1]/(1024)])
-          this.setState({
-              data : data,
-              unit: "KB"
-          })
-      }
-      else{
-          this.setState({
-              data : data,
-              unit: "Bytes"
-          })
-      }
+      this.setState({
+        data: data,
+        unit: unit
+      })
     });
   };
 
@@ -160,18 +145,18 @@ class IpUsageTimeSeriesChart extends Component {
     });
     this.chart.update({
       title: {
-        text: `Time Series Chart for Bytes Received of ${this.props.ip_address}`
+        text: null
       },
       series: [
         {
           type: "spline",
-          name : 'Bytes Received' + '(' + unit + ')',
+          name : this.state.basis + '(' + unit + ')',
           data: data
         }
       ],
       yAxis:{
         title:{
-            text:"Bytes Received",
+            text: this.state.basis
           },
           labels :{
               formatter: function () {
@@ -195,7 +180,9 @@ class IpUsageTimeSeriesChart extends Component {
         <Card
             title={
               <Fragment>
-                <div>
+              <div style={{textAlign:"center"}}>
+              <b>{`Bandwidth Usage for ${this.state.basis} of ${this.props.ip_address}`}</b>
+              <br></br>
                   <Select
                     onChange={value => this.setState({ basis: value })}
                     size={"default"}

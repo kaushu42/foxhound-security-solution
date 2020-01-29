@@ -73,12 +73,16 @@ export function handleDrawerClose(){
     }
 }
 
-export function fetchVerifiedRulesData(auth_token, params, pagination){
+export function fetchVerifiedRulesData(auth_token, params, searchSourceIP, searchDestinationIP, searchAlias, searchApplication, pagination){
     return(dispatch)=>{
 
         let headers = axiosHeader(auth_token);
 
         let bodyFormData = new FormData();
+        bodyFormData.set("source_ip", searchSourceIP);
+        bodyFormData.set("destination_ip", searchDestinationIP);
+        bodyFormData.set("alias", searchAlias);
+        bodyFormData.set("application", searchApplication);
 
         dispatch(fetchVerifiedRulesDataBegin());
         axios.post(FETCH_API,bodyFormData,{headers, params})

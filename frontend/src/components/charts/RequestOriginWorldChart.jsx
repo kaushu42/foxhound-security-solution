@@ -286,7 +286,7 @@ class RequestOriginWorldChart extends Component {
     const options = {
       chart: {},
       title: {
-        text: "Request Origin Map View"
+        text: null
       },
       mapNavigation: {
         enabled: true,
@@ -341,7 +341,9 @@ class RequestOriginWorldChart extends Component {
           <Card
             title={
               <Fragment>
-                Request Origin 
+                <div style={{textAlign:"center"}}>
+                <b>Request Origin Map View</b>
+                <br></br>
                 {countrySelectListData ? (
                   <Select
                     id="country"
@@ -376,6 +378,7 @@ class RequestOriginWorldChart extends Component {
                     <Select.Option key={"packets"}>Packets</Select.Option>
                     <Select.Option key={"count"}>Count</Select.Option>
                   </Select>
+                  </div>
               </Fragment>
             }
             className={{ height: 450 }}

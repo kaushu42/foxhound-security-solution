@@ -29,6 +29,7 @@ import {
     UNVERIFIED_RULES_TABLE_PAGINATION_UPDATE,
 } from "../actionTypes/unverifiedRulesActionType";
 import {fetchAnomalousRulesData} from "./anomalousRulesAction";
+import { search } from "./ipSearchAction";
 
 
 const FETCH_API  = `${ROOT_URL}rules/unverified/`;
@@ -314,11 +315,17 @@ export function rejectRule(auth_token,description,record){
     }
 }
 
-export function fetchUnverifiedRulesData(auth_token, params, pagination){
+export function fetchUnverifiedRulesData(auth_token, params, searchSourceIP, searchDestintaionIP, searchAlias, searchApplication, pagination){
     return(dispatch)=>{
         let headers = axiosHeader(auth_token);
+        let bodyFormData = new FormData();
+        bodyFormData.set("source_ip", searchSourceIP);
+        bodyFormData.set("destination_ip", searchDestintaionIP);
+        bodyFormData.set("alias", searchAlias);
+        bodyFormData.set("application", searchApplication);
+
         dispatch(fetchUnverifiedRulesDataBegin());
-        axios.post(FETCH_API,null,{headers, params})
+        axios.post(FETCH_API,bodyFormData,{headers, params})
             .then(res => {
                 const response = res.data;
                 console.log(response);

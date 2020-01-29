@@ -21,7 +21,7 @@ class BandwidthUsageChart extends Component {
       basis: "bytes",
       options: {
         title: {
-          text: "Time Series Usage Chart"
+          text: null
         },
         chart: {
           zoomType: "x",
@@ -205,8 +205,9 @@ class BandwidthUsageChart extends Component {
         <Card
             title={
               <Fragment>
-                <div>
-                  Time Series Usages Chart
+                <div style={{textAlign:"center"}}>
+                  <b>Time Series Usages Chart</b>
+                  <br></br>
                   <Select
                     onChange={value => this.setState({ basis: value })}
                     size={"default"}
