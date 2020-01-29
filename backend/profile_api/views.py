@@ -117,12 +117,13 @@ class UsageApiView(APIView):
 
 
 class AverageDailyApiView(APIView):
-    def _get_usage(self, ip, objects, basis):
+    def _get_total_avg(self, objects, basis):
         if basis == 'count':
             fields = ['count']
         else:
             fields = [f'{basis}_sent', f'{basis}_received']
-
+        n_days = objects.distinct('logged_datetime').values('logged_datetime')
+        n_days = n_days.count()//24
         data = groupby_date(
             objects,
             'logged_datetime',
@@ -132,54 +133,61 @@ class AverageDailyApiView(APIView):
         )
         total_avg = defaultdict(int)
         for d in data:
-            hour = (d['date'] + datetime.timedelta(hours=5, minutes=45)).hour
+            hour = d['date'].hour
             if basis == 'count':
-                total_avg[hour] += d['count']
+                total_avg[hour] += (d['count'])/n_days
             else:
-                total_avg[hour] += d[fields[0]] + d[fields[1]]
-
+                total_avg[hour] += (d[fields[0]] + d[fields[1]])/n_days
         return total_avg
+
+    def _get_date_usage(self, objects, basis, date):
+        latest_date = objects.latest('logged_datetime').logged_datetime
+        if date is None:
+            date = latest_date.replace(
+                hour=0,
+                minute=0,
+                second=0,
+                microsecond=0
+            )
+        else:
+            date = str_to_date(date)
+        latest_data = objects.filter(logged_datetime__range=(
+            date, date + datetime.timedelta(days=1))
+        )
+
+        response = defaultdict(int)
+        for data in latest_data:
+            # print(data.logged_datetime)
+            if basis == 'count':
+                sum_value = data.count
+            else:
+                sum_value = getattr(
+                    data, f'{basis}_sent'
+                ) + getattr(
+                    data, f'{basis}_received'
+                )
+            response[data.logged_datetime.hour] += sum_value
+        return response
+
+    def _get_usage(self, ip, objects, basis, date):
+        average = self._get_total_avg(objects, basis)
+        daily = self._get_date_usage(objects, basis, date)
+        return {
+            'average': average,
+            'daily': daily
+        }
 
     def post(self, request, format=None):
         filter_ids = get_filter_ids_from_request(request)
         basis = request.data.get('basis', 'bytes')
         ip = get_ip_from_request(request)
-
+        date = request.data.get('date')
         objects = IPChart.objects.filter(
             filter__in=filter_ids,
             address=ip
         )
-        response = self._get_usage(ip, objects, basis)
-        return Response(response, status=HTTP_200_OK)
 
-    def get(self, request, format=None):
-        return self.post(request, format=format)
-
-
-class ActivityApiView(APIView):
-    def _get_activity(self, ip, objects):
-        objs = groupby_date(
-            objects.filter(source_ip__address=ip),
-            'logged_datetime',
-            'day',
-            ['bytes_sent', 'bytes_received']
-        )
-
-        activity_bytes_sent, activity_bytes_received = get_activity(objs)
-
-        return {
-            "activity_bytes_sent": activity_bytes_sent,
-            "activity_bytes_received": activity_bytes_received,
-        }
-
-    def post(self, request, format=None):
-        tenant_id = get_tenant_id_from_token(request)
-        ip = get_ip_from_request(request)
-        query = get_query_from_request(request)
-        objects = get_objects_from_query(query).filter(
-            firewall_rule__tenant__id=tenant_id
-        )
-        response = self._get_activity(ip, objects)
+        response = self._get_usage(ip, objects, basis, date)
         return Response(response, status=HTTP_200_OK)
 
     def get(self, request, format=None):

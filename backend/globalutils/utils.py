@@ -140,13 +140,13 @@ def get_filters(request):
     return response
 
 
-def str_to_date(string):
+def str_to_date(string, timezone=pytz.UTC):
     """
         Returns a datetime if the string can be converted to string.
         Else, return None
     """
     try:
-        return datetime.datetime.strptime(string, '%Y-%m-%d')
+        return datetime.datetime.strptime(string, '%Y-%m-%d').astimezone(pytz.UTC)
     except Exception as e:
         return None
 
