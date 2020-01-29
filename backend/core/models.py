@@ -118,7 +118,7 @@ class FirewallRuleZone(models.Model):
     )
 
     def __str__(self):
-        return f'{self.firewall_rule}:{self.source_zone}-{self.destination_zone}'
+        return f'{self.firewall_rule}'
 
     def __repr__(self):
         return self.__str__()
@@ -376,9 +376,11 @@ class CeleryTasksetmeta(models.Model):
 
 class BackgroundJob(models.Model):
     tenant = models.ForeignKey(
-        Tenant, on_delete=models.CASCADE, related_name="tenant_background_job")
+        Tenant, on_delete=models.CASCADE,
+        related_name="tenant_background_job")
     task = models.ForeignKey(
-        CeleryTasksetmeta, on_delete=models.CASCADE, related_name="task_background_job")
+        CeleryTasksetmeta, on_delete=models.CASCADE,
+        related_name="task_background_job")
 
 
 class BaseFilter(models.Model):

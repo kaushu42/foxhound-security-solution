@@ -399,3 +399,9 @@ def get_country_name_and_code(ip):
         code = 'np'
 
     return name, code
+
+
+def to_regex(string):
+    if string is None:
+        return None
+    return string.replace('.', r'\.').replace('*', '.*')

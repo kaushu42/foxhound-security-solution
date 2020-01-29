@@ -21,25 +21,3 @@ class Rule(models.Model):
         blank=True
     )
     verified_date_time = models.DateTimeField(auto_now=True, null=True)
-
-    def source_ip_alias(self):
-        try:
-            alias = TenantIPAddressInfo.objects.get(
-                firewall_rule=self.firewall_rule,
-                address=self.source_ip
-            ).alias
-        except Exception as e:
-            print(e)
-            return None
-        return alias
-
-    def destination_ip_alias(self):
-        try:
-            alias = TenantIPAddressInfo.objects.get(
-                firewall_rule=self.firewall_rule,
-                address=self.destination_ip
-            ).alias
-        except Exception as e:
-            print(e)
-            return None
-        return alias

@@ -1,9 +1,9 @@
 from django.urls import path
 
-from . import views_v1
+from . import views_v1, views
 
 urlpatterns = [
-    path('all/', views_v1.RulesApiView.as_view()),
+    path('all/', views.RulesApiView.as_view()),
     path('verified/', views_v1.VerifiedRulesApiView.as_view()),
     path('unverified/', views_v1.UnverifiedRulesApiView.as_view()),
     path('anomalous/', views_v1.AnomalousRulesApiView.as_view()),
