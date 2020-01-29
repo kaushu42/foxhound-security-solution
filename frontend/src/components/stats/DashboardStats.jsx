@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import { Card, Spin, Statistic } from "antd";
+import { Card, Spin, Statistic, Drawer } from "antd";
 import { connect } from "react-redux";
 import axios from "axios";
 import { ROOT_URL } from "../../utils";
@@ -21,7 +21,9 @@ class DashboardStats extends Component {
       new_rules: 0,
       unit: "",
       new_source_ip: 0,
-      new_destination_ip: 0
+      new_destination_ip: 0,
+      new_source_ip_drawer_visible:false,
+      new_destination_ip_drawer_visible:false
     };
   }
 
@@ -91,6 +93,30 @@ class DashboardStats extends Component {
       .catch(error => console.log(error));
   };
 
+  showNewDestinationIPDrawer = () => {
+    this.setState({
+      new_destination_ip_drawer_visible:true,
+    });
+  }
+
+  toggleNewDestinationIPDrawer = () => {
+    this.setState({
+      new_destination_ip_drawer_visible: !this.state.new_destination_ip_drawer_visible
+    });
+  }
+
+  showNewSourceIPDrawer = () => {
+    this.setState({
+      new_source_ip_drawer_visible:true,
+    });
+  }
+
+  toggleNewSourceIPDrawer = () => {
+    this.setState({
+      new_source_ip_drawer_visible: !this.state.new_source_ip_drawer_visible
+    });
+  }
+
   render() {
     const uplink = `${this.state.uplink} ${this.state.unit}`;
     const downlink = `${this.state.downlink} ${this.state.unit}`;
@@ -107,14 +133,31 @@ class DashboardStats extends Component {
           <Card.Grid style={gridStyle}>
             <Statistic title="New Rules" value={this.state.new_rules} />
           </Card.Grid>
-          <Card.Grid style={gridStyle}>
+          <Card.Grid style={gridStyle} onClick={this.showNewSourceIPDrawer}>
             <Statistic title="New Source IP" value={this.state.new_source_ip} />
           </Card.Grid>
-          <Card.Grid style={gridStyle}>
+          <Card.Grid style={gridStyle} onClick={this.showNewDestinationIPDrawer}>
             <Statistic title="New Destination IP" value={this.state.new_destination_ip} />
           </Card.Grid>
         </Spin>
+      <Drawer 
+        title={"New Destination Address"} 
+        visible={this.state.new_destination_ip_drawer_visible} 
+        width={600}
+        closable={true}
+        placement={"right"}
+        onClose={this.toggleNewDestinationIPDrawer}>
+      </Drawer>
+      <Drawer 
+        title={"New Source Address"} 
+        visible={this.state.new_source_ip_drawer_visible} 
+        width={600}
+        closable={true}
+        placement={"right"}
+        onClose={this.toggleNewSourceIPDrawer}>
+      </Drawer>
       </Fragment>
+
     );
   }
 }

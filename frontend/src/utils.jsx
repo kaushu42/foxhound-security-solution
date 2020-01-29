@@ -38,3 +38,77 @@ export const bytesToSize = bytes => {
   let i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
   return Math.round(bytes / Math.pow(1024, i), 2) + " " + sizes[i];
 };
+
+
+export const getDivisionFactorUnitsFromBasis = (max_data,basis) => {
+  let division_factor = 1;
+  let unit = "";
+  if(basis=="bytes"){
+    if (max_data > 1000000000) {
+      division_factor = 1024*1024*1024;
+      unit = "GB"
+    }
+    else if (max_data > 1000000 && max_data < 1000000000) {
+      division_factor = 1024*1024;
+      unit = "MB"
+    }
+    else if (max_data > 1000 && max_data < 1000000) {
+      division_factor = 1024;
+      unit = "KB"
+    }
+    else {
+      division_factor = 1;
+      unit = "B"
+    }
+  }
+  else if (basis=="packets"){
+    if (max_data > 1000000000) {
+      division_factor = 1000*1000*1000;
+      unit = "B packets"
+    }
+    else if (max_data > 1000000 && max_data < 1000000000) {
+      division_factor = 1000*1000;
+      unit = "M packets"
+    }
+    else if (max_data > 1000 && max_data < 1000000) {
+      division_factor = 1000;
+      unit = "K packets"
+    }
+    else {
+      division_factor = 1;
+      unit = "packets"
+    }
+  }
+  else {
+    if (max_data > 1000000000) {
+      division_factor = 1000*1000*1000;
+      unit = "B events"
+    }
+    else if (max_data > 1000000 && max_data < 1000000000) {
+      division_factor = 1000*1000;
+      unit = "M events"
+    }
+    else if (max_data > 1000 && max_data < 1000000) {
+      division_factor = 1000;
+      unit = "K events"
+    }
+    else {
+      division_factor = 1;
+      unit = "events"
+    }
+  }
+  return {"division_factor":division_factor,"unit":unit,"basis":basis};
+};
+
+
+export const arrayMin = (arr) => {
+  return arr.reduce(function (p, v) {
+    return ( p < v ? p : v );
+  });
+};
+
+export const arrayMax = (arr) => {
+  return arr.reduce(function (p, v) {
+    return ( p > v ? p : v );
+  });
+};

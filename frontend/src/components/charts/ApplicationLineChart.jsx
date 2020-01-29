@@ -3,7 +3,7 @@ import HighchartsReact from "highcharts-react-official";
 import { Card, Drawer, Select, Spin, Table } from "antd";
 import { connect } from "react-redux";
 import axios from "axios";
-import { bytesToSize, ROOT_URL } from "../../utils";
+import { bytesToSize, ROOT_URL,arrayMax, getDivisionFactorUnitsFromBasis} from "../../utils";
 import Highcharts from "highcharts";
 import moment from "moment";
 import QuickIpView from "../../views/QuickIpView";
@@ -22,6 +22,7 @@ class ApplicationLineChart extends Component {
       data: [],
       top_count: 5,
       basis: "bytes",
+      unit: "B",
       selectedApplicationLogData: [],
       selectedApplicationLogDrawerVisible: false,
       selectedApplication: null,
@@ -183,30 +184,77 @@ class ApplicationLineChart extends Component {
     }
     if (prevState.data !== this.state.data) {
       let dataSeries = [];
+      let max_data = 1;
       Object.keys(this.state.data).forEach(key => {
-        let key_data = this.state.data[key].map(e => [e[0] * 1000, e[1] / 1024 / 1024]);
+        let key_max = arrayMax(this.state.data[key].map(e => [e[1]]));
+        if (key_max > max_data){
+          max_data = key_max;
+        }
+      });
+      const v = getDivisionFactorUnitsFromBasis(max_data,this.state.basis)
+      const division_factor = v["division_factor"];
+      const unit = v["unit"];
+      this.setState({
+        unit: unit
+      });
+      console.log("unit",unit);
+      Object.keys(this.state.data).forEach(key => {
+        let key_data = this.state.data[key].map(e => [e[0] * 1000, e[1] / division_factor]);
         key_data.sort(function(a, b) {
           return a[0] > b[0] ? 1 : -1;
         });
-
         let tempSeries = {
           name: key,
           type: "spline",
           data: key_data
         };
-        console.log(this.state.data[key]);
         dataSeries.push(tempSeries);
       });
-      this.updateChart(dataSeries);
+      this.updateChart(dataSeries,unit);
     }
   }
 
-  updateChart = data => {
+  updateChart = (data,unit) => {
+    this.chart.update({
+      tooltip: {
+        valueSuffix: unit,
+        shared: true,
+        followPointer: true,
+        snap: 1,
+        xDateFormat: "%m/%d/%y %l:%M %p",
+        valueDecimals: 2,
+        crosshairs: [
+          {
+            snap: false,
+            zIndex: 10
+          }
+        ]
+      },
+      yAxis: [
+        {
+          min: 0,
+          minorTickInterval: 0.1,
+          lineWidth: 0,
+          offset: 0,
+          showLastLabel: true,
+          title: {
+            text: this.state.basis
+          },
+          labels: {
+            formatter: function() {
+              return this.value + " " + unit;
+            }
+          },
+        }
+      ]    
+    });
+    this.chart.redraw();
     const seriesLength = this.chart.series.length;
     for (let i = seriesLength - 1; i > -1; i--) {
       this.chart.series[i].remove();
     }
     this.chart.redraw();
+    
     for (let i = 0; i < data.length; i++) {
       this.chart.addSeries({
         name: data[i].name,
@@ -356,46 +404,6 @@ class ApplicationLineChart extends Component {
       time:{
         timezoneOffset: -5*60 - 45
       },
-      tooltip: {
-        valueSuffix: " MB",
-        shared: true,
-        followPointer: false,
-        snap: 1,
-        xDateFormat: "%m/%d/%y %l:%M %p",
-        valueDecimals: 2,
-        crosshairs: [
-          {
-            snap: false,
-            zIndex: 10
-          }
-        ]
-      },
-      yAxis: [
-        {
-          min: 0,
-          minorTickInterval: 0.1,
-          lineWidth: 0,
-          offset: 0,
-          showLastLabel: true,
-          labels: {
-            style: {
-              fontSize: "11px",
-              textOverflow: "ellipsis",
-              width: "100px",
-              whiteSpace: "nowrap"
-            }
-          },
-          title: {
-            useHTML: true,
-            style: {
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              width: "100px"
-            },
-            text: "Bytes (MB)"
-          }
-        }
-      ],
       chart: {
         zoomType: "x"
       },

@@ -4,7 +4,7 @@ import HighchartsReact from "highcharts-react-official";
 import { Card, Row, Spin, Select } from "antd";
 import { connect } from "react-redux";
 import axios from "axios";
-import { ROOT_URL } from "../utils";
+import { ROOT_URL,getDivisionFactorUnitsFromBasis } from "../utils";
 require("highcharts/modules/exporting")(Highcharts);
 import "./chart.css";
 const FETCH_API = `${ROOT_URL}dashboard/usage/`;
@@ -17,11 +17,11 @@ class BandwidthUsageChart extends Component {
     this.state = {
       loading: true,
       data: [],
-      unit: "",
+      unit: "MB",
       basis: "bytes",
       options: {
         title: {
-          text: "Bandwidth Usage View | Bytes Received"
+          text: "Time Series Usage Chart"
         },
         chart: {
           zoomType: "x",
@@ -43,7 +43,7 @@ class BandwidthUsageChart extends Component {
         series: [
           {
             type: "spline",
-            name: "Bytes Received",
+            name: "Bytes",
             data: []
           }
         ],
@@ -88,6 +88,7 @@ class BandwidthUsageChart extends Component {
     };
 
     let bodyFormData = new FormData();
+    bodyFormData.set("basis", this.state.basis);
     bodyFormData.set("start_date", this.props.date_range[0]);
     bodyFormData.set("end_date", this.props.date_range[1]);
     bodyFormData.set("ip_address", this.props.ip_address);
@@ -96,63 +97,21 @@ class BandwidthUsageChart extends Component {
     bodyFormData.set("protocol", this.props.protocol);
     bodyFormData.set("source_zone", this.props.source_zone);
     bodyFormData.set("destination_zone", this.props.destination_zone);
-    bodyFormData.set("basis", this.state.basis);
 
     axios.post(FETCH_API, bodyFormData, { headers }).then(res => {
       const response = res.data;
       console.log("api data", response.data);
-      var i;
-      const bytes = []
-      if (response["max"] > 1000000000) {
-        for (i = 0; i<response.data.length; i++){
-          // console.log(response[i]['date']*1000)
-          bytes.push([response.data[i]['date']*1000, (response.data[i]['bytes'])/(1024*1024*1024)])
-        }
-        const chartData = {'bytes_sent':bytes}
-        this.setState({
-          data:chartData,
-          unit: "GB"
-        })
+      const data = [];
+      const v = getDivisionFactorUnitsFromBasis(response["max"],this.state.basis)
+      const division_factor = v["division_factor"];
+      const unit = v["unit"];
+      for (var i = 0; i<response.data.length; i++){
+        data.push([response.data[i][0]*1000, (response.data[i][1])/division_factor])
       }
-      else if (
-        response["max"] > 1000000 &&
-        response["max"] < 1000000000
-      ) {
-        for (i = 0; i<response.data.length; i++){
-          // console.log(response[i]['date']*1000)
-          bytes.push([response.data[i]['date']*1000, (response.data[i]['bytes'])/(1024*1024)])
-        }
-        const chartData = {'bytes_sent':bytes}
-        this.setState({
-          data:chartData,
-          unit: "MB"
-        })
-      }
-      else if (
-        response["max"] > 1000 &&
-        response["max"] < 1000000
-      ) {
-        for (i = 0; i<response.data.length; i++){
-          // console.log(response[i]['date']*1000)
-          bytes.push([response.data[i]['date']*1000, (response.data[i]['bytes'])/1024])
-        }
-        const chartData = {'bytes_sent':bytes}
-        this.setState({
-          data:chartData,
-          unit: "KB"
-        })
-      } 
-      else {
-        for (i = 0; i<response.data.length; i++){
-          // console.log(response[i]['date']*1000)
-          bytes.push([response.data[i]['date']*1000, response.data[i]['bytes']])
-        }
-        const chartData = {'bytes_sent':bytes}
-        this.setState({
-          data:chartData,
-          unit: "bytes"
-        })
-      }
+      this.setState({
+        data: data,
+        unit: unit
+      })
     });
   };
 
@@ -201,31 +160,28 @@ class BandwidthUsageChart extends Component {
       this.handleFetchData();
     }
     if (prevState.data !== this.state.data) {
-      let dataSeries = this.state.data["bytes_sent"];
-      // .map(e => [((e[0]*1000)),e[1]/1024/1024])
+      let dataSeries = this.state.data;
       dataSeries.sort(function(a, b) {
         return a[0] > b[0] ? 1 : -1;
       });
-      console.log("Bandwidth chart dataseries", dataSeries);
       this.updateChart(dataSeries, this.state.unit);
     }
   }
 
   updateChart = (data, unit) => {
     if (data != undefined) {
-      console.log("final data", data);
       this.chart.update({
         series: [
           {
-            id: "bytes",
+            id: this.state.basis,
             type: "areaspline",
-            name: "Bytes Received" + "(" + unit + ")",
+            name: this.state.basis + "(" + unit + ")",
             data: data
           }
         ],
         yAxis: {
           title: {
-            text: "Bytes Received"
+            text: this.state.basis
           },
           labels: {
             formatter: function() {
@@ -250,6 +206,7 @@ class BandwidthUsageChart extends Component {
             title={
               <Fragment>
                 <div>
+                  Time Series Usages Chart
                   <Select
                     onChange={value => this.setState({ basis: value })}
                     size={"default"}
@@ -258,7 +215,7 @@ class BandwidthUsageChart extends Component {
                   >
                     <Option key={"bytes"}>Bytes</Option>
                     <Option key={"packets"}>Packets</Option>
-                    <Option key={"repeat"}>Count</Option>
+                    <Option key={"count"}>Count</Option>
                   </Select>
                 </div>
               </Fragment>
