@@ -6,6 +6,7 @@ from foxhound.tt_engine.TTAnomaly import TTAnomaly
 from foxhound.mis_engine.MISEngine import MISEngine
 from foxhound.chart_engine.ChartEngine import ChartEngine
 from foxhound.rule_engine.RuleEngine import RuleEngine
+from foxhound.log_engine.LogEngine import LogEngine
 import config
 import utils
 
@@ -22,6 +23,11 @@ def ml_engine(init=True, mle=True, create_model=True, predict=True):
                        config.ANOMALY_LOGS_OUTPUT_DIR,
                        verbose=True)
         mle.run(create_model=create_model, predict=predict)
+
+
+def log_engine():
+    log = LogEngine(config.TRAFFIC_LOGS_INPUT_DIR, spark=config.SPARK)
+    log.run()
 
 
 def dc_engine(verbose=True):

@@ -60,6 +60,11 @@ class TrafficLog(models.Model):
     processed_datetime = models.DateField(auto_now_add=True)
     log_date = models.DateField()
     log_name = models.CharField(max_length=200)
+    mis_engine_ran = models.BooleanField(null=True)
+    chart_engine_ran = models.BooleanField(null=True)
+    db_engine_ran = models.BooleanField(null=True)
+    dc_engine_ran = models.BooleanField(null=True)
+    ml_engine_ran = models.BooleanField(null=True)
 
     def __repr__(self):
         return self.log_name

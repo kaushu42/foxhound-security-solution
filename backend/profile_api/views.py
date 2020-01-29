@@ -141,7 +141,7 @@ class AverageDailyApiView(APIView):
         return total_avg
 
     def _get_date_usage(self, objects, basis, date):
-        latest_date = objects.latest('logged_datetime').logged_datetime
+        latest_date = IPChart.objects.latest('logged_datetime').logged_datetime
         if date is None:
             date = latest_date.replace(
                 hour=0,
