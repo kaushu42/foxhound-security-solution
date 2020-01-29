@@ -116,72 +116,39 @@ class UsageApiView(APIView):
 
 
 class AverageDailyApiView(APIView):
-    def _get_usage(self, ip, objects):
-        objects = objects.filter(
-            source_ip__address=ip,
-        )
-        as_source = groupby_date(
+    def _get_usage(self, ip, objects, basis):
+        if basis == 'count':
+            fields = ['count']
+        else:
+            fields = [f'{basis}_sent', f'{basis}_received']
+
+        data = groupby_date(
             objects,
             'logged_datetime',
             'hour',
-            ['bytes_sent'],
+            fields,
             Sum
         )
-        as_destination = groupby_date(
-            objects,
-            'logged_datetime',
-            'hour',
-            ['bytes_received'],
-            Sum
-        )
-        unique_dates = {i['date'].date() for i in as_source}
-        n_days = len(unique_dates) - 1
-        if n_days == 0:
-            n_days = 1
-        bytes_sent = defaultdict(int)
-        bytes_received = defaultdict(int)
-        for sent, received in zip(as_source, as_destination):
-            time = str(sent['date'].time())
-            bytes_sent[time] += sent['bytes_sent']/n_days
-            bytes_received[time] += received['bytes_received']/n_days
+        total_avg = defaultdict(int)
+        for d in data:
+            hour = (d['date'] + datetime.timedelta(hours=5, minutes=45)).hour
+            if basis == 'count':
+                total_avg[hour] += d['count']
+            else:
+                total_avg[hour] += d[fields[0]] + d[fields[1]]
 
-        bytes_sent = OrderedDict(sorted(bytes_sent.items()))
-        bytes_received = OrderedDict(sorted(bytes_received.items()))
-
-        bytes_sent_data = []
-        bytes_received_data = []
-        assert len(bytes_sent) == len(bytes_received)
-        import time
-        latest_date = TrafficLogDetailGranularHour.objects.latest(
-            'logged_datetime').logged_datetime
-
-        s = str(latest_date.date())
-        timestamp = time.mktime(
-            datetime.datetime.strptime(s, "%Y-%m-%d").timetuple())
-
-        for i, j in zip(bytes_sent, bytes_received):
-            ts_sent = timestamp + int(i.split(':')[0]) * 3600
-            ts_received = timestamp + int(j.split(':')[0]) * 3600
-            bytes_sent_data.append([ts_sent, bytes_sent[i]])
-            bytes_received_data.append([ts_received, bytes_received[j]])
-        bytes_sent_max = get_max(bytes_sent_data)
-        bytes_received_max = get_max(bytes_received_data)
-
-        return {
-            "bytes_sent": bytes_sent_data,
-            "bytes_received": bytes_received_data,
-            "bytes_sent_max": bytes_sent_max,
-            "bytes_received_max": bytes_received_max
-        }
+        return total_avg
 
     def post(self, request, format=None):
-        tenant_id = get_tenant_id_from_token(request)
+        filter_ids = get_filter_ids_from_request(request)
+        basis = request.data.get('basis', 'bytes')
         ip = get_ip_from_request(request)
-        # query = get_query_from_request(request)
-        objects = TrafficLogDetailGranularHour.objects.filter(
-            firewall_rule__tenant__id=tenant_id
+
+        objects = IPChart.objects.filter(
+            filter__in=filter_ids,
+            address=ip
         )
-        response = self._get_usage(ip, objects)
+        response = self._get_usage(ip, objects, basis)
         return Response(response, status=HTTP_200_OK)
 
     def get(self, request, format=None):
