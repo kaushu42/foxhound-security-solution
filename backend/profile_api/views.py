@@ -156,6 +156,7 @@ class AverageDailyApiView(APIView):
         )
 
         response = defaultdict(int)
+        max = 0
         for data in latest_data:
             # print(data.logged_datetime)
             if basis == 'count':
@@ -167,14 +168,18 @@ class AverageDailyApiView(APIView):
                     data, f'{basis}_received'
                 )
             response[data.logged_datetime.hour] += sum_value
-        return response
+            if max < sum_value:
+                max = sum_value
+
+        return response, max
 
     def _get_usage(self, ip, objects, basis, date):
         average = self._get_total_avg(objects, basis)
-        daily = self._get_date_usage(objects, basis, date)
+        daily, max = self._get_date_usage(objects, basis, date)
         return {
             'average': average,
-            'daily': daily
+            'daily': daily,
+            'max': max
         }
 
     def post(self, request, format=None):
@@ -182,6 +187,8 @@ class AverageDailyApiView(APIView):
         basis = request.data.get('basis', 'bytes')
         ip = get_ip_from_request(request)
         date = request.data.get('date')
+        if not date:
+            date = None
         objects = IPChart.objects.filter(
             filter__in=filter_ids,
             address=ip
