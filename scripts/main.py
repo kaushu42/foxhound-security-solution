@@ -26,6 +26,16 @@ try:
                              "SEEDING STARTED", "RUNNING", "RUNNING")
     seedutils.seed()
     batch = update_batch_state(batch, "SEED COMPLETE", "STOPPED", "SUCCESS")
+    batch = create_batch_log("BEFORE CSV LOG ENGINE", "LOG ENGINE",
+                             "LOG ENGINE", "LOG EXTRACTION STARTED", "RUNNING", "RUNNING")
+    try:
+        # run.log_engine()
+        batch = update_batch_state(
+            batch, "LOG WRITING COMPLETE", "STOPPED", "SUCCESS")
+    except Exception as e:
+        batch = update_batch_state(
+            batch, e, "EXIT", "FAILURE")
+
     batch = create_batch_log("BEFORE CSV MIS ENGINE", "MIS ENGINE",
                              "MIS ENGINE", "MIS EXTRACTION STARTED", "RUNNING", "RUNNING")
     try:
@@ -50,7 +60,7 @@ try:
     batch = create_batch_log("BEFORE CSV RULE ENGINE", "RULE ENGINE",
                              "RULE ENGINE", "RULE ENGINE STARTED", "RUNNING", "RUNNING")
     try:
-        run.rule_engine()
+        # run.rule_engine()
         batch = update_batch_state(
             batch, "RULE ENGINE COMPLETE", "STOPPED", "SUCCESS")
     except Exception as e:
@@ -67,8 +77,8 @@ try:
         batch = update_batch_state(
             batch, e, "EXIT", "FAILURE")
 
-    # run.db_engine(utils.get_db_engine(), logging, verbose=False)
-    # run.tt_engine()
+    # run.db_engine()
+    run.tt_engine()
 
 except Exception as e:
     logging.exception(f'Terminated on {datetime.datetime.now()}')
