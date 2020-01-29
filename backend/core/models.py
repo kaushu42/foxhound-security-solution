@@ -315,7 +315,6 @@ class TrafficLogDetailGranularHour(models.Model):
     )
     firewall_rule = models.ForeignKey(
         FirewallRule, on_delete=models.CASCADE, null=True,
-        related_name='granular_hour_firewall_rule'
     )
 
     source_ip = models.CharField(max_length=50, null=True)

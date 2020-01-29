@@ -40,16 +40,13 @@ def dc_engine(verbose=True):
     pa.run(verbose=verbose)
 
 
-def db_engine(db_engine, logging, verbose=True):
+def db_engine(verbose=True):
     db = fh.db_engine.DBEngine(
         config.TRAFFIC_LOGS_OUTPUT_DIR,
         config.GRANULARIZED_LOG_PATH,
-        db_engine=db_engine,
-        db_path=os.path.join(config.BASE_PATH, config.IP_DB_FILENAME),
-        logging=logging
+        spark=config.SPARK
     )
     db.run(verbose=verbose)
-    db.clean()
 
 
 def tt_engine(delete_logs=False):
