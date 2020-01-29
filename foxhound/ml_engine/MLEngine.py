@@ -214,7 +214,7 @@ class MLEngine(AutoEncoder):
                     self._model_path = os.path.join(tenant_model_dir, csv_file[:-4])
                     df = pd.read_csv(csv_path)
 
-                    if len(df.index) > 20000:
+                    if len(df.index) > 10000:
                         categorical_params = self._get_categorical_params(df)
                         df, standarizer = self.normalize_data(df)
 
@@ -303,7 +303,7 @@ class MLEngine(AutoEncoder):
         Pandas Dataframe
             Dataframe containing anomalous entries from the input csv
         """
-        truncated_df = df
+        truncated_df = df[self._FEATURES].copy()
 
         truncated_df.session_end_reason_id.fillna('unknown', inplace=True)
 
@@ -333,7 +333,7 @@ class MLEngine(AutoEncoder):
 
                 if os.path.exists(self._model_path) is True:
                     ip_df = self._preprocess(ip_df)
-                    has_anomaly, indices, reasons, updated_categorical_params = self._predict(ip_df, 200)
+                    has_anomaly, indices, reasons, updated_categorical_params = self._predict(ip_df, 800)
 
                     if has_anomaly:
                         anomalous_features.extend(reasons)
@@ -367,13 +367,13 @@ class MLEngine(AutoEncoder):
         ano_with_model_count = 0
         total_data_count = 0
 
-        df = pd.read_csv(csv_file_path, usecols=self._FEATURES)# 100 million
+        df = pd.read_csv(csv_file_path)# 100 million
 
         # for df_chunk in df:
         anomalous_df, ano_without_model = self.get_ip_anomalies(
             df, save_data_for_ip_profile=False
         )
-        anomalous_df['log_name'] = csv_file_path.split('/')[-1]
+        anomalous_df['log_name'] = csv_file_path.split('/')[-2]
         self._save_to_csv(anomalous_df, os.path.join(
             self._ANOMALIES_CSV_OUTPUT_DIR, str(dt.datetime.now().date())+'.csv')
         )
