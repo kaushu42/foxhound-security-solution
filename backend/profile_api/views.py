@@ -6,7 +6,7 @@ import traceback
 
 import ipaddress
 
-from django.db.models import Sum
+from django.db.models import Sum, Max
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -74,6 +74,42 @@ class StatsApiView(APIView):
             'ip_type': get_ip_type(ip)
         }
         return Response(response, status=HTTP_200_OK)
+
+    def get(self, request, format=None):
+        return self.post(request, format=format)
+
+
+class UsageApiView(APIView):
+    def post(self, request, format=None):
+        filter_ids = get_filter_ids_from_request(request)
+        basis = request.data.get('basis', 'bytes')
+        ip = get_ip_from_request(request)
+
+        objects = get_objects_with_date_filtered(
+            request,
+            IPChart,
+            'logged_datetime',
+            filter__in=filter_ids,
+            address=ip
+        ).values('logged_datetime').annotate(
+            bytes=Sum('bytes_sent') + Sum('bytes_received'),
+            packets=Sum('packets_sent') + Sum('packets_received'),
+            count=Sum('count')
+        )
+
+        data = []
+
+        for obj in objects:
+            data.append([obj['logged_datetime'].timestamp(), obj[basis]])
+
+        max = objects.aggregate(
+            max=Max(basis),
+        )
+
+        return Response({
+            'data': data,
+            'max': max['max']
+        })
 
     def get(self, request, format=None):
         return self.post(request, format=format)
