@@ -126,7 +126,7 @@ class Initialize():
         df = pd.read_csv(src_file_path, usecols=features_list, chunksize=100000000)# 100 million
 
         for df_chunk in df:
-            self._create_ip_profile(df_chunk, dest_path)
+            self._create_ip_profile(df_chunk[features_list], dest_path)
             n_chunks += 1
 
         return n_chunks
