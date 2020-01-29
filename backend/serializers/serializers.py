@@ -92,7 +92,7 @@ class TrafficLogNameSerializer(serializers.ModelSerializer):
 class IPAddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = IPAddress
-        fields = ('address',)
+        fields = ('address', 'alias')
 
 
 class ApplicationSerializer(serializers.ModelSerializer):
@@ -204,12 +204,6 @@ class SourceDestinationIPSerializer(serializers.Serializer):
 class IPAliasSerializer(serializers.Serializer):
     ip = serializers.CharField(required=True)
     alias = serializers.CharField(required=True)
-
-
-class IPAliasModelSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TenantIPAddressInfo
-        fields = '__all__'
 
 
 class TimeSeriesChartSerializer(serializers.Serializer):

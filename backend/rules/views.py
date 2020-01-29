@@ -43,11 +43,18 @@ class RulePaginatedView(PaginatedView):
     def get_filtered_objects(self, request, **kwargs):
         firewall_rule_ids = get_firewall_rules_id_from_request(request)
         query = self.get_search_queries(request)
+        alias = request.data.get('alias', None)
+        aliased_ips = self._get_alias_ips(alias)
         objects = Rule.objects.filter(
             firewall_rule__in=firewall_rule_ids,
             **kwargs,
-            **query
+            **query,
         )
+        if aliased_ips is not None:
+            objects = objects.filter(
+                Q(source_ip__in=aliased_ips) | Q(
+                    destination_ip__in=aliased_ips)
+            )
         return objects
 
     def _get_items(self, field):
@@ -59,15 +66,20 @@ class RulePaginatedView(PaginatedView):
         applications = request.data.get('application', None)
         source_ips = request.data.get('source_ip', None)
         destination_ips = request.data.get('destination_ip', None)
-        alias = request.data.get('alias', None)
         applications = self._get_items(applications)
         data = {
             'application__in': applications,
             'source_ip__regex': to_regex(source_ips),
             'destination_ip__regex': to_regex(destination_ips),
-            'alias__contains': alias,
         }
         return {i: data[i] for i in data if data[i] is not None}
+
+    def _get_alias_ips(self, alias):
+        if alias is not None:
+            objects = IPAddress.objects.filter(
+                alias__contains=alias).values_list('address')
+            return objects
+        return None
 
 
 class RulesApiView(RulePaginatedView):

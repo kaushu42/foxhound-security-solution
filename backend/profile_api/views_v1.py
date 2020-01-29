@@ -6,11 +6,9 @@ import traceback
 
 import ipaddress
 
-from django.db.models.functions import TruncDay, TruncMonth, TruncHour
-from django.db.models import Sum, Count
+from django.db.models import Sum
 
 from rest_framework.views import APIView
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.status import (
     HTTP_400_BAD_REQUEST,
@@ -31,11 +29,15 @@ from globalutils import (
     get_usage,
     get_query_from_request,
     get_objects_from_query,
-    get_tenant_id_from_token,
+    get_firewall_rules_id_from_request,
     get_max,
     str_to_date
 )
-from serializers.serializers import IPAliasSerializer
+from views.views import PaginatedView
+from serializers.serializers import (
+    IPAliasSerializer,
+    IPAddressSerializer
+)
 from .utils import get_ip_from_request, get_filters
 
 
@@ -296,7 +298,19 @@ class TimeSeriesApiView(APIView):
         return self.post(request, format=format)
 
 
-class IPAliasApiView(APIView):
+class GetIPAliasApiView(PaginatedView):
+    serializer_class = IPAddressSerializer
+
+    def post(self, request):
+        firewall_ids = get_firewall_rules_id_from_request(request)
+        objects = IPAddress.objects.all()
+        page = self.paginate_queryset(objects.order_by('address'))
+        if page is not None:
+            serializer = self.serializer_class(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+
+class SetIPAliasApiView(APIView):
     def post(self, request):
         serializer = IPAliasSerializer(data=request.data)
         if not serializer.is_valid():
@@ -305,15 +319,12 @@ class IPAliasApiView(APIView):
         tenant_id = get_tenant_id_from_token(request)
         ip = serializer.data['ip']
         alias = serializer.data['alias']
-        ips = TenantIPAddressInfo.objects.filter(
-            address=ip, firewall_rule__tenant__id=tenant_id)
-        if not ips:
-            return Response({
-                "error": "No matching IP found"
-            }, status=HTTP_400_BAD_REQUEST)
-        for item in ips:
+        try:
+            item = IPAddress.objects.get(address=ip)
             item.alias = alias
             item.save()
+        except Exception as e:
+            IPAddress(address=ip, alias=alias).save()
 
         return Response({
             'saved': True
