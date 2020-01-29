@@ -50,7 +50,7 @@ def db_engine(verbose=True):
 
 
 def tt_engine(delete_logs=False):
-    tt_anomaly = TTAnomaly(config.ANOMALY_LOGS_OUTPUT_DIR, db_engine)
+    tt_anomaly = TTAnomaly(config.ANOMALY_LOGS_OUTPUT_DIR, spark=config.SPARK)
     tt_anomaly.run()
     if delete_logs:
         anomaly_logs = [os.path.join(config.ANOMALY_LOGS_OUTPUT_DIR, f)

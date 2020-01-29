@@ -1,132 +1,66 @@
 import os
 import datetime
 
-from tqdm import tqdm
-
-import pandas as pd
-
-from sqlalchemy.orm import sessionmaker
-
-from foxhound.db_engine.core_models import (
-    VirtualSystem,
-    TrafficLog,
-    FirewallRule
-)
-
-from foxhound.db_engine.troubleticket_models import (
-    TroubleTicketAnomaly, TroubleTicketFollowUpAnomaly
-)
+from pyspark.sql.functions import lit, to_timestamp
 
 
 class TTAnomaly:
-    def __init__(self, input_dir, db_engine):
-        if not os.path.exists(input_dir):
-            raise Exception('Generate anomaly logs first')
+    def __init__(self, input_dir, *, spark):
+        self._csvs = self._get_files(input_dir)
+        self._spark = spark
 
-        self._INPUT_DIR = input_dir
-        self._FILES = self._get_files()
-        Session = sessionmaker(bind=db_engine)
-        self._SESSION = Session()
+    def _get_files(self, path, filetype='csv'):
+        return [os.path.join(path, f) for f in os.listdir(path) if f.endswith('csv')]
 
-    def _get_files(self):
-        files = [
-            f for f in os.listdir(
-                self._INPUT_DIR
-            ) if f.endswith('.csv')
-        ]
-        if not files:
-            # raise Exception('No Logs to process')
-            return []
-
-        return files
-
-    def _read_csv(self, path):
-        return pd.read_csv(path)
-
-    def _process_data(self, data):
-        data.columns = ['row_number'] + [i for i in data.columns[1:]]
-        data.set_index('row_number', inplace=True)
-        return data
-
-    def _get_processed_data(self, file):
-        data = self._read_csv(os.path.join(self._INPUT_DIR, file))
-        data = self._process_data(data)
-        return data
-
-    def _get_params(self, row):
-        index, row_data = row
-        return {
-            'log_name': row_data.log_name,
-            'vsys_name': row_data['virtual_system_id'],
-            'source_ip': row_data['source_ip_id'],
-            'destination_ip': row_data['destination_ip_id'],
-            'log_record_number': index,
-            'source_port': row_data['source_port'],
-            'destination_port': row_data['destination_port'],
-            'now': datetime.datetime.now(),
-            'bytes_sent': row_data['bytes_sent'],
-            'bytes_received': row_data['bytes_received'],
-            'application': row_data['application_id'],
-            'firewall_rule': row_data['firewall_rule_id'],
-            'reasons': row_data['Reasons']
+    def _read_table_from_postgres(self, table):
+        url = 'postgresql://localhost/fhdb'
+        properties = {
+            'user': 'foxhounduser',
+            'password': 'foxhound123',
+            'driver': 'org.postgresql.Driver'
         }
-
-    def _get_virtual_system(self, params):
-        vsys_name = params['vsys_name']
-        vsys = self._SESSION.query(VirtualSystem).filter_by(
-            code=vsys_name)[0]
-        return vsys
-
-    def _get_traffic_log(self, params):
-        log_name = params['log_name']
-        traffic_log = self._SESSION.query(TrafficLog).filter_by(
-            log_name=log_name,
+        return self._spark.read.jdbc(
+            url='jdbc:%s' % url,
+            table=table,
+            properties=properties
         )
-        # if traffic_log.count() != 1:
-        #     raise Exception("Only 1 object must have been returned")
-        print(
-            f'*****************\n\n{log_name}\n\n\n\n********************')
-        if traffic_log.count() == 0:
-            raise Exception("No logs")
-        traffic_log = traffic_log[0]
-        return traffic_log
 
-    def _get_trouble_ticket(self, log, params):
-        firewall_rule_id = self._SESSION.query(
-            FirewallRule).filter_by(name=params['firewall_rule'])[0].id
-        tt = TroubleTicketAnomaly(
-            created_datetime=params['now'],
-            is_closed=False,
-            log_id=log.id,
-            row_number=params['log_record_number'],
-            firewall_rule_id=firewall_rule_id,
-            assigned_to_id=1,
-            reasons=params['reasons']
-        )
-        return tt
-
-    def _get_trouble_ticket_follow_up(self, trouble_ticket, params):
-        tt_log_followup = TroubleTicketFollowUpAnomaly(
-            trouble_ticket_id=trouble_ticket.id,
-            follow_up_datetime=params['now'],
-            assigned_by_id=1,
-            assigned_to_id=1,
-            description='Anomaly detected'
-        )
-        return tt_log_followup
+    def _write_df_to_postgres(self, df, table_name, mode='append'):
+        url = 'postgresql://localhost/fhdb'
+        df.write.format('jdbc').options(
+            url='jdbc:%s' % url,
+            driver='org.postgresql.Driver',
+            dbtable=table_name,
+            user='foxhounduser',
+            password='foxhound123').mode(mode).save()
 
     def run(self):
-        for f in self._FILES:
-            if not f.endswith('csv'):
-                continue
-            data = self._get_processed_data(f)
+        for csv in self._csvs:
+            csv_name = os.path.basename(csv)
 
-            for row in tqdm(data.iterrows()):
-                params = self._get_params(row)
-                traffic_log = self._get_traffic_log(params)
-                tt = self._get_trouble_ticket(traffic_log, params)
-                self._SESSION.add(tt)
-                self._SESSION.flush()
-                tt_follow_up = self._get_trouble_ticket_follow_up(tt, params)
-                self._SESSION.add(tt_follow_up)
-            self._SESSION.commit()
+            df = self._spark.read.csv(csv, header=True, inferSchema=True)
+            df = df.withColumn('logged_datetime', to_timestamp(
+                df.logged_datetime, 'yyyy/mm/dd'))
+            firewall_rules = self._read_table_from_postgres(
+                'core_firewallrule')
+            logs = self._read_table_from_postgres('core_trafficlog')
+            mapped = df.join(logs,
+                             on=[df.log_name == logs.log_name],
+                             ).drop('log_name').withColumnRenamed('id', 'log_id').drop(*logs.columns)
+            mapped = mapped.join(firewall_rules, on=[
+                mapped.firewall_rule_id == firewall_rules.name
+            ]).drop('firewall_rule_id').withColumnRenamed('id', 'firewall_rule_id').drop(*firewall_rules.columns)
+            mapped = mapped.drop('virtual_system_id', 'inbound_interface_id', 'outbound_interface_id')\
+                .withColumnRenamed('source_ip_id', 'source_ip')\
+                .withColumnRenamed('destination_ip_id', 'destination_ip')\
+                .withColumnRenamed('application_id', 'application')\
+                .withColumnRenamed('source_zone_id', 'source_zone')\
+                .withColumnRenamed('destination_zone_id', 'destination_zone')\
+                .withColumnRenamed('protocol_id', 'protocol')\
+                .withColumnRenamed('action_id', 'action')\
+                .withColumnRenamed('session_end_reason_id', 'session_end_reason')\
+                .withColumnRenamed('category_id', 'category')\
+                .withColumn('created_datetime', lit(datetime.datetime.now()))\
+                .withColumn('is_closed', lit(False))
+            self._write_df_to_postgres(
+                mapped, 'troubleticket_troubleticketanomaly')
