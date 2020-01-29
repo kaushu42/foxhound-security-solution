@@ -62,10 +62,21 @@ class RulePaginatedView(PaginatedView):
             return set(field.split(','))
         return None
 
+    def _handle_empty_string_from_frontend(self, item):
+        if item == '':
+            return None
+        return item
+
     def get_search_queries(self, request):
-        applications = request.data.get('application', None)
-        source_ips = request.data.get('source_ip', None)
-        destination_ips = request.data.get('destination_ip', None)
+        applications = self._handle_empty_string_from_frontend(
+            request.data.get('application', None)
+        )
+        source_ips = self._handle_empty_string_from_frontend(
+            request.data.get('source_ip', None)
+        )
+        destination_ips = self._handle_empty_string_from_frontend(
+            request.data.get('destination_ip', None))
+
         applications = self._get_items(applications)
         data = {
             'application__in': applications,
@@ -75,7 +86,7 @@ class RulePaginatedView(PaginatedView):
         return {i: data[i] for i in data if data[i] is not None}
 
     def _get_alias_ips(self, alias):
-        if alias is not None:
+        if alias:
             objects = IPAddress.objects.filter(
                 alias__contains=alias).values_list('address')
             return objects

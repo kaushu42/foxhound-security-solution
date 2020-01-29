@@ -71,7 +71,8 @@ class StatsApiView(APIView):
         response = {
             **objects,
             'alias': alias,
-            'ip_type': get_ip_type(ip)
+            'ip_type': get_ip_type(ip),
+            'address': ip
         }
         return Response(response, status=HTTP_200_OK)
 
