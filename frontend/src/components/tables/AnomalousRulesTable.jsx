@@ -11,6 +11,7 @@ import {
 import {contentLayout, drawerInfoStyle} from "../../utils";
 import {search} from "../../actions/ipSearchAction";
 import QuickIpView from "../../views/QuickIpView";
+import { filterSelectDataServiceAsync } from "../../services/filterSelectDataService";
 import moment from "moment";
 const { Search } = Input;
 
@@ -89,6 +90,11 @@ class AnomalousRulesTable extends Component {
             }
         ],
         data: [],
+        applicationData: [],
+        searchSourceIP: "",
+        searchDestinationIP: "",
+        searchAlias: "",
+        searchApplication:"",
         quickIpView: false
     }
 
@@ -110,12 +116,24 @@ class AnomalousRulesTable extends Component {
 
     handleFetchAnomalousRulesData = (params={}) => {
         const {auth_token,anomalousRulePagination} = this.props;
-        this.props.dispatchFetchAnomalousRulesData(auth_token,params,anomalousRulePagination);
+        const searchSourceIP = this.state.searchSourceIP
+        const searchDestinationIP = this.state.searchDestinationIP
+        const searchAlias = this.state.searchAlias
+        const searchApplication = this.state.searchApplication
+        this.props.dispatchFetchAnomalousRulesData(auth_token,params,searchSourceIP,  searchDestinationIP, searchAlias, searchApplication,anomalousRulePagination);
     }
 
     componentDidMount() {
         // this.props.dispatchFetchAnomalousRulesData(this.props.auth_token);
         this.handleFetchAnomalousRulesData(this.state.params)
+        filterSelectDataServiceAsync(this.props.auth_token)
+        .then(response => {
+            const filter_data = response.data;
+            this.setState({
+                applicationData: filter_data.application,
+            });
+        })
+        .catch(error => console.log(error));
     }
 
     handleAcceptRuleSubmit = (e) => {
@@ -140,12 +158,15 @@ class AnomalousRulesTable extends Component {
     }
 
     filterData = (v) =>{
-        console.log(v)
+        this.handleFetchAnomalousRulesData(this.state.params)
     }
 
     render(){
         const {selectedRecordToAccept} = this.props;
         const expandedRowRender = record => <p><b>Flagged Date: </b>{(new Date(parseInt(record.verified_date_time)*1000).toUTCString()).replace(" GMT", "")} <br/><b>Flagged By: </b> {record.verified_by_user.username} </p>;
+        const applicationSelectListItem = this.state.applicationData.map(
+            data => <Select.Option key={data[1]}>{data[1]}</Select.Option>
+          );
         return(
             <Fragment>
                 {this.props.acceptAnomalousRuleError ?
@@ -159,31 +180,28 @@ class AnomalousRulesTable extends Component {
                     <Card title={
                         <Fragment>
                         <Row gutter={[16, 16]}>
-                            <Col xs={24} sm={24} md={24} lg={6} xl={6}>
-                                <Search 
-                                    id="searchSourceIp"
-                                    placeholder="Search Source IP" 
-                                    onSearch={value => this.filterData(value)} 
-                                    enterButton 
+                            <Col xs={24} sm={24} md={24} lg={5} xl={5}>
+                                <Input 
+                                    value={this.state.searchSourceIP}
+                                    placeholder="Search Source IP"
+                                    onChange={(e)=>this.setState({searchSourceIP : e.target.value})}
                                 />
                             </Col>
-                            <Col xs={24} sm={24} md={24} lg={6} xl={6}>
-                                <Search 
-                                    id="searchDestinationIp"
-                                    placeholder="Search Destination IP" 
-                                    onSearch={value => this.filterData(value)} 
-                                    enterButton 
+                            <Col xs={24} sm={24} md={24} lg={5} xl={5}>
+                                <Input 
+                                    value={this.state.searchDestinationIP}
+                                    placeholder="Search Destination IP"
+                                    onChange={(e)=>this.setState({searchDestinationIP : e.target.value})}
                                 />
                             </Col>
-                            <Col xs={24} sm={24} md={24} lg={6} xl={6}>
-                                    <Search 
-                                        id="searchAlias"
-                                        placeholder="Search Alias" 
-                                        onSearch={value => this.filterData(value)} 
-                                        enterButton 
-                                    />
-                                </Col>
-                            <Col xs={24} sm={24} md={24} lg={6} xl={6}>
+                            <Col xs={24} sm={24} md={24} lg={5} xl={5}>
+                                <Input 
+                                    value={this.state.searchAlias}
+                                    placeholder="Search Alias"
+                                    onChange={(e)=>this.setState({searchAlias : e.target.value})}
+                                />
+                            </Col>
+                            <Col xs={24} sm={24} md={24} lg={5} xl={5}>
                                 <Select
                                     id="filterApplication"
                                     mode="multiple"
@@ -196,10 +214,20 @@ class AnomalousRulesTable extends Component {
                                         .indexOf(input.toLowerCase()) >= 0
                                     }
                                     placeholder="Application"
-                                    onChange={value => this.filterData(value)}
+                                    onChange={value => this.setState({searchApplication:value})}
                                 >
-                                    {null}
+                                    {applicationSelectListItem}
                                 </Select>
+                            </Col>
+                            <Col xs={24} sm={24} md={24} lg={4} xl={4}>
+                                <Button 
+                                type="primary"
+                                style={{width:'100%'}}
+                                htmlType="submit"
+                                className="login-form-button"
+                                loading={this.props.rejectUnverifiedRuleLoading}
+                                onClick={e =>this.filterData(e)}>Search
+                                </Button>
                             </Col>
                         </Row>
                         </Fragment>
@@ -281,6 +309,7 @@ const mapStateToProps = state => {
     return {
         auth_token : state.auth.auth_token,
         current_session_user_id : state.auth.current_session_user_id,
+        application: state.filter.application,
 
         anomalousRulesLoading : state.anomalousRule.anomalousRulesLoading,
         anomalousRulesData : state.anomalousRule.anomalousRulesData,
@@ -302,7 +331,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        dispatchFetchAnomalousRulesData : (auth_token, params, pagination) => dispatch(fetchAnomalousRulesData(auth_token, params, pagination)),
+        dispatchFetchAnomalousRulesData : (auth_token, params, searchSourceIP,  searchDestinationIP, searchAlias, searchApplication, pagination) => dispatch(fetchAnomalousRulesData(auth_token, params,  searchSourceIP,  searchDestinationIP, searchAlias, searchApplication,pagination)),
         handleAnomalousRuleAccept : (auth_token,record) => dispatch(acceptAnomalousRule(auth_token,record)),
         dispatchHandleDrawerClose : () => dispatch(handleDrawerClose()),
         dispatchAcceptRule : (auth_token,description,record) => dispatch(acceptRule(auth_token,description,record)),

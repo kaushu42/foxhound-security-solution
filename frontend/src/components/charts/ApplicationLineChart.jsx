@@ -409,7 +409,7 @@ class ApplicationLineChart extends Component {
       },
 
       title: {
-        text: "Applications Used"
+        text: null
       },
       responsive: {
         rules: [
@@ -434,7 +434,9 @@ class ApplicationLineChart extends Component {
           <Card
             title={
               <Fragment>
-                <div>
+                <div style={{textAlign:"center"}}>
+                  <b>Application Used</b>
+                  <br></br>
                   <Select
                     onChange={value => this.setState({ top_count: value })}
                     size={"default"}

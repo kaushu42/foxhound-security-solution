@@ -33,7 +33,7 @@ class IpAsDestinationSankeyChart extends Component {
 
                 },
                 title: {
-                    text: "Connections of IP as Destination to Other IP"
+                    text: null
                 },
                 tooltip: {
                     formatter: function () {
@@ -280,7 +280,9 @@ class IpAsDestinationSankeyChart extends Component {
                 <Card
                     title={
                     <Fragment>
-                        <div>
+                        <div style={{textAlign:"center"}}>
+                        <b>Connection of IP as Destination</b>
+                        <br></br>
                         <Select
                             onChange={value => this.setState({ basis: value })}
                             size={"default"}

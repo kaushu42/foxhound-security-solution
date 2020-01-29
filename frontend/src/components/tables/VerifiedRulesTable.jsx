@@ -12,6 +12,7 @@ import {axiosHeader, drawerInfoStyle, ROOT_URL} from "../../utils";
 import moment from "moment";
 import QuickIpView from "../../views/QuickIpView"
 import {search} from "../../actions/ipSearchAction";
+import { filterSelectDataServiceAsync } from "../../services/filterSelectDataService";
 const { Search } = Input;
 
 class VerifiedRulesTable extends Component {
@@ -88,6 +89,11 @@ class VerifiedRulesTable extends Component {
             }
         ],
         data: [],
+        applicationData: [],
+        searchSourceIP: "",
+        searchDestinationIP: "",
+        searchAlias: "",
+        searchApplication:"",
         quickIpView: false
     }
 
@@ -109,7 +115,11 @@ class VerifiedRulesTable extends Component {
 
     handleFetchVerifiedRulesData = (params={}) => {
         const {auth_token,verifiedRulePagination} = this.props;
-        this.props.dispatchFetchVerifiedRulesData(auth_token,params,verifiedRulePagination);
+        const searchSourceIP = this.state.searchSourceIP
+        const searchDestinationIP = this.state.searchDestinationIP
+        const searchAlias = this.state.searchAlias
+        const searchApplication = this.state.searchApplication
+        this.props.dispatchFetchVerifiedRulesData(auth_token,params,searchSourceIP,  searchDestinationIP, searchAlias, searchApplication,verifiedRulePagination);
     }
 
     handleShowSourceIpProfile(record){
@@ -136,16 +146,27 @@ class VerifiedRulesTable extends Component {
     componentDidMount() {
         // this.props.dispatchFetchVerifiedRulesData(this.props.auth_token);
         this.handleFetchVerifiedRulesData(this.state.params)
+        filterSelectDataServiceAsync(this.props.auth_token)
+        .then(response => {
+            const filter_data = response.data;
+            this.setState({
+                applicationData: filter_data.application,
+            });
+        })
+        .catch(error => console.log(error));
     }
 
     filterData = (v) =>{
-        console.log(v)
+        this.handleFetchVerifiedRulesData(this.state.params)
     }
     
     render(){
         const {selectedVerifiedRecordToReject} = this.props;
         const expandedRowRender = record => <p><b>Verified Date: </b>{(new Date(parseInt(record.verified_date_time)*1000).toUTCString()).replace(" GMT", "")} <br/><b>Verified By: </b> {record.verified_by_user.username} </p>;
         const title = () => <h3>Verified Rules</h3>
+        const applicationSelectListItem = this.state.applicationData.map(
+            data => <Select.Option key={data[1]}>{data[1]}</Select.Option>
+          );
         return(
             <Fragment>
                 {this.props.rejectVerifiedRuleError ? <p style={{color:'red'}}>{this.props.rejectVerifiedRuleErrorMessage }</p>: null }
@@ -155,31 +176,28 @@ class VerifiedRulesTable extends Component {
                 <Card title={
                     <Fragment>
                     <Row gutter={[16, 16]}>
-                        <Col xs={24} sm={24} md={24} lg={6} xl={6}>
-                            <Search 
-                                id="searchSourceIp"
-                                placeholder="Search Source IP" 
-                                onSearch={value => this.filterData(value)} 
-                                enterButton 
+                        <Col xs={24} sm={24} md={24} lg={5} xl={5}>
+                            <Input 
+                                value={this.state.searchSourceIP}
+                                placeholder="Search Source IP"
+                                onChange={(e)=>this.setState({searchSourceIP : e.target.value})}
                             />
                         </Col>
-                        <Col xs={24} sm={24} md={24} lg={6} xl={6}>
-                            <Search 
-                                id="searchDestinationIp"
-                                placeholder="Search Destination IP" 
-                                onSearch={value => this.filterData(value)} 
-                                enterButton 
+                        <Col xs={24} sm={24} md={24} lg={5} xl={5}>
+                            <Input 
+                                value={this.state.searchDestinationIP}
+                                placeholder="Search Destination IP"
+                                onChange={(e)=>this.setState({searchDestinationIP : e.target.value})}
                             />
                         </Col>
-                        <Col xs={24} sm={24} md={24} lg={6} xl={6}>
-                                <Search 
-                                    id="searchAlias"
-                                    placeholder="Search Alias" 
-                                    onSearch={value => this.filterData(value)} 
-                                    enterButton 
-                                />
-                            </Col>
-                        <Col xs={24} sm={24} md={24} lg={6} xl={6}>
+                        <Col xs={24} sm={24} md={24} lg={5} xl={5}>
+                            <Input 
+                                value={this.state.searchAlias}
+                                placeholder="Search Alias"
+                                onChange={(e)=>this.setState({searchAlias : e.target.value})}
+                            />
+                        </Col>
+                        <Col xs={24} sm={24} md={24} lg={5} xl={5}>
                             <Select
                                 id="filterApplication"
                                 mode="multiple"
@@ -192,10 +210,20 @@ class VerifiedRulesTable extends Component {
                                     .indexOf(input.toLowerCase()) >= 0
                                 }
                                 placeholder="Application"
-                                onChange={value => this.filterData(value)}
+                                onChange={value => this.setState({searchApplication:value})}
                             >
-                                {null}
+                                {applicationSelectListItem}
                             </Select>
+                        </Col>
+                        <Col xs={24} sm={24} md={24} lg={4} xl={4}>
+                            <Button 
+                            type="primary"
+                            style={{width:'100%'}}
+                            htmlType="submit"
+                            className="login-form-button"
+                            loading={this.props.rejectUnverifiedRuleLoading}
+                            onClick={e =>this.filterData(e)}>Search
+                            </Button>
                         </Col>
                     </Row>
                     </Fragment>
@@ -275,6 +303,7 @@ const mapStateToProps = state => {
     return {
         auth_token : state.auth.auth_token,
         current_session_user_id : state.auth.current_session_user_id,
+        application: state.filter.application,
 
         verifiedRulesLoading : state.verifiedRule.verifiedRulesLoading,
         verifiedRulesData : state.verifiedRule.verifiedRulesData,
@@ -296,7 +325,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        dispatchFetchVerifiedRulesData : (auth_token, params, pagination) => dispatch(fetchVerifiedRulesData(auth_token, params, pagination)),
+        dispatchFetchVerifiedRulesData : (auth_token, params, searchSourceIP,  searchDestinationIP, searchAlias, searchApplication,pagination) => dispatch(fetchVerifiedRulesData(auth_token, params, searchSourceIP,  searchDestinationIP, searchAlias, searchApplication,pagination)),
         dispatchPaginationUpdate : (pager) => dispatch(updatePagination(pager)),
         dispatchIpSearchValueUpdate : value => dispatch(search(value)),
         handleVerifiedRuleReject : (auth_token,record) => dispatch(rejectVerifiedRule(auth_token,record)),

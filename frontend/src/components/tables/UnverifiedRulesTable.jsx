@@ -32,6 +32,7 @@ import {
 import {axiosHeader, drawerInfoStyle, ROOT_URL} from "../../utils";
 import {search} from "../../actions/ipSearchAction";
 import QuickIpView from "../../views/QuickIpView";
+import { filterSelectDataServiceAsync } from "../../services/filterSelectDataService";
 import moment from "moment";
 import '../../views/rules/rules.css'
 import axios from "axios";
@@ -46,7 +47,6 @@ class UnverifiedRulesTable extends Component {
                 title: 'Created Date',
                 dataIndex: 'created_date_time',
                 key: 'created_date_time',
-                // render: text => moment(text).format("YYYY-MM-DD, HH:MM:SS"),
                 render: text => (new Date(parseInt(text)*1000).toUTCString()).replace(" GMT", "")   
             },
             {   
@@ -116,10 +116,15 @@ class UnverifiedRulesTable extends Component {
         data: [],
         quickIpView : false,
         blackListData : [],
+        applicationData: [],
         input_source_ip : "",
         input_destination_ip : "",
         input_application : "",
-        input_description : ""
+        input_description : "",
+        searchSourceIP: "",
+        searchDestinationIP: "",
+        searchAlias: "",
+        searchApplication: ""
     }
 
     handleTableChange = (pagination, filters, sorter) => {
@@ -140,7 +145,11 @@ class UnverifiedRulesTable extends Component {
 
     handleFetchUnverifiedRulesData = (params={}) => {
         const {auth_token,unverifiedRulePagination} = this.props;
-        this.props.dispatchFetchUnverifiedRulesData(auth_token,params,unverifiedRulePagination);
+        const searchSourceIP = this.state.searchSourceIP
+        const searchDestinationIP = this.state.searchDestinationIP
+        const searchAlias = this.state.searchAlias
+        const searchApplication = this.state.searchApplication
+        this.props.dispatchFetchUnverifiedRulesData(auth_token,params,searchSourceIP,  searchDestinationIP, searchAlias, searchApplication,unverifiedRulePagination);
     }
 
     componentDidMount() {
@@ -153,17 +162,17 @@ class UnverifiedRulesTable extends Component {
                 const response = res.data;
                 this.setState({blackListData:response});
             }).catch(error => console.log(error));
+        
+        filterSelectDataServiceAsync(this.props.auth_token)
+        .then(response => {
+            const filter_data = response.data;
+            this.setState({
+                applicationData: filter_data.application,
+            });
+        })
+        .catch(error => console.log(error));
 
     }
-
-    // componentDidUpdate(prevProps, prevState, snapshot) {
-    //     if(prevProps.selectedUnverifiedRecordToUpdate != this.props.selectedUnverifiedRecordToUpdate){
-    //         let record = this.props.selectedUnverifiedRecordToUpdate;
-    //         this.setState({
-    //             // input_source_ip : record.source_ip
-    //         })
-    //     }
-    // }
 
     handleAcceptRuleSubmit = (e) => {
         e.preventDefault();
@@ -189,9 +198,6 @@ class UnverifiedRulesTable extends Component {
         this.props.dispatchUpdateRule(auth_token,source_ip,destination_ip,application,description,{}, unverifiedRulePagination);
     }
 
-
-
-
     handleShowUnverifiedIpDashboard(record){
         this.props.dispatchUnverifiedIpSearchValueUpdate(record.source_ip);
         this.setState({quickIpView : true})
@@ -207,14 +213,15 @@ class UnverifiedRulesTable extends Component {
     }
 
     filterData = (v) =>{
-        console.log(v)
+        this.handleFetchUnverifiedRulesData(this.state.params)   
     }
     
     render(){
         const {selectedUnverifiedRecordToAccept,selectedUnverifiedRecordToReject,selectedUnverifiedRecordToUpdate} = this.props;
         const {blackListData} = this.state;
-        console.log(blackListData);
-
+        const applicationSelectListItem = this.state.applicationData.map(
+            data => <Select.Option key={data[1]}>{data[1]}</Select.Option>
+          );
         const expandedRowRender = record => <p><b>Verified Data: </b>{record.verifiedDate} <br/><b>Verified By: </b> {record.verifiedBy} </p>;
         return(
             <Fragment>
@@ -241,31 +248,28 @@ class UnverifiedRulesTable extends Component {
                     <Card title={
                     <Fragment>
                         <Row gutter={[16, 16]}>
-                            <Col xs={24} sm={24} md={24} lg={6} xl={6}>
-                                <Search 
-                                    id="searchSourceIp"
-                                    placeholder="Search Source IP" 
-                                    onSearch={value => this.filterData(value)} 
-                                    enterButton 
+                            <Col xs={24} sm={24} md={24} lg={5} xl={5}>
+                                <Input 
+                                    value={this.state.searchSourceIP}
+                                    placeholder="Search Source IP"
+                                    onChange={(e)=>this.setState({searchSourceIP : e.target.value})}
                                 />
                             </Col>
-                            <Col xs={24} sm={24} md={24} lg={6} xl={6}>
-                                <Search 
-                                    id="searchDestinationIp"
-                                    placeholder="Search Destination IP" 
-                                    onSearch={value => this.filterData(value)} 
-                                    enterButton 
+                            <Col xs={24} sm={24} md={24} lg={5} xl={5}>
+                                <Input 
+                                    value={this.state.searchDestinationIP}
+                                    placeholder="Search Destination IP"
+                                    onChange={(e)=>this.setState({searchDestinationIP : e.target.value})}
                                 />
                             </Col>
-                            <Col xs={24} sm={24} md={24} lg={6} xl={6}>
-                                <Search 
-                                    id="searchAlias"
-                                    placeholder="Search Alias" 
-                                    onSearch={value => this.filterData(value)} 
-                                    enterButton 
+                            <Col xs={24} sm={24} md={24} lg={5} xl={5}>
+                                <Input 
+                                    value={this.state.searchAlias}
+                                    placeholder="Search Alias"
+                                    onChange={(e)=>this.setState({searchAlias : e.target.value})}
                                 />
                             </Col>
-                            <Col xs={24} sm={24} md={24} lg={6} xl={6}>
+                            <Col xs={24} sm={24} md={24} lg={5} xl={5}>
                                 <Select
                                     id="filterApplication"
                                     mode="multiple"
@@ -278,10 +282,20 @@ class UnverifiedRulesTable extends Component {
                                         .indexOf(input.toLowerCase()) >= 0
                                     }
                                     placeholder="Application"
-                                    onChange={value => this.filterData(value)}
+                                    onChange={value => this.setState({searchApplication:value})}
                                 >
-                                    {null}
+                                    {applicationSelectListItem}
                                 </Select>
+                            </Col>
+                            <Col xs={24} sm={24} md={24} lg={4} xl={4}>
+                                <Button 
+                                type="primary"
+                                style={{width:'100%'}}
+                                htmlType="submit"
+                                className="login-form-button"
+                                loading={this.props.rejectUnverifiedRuleLoading}
+                                onClick={e =>this.filterData(e)}>Search
+                                </Button>
                             </Col>
                         </Row>
                     </Fragment>
@@ -479,6 +493,7 @@ const mapStateToProps = state => {
     return {
         auth_token : state.auth.auth_token,
         current_session_user_id : state.auth.current_session_user_id,
+        application: state.filter.application,
 
         unverifiedRulesLoading : state.unverifiedRule.unverifiedRulesLoading,
         unverifiedRulesData : state.unverifiedRule.unverifiedRulesData,
@@ -519,7 +534,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        dispatchFetchUnverifiedRulesData : (auth_token, params, pagination) => dispatch(fetchUnverifiedRulesData(auth_token, params, pagination)),
+        dispatchFetchUnverifiedRulesData : (auth_token, params, searchSourceIP, searchDestinationIP, searchAlias, searchApplication,pagination) => dispatch(fetchUnverifiedRulesData(auth_token, params, searchSourceIP, searchDestinationIP, searchAlias, searchApplication,pagination)),
         dispatchFetchBlacklistedAddress:() => dispatch(fetchBlackListedAddress()),
         handleUnverifiedRuleAccept : (auth_token,record) => dispatch(acceptUnverifiedRule(auth_token,record)),
         handleUnverifiedRuleReject : (auth_token,record) => dispatch(rejectUnverifiedRule(auth_token,record)),
