@@ -8,6 +8,7 @@ from .BaseChart import BaseChart
 from .ApplicationChart import ApplicationChart
 from .IPChart import IPChart
 from .TimeSeriesChart import TimeSeriesChart
+from .SankeyChart import SankeyChart
 
 
 class ChartEngine(BaseChart):
@@ -196,6 +197,9 @@ class ChartEngine(BaseChart):
 
             print('**Writing IP Profile Chart Data**')
             IPChart(df, spark=self._spark).run()
+
+            print('**Writing Sankey Chart Data**')
+            SankeyChart(df, spark=self._spark).run()
 
             # Unpersist the dataframe to free space
             df.unpersist()

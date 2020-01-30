@@ -20,7 +20,8 @@ from rest_framework.status import (
 from core.models import (
     TrafficLog, TrafficLogDetailGranularHour,
     IPAddress, TenantIPAddressInfo,
-    FirewallRule, IPChart
+    FirewallRule, IPChart,
+    SankeyChart
 )
 from globalutils import (
     get_month_day_index,
@@ -207,55 +208,53 @@ class AverageDailyApiView(APIView):
 
 
 class SankeyApiView(APIView):
-    def _get_destination_data(self, ip, ip_as_destination):
-        ip_data = []
-        for i in ip_as_destination:
-            source = i['source_ip__address']
-            weights = i['received']
-            ip_data.append([source, ip, weights])
-        return ip_data
+    def _get_kwargs_from_basis(self, basis):
+        kwargs = {}
+        if basis == 'count':
+            kwargs = {
+                'count': Sum('count')
+            }
+        else:
+            kwargs = {
+                basis: Sum(f'{basis}_sent') + Sum(f'{basis}_received')
+            }
+        return kwargs
 
-    def _get_source_data(self, ip, ip_as_source):
-        ip_data = []
-        for i in ip_as_source:
-            source = i['destination_ip__address']
-            weights = i['sent']
-            ip_data.append([ip, source, weights])
-        return ip_data
-
-    def _get_sankey(self, ip, objects):
-        ip_as_source = objects.filter(
-            source_ip__address=ip,
-        ).values('destination_ip__address').annotate(
-            sent=Sum('bytes_sent')
-        )
-        ip_as_destination = objects.filter(
-            destination_ip__address=ip,
-        ).values('source_ip__address').annotate(
-            received=Sum('bytes_received')
-        )
-        destination_data = self._get_destination_data(ip, ip_as_destination)
-        source_data = self._get_source_data(ip, ip_as_source)
-        return {
-            "ip_as_destination": destination_data,
-            "ip_as_source": source_data,
-        }
+    def _get_objects(self, request):
+        filter_ids = get_filter_ids_from_request(request)
+        basis = request.data.get('basis', 'bytes')
+        ip = get_ip_from_request(request)
+        kwargs = self._get_kwargs_from_basis(basis)
+        as_source = get_objects_with_date_filtered(
+            request,
+            SankeyChart,
+            'logged_datetime',
+            filter__in=filter_ids,
+            source_ip=ip
+        ).values('destination_ip').annotate(**kwargs)
+        as_destination = get_objects_with_date_filtered(
+            request,
+            SankeyChart,
+            'logged_datetime',
+            filter__in=filter_ids,
+            destination_ip=ip
+        ).values('source_ip').annotate(**kwargs)
+        return as_source, as_destination, basis, ip
 
     def post(self, request, format=None):
-        tenant_id = get_tenant_id_from_token(request)
-        ip = get_ip_from_request(request)
-        query = get_query_from_request(request)
-        objects = get_objects_from_query(query).filter(
-            firewall_rule__tenant__id=tenant_id
-        )
-        if ip is None:
-            return Response({
-                "ip_as_source": [],
-                "ip_as_destination": []
-            },
-                status=HTTP_422_UNPROCESSABLE_ENTITY)
-        response = self._get_sankey(ip, objects)
-        return Response(response, status=HTTP_200_OK)
+        as_src, as_dest, basis, ip = self._get_objects(request)
+        src_response = []
+        dest_response = []
+
+        for i in as_src:
+            src_response.append([ip, i['destination_ip'], i[basis]])
+        for i in as_dest:
+            dest_response.append([i['source_ip'], ip, i[basis]])
+
+        return Response({
+            'src': src_response,
+            'dest': dest_response
+        }, status=HTTP_200_OK)
 
     def get(self, request, format=None):
         return self.post(request, format=format)
