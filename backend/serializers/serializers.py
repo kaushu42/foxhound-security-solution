@@ -123,6 +123,7 @@ class TrafficLogDetailGranularHourSerializer(serializers.ModelSerializer):
 
 class TroubleTicketAnomalySerializer(serializers.ModelSerializer):
     log = TrafficLogNameSerializer()
+    verified_by = UserNameSerializer()
 
     class Meta:
         model = TroubleTicketAnomaly
