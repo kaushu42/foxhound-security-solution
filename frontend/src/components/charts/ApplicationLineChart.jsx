@@ -434,7 +434,7 @@ class ApplicationLineChart extends Component {
           <Card
             title={
               <Fragment>
-                <div style={{textAlign:"center"}}>
+                <div>
                   <b>Application Used</b>
                   <br></br>
                   <Select

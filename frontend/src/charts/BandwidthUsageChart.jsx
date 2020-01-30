@@ -205,7 +205,7 @@ class BandwidthUsageChart extends Component {
         <Card
             title={
               <Fragment>
-                <div style={{textAlign:"center"}}>
+                <div>
                   <b>Time Series Usages Chart</b>
                   <br></br>
                   <Select

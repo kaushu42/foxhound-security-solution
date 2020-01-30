@@ -282,7 +282,7 @@ class IpAsSourceSankeyChart extends Component {
                 <Card
                     title={
                     <Fragment>
-                    <div style={{textAlign:"center"}}>
+                    <div>
                     <b>Connection of IP as Source</b>
                     <br></br>
                         <Select

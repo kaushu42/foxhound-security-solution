@@ -180,7 +180,7 @@ class IpUsageTimeSeriesChart extends Component {
         <Card
             title={
               <Fragment>
-              <div style={{textAlign:"center"}}>
+              <div>
               <b>{`Bandwidth Usage for ${this.state.basis} of ${this.props.ip_address}`}</b>
               <br></br>
                   <Select

@@ -341,7 +341,7 @@ class RequestOriginWorldChart extends Component {
           <Card
             title={
               <Fragment>
-                <div style={{textAlign:"center"}}>
+                <div>
                 <b>Request Origin Map View</b>
                 <br></br>
                 {countrySelectListData ? (

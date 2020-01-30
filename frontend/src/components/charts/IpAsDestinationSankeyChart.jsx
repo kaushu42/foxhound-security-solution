@@ -280,7 +280,7 @@ class IpAsDestinationSankeyChart extends Component {
                 <Card
                     title={
                     <Fragment>
-                        <div style={{textAlign:"center"}}>
+                        <div>
                         <b>Connection of IP as Destination</b>
                         <br></br>
                         <Select

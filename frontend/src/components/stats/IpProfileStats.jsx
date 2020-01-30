@@ -63,13 +63,13 @@ class IpProfileStats extends Component {
     }
 
     render() {
-         const { uplink,downlink,ip_address,alias_name,ip_address_type} = this.state.data;
+         const { uplink,downlink,address,alias_name,ip_type} = this.state.data;
         return(
             <Fragment>
                 <Row type="flex" style={{paddingTop:24}}>
                     <Statistic
                         title="Static IP Address"
-                        value={ip_address}
+                        value={address}
                         style={{
                             margin: '0 20px',
                         }}
@@ -100,7 +100,7 @@ class IpProfileStats extends Component {
                     />
                     <Statistic
                         title="Ip Type (Ex)"
-                        value={ip_address_type}
+                        value={ip_type}
                         style={{
                             margin: '0 20px',
                         }}

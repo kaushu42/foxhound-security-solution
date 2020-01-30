@@ -8,6 +8,8 @@ NoDataToDisplay(Highcharts);
 import '../../charts/chart.css';
 import {Card, Spin, DatePicker, Select} from "antd";
 import {getDivisionFactorUnitsFromBasis} from '../../utils'
+import axios from "axios";
+import {ROOT_URL} from  "../../utils"
 
 
 class IpUsageAverageDailyTrendChart extends Component {
@@ -20,18 +22,14 @@ class IpUsageAverageDailyTrendChart extends Component {
             recent_data : [],
             unit : "",
             basis: "bytes",
+            date:"",
             options: {
                 chart: {
                     zoomType: 'x'
                 },
                 xAxis: {
-                    type: "datetime",
-                    labels: {
-                        format: '{value:%H:%M}'
-                    },
-                    dateTimeLabelFormats: {
-                    //   day: "%Y-%b-%d"
-                    day: "%H-%M"
+                    title:{
+                        text: "time"
                     }
                 },
                 yAxis:{
@@ -75,29 +73,56 @@ class IpUsageAverageDailyTrendChart extends Component {
         }
     }
 
-    handleFetchData = (selectedDate = undefined) => {
+    handleFetchData = () => {
         this.setState({
             loading : true
         });
+        const {auth_token, ip_address} = this.props;
+        const authorization = `Token ${auth_token}`;
+        const FETCH_API = `${ROOT_URL}profile/average-daily/`;
+        let headers = {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: authorization
+        };
 
-        const {auth_token,ip_address} = this.props;
-        ipUsageAverageTrendDataService(auth_token,ip_address,this.state.basis, selectedDate).then(res => {
-            console.log('fetching average data for ip',ip_address)
-            const average_daily_data = res[0].data;
-            const recent_data = res[1].data;
-            console.log('fetched data ',recent_data);
-            const data = [];
-            const v = getDivisionFactorUnitsFromBasis(average_daily_data["max"],this.state.basis)
+        let bodyFormData = new FormData();
+        bodyFormData.set("ip", ip_address);
+        bodyFormData.set("basis", this.state.basis);
+        bodyFormData.set("date", this.state.date);
+        console.log("date", this.state.date)
+
+        axios.post(FETCH_API, bodyFormData, { headers }).then(res => {
+            const response = res.data;
+            const average_daily_data = response.average;
+            const recent_data = response.daily;
+            const max = response.max;
+            var recent_data_arr = []
+            var average_daily_data_arr = []
+            for (var key in average_daily_data) {
+                average_daily_data_arr.push(average_daily_data[key]);
+            }
+            for (var key in recent_data) {
+                recent_data_arr.push(recent_data[key]);
+            }
+            console.log("api data", recent_data_arr);
+            const averageData = [];
+            const dailyData = [];
+            const v = getDivisionFactorUnitsFromBasis(max, this.state.basis)
             const division_factor = v["division_factor"];
             const unit = v["unit"];
-            for (var i = 0; i<average_daily_data.data.length; i++){
-                data.push([average_daily_data.data[i][0]*1000, (average_daily_data.data[i][1])/division_factor])
+            for (var i = 0; i<average_daily_data_arr.length; i++){
+                averageData.push((average_daily_data_arr[i])/division_factor)
+            }
+            for (var i = 0; i<recent_data_arr.length; i++){
+                dailyData.push((recent_data_arr[i])/division_factor)
             }
             this.setState({
-                data: data,
+                average_daily_data: averageData,
+                recent_data:dailyData,
                 unit: unit
             })
-        })
+          });
     }
 
 
@@ -126,26 +151,20 @@ class IpUsageAverageDailyTrendChart extends Component {
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (
             (String(prevProps.ip_address)!==String(this.props.ip_address)) ||
-            (String(prevState.basis)!==String(this.state.basis)) 
-            // (String(prevProps.date_range[0])!==String(this.props.date_range[0])) ||
-            // (String(prevProps.date_range[1])!==String(this.props.date_range[1])) ||
-            // (String(prevProps.firewall_rule)!==String(this.props.firewall_rule)) ||
-            // (String(prevProps.application)!==String(this.props.application)) ||
-            // (String(prevProps.protocol)!==String(this.props.protocol)) ||
-            // (String(prevProps.source_zone)!==String(this.props.source_zone)) ||
-            // (String(prevProps.destination_zone)!==String(this.props.destination_zone))
+            (String(prevState.basis)!==String(this.state.basis)) || 
+            (String(prevState.date)!==String(this.state.date))
         ){
             this.handleFetchData();
         }
         if(prevState.average_daily_data!==this.state.average_daily_data){
-            let averageDataSeries = this.state.average_daily_data["bytes_received"]
-            let recentDataSeries = this.state.recent_data["bytes_received"]
+            let averageDataSeries = this.state.average_daily_data
+            let recentDataSeries = this.state.recent_data
             this.updateChart(averageDataSeries, recentDataSeries, this.state.unit);
         }
     }
     updateChart = (average_daily_data, recent_data, unit) => {
-        let bytesReceived = this.state.average_daily_data.bytes_received;
-        if (bytesReceived.length == 0){
+        let bytes = this.state.average_daily_data
+        if (bytes.length == 0){
             Highcharts.setOptions({
                 lang: {
                     noData: 'No data is available in the chart'
@@ -155,21 +174,18 @@ class IpUsageAverageDailyTrendChart extends Component {
                 series : []
             })
         }
-        // bytesReceived.sort(function(a, b) {
-        //     return a[0] > b[0] ? 1 : -1;
-        // });
         this.chart.update({
             title : {
               text : null
             },
             series: [
                 {
-                    name : this.state.basis + '(' + unit + ')',
+                    name : 'Daily ' + this.state.basis,
                     type : 'spline',
                     data : recent_data
                 },
                 {
-                    name : 'Average Bytes Received' + '(' + unit + ')',
+                    name : 'Average ' + this.state.basis,
                     type : 'spline',
                     data : average_daily_data
                 },
@@ -195,21 +211,21 @@ class IpUsageAverageDailyTrendChart extends Component {
     }
 
     onChange = (date, dateString) => {
-        if (dateString == "" || dateString == null){
-            dateString = undefined
-        }
-        this.handleFetchData(dateString)
+        this.setState({
+            date: dateString
+        })
+
+        this.handleFetchData()
     }
 
     render() {
         console.log("loading",this.state.loading);
-        // const text = `Average Daily Trend for ${this.state.basis} of ${this.props.ip_address}`
         return (
             <Fragment>
                 <Card
                     title = {
                             <Fragment>
-                                <div style={{textAlign:"center"}}>
+                                <div>
                                 <b>{`Average Daily Trend for ${this.state.basis} of ${this.props.ip_address}`}</b>
                                 <br></br>
                                 <DatePicker 
@@ -223,7 +239,7 @@ class IpUsageAverageDailyTrendChart extends Component {
                                 >
                                     <Select.Option key={"bytes"}>Bytes</Select.Option>
                                     <Select.Option key={"packets"}>Packets</Select.Option>
-                                    <Select.Option key={"repeat"}>Count</Select.Option>
+                                    <Select.Option key={"count"}>Count</Select.Option>
                                 </Select>
                                 </div>
                               </Fragment>
