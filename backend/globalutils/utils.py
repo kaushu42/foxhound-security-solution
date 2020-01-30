@@ -120,13 +120,18 @@ def get_filters(request):
     start_date = request.data.get('start_date', None)
     end_date = request.data.get('end_date', None)
     start_date = str_to_date(start_date)
+    if start_date is not None:
+        start_date -= datetime.timedelta(hours=5, minutes=45)
     end_date = str_to_date(end_date)
+    if end_date is not None:
+        end_date -= datetime.timedelta(hours=5, minutes=45)
     firewall_rule = request.data.get('firewall_rule', None)
     application = request.data.get('application', None)
     protocol = request.data.get('protocol', None)
     source_zone = request.data.get('source_zone', None)
     destination_zone = request.data.get('destination_zone', None)
     ip_address = request.data.get('ip_address', None)
+
     response = {
         "start_date": (start_date),
         "end_date": (end_date),
@@ -145,8 +150,9 @@ def str_to_date(string, timezone=pytz.UTC):
         Returns a datetime if the string can be converted to string.
         Else, return None
     """
+    ktm = pytz.timezone('Asia/Kathmandu')
     try:
-        return datetime.datetime.strptime(string, '%Y-%m-%d').astimezone(pytz.UTC)
+        return datetime.datetime.strptime(string, '%Y-%m-%d').astimezone(ktm)
     except Exception as e:
         return None
 
@@ -371,13 +377,12 @@ def get_objects_with_date_filtered(request, model, field_name, **kwargs):
 
     if not start_date:  # There was no date filter applied
         return model.objects.filter(**kwargs)
-
-    end_date = filters['end_date']
+    end_date = filters['end_date'] + datetime.timedelta(hours=23)
     query = {
         **kwargs,
         f'{field_name}__range': (
             start_date,
-            end_date + datetime.timedelta(days=1)
+            end_date
         ),
     }
     return model.objects.filter(**query)

@@ -40,6 +40,8 @@ from serializers.serializers import (
 )
 from .utils import get_ip_from_request, get_filters
 
+TIME_OFFSET = 6
+
 
 def get_ip_type(ip):
     if not ip:
@@ -132,8 +134,9 @@ class AverageDailyApiView(APIView):
             Sum
         )
         total_avg = defaultdict(int)
+
         for d in data:
-            hour = d['date'].hour
+            hour = (d['date'].hour + TIME_OFFSET) % 24
             if basis == 'count':
                 total_avg[hour] += (d['count'])/n_days
             else:
@@ -150,9 +153,10 @@ class AverageDailyApiView(APIView):
                 microsecond=0
             )
         else:
-            date = str_to_date(date)
+            date = str_to_date(date) - datetime.timedelta(hours=5, minutes=45)
+
         latest_data = objects.filter(logged_datetime__range=(
-            date, date + datetime.timedelta(days=1))
+            date, date + datetime.timedelta(hours=23))
         )
 
         response = defaultdict(int)
@@ -167,7 +171,8 @@ class AverageDailyApiView(APIView):
                 ) + getattr(
                     data, f'{basis}_received'
                 )
-            response[data.logged_datetime.hour] += sum_value
+            hour = (data.logged_datetime.hour + TIME_OFFSET) % 24
+            response[hour] += sum_value
             if max < sum_value:
                 max = sum_value
 
