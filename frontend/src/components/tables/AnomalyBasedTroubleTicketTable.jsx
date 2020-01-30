@@ -28,6 +28,10 @@ class AnomalyBasedTroubleTicketTable extends Component {
             recordFollowUpData : [],
             followUpDrawerVisible : false,
             applicationData: [],
+            searchSourceIP: "",
+            searchDestinationIP: "",
+            searchApplication: "",
+            searchLogname: "",
             columns : [
                 {
                     title: 'Id',
@@ -53,7 +57,7 @@ class AnomalyBasedTroubleTicketTable extends Component {
                 },
                 {
                     title: 'Log Name',
-                    dataIndex: 'log_name',
+                    dataIndex: 'log.log_name',
                     key: 'log_name',
                 },
                 {
@@ -64,6 +68,7 @@ class AnomalyBasedTroubleTicketTable extends Component {
                 },
             ],
             data : [],
+            params: {},
             pagination:{},
             loading:false,
             user_list : [],
@@ -263,7 +268,7 @@ class AnomalyBasedTroubleTicketTable extends Component {
         }   
         var dataToShow = (
         <Fragment>
-            <b>Created Date: </b>{(new Date(record.created_datetime).toUTCString()).replace(" GMT", "")} 
+            <b>Created Date: </b>{(new Date((parseInt(record.created_datetime)+20700)*1000).toUTCString()).replace(" GMT", "")} 
             <br/><b>Bytes Sent: </b> {record.bytes_sent}
             <br/><b>Bytes Received: </b> {record.bytes_received} 
             <br/><b>Packets Sent: </b> {record.packets_sent}
@@ -314,30 +319,34 @@ class AnomalyBasedTroubleTicketTable extends Component {
     };
 
     fetch = (params = {}) => {
-
         console.log("data loading");
         this.setState({ loading: true });
-        reqwest({
-            url: `${ROOT_URL}tt/open/`,
-            method: "get",
-            headers: {
-                Authorization: `Token ${this.props.auth_token}`
-            },
-            data: {
-                results: 5,
-                page: params.page ? params.page : 1,
-                offset: 10
-            },
-            type: "json"
-        }).then(data => {
-            console.log('data fetched',this.data);
-            const { pagination } = this.state;
-            pagination.total = data.count;
-            this.setState({
-                loading: false,
-                data: data.results,
-                pagination
-            });
+
+        const FETCH_API = `${ROOT_URL}tt/open/`
+
+        const token = `Token ${this.props.auth_token}`;
+        
+        let headers = {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Authorization" : token
+        };
+
+        let bodyFormData = new FormData();
+        bodyFormData.set("source_ip", this.state.searchSourceIP);
+        bodyFormData.set("destination_ip", this.state.searchDestinationIP);
+        bodyFormData.set("application", this.state.searchApplication);
+        bodyFormData.set("log_name", this.state.searchLogname);
+
+        axios.post(FETCH_API,bodyFormData,{headers, params})
+            .then(res => {
+                const page = this.state.pagination;
+                page.total  = res.data.count;
+                this.setState({
+                    data:res.data.results,
+                    loading:false,
+                    pagination: page
+            })
         });
     };
 
@@ -350,12 +359,7 @@ class AnomalyBasedTroubleTicketTable extends Component {
     }
 
     filterData = (v) =>{
-        console.log(v)
-        this.setState({
-            data: null,
-            loading: true
-        })
-        this.fetch()
+        this.fetch()   
     }
     
     render() {
@@ -375,30 +379,28 @@ class AnomalyBasedTroubleTicketTable extends Component {
             <br/><b>Outbound Interface: </b> {record.outbound_interface} 
         </p>
         const applicationSelectListItem = this.state.applicationData.map(
-            data => <Option key={data[0]}>{data[1]}</Option>
+            data => <Option key={data[1]}>{data[1]}</Option>
           );
         return (
             <Fragment>
                 <Card title={
                     <Fragment>
                     <Row gutter={[16, 16]}>
-                        <Col xs={24} sm={24} md={24} lg={6} xl={6}>
-                            <Search 
-                                id="searchSourceIp"
-                                placeholder="Search Source IP" 
-                                onSearch={value => this.filterData(value)} 
-                                enterButton 
+                        <Col xs={24} sm={24} md={24} lg={5} xl={5}>
+                            <Input 
+                                value={this.state.searchSourceIP}
+                                placeholder="Search Source IP"
+                                onChange={(e)=>this.setState({searchSourceIP : e.target.value})}
                             />
                         </Col>
-                        <Col xs={24} sm={24} md={24} lg={6} xl={6}>
-                            <Search 
-                                id="searchDestinationIp"
-                                placeholder="Search Destination IP" 
-                                onSearch={value => this.filterData(value)} 
-                                enterButton 
+                        <Col xs={24} sm={24} md={24} lg={5} xl={5}>
+                            <Input 
+                                value={this.state.searchDestinationIP}
+                                placeholder="Search Destination IP"
+                                onChange={(e)=>this.setState({searchDestinationIP : e.target.value})}
                             />
                         </Col>
-                        <Col xs={24} sm={24} md={24} lg={6} xl={6}>
+                        <Col xs={24} sm={24} md={24} lg={5} xl={5}>
                             <Select
                                 id="filterApplication"
                                 mode="multiple"
@@ -411,18 +413,27 @@ class AnomalyBasedTroubleTicketTable extends Component {
                                     .indexOf(input.toLowerCase()) >= 0
                                 }
                                 placeholder="Application"
-                                onChange={value => this.filterData(value)}
+                                onChange={value => this.setState({searchApplication:value})}
                             >
                                 {applicationSelectListItem}
                             </Select>
                         </Col>
-                        <Col xs={24} sm={24} md={24} lg={6} xl={6}>
-                            <Search 
-                                id="searchLog"
-                                placeholder="Search Log Name" 
-                                onSearch={value => this.filterData(value)} 
-                                enterButton 
+                        <Col xs={24} sm={24} md={24} lg={5} xl={5}>
+                            <Input 
+                                value={this.state.searchLogname}
+                                placeholder="Log Name"
+                                onChange={(e)=>this.setState({searchLogname : e.target.value})}
                             />
+                        </Col>
+                        <Col xs={24} sm={24} md={24} lg={4} xl={4}>
+                            <Button 
+                            type="primary"
+                            style={{width:'100%'}}
+                            htmlType="submit"
+                            className="login-form-button"
+                            loading={this.props.rejectUnverifiedRuleLoading}
+                            onClick={e =>this.filterData(e)}>Search
+                            </Button>
                         </Col>
                     </Row>
                     </Fragment>
@@ -482,7 +493,7 @@ class AnomalyBasedTroubleTicketTable extends Component {
                                                         <List.Item.Meta
                                                             avatar={<Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />}
                                                             title={<b>{item.description}</b>}
-                                                            description={`${new Date(item.follow_up_datetime)} | Assigned By ${item.assigned_by.username}`}
+                                                            description={`${(new Date((parseInt(item.follow_up_datetime)+20700)*1000).toUTCString()).replace(" GMT", "")} | Assigned By ${item.assigned_by.username}`}
                                                         />
                                                     </List.Item>
                                                 )}

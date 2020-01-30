@@ -15,8 +15,8 @@ class Test extends Component {
         return (
             <Fragment>
                 {/* <Worldmapchart /> */}
-                <RequestOriginWorldChart />
-                {/* <AnomalyBasedTroubleTicketTable /> */}
+                {/* <RequestOriginWorldChart /> */}
+                <AnomalyBasedTroubleTicketTable />
                 {/* <VerifiedRulesTable /> */}
                 {/* <IpAsSourceSankeyChart /> */}
                 {/* <ChangeAlias /> */}
