@@ -46,7 +46,7 @@ try:
         batch = update_batch_state(
             batch, e, "EXIT", "FAILURE")
 
-    # run.ml_engine()
+    run.ml_engine()
     batch = create_batch_log("BEFORE CSV DC ENGINE", "DC ENGINE",
                              "DC ENGINE", "DC ENGINE STARTED", "RUNNING", "RUNNING")
     try:
@@ -78,7 +78,7 @@ try:
             batch, e, "EXIT", "FAILURE")
 
     # run.db_engine()
-    run.tt_engine()
+    # run.tt_engine()
 
 except Exception as e:
     logging.exception(f'Terminated on {datetime.datetime.now()}')

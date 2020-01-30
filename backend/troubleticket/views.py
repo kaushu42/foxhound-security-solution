@@ -198,6 +198,7 @@ def close_tt(request, id):
     user = get_user_from_token(request)
     trouble_ticket.is_closed = True
     trouble_ticket.assigned_to = user
+    trouble_ticket.description = description
     trouble_ticket.save()
 
     now = datetime.datetime.now()

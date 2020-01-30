@@ -46,7 +46,7 @@ class TroubleTicketAnomaly(TroubleTicket):
         FoxhoundUser, on_delete=models.CASCADE,
         null=True
     )
-
+    description = models.CharField(max_length=500, null=True)
     reasons = models.CharField(max_length=500, null=True)
 
     source_ip = models.CharField(max_length=25, null=True)
