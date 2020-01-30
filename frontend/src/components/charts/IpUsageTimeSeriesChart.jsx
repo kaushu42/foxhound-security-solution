@@ -45,6 +45,9 @@ class IpUsageTimeSeriesChart extends Component {
             data: []
           }
         ],
+        time:{
+          timezoneOffset: -5*60 - 45
+        },
         tooltip: {
           valueDecimals: 2
         },
@@ -72,6 +75,7 @@ class IpUsageTimeSeriesChart extends Component {
     ipUsageDataService(auth_token, ip_address, this.state.basis, this.props).then(res => {
       console.log("fetching current data for ip", ip_address);
       const response = res.data;
+      console.log('response', response.data)
       const data = [];
       const v = getDivisionFactorUnitsFromBasis(response["max"],this.state.basis)
       const division_factor = v["division_factor"];
@@ -79,6 +83,7 @@ class IpUsageTimeSeriesChart extends Component {
       for (var i = 0; i<response.data.length; i++){
         data.push([response.data[i][0]*1000, (response.data[i][1])/division_factor])
       }
+      console.log('data', data)
       this.setState({
         data: data,
         unit: unit
@@ -123,13 +128,13 @@ class IpUsageTimeSeriesChart extends Component {
       this.handleFetchData();
     }
     if (prevState.data !== this.state.data) {
-      let dataSeries = this.state.data["bytes_received"]
+      let dataSeries = this.state.data
       console.log("Bandwidth chart dataseries", dataSeries);
       this.updateChart(dataSeries, this.state.unit);
     }
   }
   updateChart = (data, unit) => {
-    let bytesReceived = this.state.data.bytes_received;
+    let bytesReceived = this.state.data;
     if (bytesReceived.length == 0) {
       Highcharts.setOptions({
         lang: {
@@ -143,6 +148,7 @@ class IpUsageTimeSeriesChart extends Component {
     bytesReceived.sort(function(a, b) {
       return a[0] > b[0] ? 1 : -1;
     });
+    console.log("******BYTES RECEIVED*******", bytesReceived)
     this.chart.update({
       title: {
         text: null

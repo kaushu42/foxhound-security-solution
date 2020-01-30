@@ -1,7 +1,7 @@
 import { ROOT_URL } from "../utils";
 import axios from "axios";
 
-const FETCH_API = `${ROOT_URL}profile/time-series/`;
+const FETCH_API = `${ROOT_URL}profile/usage/`;
 
 export const ipUsageDataService = (auth_token,ip_address,basis,props) => {
     const authorization = `Token ${auth_token}`;
