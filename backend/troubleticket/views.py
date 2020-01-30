@@ -185,6 +185,7 @@ class TroubleTicketUsersApiView(APIView):
 
 @api_view(['POST'])
 def close_tt(request, id):
+    now = datetime.datetime.now()
     try:
         firewall_ids = get_firewall_rules_id_from_request(request)
         trouble_ticket = TroubleTicketAnomaly.objects.get(
@@ -199,9 +200,10 @@ def close_tt(request, id):
     trouble_ticket.is_closed = True
     trouble_ticket.assigned_to = user
     trouble_ticket.description = description
+    trouble_ticket.verified_datetime = now
+    trouble_ticket.verified_by = user
     trouble_ticket.save()
 
-    now = datetime.datetime.now()
     follow_up = TroubleTicketFollowUpAnomaly(
         assigned_by=user,
         assigned_to=user,

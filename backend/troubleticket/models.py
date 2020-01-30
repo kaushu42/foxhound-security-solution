@@ -67,6 +67,9 @@ class TroubleTicketAnomaly(TroubleTicket):
     repeat_count = models.IntegerField(default=0)
     time_elapsed = models.IntegerField(default=0)
     logged_datetime = models.DateTimeField(auto_now=True)
+    verified_datetime = models.DateTimeField(auto_now=True)
+    verified_by = models.ForeignKey(
+        FoxhoundUser, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return f'{self.log}'
