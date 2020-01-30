@@ -374,9 +374,11 @@ class MLEngine(AutoEncoder):
             df, save_data_for_ip_profile=False
         )
         anomalous_df['log_name'] = csv_file_path.split('/')[-2]
-        self._save_to_csv(anomalous_df, os.path.join(
-            self._ANOMALIES_CSV_OUTPUT_DIR, str(dt.datetime.now().date())+'.csv')
-        )
+
+        if len(anomalous_df.index):
+            self._save_to_csv(anomalous_df, os.path.join(
+                self._ANOMALIES_CSV_OUTPUT_DIR, str(dt.datetime.now().date())+'.csv')
+            )
         ano_with_no_model_count += ano_without_model
         ano_with_model_count += len(anomalous_df.index)
         n_chunks += 1
