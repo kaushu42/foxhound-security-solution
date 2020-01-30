@@ -69,7 +69,8 @@ class TroubleTicketAnomaly(TroubleTicket):
     logged_datetime = models.DateTimeField(auto_now=True)
     verified_datetime = models.DateTimeField(auto_now=True)
     verified_by = models.ForeignKey(
-        FoxhoundUser, on_delete=models.CASCADE, null=True)
+        FoxhoundUser, on_delete=models.CASCADE, null=True,
+        related_name='verified_by_tt')
 
     def __str__(self):
         return f'{self.log}'
