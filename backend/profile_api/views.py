@@ -1,4 +1,5 @@
 import datetime
+import pytz
 import time
 import json
 from collections import defaultdict, OrderedDict
@@ -147,16 +148,21 @@ class AverageDailyApiView(APIView):
         return total_avg
 
     def _get_date_usage(self, objects, basis, date):
-        latest_date = IPChart.objects.latest('logged_datetime').logged_datetime
+        ktm_tz = pytz.timezone('Asia/Kathmandu')
         if date is None:
+            latest_date = IPChart.objects.latest(
+                'logged_datetime').logged_datetime.astimezone(ktm_tz)
+            print(latest_date)
             date = latest_date.replace(
                 hour=0,
                 minute=0,
                 second=0,
                 microsecond=0
             )
+            print('date is none', date)
         else:
             date = str_to_date(date)
+            print('date supplied', date)
         latest_data = objects.filter(logged_datetime__range=(
             date, date + datetime.timedelta(hours=23))
         )
