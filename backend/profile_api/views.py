@@ -138,14 +138,17 @@ class AverageDailyApiView(APIView):
             Sum
         )
         total_avg = defaultdict(int)
-
+        max = 0
         for d in data:
             hour = d['date'].hour
             if basis == 'count':
-                total_avg[hour] += (d['count'])/n_days
+                sum = (d['count'])/n_days
             else:
-                total_avg[hour] += (d[fields[0]] + d[fields[1]])/n_days
-        return total_avg
+                sum = (d[fields[0]] + d[fields[1]])/n_days
+            total_avg[hour] += sum
+            if max < sum:
+                max = sum
+        return total_avg, max
 
     def _get_date_usage(self, objects, basis, date):
         ktm_tz = pytz.timezone('Asia/Kathmandu')
@@ -187,8 +190,8 @@ class AverageDailyApiView(APIView):
         return response, max
 
     def _get_usage(self, ip, objects, basis, date):
-        average = self._get_total_avg(objects, basis)
-        daily, max = self._get_date_usage(objects, basis, date)
+        average, max = self._get_total_avg(objects, basis)
+        daily, _ = self._get_date_usage(objects, basis, date)
         return {
             'average': average,
             'daily': daily,
