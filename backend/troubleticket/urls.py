@@ -9,4 +9,5 @@ urlpatterns = [
     path('users/', views_v1.TroubleTicketUsersApiView.as_view()),
     path('anomaly/<int:id>/',
          views_v1.TroubleTicketFollowUpAnomalyApiView.as_view()),
+    path('detail/<int:id>/', views.TroubleTicketDetailApiView.as_view())
 ]
