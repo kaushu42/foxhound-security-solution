@@ -46,7 +46,7 @@ class ClosedTroubleTickets extends Component {
                 },
                 {
                     title: 'Log Name',
-                    dataIndex: 'log_name',
+                    dataIndex: 'log.log_name',
                     key: 'log_name',
                 },
                 {
@@ -83,6 +83,7 @@ class ClosedTroubleTickets extends Component {
         });
 
         const token = `Token ${this.props.auth_token}`;
+        
         let headers = {
             Accept: "application/json",
             "Content-Type": "application/json",
@@ -119,12 +120,16 @@ class ClosedTroubleTickets extends Component {
 
     render() {
         const title = () => <h3>Closed Trouble Tickets</h3>
+        const expandedRowRender = (record) => <p>
+            <b>Verified Date: </b>{(new Date((parseInt(record.verified_datetime)+20700)*1000).toUTCString()).replace(" GMT", "")}
+            <br/><b>Verified By: </b> {record.verified_by}
+        </p>
         return (
             <Fragment>
                 <Table
-                    bordered
                     columns={this.state.columns}
                     title={title}
+                    expandedRowRender={expandedRowRender}
                     rowKey={record => record.id}
                     dataSource={this.state.data}
                     pagination={this.state.pagination}

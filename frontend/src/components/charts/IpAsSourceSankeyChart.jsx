@@ -189,7 +189,7 @@ class IpAsSourceSankeyChart extends Component {
 
 
     updateChart = () => {
-        const data = this.state.data.ip_as_source;
+        const data = this.state.data.src;
         data.sort(function(a, b) {
             return a[2] < b[2] ? 1 : -1;
         });
@@ -293,7 +293,7 @@ class IpAsSourceSankeyChart extends Component {
                         >
                             <Select.Option key={"bytes"}>Bytes</Select.Option>
                             <Select.Option key={"packets"}>Packets</Select.Option>
-                            <Select.Option key={"repeat"}>Count</Select.Option>
+                            <Select.Option key={"count"}>Count</Select.Option>
                         </Select>
                         </div>
                     </Fragment>

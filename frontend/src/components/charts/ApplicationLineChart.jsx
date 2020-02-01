@@ -20,6 +20,7 @@ class ApplicationLineChart extends Component {
       seconds: 0,
       loading: true,
       data: [],
+      max: "",
       top_count: 5,
       basis: "bytes",
       unit: "B",
@@ -162,7 +163,10 @@ class ApplicationLineChart extends Component {
 
     axios
       .post(FETCH_API, bodyFormData, { headers })
-      .then(res => this.setState({ data: res.data.data }));
+      .then(res => this.setState({ 
+        data: res.data.data,
+        max: res.data.max
+       }));
   };
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -184,14 +188,14 @@ class ApplicationLineChart extends Component {
     }
     if (prevState.data !== this.state.data) {
       let dataSeries = [];
-      let max_data = 1;
-      Object.keys(this.state.data).forEach(key => {
-        let key_max = arrayMax(this.state.data[key].map(e => [e[1]]));
-        if (key_max > max_data){
-          max_data = key_max;
-        }
-      });
-      const v = getDivisionFactorUnitsFromBasis(max_data,this.state.basis)
+      // let max_data = 1;
+      // Object.keys(this.state.data).forEach(key => {
+      //   let key_max = arrayMax(this.state.data[key].map(e => [e[1]]));
+      //   if (key_max > max_data){
+      //     max_data = key_max;
+      //   }
+      // });
+      const v = getDivisionFactorUnitsFromBasis(this.state.max,this.state.basis)
       const division_factor = v["division_factor"];
       const unit = v["unit"];
       this.setState({
