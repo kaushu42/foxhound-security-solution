@@ -160,8 +160,6 @@ export function updateMapAfterExcludingCountries(excluding_countries){
 
 export function fetchRequestOriginMapData(auth_token,start_date,end_date,firewall_rule,application,protocol,source_zone,destination_zone,except_countries,ip_address,basis){
  return (dispatch) => {
-
-    console.log("***** FETCH REQUEST ORIGIN CHART *****")
      let headers = axiosHeader(auth_token);
 
      let bodyFormData = new FormData();
@@ -178,9 +176,12 @@ export function fetchRequestOriginMapData(auth_token,start_date,end_date,firewal
      axios.post(FETCH_API,bodyFormData,{headers})
          .then(res => {
              const response = res.data;
+             let final_data = [];
+             Object.keys(response).forEach(country => {
+                 final_data.push([country,response[country]]);
+                });
              dispatch(mapChartLoading());
-             console.log('fetched request origin map chart data ',response);
-             dispatch(fetchMapChartDataSuccess(response));
+             dispatch(fetchMapChartDataSuccess(final_data));
          })
          .then(res => dispatch(fetchMapChartDataComplete()))
          .catch(e => dispatch(fetchMapChartError(e)))
