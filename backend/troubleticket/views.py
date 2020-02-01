@@ -232,8 +232,6 @@ class TroubleTicketDetailApiView(APIView):
     }
 
     def get_stats(self, objects, reason, max):
-        if '_id' in reason:
-            reason = reason.replace('_id', '')
         if reason in self._numeric_cols:
             return Avg(reason)
         return Count(reason)/max
@@ -250,6 +248,8 @@ class TroubleTicketDetailApiView(APIView):
             query = {}
             max = objects.count()
             for reason in reasons:
+                if '_id' in reason:
+                    reason = reason.replace('_id', '')
                 if reason not in {'logged_datetime'}:
                     query[reason] = self.get_stats(objects, reason, max)
             stats = objects.aggregate(**query)
