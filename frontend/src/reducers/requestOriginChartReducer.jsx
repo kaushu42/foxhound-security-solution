@@ -51,7 +51,7 @@ const requestOriginChartReducer = (state=initialState,action) => {
         case MAP_CHART_DATA_FETCH_SUCCESS:
             return {
                 ...state,
-                mapChartData : action.payload.data
+                mapChartData : action.payload
             }
         case MAP_CHART_ERROR:
             return {
