@@ -215,48 +215,54 @@ def close_tt(request, id):
     return Response({'ok': 'tt closed'})
 
 
+OPERATIONS = {
+    'bytes_sent': ('bytes_sent'),
+    'bytes_received': ('bytes_received'),
+
+}
+
+
 class TroubleTicketDetailApiView(APIView):
+    _numeric_cols = {
+        'bytes_sent',
+        'bytes_received',
+        'packets_sent',
+        'packets_received',
+        'time_elapsed'
+    }
+
+    def get_stats(self, objects, reason, max):
+        if reason in self._numeric_cols:
+            return Avg(reason)
+        return Count(reason)/max
+
     def post(self, request, id):
         try:
-            tenant_id = get_tenant_id_from_token(request)
+            firewall_rule_ids = get_firewall_rules_id_from_request(request)
             tt = TroubleTicketAnomaly.objects.get(
-                id=id, firewall_rule__tenant_id=tenant_id)
-        except Exception as e:
-            return Response({
-                "traceback": str(traceback.format_exc()),
-                "exception": str(e)
-            }, status=HTTP_400_BAD_REQUEST)
-        detail = TrafficLogDetail.objects.get(
-            row_number=tt.row_number,
-            traffic_log=tt.log,
-            firewall_rule__tenant_id=tenant_id
-        )
-        stats = TrafficLogDetail.objects.filter(
-            source_ip=detail.source_ip,
-            destination_ip=detail.destination_ip,
-            firewall_rule__tenant_id=tenant_id
-        )
-        application_stats = stats.filter(
-            application=detail.application).aggregate(
-            bytes=Avg('bytes_sent') + Avg('bytes_received'),
-            packets=Avg('packets_sent') + Avg('packets_received'),
-            count=Count('id')
-        )
-        info = stats.aggregate(
-            Avg('bytes_sent'),
-            Avg('bytes_received'),
-            Avg('packets_sent'),
-            Avg('packets_received'),
-        )
-        return Response({
-            "bytes_sent_average": info['bytes_sent__avg'],
-            "bytes_received_average": info['bytes_received__avg'],
-            "packets_sent_average": info['packets_sent__avg'],
-            "packets_received_average": math.ceil(
-                info['packets_received__avg']),
-            "application": {
-                "bytes": application_stats['bytes'],
-                "packets": math.ceil(application_stats['packets']),
-                "count": application_stats['count'],
-            }
-        })
+                id=id, firewall_rule__in=firewall_rule_ids)
+            reasons = [i.strip() for i in tt.reasons.split(',')]
+            ip = tt.source_ip
+            print(ip)
+            objects = TrafficLogDetailGranularHour.objects.filter(
+                source_ip=ip, firewall_rule__in=firewall_rule_ids)
+            query = {}
+            max = objects.count()
+            for reason in reasons:
+                if reason not in {'logged_datetime'}:
+                    query[reason] = self.get_stats(objects, reason, max)
+            stats = objects.aggregate(**query)
+            categorical = {}
+            numeric = {}
+            for stat in stats:
+                if stat in self._numeric_cols:
+                    numeric[stat] = format(stats[stat], '.2f')
+                else:
+                    categorical[stat] = stats[stat]
+            return Response({'reasons': {
+                'categorical': categorical,
+                'numeric': numeric
+            }})
+
+        except TroubleTicketAnomaly.DoesNotExist as e:
+            return Response({"error": 'yes'})
