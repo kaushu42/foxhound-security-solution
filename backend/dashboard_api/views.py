@@ -217,7 +217,7 @@ class CountryApiView(APIView):
     def post(self, request, format=None):
         filter_ids = get_filter_ids_from_request(request)
         basis = request.data.get('basis', 'bytes')
-
+        except_countries = []
         objects = get_objects_with_date_filtered(
             request,
             IPChart,

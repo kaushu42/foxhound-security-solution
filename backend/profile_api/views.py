@@ -127,6 +127,8 @@ class AverageDailyApiView(APIView):
             fields = [f'{basis}_sent', f'{basis}_received']
         n_days = objects.distinct('logged_datetime').values('logged_datetime')
         n_days = n_days.count()//24
+        if n_days == 0:
+            n_days = 1
         data = groupby_date(
             objects,
             'logged_datetime',
@@ -137,7 +139,7 @@ class AverageDailyApiView(APIView):
         total_avg = defaultdict(int)
 
         for d in data:
-            hour = (d['date'].hour + TIME_OFFSET) % 24
+            hour = d['date'].hour
             if basis == 'count':
                 total_avg[hour] += (d['count'])/n_days
             else:
@@ -154,8 +156,7 @@ class AverageDailyApiView(APIView):
                 microsecond=0
             )
         else:
-            date = str_to_date(date) - datetime.timedelta(hours=5, minutes=45)
-
+            date = str_to_date(date)
         latest_data = objects.filter(logged_datetime__range=(
             date, date + datetime.timedelta(hours=23))
         )
