@@ -232,6 +232,8 @@ class TroubleTicketDetailApiView(APIView):
     }
 
     def get_stats(self, objects, reason, max):
+        if '_id' in reason:
+            reason = reason.replace('_id', '')
         if reason in self._numeric_cols:
             return Avg(reason)
         return Count(reason)/max
@@ -243,7 +245,6 @@ class TroubleTicketDetailApiView(APIView):
                 id=id, firewall_rule__in=firewall_rule_ids)
             reasons = [i.strip() for i in tt.reasons.split(',')]
             ip = tt.source_ip
-            print(ip)
             objects = TrafficLogDetailGranularHour.objects.filter(
                 source_ip=ip, firewall_rule__in=firewall_rule_ids)
             query = {}
