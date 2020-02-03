@@ -74,7 +74,8 @@ class AnomalyBasedTroubleTicketTable extends Component {
             user_list : [],
             error_message : "",
             quickIpView : false, 
-            ttDetail: null,
+            ttDetailCategorical: null,
+            ttDetailNumeric:null,
             selectedRecord: null,
             expandedRowKeys: []
         }
@@ -260,43 +261,35 @@ class AnomalyBasedTroubleTicketTable extends Component {
             axios.post(url, null, {headers})
             .then(res=>{
                 this.setState({
-                    ttDetail: res.data,
+                    ttDetailCategorical: res.data.reasons.categorical,
+                    ttDetailNumeric: res.data.reasons.numeric,
                     selectedRecord: record.id
                 })
-                console.log("tt detail data", this.state.ttDetail)
+                console.log("tt detail data", this.state.ttDetailCategorical, this.state.ttDetailNumeric)
             })
         }   
-        var dataToShow = (
-        <Fragment>
-            <b>Created Date: </b>{(new Date((parseInt(record.created_datetime)+20700)*1000).toUTCString()).replace(" GMT", "")} 
-            <br/><b>Bytes Sent: </b> {record.bytes_sent}
-            <br/><b>Bytes Received: </b> {record.bytes_received} 
-            <br/><b>Packets Sent: </b> {record.packets_sent}
-            <br/><b>Packets Received: </b> {record.packets_received} 
-            <br/><b>Bytes Sent: </b> {record.bytes_sent}
-            <br/><b>Source Port: </b> {record.source_port} 
-            <br/><b>Destination Port: </b> {record.destination_port}
-            <br/><b>Action: </b> {record.action}
-            <br/><b>Session End Reason: </b> {record.session_end_reason}
-            <br/><b>Inbound Interface: </b> {record.inbound_interface}
-            <br/><b>Outbound Interface: </b> {record.outbound_interface} 
-            {this.state.ttDetail ? (
-                <Fragment>
-                    <hr></hr>
-                    <b>Details:</b>
-                    <br />
-                    <ul>
-                    <li>The average bytes sent is <b>{this.state.ttDetail.bytes_sent_average.toFixed(0)}</b> and actual bytes sent is <b>{record.bytes_sent}.</b></li>
-                    <li>The average bytes received is <b>{this.state.ttDetail.bytes_received_average.toFixed(0)}</b> and actual bytes received is <b>{record.bytes_received}.</b></li>
-                    <li>The average packets sent is <b>{this.state.ttDetail.packets_sent_average.toFixed(0)}</b> and actual packets sent is <b>{record.packets_sent}.</b></li>
-                    <li>The average packets received is <b>{this.state.ttDetail.packets_received_average.toFixed(0)}</b> and actual packets received is <b>{record.packets_received}.</b></li>
-                    <li>This application is used <b>{this.state.ttDetail.application.count}</b> with average packets sent <b>{this.state.ttDetail.application.packets}</b>. The total data used is <b>{this.state.ttDetail.application.bytes.toFixed(0)}</b></li>
-                    </ul>
-                    <hr></hr>
-                </Fragment>
-            ): null}
-        </Fragment>
-        );
+        var dataToShow = []
+        dataToShow.push(<Fragment key={"date_"}><b>Created Date: </b> {(new Date((parseInt(record.created_datetime)+20700)*1000).toUTCString()).replace(" GMT", "")}</Fragment>)
+        dataToShow.push(<Fragment key={"bytes_sent_"}><br/><b>Bytes Sent:</b> {record.bytes_sent} </Fragment>)
+        dataToShow.push(<Fragment key={"bytes_received_"}><br/><b>Bytes Received:</b> {record.bytes_received} </Fragment>)
+        dataToShow.push(<Fragment key={"packets_sent_"}><br/><b>Packets Sent:</b> {record.packets_sent} </Fragment>)
+        dataToShow.push(<Fragment key={"packets_received_"}><br/><b>Packets Received:</b> {record.packets_received} </Fragment>)
+        dataToShow.push(<Fragment key={"source_port_"}><br/><b>Source Port:</b> {record.source_port} </Fragment>)
+        dataToShow.push(<Fragment key={"destination_port_"}><br/><b>Destination Port:</b> {record.bytes_sent} </Fragment>)
+        dataToShow.push(<Fragment key={"action_"}><br/><b>Action:</b> {record.action} </Fragment>)
+        dataToShow.push(<Fragment key={"session_end_reason_"}><br/><b>Session End Reason:</b> {record.bytes_sent} </Fragment>)
+        dataToShow.push(<hr key = {"linebreak"}></hr>)
+        dataToShow.push(<Fragment key={"reasons"}><b>Reasons For Anomaly:</b></Fragment>)
+        {this.state.ttDetailCategorical ? (
+            Object.keys(this.state.ttDetailCategorical).forEach(key => {
+            dataToShow.push(<Fragment key={key}><br/>{key} {record[key]} is used {this.state.ttDetailCategorical[key] *100}% of time.</Fragment>)
+            })
+        ):null}
+        {this.state.ttDetailNumeric ? (
+            Object.keys(this.state.ttDetailNumeric).forEach(key => {
+            dataToShow.push(<Fragment key={key}><br/>Average {key} is {this.state.ttDetailNumeric[key] *100} but actual {key} is {record[key]}.</Fragment>)
+            })
+        ):null}
         return dataToShow
     }
     
@@ -363,21 +356,6 @@ class AnomalyBasedTroubleTicketTable extends Component {
     }
     
     render() {
-        const title = () => <h3>Anomaly Based Trouble Tickets</h3>
-        const expandedRowRender = (record) => <p>
-            <b>Created Date: </b>{(new Date(record.created_datetime).toUTCString()).replace(" GMT", "")} 
-            <br/><b>Bytes Sent: </b> {record.bytes_sent}
-            <br/><b>Bytes Received: </b> {record.bytes_received} 
-            <br/><b>Packets Sent: </b> {record.packets_sent}
-            <br/><b>Packets Received: </b> {record.packets_received} 
-            <br/><b>Bytes Sent: </b> {record.bytes_sent}
-            <br/><b>Source Port: </b> {record.source_port} 
-            <br/><b>Destination Port: </b> {record.destination_port}
-            <br/><b>Action: </b> {record.action}
-            <br/><b>Session End Reason: </b> {record.session_end_reason}
-            <br/><b>Inbound Interface: </b> {record.inbound_interface}
-            <br/><b>Outbound Interface: </b> {record.outbound_interface} 
-        </p>
         const applicationSelectListItem = this.state.applicationData.map(
             data => <Option key={data[1]}>{data[1]}</Option>
           );

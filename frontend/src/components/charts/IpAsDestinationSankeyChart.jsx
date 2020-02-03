@@ -10,6 +10,7 @@ import mapdata from "../../charts/mapdata";
 import {Card, Row, Spin, Drawer, Table, Select} from "antd";
 import HighchartsReact from "highcharts-react-official";
 import moment from "moment";
+import {getDivisionFactorUnitsFromBasis} from '../../utils'
 
 const FETCH_API = `${ROOT_URL}profile/sankey/`;
 const FETCH_SANKEY_LOG_API = `${ROOT_URL}log/sankey/`;
@@ -21,6 +22,7 @@ class IpAsDestinationSankeyChart extends Component {
             params:{},
             pagination:{},
             data : [],
+            unit: "",
             loading : true,
             selectedSourceIp : null, 
             selectedDestinationIp : null,
@@ -38,7 +40,7 @@ class IpAsDestinationSankeyChart extends Component {
                 tooltip: {
                     formatter: function () {
                         const self = this.series.chart.component;
-                        return self.handleDataUnit(this.point.weight);
+                        return self.handleDataUnit(this.point);
                     }
                 },
                 series: [
@@ -91,8 +93,11 @@ class IpAsDestinationSankeyChart extends Component {
         }
     }
 
-    handleDataUnit = (value) => {
-        let tooltipValue = bytesToSize(value);
+    handleDataUnit = (point) => {
+        var tooltipValue
+        {(point.fromNode || point.toNode)?
+            tooltipValue = point.fromNode.name + "→" + point.toNode.name + ": " + point.weight  + " " +this.state.unit
+            : tooltipValue = point.name}
         return tooltipValue
     }
     
@@ -135,12 +140,26 @@ class IpAsDestinationSankeyChart extends Component {
 
         axios.post(FETCH_API,bodyFormData,{headers}).
         then(res => {
-            const response = res.data;
+            const response = res.data.dest;
+            var maxValue = 0
+            for (var i = 0; i<response.length; i++){
+                if (maxValue <  response[i][2]){
+                    maxValue = response[i][2]
+                }
+            }
+            const data = []
             console.log('api data',response);
+            const v = getDivisionFactorUnitsFromBasis(maxValue,this.state.basis)
+            const division_factor = v["division_factor"];
+            const unit = v["unit"];
+            var i;
+            for ( i = 0; i<response.length; i++){
+                data.push([response[i][0],response[i][1],parseInt((response[i][2])/division_factor)])
+            }
             this.setState({
-                data : response
+                data : data,
+                unit: unit
             })
-
         });
 
     }
@@ -188,7 +207,7 @@ class IpAsDestinationSankeyChart extends Component {
 
 
     updateChart = () => {
-        const data = this.state.data.dest;
+        const data = this.state.data;
         data.sort(function(a, b) {
             return a[2] < b[2] ? 1 : -1;
         });

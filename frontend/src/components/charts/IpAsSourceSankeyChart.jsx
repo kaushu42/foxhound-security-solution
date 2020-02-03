@@ -10,6 +10,7 @@ import mapdata from "../../charts/mapdata";
 import {Card, Row, Spin, Drawer, Table, Select} from "antd";
 import HighchartsReact from "highcharts-react-official";
 import moment from "moment";
+import {getDivisionFactorUnitsFromBasis} from '../../utils'
 
 const FETCH_API = `${ROOT_URL}profile/sankey/`;
 const FETCH_SANKEY_LOG_API = `${ROOT_URL}log/sankey/`;
@@ -21,6 +22,7 @@ class IpAsSourceSankeyChart extends Component {
             params:{},
             pagination:{},
             data : [],
+            unit: "",
             loading : true,
             selectedSourceIp : null, 
             selectedDestinationIp : null,
@@ -35,14 +37,9 @@ class IpAsSourceSankeyChart extends Component {
                 title: {
                     text: null
                 },
-                tooltip: {
-                    formatter: function () {
-                        const self = this.series.chart.component;
-                        return self.handleDataUnit(this.point.weight);
-                    }
-                },
                 series: [
-                    {
+                    {   
+                        name:"",
                         keys: ['from', 'to', 'weight'],
                         data: [],
                         type: "sankey",
@@ -53,7 +50,13 @@ class IpAsSourceSankeyChart extends Component {
                             }
                         },
                     }
-                ]
+                ],
+                tooltip: {
+                    formatter: function () {
+                        const self = this.series.chart.component;
+                        return self.handleDataUnit(this.point);
+                    }
+                },
             },
             logColumns : [
                 {
@@ -92,8 +95,11 @@ class IpAsSourceSankeyChart extends Component {
         }
     }
 
-    handleDataUnit = (value) => {
-        let tooltipValue = bytesToSize(value);
+    handleDataUnit = (point) => {
+        var tooltipValue
+        {(point.fromNode || point.toNode)?
+            tooltipValue = point.fromNode.name + "→" + point.toNode.name + ": " + point.weight  + " " +this.state.unit
+            : tooltipValue = point.name}
         return tooltipValue
     }
 
@@ -124,6 +130,7 @@ class IpAsSourceSankeyChart extends Component {
         };
 
         var bodyFormData = new FormData();
+        // bodyFormData.set('ip', this.props.ip_address);
         bodyFormData.set('ip', this.props.ip_address);
         bodyFormData.set('start_date', this.props.date_range[0]);
         bodyFormData.set('end_date', this.props.date_range[1]);
@@ -136,14 +143,28 @@ class IpAsSourceSankeyChart extends Component {
 
         axios.post(FETCH_API,bodyFormData,{headers}).
         then(res => {
-            const response = res.data;
+            const response = res.data.src
             console.log('api data',response);
+            var maxValue = 0
+            for (var i = 0; i<response.length; i++){
+                if (maxValue <  response[i][2]){
+                    maxValue = response[i][2]
+                }
+            }
+            const data = []
+            console.log('api data',response);
+            const v = getDivisionFactorUnitsFromBasis(maxValue,this.state.basis)
+            const division_factor = v["division_factor"];
+            const unit = v["unit"];
+            var i;
+            for ( i = 0; i<response.length; i++){
+                data.push([response[i][0],response[i][1],parseInt((response[i][2])/division_factor)])
+            }
             this.setState({
-                data : response
+                data : data,
+                unit: unit
             })
-
         });
-
     }
     exitHandler = () => {
         if (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement) {
@@ -189,7 +210,7 @@ class IpAsSourceSankeyChart extends Component {
 
 
     updateChart = () => {
-        const data = this.state.data.src;
+        const data = this.state.data;
         data.sort(function(a, b) {
             return a[2] < b[2] ? 1 : -1;
         });

@@ -78,7 +78,7 @@ try:
             batch, e, "EXIT", "FAILURE")
 
     # run.db_engine()
-    run.tt_engine()
+    # run.tt_engine()
 
 except Exception as e:
     logging.exception(f'Terminated on {datetime.datetime.now()}')
