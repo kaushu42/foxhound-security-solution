@@ -14,6 +14,7 @@ from core.models import (
 )
 
 from batch.models import Log as BatchMonitorLog
+from mis.models import DailySourceIP,DailyDestinationIP
 
 from troubleticket.models import (
     TroubleTicketAnomaly,
@@ -221,4 +222,16 @@ class ApplicationChartSerializer(serializers.Serializer):
 class BatchLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = BatchMonitorLog
+        fields = '__all__'
+
+
+class MisDailySourceIpSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DailySourceIP
+        fields = '__all__'
+
+
+class MisDailyDestinationIpSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DailyDestinationIP
         fields = '__all__'
