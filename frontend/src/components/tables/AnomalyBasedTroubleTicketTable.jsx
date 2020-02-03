@@ -275,9 +275,9 @@ class AnomalyBasedTroubleTicketTable extends Component {
         dataToShow.push(<Fragment key={"packets_sent_"}><br/><b>Packets Sent:</b> {record.packets_sent} </Fragment>)
         dataToShow.push(<Fragment key={"packets_received_"}><br/><b>Packets Received:</b> {record.packets_received} </Fragment>)
         dataToShow.push(<Fragment key={"source_port_"}><br/><b>Source Port:</b> {record.source_port} </Fragment>)
-        dataToShow.push(<Fragment key={"destination_port_"}><br/><b>Destination Port:</b> {record.bytes_sent} </Fragment>)
+        dataToShow.push(<Fragment key={"destination_port_"}><br/><b>Destination Port:</b> {record.destination_port} </Fragment>)
         dataToShow.push(<Fragment key={"action_"}><br/><b>Action:</b> {record.action} </Fragment>)
-        dataToShow.push(<Fragment key={"session_end_reason_"}><br/><b>Session End Reason:</b> {record.bytes_sent} </Fragment>)
+        dataToShow.push(<Fragment key={"session_end_reason_"}><br/><b>Session End Reason:</b> {record.session_end_reason} </Fragment>)
         dataToShow.push(<hr key = {"linebreak"}></hr>)
         dataToShow.push(<Fragment key={"reasons"}><b>Reasons For Anomaly:</b></Fragment>)
         {this.state.ttDetailCategorical ? (
