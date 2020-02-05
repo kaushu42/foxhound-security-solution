@@ -187,12 +187,11 @@ class IpUsageTimeSeriesChart extends Component {
             title={
               <Fragment>
               <div>
-              <b>{`Bandwidth Usage for ${this.state.basis} of ${this.props.ip_address}`}</b>
-              <br></br>
+              {`Bandwidth Usage for ${this.state.basis} of ${this.props.ip_address}`}
                   <Select
                     onChange={value => this.setState({ basis: value })}
                     size={"default"}
-                    style={{ width: "50%", float:"right", paddingRight: 10, paddingLeft: 10 }}
+                    style={{ width: "35%", float:"right", paddingRight: 10, paddingLeft: 5 }}
                     defaultValue={"bytes"}
                   >
                     <Select.Option key={"bytes"}>Bytes</Select.Option>

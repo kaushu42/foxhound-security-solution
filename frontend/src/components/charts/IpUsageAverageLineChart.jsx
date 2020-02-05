@@ -226,15 +226,14 @@ class IpUsageAverageDailyTrendChart extends Component {
                     title = {
                             <Fragment>
                                 <div>
-                                <b>{`Average Daily Trend for ${this.state.basis} of ${this.props.ip_address}`}</b>
-                                <br></br>
+                                {`Average Daily Trend`}
                                 <DatePicker 
-                                    style={{ width: "50%"}}
+                                    style={{ width: "35%", float:"right", paddingRight: 5, paddingLeft: 5 }}
                                     onChange = {this.onChange}/>
                                 <Select
                                     onChange={value => this.setState({ basis: value })}
                                     size={"default"}
-                                    style={{ width: "50%", float:"right", paddingRight: 10, paddingLeft: 10 }}
+                                    style={{ width: "35%", float:"right", paddingRight: 5, paddingLeft: 5 }}
                                     defaultValue={"bytes"}
                                 >
                                     <Select.Option key={"bytes"}>Bytes</Select.Option>

@@ -30,7 +30,7 @@ class IpUsageAverageDailyTrendChart extends Component {
                     }
                 },
                 title: {
-                    text: `Average Daily Trend for Bytes Received of ${this.props.ip_address}`
+                    text: `Average Daily Trend for ${this.props.ip_address}`
                 },
                 series: [
                     {
@@ -128,7 +128,7 @@ class IpUsageAverageDailyTrendChart extends Component {
         });
         this.chart.update({
             title : {
-              text : `Average Daily Trend for Bytes Received of ${this.props.ip_address}`
+              text : `Average Daily Trend`
             },
             xAxis: {
 
