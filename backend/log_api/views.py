@@ -53,8 +53,10 @@ class TrafficLogDetailApiView(PaginatedView):
     serializer_class = TrafficLogDetailGranularHourSerializer
 
     def get(self, request, id):
+        firewall_ids = get_firewall_rules_id_from_request(request)
         objects = TrafficLogDetailGranularHour.objects.filter(
-            traffic_log__id=id).order_by('-id')
+            traffic_log__id=id, firewall_rule__in=firewall_ids
+        ).order_by('-id')
         page = self.paginate_queryset(objects)
         # for i in page:
         #     # i.logged_datetime -= datetime.timedelta(minutes=15)

@@ -10,7 +10,8 @@ from core.models import (
     Country,
     ProcessedLogDetail,
     TenantIPAddressInfo,
-    TimeSeriesChart
+    TimeSeriesChart,
+    FirewallRule
 )
 
 from batch.models import Log as BatchMonitorLog
@@ -112,14 +113,21 @@ class TrafficLogDetailSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class FirewallRuleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FirewallRule
+        fields = ('name',)
+
+
 class TrafficLogDetailGranularHourSerializer(serializers.ModelSerializer):
-    source_ip = IPAddressSerializer()
-    destination_ip = IPAddressSerializer()
-    application = ApplicationSerializer()
+    firewall_rule = serializers.SerializerMethodField('get_firewall_rule_name')
 
     class Meta:
         model = TrafficLogDetailGranularHour
-        fields = '__all__'
+        exclude = ('id', 'traffic_log')
+
+    def get_firewall_rule_name(self, obj):
+        return obj.firewall_rule.name
 
 
 class TroubleTicketAnomalySerializer(serializers.ModelSerializer):
