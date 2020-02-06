@@ -59,15 +59,15 @@ class IpAsSourceSankeyChart extends Component {
                 },
             },
             logColumns : [
-                {
-                    title: 'Id',
-                    dataIndex: 'id',
-                    key: 'id',
-                },
+                // {
+                //     title: 'Id',
+                //     dataIndex: 'id',
+                //     key: 'id',
+                // },
                 {
                     title: 'Application',
-                    dataIndex: 'application.name',
-                    key: 'application.name',
+                    dataIndex: 'application',
+                    key: 'application',
                     // render : (text,record) => bytesToSize(text)
                 },
                 {
@@ -88,7 +88,7 @@ class IpAsSourceSankeyChart extends Component {
                     dataIndex: 'logged_datetime',
                     key: 'logged_datetime',
                     // render: text => moment(text).format("YYYY-MM-DD, HH:MM:SS")
-                    render: text => (new Date(text).toUTCString()).replace(" GMT", "")
+                    render: text => (new Date(text*1000+20700000).toUTCString()).replace(" GMT", "")
                 },
               ],
 
