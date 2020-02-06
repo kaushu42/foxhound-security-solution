@@ -1,5 +1,6 @@
 import traceback
 import datetime
+import pytz
 
 from django.db.models import Sum, F
 from rest_framework.views import APIView
@@ -73,13 +74,8 @@ class RequestOriginLogApiView(PaginatedView):
     serializer_class = TrafficLogDetailGranularHourSerializer
 
     def get(self, request):
-        country = request.data.get('country')
-        if country is None:
-            return Response({
-                "error": "\"country\" field is required"
-            })
-        ips = Country.objects.filter(iso_code=country).values('ip_address')
-        tenant_id = get_tenant_id_from_token(request)
+        country = request.data.get('country', '')
+        firewall_ids = get_firewall_rules_id_from_request(request)
         query = get_query_from_request(request)
         objects = get_objects_from_query(query).filter(
             firewall_rule__tenant__id=tenant_id,
@@ -137,47 +133,27 @@ class ApplicationLogApiView(PaginatedView):
     serializer_class = TrafficLogDetailGranularHourSerializer
 
     def get(self, request):
-        application = request.data.get('application')
+        firewall_ids = get_firewall_rules_id_from_request(request)
+        application = request.data.get('application', '')
         timestamp = int(request.data.get('timestamp'))
+        country = request.data.get('country', '')
+
+        tz_ktm = pytz.timezone('Asia/Kathmandu')
         start_date = datetime.datetime.fromtimestamp(
-            timestamp / 1e3)
+            timestamp).astimezone(tz_ktm)
         end_date = start_date + datetime.timedelta(hours=1)
-        if application is None:
-            return Response({
-                "error": "\"application\" field is required"
-            }, status=HTTP_406_NOT_ACCEPTABLE)
-        try:
-            application_id = Application.objects.get(name=application).id
-        except Exception as e:
-            return Response({
-                "traceback": str(traceback.format_exc()),
-                "exception": str(e)
-            }, status=HTTP_400_BAD_REQUEST)
-
-        class MyRequest:
-            data = {}
-        my_request = MyRequest()
-
-        for i in request.data.keys():
-            my_request.data[i] = request.data[i]
-        my_request.data['application'] = str(application_id)
-        tenant_id = get_tenant_id_from_token(request)
-        query = get_query_from_request(my_request)
-        objects = get_objects_from_query(query).filter(
-            firewall_rule__tenant__id=tenant_id,
-            application__name=application,
-            logged_datetime__range=(start_date, end_date)
-        ).order_by('-id')
-        country = request.data.get('country', None)
-
-        if (country is not None) and (country != 'undefined'):
-            ips = Country.objects.filter(iso_code=country).values('ip_address')
-            objects = objects.filter(source_ip__in=ips)
+        kwargs = {
+            'firewall_rule__in': firewall_ids,
+            'application': application,
+            'logged_datetime__range': (start_date, end_date)
+        }
+        if country:
+            kwargs['source_country'] = country
+        objects = TrafficLogDetailGranularHour.objects.filter(
+            **kwargs
+        ).order_by('id')
 
         page = self.paginate_queryset(objects)
-        for i in page:
-            i.logged_datetime -= datetime.timedelta(minutes=15)
-            # print(i.logged_datetime)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
