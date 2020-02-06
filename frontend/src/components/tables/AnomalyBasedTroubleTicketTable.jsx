@@ -1,7 +1,7 @@
 import React, {Component, Fragment} from 'react';
 import {Avatar, Button, Form, List, Select, Spin, Statistic, Table, Tag, Input} from 'antd';
 import reqwest from "reqwest";
-import {drawerInfoStyle, ROOT_URL} from "../../utils";
+import {drawerInfoStyle, ROOT_URL, bytesToSize} from "../../utils";
 import {connect} from "react-redux";
 import { Drawer} from 'antd';
 import { Card, Col, Row } from 'antd';
@@ -270,8 +270,8 @@ class AnomalyBasedTroubleTicketTable extends Component {
         }   
         var dataToShow = []
         dataToShow.push(<Fragment key={"date_"}><b>Created Date: </b> {(new Date((parseInt(record.created_datetime)+20700)*1000).toUTCString()).replace(" GMT", "")}</Fragment>)
-        dataToShow.push(<Fragment key={"bytes_sent_"}><br/><b>Bytes Sent:</b> {record.bytes_sent} </Fragment>)
-        dataToShow.push(<Fragment key={"bytes_received_"}><br/><b>Bytes Received:</b> {record.bytes_received} </Fragment>)
+        dataToShow.push(<Fragment key={"bytes_sent_"}><br/><b>Bytes Sent:</b> {bytesToSize(record.bytes_sent)} </Fragment>)
+        dataToShow.push(<Fragment key={"bytes_received_"}><br/><b>Bytes Received:</b> {bytesToSize(record.bytes_received)} </Fragment>)
         dataToShow.push(<Fragment key={"packets_sent_"}><br/><b>Packets Sent:</b> {record.packets_sent} </Fragment>)
         dataToShow.push(<Fragment key={"packets_received_"}><br/><b>Packets Received:</b> {record.packets_received} </Fragment>)
         dataToShow.push(<Fragment key={"source_port_"}><br/><b>Source Port:</b> {record.source_port} </Fragment>)
@@ -282,12 +282,19 @@ class AnomalyBasedTroubleTicketTable extends Component {
         dataToShow.push(<Fragment key={"reasons"}><b>Reasons For Anomaly:</b></Fragment>)
         {this.state.ttDetailCategorical ? (
             Object.keys(this.state.ttDetailCategorical).forEach(key => {
-            dataToShow.push(<Fragment key={key}><br/>{key} {record[key]} is used {this.state.ttDetailCategorical[key] *100}% of time.</Fragment>)
+                if (this.state.ttDetailCategorical[key] < 0.25){
+                    dataToShow.push(<Fragment key={key}><br/>{key} {record[key]} is used {this.state.ttDetailCategorical[key] *100}% of time.</Fragment>)
+                }
             })
         ):null}
         {this.state.ttDetailNumeric ? (
             Object.keys(this.state.ttDetailNumeric).forEach(key => {
-            dataToShow.push(<Fragment key={key}><br/>Average {key} is {this.state.ttDetailNumeric[key] *100} but actual {key} is {record[key]}.</Fragment>)
+                if(key == "bytes_sent" || key == "bytes_received"){
+                    dataToShow.push(<Fragment key={key}><br/>Average {key} is {bytesToSize(this.state.ttDetailNumeric[key])} but actual {key} is {bytesToSize(record[key])}.</Fragment>)
+                }
+                else{
+                    dataToShow.push(<Fragment key={key}><br/>Average {key} is {this.state.ttDetailNumeric[key]} but actual {key} is {record[key]}.</Fragment>)
+                }
             })
         ):null}
         return dataToShow
