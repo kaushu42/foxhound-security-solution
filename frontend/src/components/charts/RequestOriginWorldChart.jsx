@@ -342,8 +342,7 @@ class RequestOriginWorldChart extends Component {
             title={
               <Fragment>
                 <div>
-                <b>Request Origin Map View</b>
-                <br></br>
+                Request Origin 
                 {countrySelectListData ? (
                   <Select
                     id="country"
@@ -355,7 +354,7 @@ class RequestOriginWorldChart extends Component {
                         .toLowerCase()
                         .indexOf(input.toLowerCase()) >= 0
                     }
-                    style={{ width: "50%" }}
+                    style={{ width: "35%", float:"right", paddingRight: 5, paddingLeft: 5 }}
                     onChange={exclude_countries =>
                       dispatchUpdateMapAfterCountryExcluding(exclude_countries)
                     }
@@ -371,7 +370,7 @@ class RequestOriginWorldChart extends Component {
                   <Select
                     onChange={value => this.setState({ basis: value })}
                     size={"default"}
-                    style={{ width: "50%", float:"right", paddingRight: 10, paddingLeft: 10 }}
+                    style={{ width: "35%", float:"right", paddingRight: 5, paddingLeft: 5 }}
                     defaultValue={"count"}
                   >
                     <Select.Option key={"bytes"}>Bytes</Select.Option>

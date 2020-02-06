@@ -206,12 +206,11 @@ class BandwidthUsageChart extends Component {
             title={
               <Fragment>
                 <div>
-                  <b>Time Series Usages Chart</b>
-                  <br></br>
+                  Time Series Usage
                   <Select
                     onChange={value => this.setState({ basis: value })}
                     size={"default"}
-                    style={{ width: "50%", float:"right", paddingRight: 10, paddingLeft: 10 }}
+                    style={{ width: "50%", float:"right", paddingRight: 5, paddingLeft: 5 }}
                     defaultValue={"bytes"}
                   >
                     <Option key={"bytes"}>Bytes</Option>
