@@ -247,6 +247,11 @@ class TroubleTicketDetailApiView(APIView):
                 source_ip=ip, firewall_rule__in=firewall_rule_ids)
             query = {}
             max = objects.count()
+            if max == 0:
+                return Response({
+                    "categorical": {},
+                    "numeric": {}
+                })
             for reason in reasons:
                 if '_id' in reason:
                     reason = reason.replace('_id', '')

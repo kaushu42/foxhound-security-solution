@@ -288,16 +288,11 @@ class ProcessedLogDetail(models.Model):
         on_delete=models.CASCADE,
         null=True
     )
-    log = models.ForeignKey(
-        TrafficLog,
-        on_delete=models.CASCADE,
-        null=True
-    )
-    n_rows = models.IntegerField(default=0)
-    size = models.BigIntegerField(default=0)
+    log = models.CharField(max_length=250, null=True)
+    rows = models.IntegerField(default=0)
 
     def __repr__(self):
-        return f'{self.firewall_rule}-{self.n_rows}-{self.size}'
+        return f'{self.log}'
 
     def __str__(self):
         return self.__repr__()

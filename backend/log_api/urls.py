@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views_v1
+from . import views_v1, views
 
 urlpatterns = [
     path('', views_v1.TrafficLogApiView.as_view()),

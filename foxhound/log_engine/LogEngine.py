@@ -2,6 +2,8 @@ import os
 import datetime
 import re
 
+from pyspark.sql.functions import lit
+
 
 class LogEngine:
     def __init__(self, input_dir, *, spark):
@@ -49,6 +51,36 @@ class LogEngine:
                        filename)[0].replace("_", "/")
         return self.str_to_date(d)
 
+    def _write_log_detail(self, df, log_name):
+        grouped = df.groupby('Rule').count(
+        ).withColumn('log', lit(log_name)).withColumnRenamed(
+            'Rule', 'firewall_rule_id'
+        )
+
+        firewall_rules = self._read_table_from_postgres('core_firewallrule')
+
+        grouped = grouped.join(
+            firewall_rules,
+            on=[grouped.firewall_rule_id == firewall_rules.name]
+        ).drop(
+            'firewall_rule_id', 'name', 'tenant_id'
+        ).withColumnRenamed(
+            'id', 'firewall_rule_id'
+        ).withColumnRenamed('count', 'rows')
+
+        log_detail = self._read_table_from_postgres(
+            'core_processedlogdetail')
+        grouped = grouped.join(
+            log_detail,
+            on=[
+                grouped.rows == log_detail.rows,
+                grouped.firewall_rule_id == log_detail.firewall_rule_id,
+                grouped.log == log_detail.log,
+            ],
+            how='leftanti'
+        )
+        self._write_df_to_postgres(grouped, 'core_processedlogdetail')
+
     def run(self):
         logs_in_db = self._read_table_from_postgres('core_trafficlog')
         logs = []
@@ -68,3 +100,6 @@ class LogEngine:
             how='leftanti'
         )
         self._write_df_to_postgres(logs, 'core_trafficlog')
+
+        df = self._spark.read.csv(file, header=True)
+        self._write_log_detail(df, log_name)
