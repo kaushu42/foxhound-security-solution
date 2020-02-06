@@ -235,6 +235,7 @@ class VerifiedRulesTable extends Component {
                     dataSource = {this.props.verifiedRulesData}
                     pagination={this.props.verifiedRulePagination}
                     onChange={this.handleTableChange}
+                    bordered
                 />
                 </Card>
                 </Spin>

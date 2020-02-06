@@ -307,6 +307,7 @@ class UnverifiedRulesTable extends Component {
                             dataSource = {this.props.unverifiedRulesData}
                             pagination={this.props.unverifiedRulePagination}
                             onChange={this.handleTableChange}
+                            bordered
                             rowClassName = {record =>  {
                                 if(this.state.blackListData.request_from_blacklisted_ip && this.state.blackListData.request_from_blacklisted_ip.includes(record.source_ip)){
                                     return "redTable"

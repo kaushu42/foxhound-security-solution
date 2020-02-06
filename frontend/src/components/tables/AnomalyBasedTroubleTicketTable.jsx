@@ -426,6 +426,7 @@ class AnomalyBasedTroubleTicketTable extends Component {
                     pagination={this.state.pagination}
                     loading={this.state.loading}
                     onChange={this.handleTableChange}
+                    bordered
                 />
                 </Card>
                 <Drawer title="Follow Up"

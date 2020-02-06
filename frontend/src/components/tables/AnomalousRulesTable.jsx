@@ -240,6 +240,7 @@ class AnomalousRulesTable extends Component {
                             dataSource = {this.props.anomalousRulesData}
                             pagination={this.props.anomalousRulePagination}
                             onChange={this.handleTableChange}
+                            bordered
                         />
                     </Card>
                 </Spin>
