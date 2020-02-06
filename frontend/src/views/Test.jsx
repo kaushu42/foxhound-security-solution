@@ -9,14 +9,14 @@ import BlacklistAddress from "../components/BlacklistAddress"
 import NewSourceIPChart from "../components/charts/NewSourceIPChart"
 import NewDestinationIPChart from "../components/charts/NewDestinationIPChart"
 import BandwidthUsageChart from "../charts/BandwidthUsageChart"
-import ApplicationLineChart from "../components/charts/ApplicationChart"
+import ApplicationLineChart from "../components/charts/ApplicationLineChart"
 class Test extends Component {
     render() {
         return (
             <Fragment>
                 {/* <Worldmapchart /> */}
                 {/* <RequestOriginWorldChart /> */}
-                <AnomalyBasedTroubleTicketTable />
+                {/* <AnomalyBasedTroubleTicketTable /> */}
                 {/* <VerifiedRulesTable /> */}
                 {/* <IpAsSourceSankeyChart /> */}
                 {/* <ChangeAlias /> */}
@@ -24,7 +24,7 @@ class Test extends Component {
                 {/* <NewSourceIPChart /> */}
                 {/* <NewDestinationIPChart /> */}
                 {/* <BandwidthUsageChart /> */}
-                {/* <ApplicationLineChart /> */}
+                <ApplicationLineChart />
             </Fragment>
             )
     }
