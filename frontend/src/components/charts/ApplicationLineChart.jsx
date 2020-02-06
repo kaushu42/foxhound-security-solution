@@ -478,7 +478,7 @@ class ApplicationLineChart extends Component {
         <Drawer
           title={`Event Logs for Application ${
             this.state.selectedApplication
-          } in time ${(new Date(this.state.selectedTimeStamp).toUTCString()).replace(" GMT", "")}`}
+          } in time ${(new Date(this.state.selectedTimeStamp+20700000).toUTCString()).replace(" GMT", "")}`}
           width={1100}
           visible={this.state.selectedApplicationLogDrawerVisible}
           closable={true}
