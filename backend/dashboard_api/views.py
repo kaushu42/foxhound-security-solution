@@ -22,7 +22,8 @@ from core.models import (
     Zone,
     Protocol,
     ApplicationChart,
-    IPChart
+    IPChart,
+    TrafficLogDetailGranularHour
 )
 
 from mis.models import (
@@ -149,30 +150,38 @@ class ApplicationApiView(APIView):
     def post(self, request, format=None):
         top_count = int(request.data.get('topcount', 5))
         basis = request.data.get('basis', 'bytes')
+        country = request.data.get('country', '')
 
         # Send all applications if top_count is 0
         # Assuming applications < 10000
         top_count = top_count if top_count else 10000
 
         firewall_rule_ids = get_firewall_rules_id_from_request(request)
+
+        kwargs = {
+            'firewall_rule__in': firewall_rule_ids,
+        }
+        if country:
+            kwargs['source_country'] = country
+
         objects = get_objects_with_date_filtered(
             request,
-            ApplicationChart,
+            TrafficLogDetailGranularHour,
             'logged_datetime',
-            firewall_rule__in=firewall_rule_ids,
+            **kwargs
         ).values(
             'logged_datetime',
-            'application__name'
+            'application'
         ).annotate(
             bytes=Sum('bytes_sent')+Sum('bytes_received'),
             packets=Sum('packets_sent')+Sum('packets_received'),
-            count=Sum('count'),
+            count=Count('firewall_rule_id'),
         ).values(
             'bytes',
             'packets',
             'count',
             date=F('logged_datetime'),
-            application=F('application__name'),
+            application_name=F('application'),
         )
 
         applications = []
@@ -185,12 +194,12 @@ class ApplicationApiView(APIView):
         temp = defaultdict(list)
 
         for obj in objects:
-            data[obj['application']] += obj['bytes']
+            data[obj['application_name']] += obj['bytes']
             timestamp = obj['date'].timestamp()
             value = obj[basis]
 
             # Data is sent in TBPC order
-            temp[obj['application']].append(
+            temp[obj['application_name']].append(
                 [
                     timestamp,
                     value

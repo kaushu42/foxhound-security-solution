@@ -2,6 +2,7 @@ from pyspark.sql import SparkSession
 import os
 import findspark
 import ast
+from pyspark import SparkFiles
 
 try:
     import configparser
@@ -63,7 +64,10 @@ SPARK = SparkSession.builder.master(
     ','.join(CLUSTER_SEEDS)
 ).getOrCreate()
 
-# INIT DIRECTORIES
+COUNTRY_DB_FILEPATH = os.path.join(BASE_PATH, IP_DB_FILENAME)
+SPARK.sparkContext.addFile(COUNTRY_DB_FILEPATH)
+COUNTRY_DB_FILEPATH = SparkFiles.get(IP_DB_FILENAME)
+# INIT DIRECTORIESd
 create_directory(DUMPS_PATH)
 create_directory(TRAFFIC_LOGS_INPUT_DIR)
 create_directory(TRAFFIC_LOGS_OUTPUT_DIR)

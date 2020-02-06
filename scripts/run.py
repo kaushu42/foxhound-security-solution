@@ -35,7 +35,8 @@ def dc_engine(verbose=True):
         config.TRAFFIC_LOGS_INPUT_DIR,
         config.TRAFFIC_LOGS_OUTPUT_DIR,
         config.GRANULARIZED_LOG_PATH,
-        spark_session=config.SPARK
+        spark_session=config.SPARK,
+        country_db_file=config.COUNTRY_DB_FILEPATH
     )
     pa.run(verbose=verbose)
 
