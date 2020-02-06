@@ -1,10 +1,12 @@
 import numpy as np
 
 from .Engine import Engine
-
+import geoip2.database
 import pandas as pd
 import pyspark
-from pyspark.sql.functions import to_timestamp
+from pyspark.sql.types import StringType
+from pyspark.sql.functions import to_timestamp, udf
+from pyspark import SparkFiles
 
 
 class PaloAltoEngine(Engine):
@@ -13,7 +15,8 @@ class PaloAltoEngine(Engine):
         input_path: str,
         log_detail_output_path: str,
         log_granular_hour_output_path: str,
-        spark_session: pyspark.sql.session.SparkSession
+        spark_session: pyspark.sql.session.SparkSession,
+        country_db_file
     ):
         super().__init__(
             input_path,
@@ -21,7 +24,7 @@ class PaloAltoEngine(Engine):
             log_granular_hour_output_path,
             spark_session
         )
-
+        self.country_db_file = country_db_file
         self._COLUMNS_TO_KEEP = [
             'Virtual System',
             'Source address', 'Source Port',
@@ -44,6 +47,26 @@ class PaloAltoEngine(Engine):
 
     def _process(self, df):
         return self._rename_columns(df)
+
+    @staticmethod
+    def _resolve_ip_country(df, file):
+        def getCountryNameFromIp(ip_address):
+            reader = geoip2.database.Reader(file)
+            try:
+                response = reader.city(ip_address)
+                return response.country.iso_code.lower()
+            except Exception as e:
+                return "np"
+
+        getCountryNameFromIpUdf = udf(
+            lambda x: getCountryNameFromIp(x), StringType())
+        df = df.withColumn(
+            "source_country", getCountryNameFromIpUdf(df.source_ip_id)
+        ).withColumn(
+            "destination_country",
+            getCountryNameFromIpUdf(df.destination_ip_id)
+        )
+        return df
 
     def _rename_columns(self, df):
         df = df[self._COLUMNS_TO_KEEP]
@@ -88,4 +111,5 @@ class PaloAltoEngine(Engine):
 
         for col_name in agg_col_names:
             df = df.withColumnRenamed(col_name, self._get_col_name(col_name))
+        df = PaloAltoEngine._resolve_ip_country(df, self.country_db_file)
         return df

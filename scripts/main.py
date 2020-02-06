@@ -29,7 +29,7 @@ try:
     batch = create_batch_log("BEFORE CSV LOG ENGINE", "LOG ENGINE",
                              "LOG ENGINE", "LOG EXTRACTION STARTED", "RUNNING", "RUNNING")
     try:
-        run.log_engine()
+        # run.log_engine()
         batch = update_batch_state(
             batch, "LOG WRITING COMPLETE", "STOPPED", "SUCCESS")
     except Exception as e:
@@ -50,7 +50,7 @@ try:
     batch = create_batch_log("BEFORE CSV DC ENGINE", "DC ENGINE",
                              "DC ENGINE", "DC ENGINE STARTED", "RUNNING", "RUNNING")
     try:
-        # run.dc_engine()
+        run.dc_engine()
         batch = update_batch_state(
             batch, "DC ENGINE COMPLETE", "STOPPED", "SUCCESS")
     except Exception as e:
@@ -77,7 +77,7 @@ try:
         batch = update_batch_state(
             batch, e, "EXIT", "FAILURE")
 
-    # run.db_engine()
+    run.db_engine()
     # run.tt_engine()
 
 except Exception as e:

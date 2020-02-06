@@ -333,6 +333,8 @@ class TrafficLogDetailGranularHour(models.Model):
     packets_sent = models.BigIntegerField()
     time_elapsed = models.BigIntegerField()
     logged_datetime = models.DateTimeField()
+    source_country = models.CharField(max_length=3, null=True)
+    destination_country = models.CharField(max_length=3, null=True)
 
     def __repr__(self):
         return f'Log-{self.traffic_log}'
