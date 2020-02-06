@@ -29,7 +29,7 @@ try:
     batch = create_batch_log("BEFORE CSV LOG ENGINE", "LOG ENGINE",
                              "LOG ENGINE", "LOG EXTRACTION STARTED", "RUNNING", "RUNNING")
     try:
-        # run.log_engine()
+        run.log_engine()
         batch = update_batch_state(
             batch, "LOG WRITING COMPLETE", "STOPPED", "SUCCESS")
     except Exception as e:
@@ -70,7 +70,7 @@ try:
     batch = create_batch_log("BEFORE CSV CHART ENGINE", "CHART ENGINE",
                              "CHART ENGINE", "RULE ENGINE STARTED", "RUNNING", "RUNNING")
     try:
-        run.chart_engine()
+        # run.chart_engine()
         batch = update_batch_state(
             batch, "CHART ENGINE COMPLETE", "STOPPED", "SUCCESS")
     except Exception as e:

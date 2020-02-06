@@ -130,7 +130,6 @@ class IpAsSourceSankeyChart extends Component {
         };
 
         var bodyFormData = new FormData();
-        // bodyFormData.set('ip', this.props.ip_address);
         bodyFormData.set('ip', this.props.ip_address);
         bodyFormData.set('start_date', this.props.date_range[0]);
         bodyFormData.set('end_date', this.props.date_range[1]);
@@ -304,12 +303,11 @@ class IpAsSourceSankeyChart extends Component {
                     title={
                     <Fragment>
                     <div>
-                    <b>Connection of IP as Source</b>
-                    <br></br>
+                    Connections of IP(Source)
                         <Select
                             onChange={value => this.setState({ basis: value })}
                             size={"default"}
-                            style={{ width: "50%", float:"right", paddingRight: 10, paddingLeft: 10 }}
+                            style={{ width: "35%", float:"right", paddingRight: 5, paddingLeft: 5 }}
                             defaultValue={"bytes"}
                         >
                             <Select.Option key={"bytes"}>Bytes</Select.Option>

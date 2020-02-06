@@ -439,12 +439,11 @@ class ApplicationLineChart extends Component {
             title={
               <Fragment>
                 <div>
-                  <b>Application Used</b>
-                  <br></br>
+                  Application Used
                   <Select
                     onChange={value => this.setState({ top_count: value })}
                     size={"default"}
-                    style={{ width: "50%", paddingRight: 10, paddingLeft: 10 }}
+                    style={{ width: "35%",float:"right", paddingRight: 10, paddingLeft: 10 }}
                     defaultValue={"5"}
                   >
                     <Option key="5">Top 5</Option>
@@ -455,7 +454,7 @@ class ApplicationLineChart extends Component {
                   <Select
                     onChange={value => this.setState({ basis: value })}
                     size={"default"}
-                    style={{ width: "50%", paddingRight: 10, paddingLeft: 10 }}
+                    style={{ width: "35%",float:"right", paddingRight: 5, paddingLeft: 5 }}
                     defaultValue={"bytes"}
                   >
                     <Option key={"bytes"}>Bytes</Option>

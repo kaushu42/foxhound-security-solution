@@ -288,16 +288,12 @@ class ProcessedLogDetail(models.Model):
         on_delete=models.CASCADE,
         null=True
     )
-    log = models.ForeignKey(
-        TrafficLog,
-        on_delete=models.CASCADE,
-        null=True
-    )
-    n_rows = models.IntegerField(default=0)
-    size = models.BigIntegerField(default=0)
+    log = models.CharField(max_length=250, null=True)
+    rows = models.IntegerField(default=0)
+    processed_date = models.DateField(null=True)
 
     def __repr__(self):
-        return f'{self.firewall_rule}-{self.n_rows}-{self.size}'
+        return f'{self.log}'
 
     def __str__(self):
         return self.__repr__()
@@ -315,6 +311,7 @@ class TrafficLogDetailGranularHour(models.Model):
     )
     firewall_rule = models.ForeignKey(
         FirewallRule, on_delete=models.CASCADE, null=True,
+        related_name='firewall_rule_granular_hour'
     )
 
     source_ip = models.CharField(max_length=50, null=True)
@@ -338,7 +335,7 @@ class TrafficLogDetailGranularHour(models.Model):
     logged_datetime = models.DateTimeField()
 
     def __repr__(self):
-        return f'Log-{self.traffic_log}:{self.row_number}'
+        return f'Log-{self.traffic_log}'
 
     def __str__(self):
         return self.__repr__()

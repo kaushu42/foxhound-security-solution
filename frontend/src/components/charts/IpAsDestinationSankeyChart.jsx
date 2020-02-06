@@ -300,12 +300,11 @@ class IpAsDestinationSankeyChart extends Component {
                     title={
                     <Fragment>
                         <div>
-                        <b>Connection of IP as Destination</b>
-                        <br></br>
+                        Connections of IP(as Destination)
                         <Select
                             onChange={value => this.setState({ basis: value })}
                             size={"default"}
-                            style={{ width: "50%", float:"right", paddingRight: 10, paddingLeft: 10 }}
+                            style={{ width: "35%", float:"right", paddingRight: 5, paddingLeft: 5 }}
                             defaultValue={"bytes"}
                         >
                             <Select.Option key={"bytes"}>Bytes</Select.Option>
