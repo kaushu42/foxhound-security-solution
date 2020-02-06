@@ -136,16 +136,21 @@ class ApplicationLogApiView(PaginatedView):
         firewall_ids = get_firewall_rules_id_from_request(request)
         application = request.data.get('application', '')
         timestamp = int(request.data.get('timestamp'))
+        country = request.data.get('country', '')
 
         tz_ktm = pytz.timezone('Asia/Kathmandu')
         start_date = datetime.datetime.fromtimestamp(
             timestamp).astimezone(tz_ktm)
         end_date = start_date + datetime.timedelta(hours=1)
-
+        kwargs = {
+            'firewall_rule__in': firewall_ids,
+            'application': application,
+            'logged_datetime__range': (start_date, end_date)
+        }
+        if country:
+            kwargs['source_country'] = country
         objects = TrafficLogDetailGranularHour.objects.filter(
-            firewall_rule__in=firewall_ids,
-            application=application,
-            logged_datetime__range=(start_date, end_date)
+            **kwargs
         ).order_by('id')
 
         page = self.paginate_queryset(objects)
