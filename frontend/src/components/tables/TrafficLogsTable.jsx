@@ -21,19 +21,9 @@ class TrafficLogsTable extends Component {
         },
         {
           title: "Log Name",
-          dataIndex: "log_name",
-          key: "log_name"
+          dataIndex: "log",
+          key: "log"
         },
-        // {
-        //     title: 'Log Type',
-        //     dataIndex: 'log_type',
-        //     key: 'log_type',
-        // },
-        // {
-        //     title: 'Log Device',
-        //     dataIndex: 'log_device',
-        //     key: 'log_device',
-        // },
         {
           title: "Rows Count",
           dataIndex: "rows",
@@ -64,7 +54,7 @@ class TrafficLogsTable extends Component {
     this.setState({
       pagination: pager
     });
-    this.fetch({
+    this.fetchProcessedLogsFromDb({
       // results: pagination.pageSize,
       page: pagination.current,
       sortField: sorter.field,
@@ -77,7 +67,7 @@ class TrafficLogsTable extends Component {
     console.log("data loading");
     this.setState({ loading: true });
     reqwest({
-      url: `${ROOT_URL}log/`,
+      url: `${ROOT_URL}log/processed/`,
       method: "get",
       headers: {
         Authorization: `Token ${this.props.auth_token}`

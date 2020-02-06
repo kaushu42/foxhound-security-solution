@@ -23,6 +23,7 @@ from troubleticket.models import (
 )
 from rules.models import Rule
 from users.models import FoxhoundUser
+from globalutils.utils import get_date_from_filename
 
 
 class FilterSerializer(serializers.Serializer):
@@ -176,6 +177,10 @@ class ProcessedLogDetailSerializer(serializers.Serializer):
     rows = serializers.IntegerField()
     size = serializers.IntegerField()
     processed_date = serializers.DateField(required=False)
+    log_date = serializers.SerializerMethodField('get_log_date')
+
+    def get_log_date(self, obj):
+        return get_date_from_filename(obj['log'])
 
 
 class TroubleTicketAnomalyLogDetailSerializer(serializers.Serializer):

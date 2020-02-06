@@ -1,6 +1,7 @@
 import operator
 import datetime
 import pytz
+import re
 
 import geoip2.database
 import geoip2.errors
@@ -410,3 +411,9 @@ def to_regex(string):
     if string is None:
         return None
     return string.replace('.', r'\.').replace('*', '.*')
+
+
+def get_date_from_filename(filename, sep='-'):
+    d = re.findall(r'[0-9]{4}_[0-9]{2}_[0-9]{2}',
+                   filename)[0].replace("_", sep)
+    return d
