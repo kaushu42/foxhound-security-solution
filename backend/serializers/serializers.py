@@ -125,7 +125,7 @@ class TrafficLogDetailGranularHourSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TrafficLogDetailGranularHour
-        exclude = ('id', 'traffic_log')
+        exclude = ('traffic_log')
 
     def get_firewall_rule_name(self, obj):
         return obj.firewall_rule.name
