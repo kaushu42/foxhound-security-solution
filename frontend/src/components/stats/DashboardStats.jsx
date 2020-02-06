@@ -3,6 +3,8 @@ import { Card, Spin, Statistic, Drawer } from "antd";
 import { connect } from "react-redux";
 import axios from "axios";
 import { ROOT_URL } from "../../utils";
+import NewSourceIPChart from "../charts/NewSourceIPChart"
+import NewDestinationIPChart from "../charts/NewDestinationIPChart"
 const gridStyle = {
   width: "20%",
   textAlign: "center"
@@ -147,6 +149,7 @@ class DashboardStats extends Component {
         closable={true}
         placement={"right"}
         onClose={this.toggleNewDestinationIPDrawer}>
+          <NewDestinationIPChart />
       </Drawer>
       <Drawer 
         title={"New Source Address"} 
@@ -155,6 +158,7 @@ class DashboardStats extends Component {
         closable={true}
         placement={"right"}
         onClose={this.toggleNewSourceIPDrawer}>
+          <NewSourceIPChart />
       </Drawer>
       </Fragment>
 

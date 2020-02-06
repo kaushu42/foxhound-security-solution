@@ -18,6 +18,7 @@ import IpAsDestinationSankeyChart from "../components/charts/IpAsDestinationSank
 //--layouts and styles
 import MasterLayout from "./layout/MasterLayout";
 import {contentLayout} from "../utils";
+import IpDateVsPortChart from "../components/charts/IpDateVsPortChart";
 
 class Ip extends Component{
     render(){
@@ -52,7 +53,11 @@ class Ip extends Component{
                         <Col xs={24} sm={24} md={24} lg={12} xl={12}>
                             <IpAsDestinationSankeyChart />
                         </Col>
-
+                    </Row>
+                    <Row style={contentLayout}>
+                        <Col xs={24} sm={24} md={24} lg={24} xl={24}>
+                            <IpDateVsPortChart />
+                        </Col>
                     </Row>
                 </MasterLayout>
             </Fragment>

@@ -35,22 +35,17 @@ class RequestOriginWorldChart extends Component {
     basis: "count",
     columns: [
       {
-        title: "Id",
-        dataIndex: "id",
-        key: "id"
-      },
-      {
         title: "Source Address",
-        dataIndex: "source_ip.address",
-        key: "source_ip.address",
+        dataIndex: "source_ip",
+        key: "source_ip",
         render: (text, record) => (
           <a onClick={() => this.handleShowSourceIpProfile(record)}>{text}</a>
         )
       },
       {
         title: "Destination Address",
-        dataIndex: "destination_ip.address",
-        key: "destination_ip.address",
+        dataIndex: "destination_ip",
+        key: "destination_ip",
         render: (text, record) => (
           <a onClick={() => this.handleShowDestinationIpProfile(record)}>
             {text}
@@ -59,8 +54,8 @@ class RequestOriginWorldChart extends Component {
       },
       {
         title: "Application",
-        dataIndex: "application.name",
-        key: "application.name"
+        dataIndex: "application",
+        key: "application"
       },
       // {
       //     title: 'Source Port',
@@ -96,12 +91,12 @@ class RequestOriginWorldChart extends Component {
   };
 
   handleShowSourceIpProfile(record) {
-    this.props.dispatchIpSearchValueUpdate(record.source_ip.address);
+    this.props.dispatchIpSearchValueUpdate(record.source_ip);
     this.setState({ quickIpView: true });
   }
 
   handleShowDestinationIpProfile(record) {
-    this.props.dispatchIpSearchValueUpdate(record.destination_ip.address);
+    this.props.dispatchIpSearchValueUpdate(record.destination_ip);
     this.setState({ quickIpView: true });
   }
 

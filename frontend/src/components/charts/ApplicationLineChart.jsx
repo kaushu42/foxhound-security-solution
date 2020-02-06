@@ -32,22 +32,17 @@ class ApplicationLineChart extends Component {
       pagination: {},
       applicationlogColumns: [
         {
-          title: "Id",
-          dataIndex: "id",
-          key: "id"
-        },
-        {
           title: "Source Address",
-          dataIndex: "source_ip.address",
-          key: "source_ip.address",
+          dataIndex: "source_ip",
+          key: "source_ip",
           render: (text, record) => (
             <a onClick={() => this.handleShowSourceIpProfile(record)}>{text}</a>
           )
         },
         {
           title: "Destination Address",
-          dataIndex: "destination_ip.address",
-          key: "destination_ip.address",
+          dataIndex: "destination_ip",
+          key: "destination_ip",
           render: (text, record) => (
             <a onClick={() => this.handleShowDestinationIpProfile(record)}>
               {text}
@@ -70,7 +65,7 @@ class ApplicationLineChart extends Component {
           title: "Logged DateTime",
           dataIndex: "logged_datetime",
           key: "logged_datetime",
-          render: text => (new Date(text).toUTCString()).replace(" GMT", "") //moment(text).format("YYYY-MM-DD, HH:MM:SS")
+          render: text => (new Date(text*1000+20700000).toUTCString()).replace(" GMT", "") //moment(text).format("YYYY-MM-DD, HH:MM:SS")
         }
       ],
       quickIpView: false
@@ -78,12 +73,12 @@ class ApplicationLineChart extends Component {
   }
 
   handleShowSourceIpProfile(record) {
-    this.props.dispatchIpSearchValueUpdate(record.source_ip.address);
+    this.props.dispatchIpSearchValueUpdate(record.source_ip);
     this.setState({ quickIpView: true });
   }
 
   handleShowDestinationIpProfile(record) {
-    this.props.dispatchIpSearchValueUpdate(record.destination_ip.address);
+    this.props.dispatchIpSearchValueUpdate(record.destination_ip);
     this.setState({ quickIpView: true });
   }
 
@@ -225,7 +220,7 @@ class ApplicationLineChart extends Component {
         shared: true,
         followPointer: true,
         snap: 1,
-        xDateFormat: "%m/%d/%y %l:%M %p",
+        // xDateFormat: "%m/%d/%y %l:%M %p",
         valueDecimals: 2,
         crosshairs: [
           {
@@ -312,7 +307,7 @@ class ApplicationLineChart extends Component {
     let bodyFormDataForLog = new FormData();
     bodyFormDataForLog.set("application", this.state.selectedApplication);
     bodyFormDataForLog.set("country", this.props.selectedCountry);
-    bodyFormDataForLog.set("timestamp", this.state.selectedTimeStamp);
+    bodyFormDataForLog.set("timestamp", this.state.selectedTimeStamp/1000);
 
     axios
       .post(FETCH_APPLICATION_LOG_API, bodyFormDataForLog, { headers, params })
@@ -404,6 +399,8 @@ class ApplicationLineChart extends Component {
         labels: {
           enabled: true
         }
+      },
+      tooltip:{
       },
       time:{
         timezoneOffset: -5*60 - 45
@@ -506,6 +503,10 @@ class ApplicationLineChart extends Component {
       </Fragment>
     );
   }
+}
+
+ApplicationLineChart.defaultProps = {
+    selectedCountry: ""
 }
 
 const mapStateToProps = state => {
