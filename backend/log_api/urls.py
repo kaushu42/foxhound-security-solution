@@ -3,6 +3,7 @@ from django.urls import path
 from . import views_v1, views
 
 urlpatterns = [
+    path('latest/', views.LatestLogDate.as_view()),
     path('processed/', views.TrafficLogApiView.as_view()),
     path('detail/<int:id>/', views.TrafficLogDetailApiView.as_view()),
     path('request-origin/', views_v1.RequestOriginLogApiView.as_view()),

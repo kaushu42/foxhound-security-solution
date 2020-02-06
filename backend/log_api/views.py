@@ -2,6 +2,7 @@ import traceback
 import datetime
 
 from django.db.models import Sum, F
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import (
     HTTP_200_OK,
@@ -23,7 +24,8 @@ from serializers.serializers import (
 from globalutils.utils import (
     get_tenant_id_from_token,
     get_query_from_request,
-    get_firewall_rules_id_from_request
+    get_firewall_rules_id_from_request,
+    get_date_from_filename
 )
 
 
@@ -212,3 +214,15 @@ class SankeyLogApiView(PaginatedView):
 
     def get(self, request):
         return self.post(request)
+
+
+class LatestLogDate(APIView):
+    def post(self, request):
+        firewall_ids = get_firewall_rules_id_from_request(request)
+        objects = ProcessedLogDetail.objects.filter(
+            firewall_rule__in=firewall_ids
+        ).latest('id')
+        date = get_date_from_filename(objects.log)
+        return Response({
+            'date': date
+        })
