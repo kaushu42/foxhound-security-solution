@@ -50,7 +50,7 @@ try:
     batch = create_batch_log("BEFORE CSV DC ENGINE", "DC ENGINE",
                              "DC ENGINE", "DC ENGINE STARTED", "RUNNING", "RUNNING")
     try:
-        run.dc_engine()
+        #run.dc_engine()
         batch = update_batch_state(
             batch, "DC ENGINE COMPLETE", "STOPPED", "SUCCESS")
     except Exception as e:
