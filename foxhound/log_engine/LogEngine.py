@@ -66,7 +66,9 @@ class LogEngine:
             'firewall_rule_id', 'name', 'tenant_id'
         ).withColumnRenamed(
             'id', 'firewall_rule_id'
-        ).withColumnRenamed('count', 'rows')
+        ).withColumnRenamed(
+            'count', 'rows'
+        ).withColumn('processed_date', lit(datetime.date.today()))
 
         log_detail = self._read_table_from_postgres(
             'core_processedlogdetail')
@@ -89,6 +91,10 @@ class LogEngine:
             log_date = self.get_date_from_filename(file)
             processed_datetime = datetime.date.today()
             logs.append([log_name, log_date, processed_datetime])
+
+            df = self._spark.read.csv(file, header=True)
+            self._write_log_detail(df, log_name)
+
         logs = self._spark.createDataFrame(logs)\
             .withColumnRenamed('_1', 'log_name')\
             .withColumnRenamed('_2', 'log_date')\
@@ -100,6 +106,3 @@ class LogEngine:
             how='leftanti'
         )
         self._write_df_to_postgres(logs, 'core_trafficlog')
-
-        df = self._spark.read.csv(file, header=True)
-        self._write_log_detail(df, log_name)

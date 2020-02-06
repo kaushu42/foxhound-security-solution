@@ -23,50 +23,24 @@ from serializers.serializers import (
 from globalutils.utils import (
     get_tenant_id_from_token,
     get_query_from_request,
-    get_objects_from_query
+    get_firewall_rules_id_from_request
 )
 
 
 class TrafficLogApiView(PaginatedView):
     serializer_class = ProcessedLogDetailSerializer
+    SIZE_PER_LOG = 468
 
     def get(self, request):
-        tenant_id = get_tenant_id_from_token(request)
+        firewall_ids = get_firewall_rules_id_from_request(request)
         objects = ProcessedLogDetail.objects.filter(
-            firewall_rule__tenant__id=tenant_id
-        ).values('log').annotate(
-            size=Sum('size'),
-            rows=Sum('n_rows'),
-            log_name=F('log__log_name'),
-            processed_date=F('log__processed_datetime'),
-            log_date=F('log__log_date'),
-            firewall_rule=Sum('firewall_rule')
-        ).values(
-            'size', 'rows',
-            'log_name', 'processed_date',
-            'log_date'
-        ).order_by('-id')
-        from collections import defaultdict
-        size = defaultdict(int)
-        rows = defaultdict(int)
-        processed_date = defaultdict(str)
-        log_date = defaultdict(str)
-        for o in objects:
-            log_name = o['log_name']
-            size[log_name] += o['size']
-            rows[log_name] += o['rows']
-            processed_date[log_name] = o['processed_date']
-            log_date[log_name] = o['log_date']
-        results = []
-        for i, j in zip(size, rows):
-            results.append({
-                'log_name': i,
-                'size': size[i],
-                'rows': rows[i],
-                'processed_date': processed_date[i],
-                'log_date': log_date[i],
-            })
-        page = self.paginate_queryset(results)
+            firewall_rule__in=firewall_ids
+        ).values('log', 'processed_date').annotate(
+            rows=Sum('rows'),
+            size=F('rows')*self.SIZE_PER_LOG
+        )
+
+        page = self.paginate_queryset(objects.order_by('-log'))
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)

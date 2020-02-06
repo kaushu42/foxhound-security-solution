@@ -14,7 +14,7 @@ from core.models import (
 )
 
 from batch.models import Log as BatchMonitorLog
-from mis.models import DailySourceIP,DailyDestinationIP
+from mis.models import DailySourceIP, DailyDestinationIP
 
 from troubleticket.models import (
     TroubleTicketAnomaly,
@@ -164,11 +164,10 @@ class CountrySerializer(serializers.ModelSerializer):
 
 
 class ProcessedLogDetailSerializer(serializers.Serializer):
-    log_name = serializers.CharField()
+    log = serializers.CharField()
     rows = serializers.IntegerField()
     size = serializers.IntegerField()
-    processed_date = serializers.DateField()
-    log_date = serializers.DateField()
+    processed_date = serializers.DateField(required=False)
 
 
 class TroubleTicketAnomalyLogDetailSerializer(serializers.Serializer):

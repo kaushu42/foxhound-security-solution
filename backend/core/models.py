@@ -290,6 +290,7 @@ class ProcessedLogDetail(models.Model):
     )
     log = models.CharField(max_length=250, null=True)
     rows = models.IntegerField(default=0)
+    processed_date = models.DateField(null=True)
 
     def __repr__(self):
         return f'{self.log}'
