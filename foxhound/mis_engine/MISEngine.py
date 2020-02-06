@@ -436,18 +436,14 @@ class MISEngine(object):
                                                                   header=True,
                                                                   inferSchema=True)
 
-        mis_new_private_source_destination_pair_csv = self._spark.read.csv(os.path.join(output_dir, csv_filename, "mis_new_private_source_destination_pair.csv"),
-                                                                           header=True,
-                                                                           inferSchema=True)
-
-        mis_daily_csv.printSchema()
-        mis_daily_csv.show()
-        mis_new_source_ip_csv.show()
-        mis_new_destination_ip_csv.show()
-        mis_new_application_csv.show()
-        mis_requests_from_blacklisted_ip_csv.show()
-        mis_response_to_blacklisted_ip_csv.show()
-        mis_new_private_source_destination_pair_csv.show()
+        mis_new_private_source_destination_pair_csv = self._spark.read.csv(
+            os.path.join(
+                output_dir,
+                csv_filename,
+                "mis_new_private_source_destination_pair.csv"
+            ),
+            header=True,
+            inferSchema=True)
 
         self._write_csv_to_postgres(mis_daily_csv, "mis_daily", "append")
         print("*** mis daily written to db ****")

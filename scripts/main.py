@@ -24,7 +24,7 @@ import batch_logger
 try:
     batch = create_batch_log("BEFORE CSV SEED RUNNING", "SEED", "DAILY SEED",
                              "SEEDING STARTED", "RUNNING", "RUNNING")
-    # seedutils.seed()
+    seedutils.seed()
     batch = update_batch_state(batch, "SEED COMPLETE", "STOPPED", "SUCCESS")
     batch = create_batch_log("BEFORE CSV LOG ENGINE", "LOG ENGINE",
                              "LOG ENGINE", "LOG EXTRACTION STARTED", "RUNNING", "RUNNING")
@@ -50,7 +50,7 @@ try:
     batch = create_batch_log("BEFORE CSV DC ENGINE", "DC ENGINE",
                              "DC ENGINE", "DC ENGINE STARTED", "RUNNING", "RUNNING")
     try:
-        run.dc_engine()
+        # run.dc_engine()
         batch = update_batch_state(
             batch, "DC ENGINE COMPLETE", "STOPPED", "SUCCESS")
     except Exception as e:

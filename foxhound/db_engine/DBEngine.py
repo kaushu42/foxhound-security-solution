@@ -61,6 +61,6 @@ class DBEngine:
                 .withColumnRenamed('action_id', 'action')\
                 .withColumnRenamed('session_end_reason_id', 'session_end_reason')\
                 .withColumnRenamed('category_id', 'category')
-        mapped = mapped.withColumn('traffic_log_id', lit(log_id))
-        self._write_df_to_postgres(
-            mapped, 'core_trafficlogdetailgranularhour')
+            mapped = mapped.withColumn('traffic_log_id', lit(log_id))
+            self._write_df_to_postgres(
+                mapped, 'core_trafficlogdetailgranularhour')
