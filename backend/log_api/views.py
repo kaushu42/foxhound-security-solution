@@ -2,7 +2,7 @@ import traceback
 import datetime
 import pytz
 
-from django.db.models import Sum, F
+from django.db.models import Sum, F, Count
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import (
@@ -76,26 +76,26 @@ class RequestOriginLogApiView(PaginatedView):
     def get(self, request):
         country = request.data.get('country', '')
         firewall_ids = get_firewall_rules_id_from_request(request)
-        query = get_query_from_request(request)
-        objects = get_objects_from_query(query).filter(
-            firewall_rule__tenant__id=tenant_id,
-            source_ip__in=ips
-        ).order_by('-id')
-
-        bytes_sent = objects.aggregate(Sum('bytes_sent'))['bytes_sent__sum']
-        bytes_received = objects.aggregate(Sum('bytes_received'))[
-            'bytes_received__sum']
-
-        page = self.paginate_queryset(objects)
-        for i in page:
-            i.logged_datetime -= datetime.timedelta(minutes=15)
-            # print(i.logged_datetime)
+        kwargs = {
+            'firewall_rule__in': firewall_ids
+        }
+        if country:
+            kwargs['source_country'] = country
+        objects = TrafficLogDetailGranularHour.objects.filter(
+            **kwargs
+        )
+        aggregates = objects.aggregate(
+            bytes_sent=Sum('bytes_sent'),
+            bytes_received=Sum('bytes_received'),
+            rows=Count('firewall_rule_id')
+        )
+        page = self.paginate_queryset(objects.order_by('id'))
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             response = self.get_paginated_response(serializer.data)
-            response.data['bytes_sent'] = bytes_sent
-            response.data['bytes_received'] = bytes_received
-            response.data['rows'] = response.data['count']
+            response.data['bytes_sent'] = aggregates['bytes_sent']
+            response.data['bytes_received'] = aggregates['bytes_received']
+            response.data['rows'] = aggregates['rows']
             return response
         return Response({})
 
