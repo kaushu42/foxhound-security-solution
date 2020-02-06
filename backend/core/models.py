@@ -335,7 +335,7 @@ class TrafficLogDetailGranularHour(models.Model):
     logged_datetime = models.DateTimeField()
 
     def __repr__(self):
-        return f'Log-{self.traffic_log}:{self.row_number}'
+        return f'Log-{self.traffic_log}'
 
     def __str__(self):
         return self.__repr__()

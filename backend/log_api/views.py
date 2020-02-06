@@ -57,10 +57,8 @@ class TrafficLogDetailApiView(PaginatedView):
         objects = TrafficLogDetailGranularHour.objects.filter(
             traffic_log__id=id, firewall_rule__in=firewall_ids
         ).order_by('-id')
+
         page = self.paginate_queryset(objects)
-        # for i in page:
-        #     # i.logged_datetime -= datetime.timedelta(minutes=15)
-        #     print(i.logged_datetime)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
@@ -191,21 +189,22 @@ class SankeyLogApiView(PaginatedView):
     serializer_class = TrafficLogDetailGranularHourSerializer
 
     def post(self, request):
-        tenant_id = get_tenant_id_from_token(request)
+        firewall_ids = get_firewall_rules_id_from_request(request)
+
         serializer = SourceDestinationIPSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors)
+
         source_ip = serializer.data['source_ip']
         destination_ip = serializer.data['destination_ip']
+
         objects = TrafficLogDetailGranularHour.objects.filter(
-            firewall_rule__tenant__id=tenant_id,
-            source_ip__address=source_ip,
-            destination_ip__address=destination_ip
+            firewall_rule__in=firewall_ids,
+            source_ip=source_ip,
+            destination_ip=destination_ip
         ).order_by('id')
 
         page = self.paginate_queryset(objects)
-        for i in page:
-            i.logged_datetime -= datetime.timedelta(minutes=15)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
