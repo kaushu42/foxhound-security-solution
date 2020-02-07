@@ -32,6 +32,11 @@ class ApplicationLineChart extends Component {
       pagination: {},
       applicationlogColumns: [
         {
+          title: "ID",
+          dataIndex: "id",
+          key: "id",
+        },
+        {
           title: "Source Address",
           dataIndex: "source_ip",
           key: "source_ip",
