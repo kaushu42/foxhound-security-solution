@@ -28,11 +28,13 @@ class IpUsageAverageDailyTrendChart extends Component {
                     zoomType: 'x'
                 },
                 xAxis: {
+                    crosshair:true,
                     title:{
                         text: "time"
                     }
                 },
                 yAxis:{
+                    crosshair:true,
                     labels :{
                         formatter: function () {
                             return this.value + ' MB';
