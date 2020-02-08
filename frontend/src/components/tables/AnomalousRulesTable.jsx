@@ -128,7 +128,7 @@ class AnomalousRulesTable extends Component {
         this.handleFetchAnomalousRulesData(this.state.params)
         filterSelectDataServiceAsync(this.props.auth_token)
         .then(response => {
-            const filter_data = response.data;
+            const filter_data = response[0].data;
             this.setState({
                 applicationData: filter_data.application,
             });

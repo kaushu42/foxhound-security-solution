@@ -1,6 +1,11 @@
 from django.db.models import Count, F
 from views.views import PaginatedView
-from .models import DailyDestinationIP, DailySourceIP
+from .models import (
+    DailyDestinationIP,
+    DailySourceIP,
+    DailyRequestFromBlackListEvent,
+    DailyResponseToBlackListEvent
+)
 from serializers.serializers import (
     MisDailySourceIpSerializer,
     MisDailyDestinationIpSerializer
@@ -25,13 +30,9 @@ class DailyApiView(APIView):
         objects = model.objects.filter(
             firewall_rule__in=firewall_ids,
             logged_datetime=date
-        ).values(field_name)
+        ).values_list(field_name, 'firewall_rule__name')
 
-        ips = []
-        for obj in objects:
-            ips.append(obj[field_name])
-
-        return ips
+        return objects
 
 
 class DailySourceIpApiView(DailyApiView):
@@ -75,3 +76,24 @@ class DestinationIPCountChart(IPCountChart):
     def post(self, request):
         items = self._get_items(request, DailyDestinationIP)
         return Response(items)
+
+
+class BlacklistedIP(APIView):
+    def get_objects(self, request, model):
+        firewall_ids = get_firewall_rules_id_from_request(request)
+        objects = model.objects.filter(
+            firewall_rule__in=firewall_ids
+        ).values_list('source_ip', 'destination_ip')
+        return objects
+
+
+class SourceBlacklistedIP(BlacklistedIP):
+    def post(self, request):
+        objects = self.get_objects(request, DailyRequestFromBlackListEvent)
+        return Response(objects)
+
+
+class DestinationBlacklistedIP(BlacklistedIP):
+    def post(self, request):
+        objects = self.get_objects(request, DailyResponseToBlackListEvent)
+        return Response(objects)

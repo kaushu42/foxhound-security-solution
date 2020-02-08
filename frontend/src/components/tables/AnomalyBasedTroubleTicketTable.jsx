@@ -220,7 +220,7 @@ class AnomalyBasedTroubleTicketTable extends Component {
         this.fetchSelectUserList();
         filterSelectDataServiceAsync(this.props.auth_token)
             .then(response => {
-                const filter_data = response.data;
+                const filter_data = response[0].data;
                 this.setState({
                     applicationData: filter_data.application,
                 });
