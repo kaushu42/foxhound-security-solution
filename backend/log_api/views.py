@@ -195,10 +195,15 @@ class SankeyLogApiView(PaginatedView):
 class LatestLogDate(APIView):
     def post(self, request):
         firewall_ids = get_firewall_rules_id_from_request(request)
-        objects = ProcessedLogDetail.objects.filter(
-            firewall_rule__in=firewall_ids
-        ).latest('id')
-        date = get_date_from_filename(objects.log)
-        return Response({
-            'date': date
-        })
+        try:
+            objects = ProcessedLogDetail.objects.filter(
+                firewall_rule__in=firewall_ids
+            ).latest('id')
+            date = get_date_from_filename(objects.log)
+            return Response({
+                'date': date
+            })
+        except Exception as e:
+            return Response({
+                'date': datetime.date.today()
+            })

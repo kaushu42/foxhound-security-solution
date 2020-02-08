@@ -247,3 +247,8 @@ class MisDailyDestinationIpSerializer(serializers.ModelSerializer):
     class Meta:
         model = DailyDestinationIP
         fields = '__all__'
+
+
+class MisIpSerializer(serializers.Serializer):
+    address = serializers.CharField()
+    alias = serializers.CharField(required=False)

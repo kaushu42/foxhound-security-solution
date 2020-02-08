@@ -6,7 +6,7 @@ import traceback
 from functools import reduce
 
 import django
-from django.db.models import Q
+from django.db.models import Q, F
 
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -25,6 +25,10 @@ from backend.settings import BASE_DIR
 from core.models import (
     FirewallRule,
     IPAddress
+)
+from mis.models import (
+    DailySourceIP,
+    DailyDestinationIP
 )
 from globalutils.utils import (
     get_firewall_rules_id_from_request,
@@ -51,6 +55,7 @@ class RulePaginatedView(PaginatedView):
             **query,
         )
         if aliased_ips is not None:
+            aliased_ips = [i[0] for i in aliased_ips]
             objects = objects.filter(
                 Q(source_ip__in=aliased_ips) | Q(
                     destination_ip__in=aliased_ips)
@@ -87,9 +92,18 @@ class RulePaginatedView(PaginatedView):
 
     def _get_alias_ips(self, alias):
         if alias:
-            objects = IPAddress.objects.filter(
-                alias__contains=alias).values_list('address')
-            return objects
+            data = []
+            objects = DailyDestinationIP.objects.filter(
+                alias__contains=alias).annotate(
+                    address=F('destination_address')
+            ).values_list('address')
+            data += list(objects)
+            objects = DailySourceIP.objects.filter(
+                alias__contains=alias).annotate(
+                    address=F('source_address')
+            ).values_list('address')
+            data += list(objects)
+            return data
         return None
 
 

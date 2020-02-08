@@ -20,7 +20,10 @@ from core.models import (
     TrafficLogDetailGranularHour,
     TrafficLogDetail
 )
-
+from mis.models import (
+    DailyDestinationIP,
+    DailySourceIP
+)
 from troubleticket.models import (
     TroubleTicketAnomaly,
     TroubleTicketFollowUpAnomaly
@@ -88,9 +91,18 @@ class TTPaginatedView(PaginatedView):
 
     def _get_alias_ips(self, alias):
         if alias:
-            objects = IPAddress.objects.filter(
-                alias__contains=alias).values_list('address')
-            return objects
+            data = []
+            objects = DailyDestinationIP.objects.filter(
+                alias__contains=alias).annotate(
+                    address=F('destination_address')
+            ).values_list('address')
+            data += list(objects)
+            objects = DailySourceIP.objects.filter(
+                alias__contains=alias).annotate(
+                    address=F('source_address')
+            ).values_list('address')
+            data += list(objects)
+            return data
         return None
 
 
