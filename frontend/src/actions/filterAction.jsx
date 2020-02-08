@@ -9,8 +9,13 @@ import {
 } from '../actionTypes/filterActionType'
 
 
-export const updateDateRangePickerFilter = (value) => {
+export const updateDateRangePickerFilter = (value, defaultDate) => {
+    
+    if(value[0] == ""){
+        value = [defaultDate,defaultDate]
+    }
     console.log("date range values", value)
+    
     return {
         type: DATE_RANGE_PICKER_FILTER_UPDATED,
         payload : {
