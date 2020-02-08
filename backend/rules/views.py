@@ -45,6 +45,29 @@ from .models import Rule
 class RulePaginatedView(PaginatedView):
     serializer_class = RuleSerializer
 
+    def get_alias_from_page(self, page, firewall_ids):
+        ips = {p.source_ip for p in page} | {p.destination_ip for p in page}
+        aliases = list(DailySourceIP.objects.filter(
+            firewall_rule__in=firewall_ids,
+            source_address__in=ips
+        ).annotate(
+            address=F('source_address')
+        ).values(
+            'address', 'alias')) + list(DailyDestinationIP.objects.filter(
+                firewall_rule__in=firewall_ids,
+                destination_address__in=ips
+            ).annotate(
+                address=F('destination_address')
+            ).values(
+                'address', 'alias'))
+        data = defaultdict(str)
+        for alias in aliases:
+            data[alias['address']] = alias['alias']
+        for p in page:
+            p.source_ip_alias = data[p.source_ip]
+            p.destination_ip_alias = data[p.destination_ip]
+        return page
+
     def get_filtered_objects(self, request, return_firewall_rules=False, **kwargs):
         firewall_rule_ids = get_firewall_rules_id_from_request(request)
         query = self.get_search_queries(request)
@@ -114,32 +137,8 @@ class RulesApiView(RulePaginatedView):
     def get(self, request):
         objects, firewall_ids = self.get_filtered_objects(
             request, return_firewall_rules=True)
-        ips = [i[0] for i in list(objects.values_list('source_ip')) +
-               list(objects.values_list('destination_ip'))]
-        source_ip_alias = DailySourceIP.objects.filter(
-            firewall_rule__in=firewall_ids, source_address__in=ips)
-        destination_ip_alias = DailyDestinationIP.objects.filter(
-            firewall_rule__in=firewall_ids, destination_address__in=ips)
-        # print(source_ip_alias)
         page = self.paginate_queryset(objects.order_by('id'))
-        ips = {p.source_ip for p in page} | {p.destination_ip for p in page}
-        aliases = list(DailySourceIP.objects.filter(
-            source_address__in=ips
-        ).annotate(
-            address=F('source_address')
-        ).values(
-            'address', 'alias')) + list(DailyDestinationIP.objects.filter(
-                destination_address__in=ips
-            ).annotate(
-                address=F('destination_address')
-            ).values(
-                'address', 'alias'))
-        data = defaultdict(str)
-        for alias in aliases:
-            data[alias['address']] = alias['alias']
-        for p in page:
-            p.source_alias = data[p.source_ip]
-            p.destination_alias = data[p.destination_ip]
+        page = self.get_alias_from_page(page, firewall_ids)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
@@ -150,13 +149,15 @@ class RulesApiView(RulePaginatedView):
 
 class UnverifiedRulesApiView(RulePaginatedView):
     def post(self, request):
-        objects = self.get_filtered_objects(
+        objects, firewall_ids = self.get_filtered_objects(
             request,
+            return_firewall_rules=True,
             is_verified_rule=False,
             is_anomalous_rule=False
         )
 
         page = self.paginate_queryset(objects.order_by('id'))
+        page = self.get_alias_from_page(page, firewall_ids)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
@@ -168,11 +169,13 @@ class UnverifiedRulesApiView(RulePaginatedView):
 
 class VerifiedRulesApiView(RulePaginatedView):
     def post(self, request):
-        objects = self.get_filtered_objects(
+        objects, firewall_ids = self.get_filtered_objects(
             request,
+            return_firewall_rules=True,
             is_verified_rule=True
         )
         page = self.paginate_queryset(objects.order_by('id'))
+        page = self.get_alias_from_page(page, firewall_ids)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
@@ -184,11 +187,13 @@ class VerifiedRulesApiView(RulePaginatedView):
 
 class AnomalousRulesApiView(RulePaginatedView):
     def post(self, request):
-        objects = self.get_filtered_objects(
+        objects, firewall_ids = self.get_filtered_objects(
             request,
+            return_firewall_rules=True,
             is_anomalous_rule=True
         )
         page = self.paginate_queryset(objects.order_by('id'))
+        page = self.get_alias_from_page(page, firewall_ids)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
