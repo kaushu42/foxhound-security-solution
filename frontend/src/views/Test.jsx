@@ -7,7 +7,7 @@ class Test extends Component {
     render() {
         return (
             <Fragment>
-                <NetworkXChart />
+                <IpDateVsPortChart />
             </Fragment>
             )
     }
