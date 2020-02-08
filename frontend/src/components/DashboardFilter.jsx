@@ -11,6 +11,7 @@ import {
   updateIpAddressFilter
 } from "../actions/filterAction";
 import { filterSelectDataServiceAsync } from "../services/filterSelectDataService";
+import {ROOT_URL} from "../utils"
 import moment from "moment";
 
 const { RangePicker } = DatePicker;
@@ -25,6 +26,7 @@ class DashboardFilter extends Component {
       protocol_select_data: [],
       source_zone_select_data: [],
       destination_zone_select_data: [],
+      defaultDate: null,
       // ip_address_select_data: [],
       loading_firewall_rule_select: true,
       loading_application_select: true,
@@ -43,11 +45,14 @@ class DashboardFilter extends Component {
   }
 
   componentDidMount() {
+    
     filterSelectDataServiceAsync(this.props.auth_token)
       .then(response => {
-        const filter_data = response.data;
+        const filter_data = response[0].data;
+        const defaultDate = response[1].data;
         // const ip_data = response[1].data;
         this.setState({
+          defaultDate: defaultDate.date,
           firewall_rule_select_data: filter_data.firewall_rule,
           application_select_data: filter_data.application,
           protocol_select_data: filter_data.protocol,
@@ -109,6 +114,7 @@ class DashboardFilter extends Component {
 
   handleFilterApplyChanges = event => {
     const {
+      defaultDate,
       date_range_value,
       firewall_rule_value,
       application_value,
@@ -118,7 +124,7 @@ class DashboardFilter extends Component {
       // ip_value
     } = this.state;
     event.preventDefault();
-    this.props.dispatchRangePickerUpdate(date_range_value);
+    this.props.dispatchRangePickerUpdate(date_range_value,defaultDate);
     // this.props.dispatchIpAddressRuleFilterUpdate(ip_value);
     this.props.dispatchDestinationZoneFilterUpdate(application_value);
     this.props.dispatchSourceZoneFilterUpdate(protocol_value);
@@ -148,8 +154,9 @@ class DashboardFilter extends Component {
     // );
 
     return (
-      <Fragment>
-        <div
+      <Fragment>  
+        {this.state.defaultDate ?
+        (<div
           style={{
             padding: 24,
             background: "#fbfbfb",
@@ -161,6 +168,7 @@ class DashboardFilter extends Component {
             <Col xs={24} sm={24} md={24} lg={8} xl={8}>
               <RangePicker
                 style={{ width: "100%" }}
+                defaultValue = {[moment(this.state.defaultDate),moment(this.state.defaultDate)]}
                 size={"default"}
                 id="RangePicker"
                 onChange={(e, v) => this.handleRangePickerChange(e, v)}
@@ -284,6 +292,7 @@ class DashboardFilter extends Component {
             </Col>
           </Row>
         </div>
+        ): null}
       </Fragment>
     );
   }
@@ -304,8 +313,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    dispatchRangePickerUpdate: value =>
-      dispatch(updateDateRangePickerFilter(value)),
+    dispatchRangePickerUpdate: (value, defaultDate) =>
+      dispatch(updateDateRangePickerFilter(value, defaultDate)),
     dispatchFirewallRuleFilterUpdate: value =>
       dispatch(updateFirewallRuleFilter(value)),
     dispatchProtocolFilterUpdate: value =>
