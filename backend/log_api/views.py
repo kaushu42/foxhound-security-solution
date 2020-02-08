@@ -16,6 +16,10 @@ from core.models import (
     ProcessedLogDetail,
     Application
 )
+from mis.models import (
+    DailyRequestFromBlackListEvent,
+    DailyResponseToBlackListEvent
+)
 from views.views import PaginatedView
 from serializers.serializers import (
     ProcessedLogDetailSerializer,
@@ -207,3 +211,28 @@ class LatestLogDate(APIView):
             return Response({
                 'date': datetime.date.today()
             })
+
+
+class BlacklistLogApiView(PaginatedView):
+    serializer_class = TrafficLogDetailGranularHourSerializer
+
+    def post(self, request):
+        firewall_ids = get_firewall_rules_id_from_request(request)
+        ip = request.data.get('ip')
+        objects = list(
+            DailyRequestFromBlackListEvent.objects.filter(
+                firewall_rule__in=firewall_ids,
+                source_ip=ip
+            )
+        )
+        objects += list(
+            DailyResponseToBlackListEvent.objects.filter(
+                firewall_rule__in=firewall_ids,
+                destination_ip=ip
+            )
+        )
+        page = self.paginate_queryset(objects)
+
+        if page is not None:
+            serializer = self.serializer_class(page, many=True)
+            return self.get_paginated_response(serializer.data)
