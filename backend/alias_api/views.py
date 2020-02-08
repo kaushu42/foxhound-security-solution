@@ -16,13 +16,31 @@ class IPAliasApiView(PaginatedView):
 
     def post(self, request):
         firewall_ids = get_firewall_rules_id_from_request(request)
-        source_objects = (DailySourceIP.objects.filter(
-            firewall_rule__in=firewall_ids).annotate(
-                address=F('source_address')
-        ).values_list('address', 'alias').order_by('alias'))
+
+        ip = request.data.get('ip', '')
+        alias = request.data.get('alias', '')
+
+        source_kwargs = {}
+        destination_kwargs = {}
+        if ip:
+            source_kwargs['source_address'] = ip
+            destination_kwargs['destination_address'] = ip
+        if alias:
+            source_kwargs['alias'] = ip
+            destination_kwargs['alias'] = ip
+
+        source_objects = DailySourceIP.objects.filter(
+            firewall_rule__in=firewall_ids,
+            **source_kwargs
+        ).annotate(
+            address=F('source_address')
+        ).values_list('address', 'alias').order_by('alias')
+
         destination_objects = (DailyDestinationIP.objects.filter(
-            firewall_rule__in=firewall_ids).annotate(
-                address=F('destination_address')
+            firewall_rule__in=firewall_ids,
+            **destination_kwargs
+        ).annotate(
+            address=F('destination_address')
         ).values_list('address', 'alias').order_by('alias'))
 
         objects = []
