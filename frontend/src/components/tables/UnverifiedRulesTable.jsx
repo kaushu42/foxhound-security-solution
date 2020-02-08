@@ -84,14 +84,12 @@ class UnverifiedRulesTable extends Component {
             {
                 title: 'Application',
                 dataIndex: 'application',
-                key: 'application',
-                render: text => <a>{text}</a>,
+                key: 'application'
             },
             {
                 title: 'Rule Name',
                 dataIndex: 'name',
-                key: 'name',
-                render: text => <a>{text}</a>,
+                key: 'name'
             },
             {
                 title : 'Actions',
