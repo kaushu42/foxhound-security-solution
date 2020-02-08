@@ -4,6 +4,7 @@ import subprocess
 import operator
 import traceback
 from functools import reduce
+from collections import defaultdict
 
 import django
 from django.db.models import Q, F
@@ -44,7 +45,7 @@ from .models import Rule
 class RulePaginatedView(PaginatedView):
     serializer_class = RuleSerializer
 
-    def get_filtered_objects(self, request, **kwargs):
+    def get_filtered_objects(self, request, return_firewall_rules=False, **kwargs):
         firewall_rule_ids = get_firewall_rules_id_from_request(request)
         query = self.get_search_queries(request)
         alias = request.data.get('alias', None)
@@ -60,6 +61,8 @@ class RulePaginatedView(PaginatedView):
                 Q(source_ip__in=aliased_ips) | Q(
                     destination_ip__in=aliased_ips)
             )
+        if return_firewall_rules:
+            return objects, firewall_rule_ids
         return objects
 
     def _get_items(self, field):
@@ -109,8 +112,34 @@ class RulePaginatedView(PaginatedView):
 
 class RulesApiView(RulePaginatedView):
     def get(self, request):
-        objects = self.get_filtered_objects(request)
+        objects, firewall_ids = self.get_filtered_objects(
+            request, return_firewall_rules=True)
+        ips = [i[0] for i in list(objects.values_list('source_ip')) +
+               list(objects.values_list('destination_ip'))]
+        source_ip_alias = DailySourceIP.objects.filter(
+            firewall_rule__in=firewall_ids, source_address__in=ips)
+        destination_ip_alias = DailyDestinationIP.objects.filter(
+            firewall_rule__in=firewall_ids, destination_address__in=ips)
+        # print(source_ip_alias)
         page = self.paginate_queryset(objects.order_by('id'))
+        ips = {p.source_ip for p in page} | {p.destination_ip for p in page}
+        aliases = list(DailySourceIP.objects.filter(
+            source_address__in=ips
+        ).annotate(
+            address=F('source_address')
+        ).values(
+            'address', 'alias')) + list(DailyDestinationIP.objects.filter(
+                destination_address__in=ips
+            ).annotate(
+                address=F('destination_address')
+            ).values(
+                'address', 'alias'))
+        data = defaultdict(str)
+        for alias in aliases:
+            data[alias['address']] = alias['alias']
+        for p in page:
+            p.source_alias = data[p.source_ip]
+            p.destination_alias = data[p.destination_ip]
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
