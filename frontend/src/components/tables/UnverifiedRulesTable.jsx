@@ -105,9 +105,9 @@ class UnverifiedRulesTable extends Component {
                 render : (text,record) => {
                     return (
                         <Fragment>
-                            <a onClick={() => this.props.handleUnverifiedRuleAccept(this.props.auth_token,record)}><Icon type="check-circle" theme="filled" style={{fontSize:24}}/>&nbsp;&nbsp;</a>
-                            <a onClick={() => this.props.handleUnverifiedRuleReject(this.props.auth_token,record)}><Icon type="close-circle" theme="filled" style={{fontSize:24}}/>&nbsp;&nbsp;</a>
-                            <a onClick={() => {this.props.handleUnverifiedRuleUpdate(this.props.auth_token,record)}}><Icon type="edit" theme="filled" style={{fontSize:24}}/>&nbsp;&nbsp;</a>
+                            <a onClick={() => this.props.handleUnverifiedRuleAccept(this.props.auth_token,record)}><Icon type="check-circle" theme="filled" style={{fontSize:16,color:'green'}}/>&nbsp;&nbsp;</a>
+                            <a onClick={() => this.props.handleUnverifiedRuleReject(this.props.auth_token,record)}><Icon type="close-circle" theme="filled" style={{fontSize:16,color:'red'}}/>&nbsp;&nbsp;</a>
+                            <a onClick={() => {this.props.handleUnverifiedRuleUpdate(this.props.auth_token,record)}}><Icon type="edit" theme="filled" style={{fontSize:16}}/>&nbsp;&nbsp;</a>
                         </Fragment>
                     )
                 }
