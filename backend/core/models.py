@@ -384,9 +384,8 @@ class BackgroundJob(models.Model):
     tenant = models.ForeignKey(
         Tenant, on_delete=models.CASCADE,
         related_name="tenant_background_job")
-    task = models.ForeignKey(
-        CeleryTasksetmeta, on_delete=models.CASCADE,
-        related_name="task_background_job")
+    task_id = models.CharField(
+        unique=True, max_length=155, blank=True, null=True)
 
 
 class BaseFilter(models.Model):
