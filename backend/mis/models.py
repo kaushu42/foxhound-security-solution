@@ -9,6 +9,7 @@ class DailyIP(models.Model):
     logged_datetime = models.DateField(null=True)
     processed_datetime = models.DateField(null=True)
     firewall_rule = models.ForeignKey(FirewallRule, on_delete=models.CASCADE)
+    alias = models.CharField(max_length=250, null=True)
 
     class Meta:
         abstract = True

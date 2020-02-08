@@ -322,7 +322,7 @@ class GetIPAliasApiView(PaginatedView):
 
     def post(self, request):
         firewall_ids = get_firewall_rules_id_from_request(request)
-        objects = IPAddress.objects.all()
+        objects = IPAddress.objects.filter(firewall_rule__in=firewall_ids)
         page = self.paginate_queryset(objects.order_by('address'))
         if page is not None:
             serializer = self.serializer_class(page, many=True)
@@ -335,16 +335,23 @@ class SetIPAliasApiView(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors)
 
-        tenant_id = get_tenant_id_from_token(request)
+        firewall_ids = get_firewall_rules_id_from_request(request)
+
         ip = serializer.data['ip']
         alias = serializer.data['alias']
         try:
-            item = IPAddress.objects.get(address=ip)
-            item.alias = alias
-            item.save()
-        except Exception as e:
-            IPAddress(address=ip, alias=alias).save()
-
+            obj = IPAddress.objects.get(
+                firewall_rule__in=firewall_ids,
+                address=ip
+            )
+            obj.alias = alias
+            obj.save()
+        except IPAddress.DoesNotExist:
+            IPAddress.objects.create(
+                firewall_rule_id=next(iter(firewall_ids)),
+                address=ip,
+                alias=alias
+            ).save()
         return Response({
             'saved': True
         })
