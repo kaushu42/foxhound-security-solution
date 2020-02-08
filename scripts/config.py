@@ -19,16 +19,13 @@ CLUSTER_SEEDS = ast.literal_eval(config.get("SPARK", "CLUSTER_SEEDS"))
 SPARK_APP_NAME = ast.literal_eval(config.get("SPARK", "SPARK_APP_NAME"))
 
 os.environ['PYSPARK_SUBMIT_ARGS'] = PG_DRIVER
-
 findspark.init()
 
 
 def create_directory(path):
     if not os.path.exists(path):
         os.mkdir(path)
-
-
-os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.postgresql:postgresql:42.1.1 pyspark-shell'
+        
 
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 
