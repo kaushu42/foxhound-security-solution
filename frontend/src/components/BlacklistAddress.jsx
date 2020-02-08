@@ -6,13 +6,15 @@ import {Card, List, Drawer, Table} from "antd";
 import QuickIpView from "../views/QuickIpView"
 import {search} from "../actions/ipSearchAction";
 
-const FETCH_API = `${ROOT_URL}dashboard/blacklist/`;
+const FETCH_BLACKLIST_SOURCE_API = `${ROOT_URL}mis/blacklist/source/`;
+const FETCH_BLACKLIST_DESTINATION_API = `${ROOT_URL}mis/blacklist/destination/`;
 const FETCH_APPLICATION_LOG_API = `${ROOT_URL}log/application/`;
 
 class BlacklistAddress extends Component {
 
     state = {
-        data : null,
+        blacklistSourceData : null,
+        blacklistDestinationData: null,
         selectedIPLogData: null,
         quickIpView : false, 
         params: {},
@@ -63,11 +65,17 @@ class BlacklistAddress extends Component {
     componentDidMount() {
         let auth_token = this.props.auth_token;
         let headers = axiosHeader(auth_token);
-        axios.post(FETCH_API,null,{headers})
+        axios.post(FETCH_BLACKLIST_SOURCE_API,null,{headers})
             .then(res => {
                 const response = res.data;
-                this.setState({data:response});
+                this.setState({blacklistSourceData:response});
             }).catch(error => console.log(error));
+        axios.post(FETCH_BLACKLIST_DESTINATION_API,null,{headers})
+        .then(res => {
+            const response = res.data;
+            console.log("************RESPONSE****************", response)
+            this.setState({blacklistDestinationData:response});
+        }).catch(error => console.log(error));
     }
 
     selectedIP = (id) =>{
@@ -86,7 +94,7 @@ class BlacklistAddress extends Component {
 
         let bodyFormDataForLog = new FormData();
         bodyFormDataForLog.set("application", "mssql-db-unencrypted");
-        bodyFormDataForLog.set("timestamp",  1551769200000);
+        bodyFormDataForLog.set("timestamp",  1551769200);
 
         axios.post(FETCH_APPLICATION_LOG_API, bodyFormDataForLog, { headers, params })
         .then(res => {
@@ -122,11 +130,11 @@ class BlacklistAddress extends Component {
         return (
             <Fragment>
                 <Card title={"Request From Blacklisted Address"}>
-                    {this.state.data ? (
+                    {this.state.blacklistSourceData ? (
                         <Fragment>
                             <List
                                 style={{height:"150px", overflow:"scroll"}}
-                                dataSource={this.state.data.request_from_blacklisted_ip}
+                                dataSource={this.state.blacklistSourceData}
                                 renderItem={item => 
                                     <List.Item>
                                         <a id={item[0]} onClick={this.selectedIP}>{item[0]}</a> - <a id={item[1]} onClick={this.selectedIP}>{item[1]}</a>
@@ -136,11 +144,11 @@ class BlacklistAddress extends Component {
                     ) : null}
                 </Card>
                 <Card title={"Request To Blacklisted Address"}>
-                    {this.state.data ? (
+                    {this.state.blacklistDestinationData ? (
                         <Fragment>
                             <List
                                 style={{height:"150px", overflow:"scroll"}}
-                                dataSource={this.state.data.request_to_blacklisted_ip}
+                                dataSource={this.state.blacklistDestinationData}
                                 renderItem={item => 
                                     <List.Item>
                                         <a id={item[0]} onClick={this.selectedIP}>{item[0]}</a> - <a id={item[1]} onClick={this.selectedIP}>{item[1]}</a>
@@ -155,7 +163,7 @@ class BlacklistAddress extends Component {
                     placement={"right"}
                     onClose={this.closeQuickIpView}
                     visible={this.state.quickIpView}>
-                    <QuickIpView/>
+                    {/* <QuickIpView/> */}
                     <br />
                     <Table
                         columns={this.state.columns}
