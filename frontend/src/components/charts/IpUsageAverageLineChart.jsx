@@ -96,6 +96,16 @@ class IpUsageAverageDailyTrendChart extends Component {
             const response = res.data;
             const average_daily_data = response.average;
             const recent_data = response.daily;
+            if(response.max != 0){
+                for(var i=0;i<24;i++){
+                    if(average_daily_data[i] == undefined){
+                        average_daily_data[i] = 0
+                    }
+                    if(recent_data[i] == undefined){
+                        recent_data[i] = 0
+                    }
+                }
+            }
             const max = response.max;
             var recent_data_arr = []
             var average_daily_data_arr = []

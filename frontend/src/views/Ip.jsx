@@ -54,11 +54,11 @@ class Ip extends Component{
                             <IpAsDestinationSankeyChart />
                         </Col>
                     </Row>
-                    <Row style={contentLayout}>
-                        <Col xs={24} sm={24} md={24} lg={24} xl={24}>
-                            <IpDateVsPortChart />
-                        </Col>
-                    </Row>
+                    {/*<Row style={contentLayout}>*/}
+                    {/*    <Col xs={24} sm={24} md={24} lg={24} xl={24}>*/}
+                    {/*        <IpDateVsPortChart />*/}
+                    {/*    </Col>*/}
+                    {/*</Row>*/}
                 </MasterLayout>
             </Fragment>
         )
