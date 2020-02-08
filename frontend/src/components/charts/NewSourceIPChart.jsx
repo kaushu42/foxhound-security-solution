@@ -104,7 +104,7 @@ class NewSourceIPChart extends Component{
                                 dataSource={this.state.ipListData}
                                 renderItem={item => 
                                     <List.Item>
-                                        <a id={item} onClick={this.selectedIP}>{item}</a>
+                                        <a id={item[1]} onClick={this.selectedIP}>{item[1]}</a> - <a id={item[0]} onClick={this.selectedIP}>{item[0]}</a>
                                     </List.Item>}
                             />
                         </Fragment>

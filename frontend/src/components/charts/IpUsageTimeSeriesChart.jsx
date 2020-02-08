@@ -29,9 +29,11 @@ class IpUsageTimeSeriesChart extends Component {
           type: "datetime",
           dateTimeLabelFormats: {
             day: "%Y-%b-%d"
-          }
+          },
+          crosshair:true
         },
         yAxis: {
+          crosshair:true,
           labels: {
             formatter: function() {
               return this.value + " MB";

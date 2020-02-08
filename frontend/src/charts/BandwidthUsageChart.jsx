@@ -38,7 +38,11 @@ class BandwidthUsageChart extends Component {
           type: "datetime",
           dateTimeLabelFormats: {
             day: "%Y-%b-%d"
-          }
+          },
+          crosshair:true
+        },
+        yAxis:{
+          crosshair:true
         },
         series: [
           {

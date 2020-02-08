@@ -395,6 +395,7 @@ class ApplicationLineChart extends Component {
         dateTimeLabelFormats: {
           day: "%Y-%b-%d"
         },
+        crosshair:true,
         ordinal: false,
         followPointer: true,
         type: "datetime",
@@ -404,6 +405,9 @@ class ApplicationLineChart extends Component {
         labels: {
           enabled: true
         }
+      },
+      yAxis:{
+        crosshair:true
       },
       tooltip:{
       },

@@ -94,12 +94,6 @@ class UnverifiedRulesTable extends Component {
                 render: text => <a>{text}</a>,
             },
             {
-                title: 'Description',
-                dataIndex: 'description',
-                key: 'description',
-                render: text => <a>{text}</a>,
-            },
-            {
                 title : 'Actions',
                 dataIndex: 'actions',
                 render : (text,record) => {
@@ -107,7 +101,7 @@ class UnverifiedRulesTable extends Component {
                         <Fragment>
                             <a onClick={() => this.props.handleUnverifiedRuleAccept(this.props.auth_token,record)}><Icon type="check-circle" theme="filled" style={{fontSize:16,color:'green'}}/>&nbsp;&nbsp;</a>
                             <a onClick={() => this.props.handleUnverifiedRuleReject(this.props.auth_token,record)}><Icon type="close-circle" theme="filled" style={{fontSize:16,color:'red'}}/>&nbsp;&nbsp;</a>
-                            <a onClick={() => {this.props.handleUnverifiedRuleUpdate(this.props.auth_token,record)}}><Icon type="edit" theme="filled" style={{fontSize:16}}/>&nbsp;&nbsp;</a>
+                            <a onClick={() => {this.props.handleUnverifiedRuleUpdate(this.props.auth_token,record)}}><Icon type="edit" theme="filled" style={{fontSize:16}}/></a>
                         </Fragment>
                     )
                 }
@@ -222,7 +216,6 @@ class UnverifiedRulesTable extends Component {
         const applicationSelectListItem = this.state.applicationData.map(
             data => <Select.Option key={data[1]}>{data[1]}</Select.Option>
           );
-        const expandedRowRender = record => <p><b>Verified Data: </b>{record.verifiedDate} <br/><b>Verified By: </b> {record.verifiedBy} </p>;
         return(
             <Fragment>
                 {this.props.acceptUnverifiedRuleError ?
@@ -302,7 +295,6 @@ class UnverifiedRulesTable extends Component {
                     }>
                         <Table
                             rowKey={record => record.id}
-                            expandedRowRender = {expandedRowRender}
                             columns={this.state.columns}
                             dataSource = {this.props.unverifiedRulesData}
                             pagination={this.props.unverifiedRulePagination}
