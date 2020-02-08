@@ -146,6 +146,7 @@ class TroubleTicketFollowUpAnomalyApiView(PaginatedView):
 
         assigned_by = FoxhoundUser.objects.get(id=assigned_by_user_id)
         assigned_to = FoxhoundUser.objects.get(id=assigned_to_user_id)
+        print(assigned_to)
         tt_follow_up_anomaly = TroubleTicketFollowUpAnomaly(
             trouble_ticket=tt_anomaly,
             follow_up_datetime=datetime.datetime.now(),

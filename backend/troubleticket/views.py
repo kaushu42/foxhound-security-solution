@@ -120,7 +120,6 @@ class TroubleTicketAnomalyOpenApiView(TTPaginatedView):
 
 class TroubleTicketAnomalyClosedApiView(TTPaginatedView):
     def get(self, request):
-        # Get the tenant id to filter the TTs
         objects = self.get_filtered_objects(request, is_closed=True)
         page = self.paginate_queryset(objects.order_by('id'))
         if page is not None:
@@ -129,6 +128,34 @@ class TroubleTicketAnomalyClosedApiView(TTPaginatedView):
 
     def post(self, request):
         return self.get(request)
+
+
+class MyOpenTTApiView(TTPaginatedView):
+    def post(self, request):
+        user = get_user_from_token(request)
+        objects = self.get_filtered_objects(
+            request,
+            assigned_to=user,
+            is_closed=False
+        )
+        page = self.paginate_queryset(objects.order_by('id'))
+        if page is not None:
+            serializer = self.serializer_class(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+
+class MyClosedTTApiView(TTPaginatedView):
+    def post(self, request):
+        user = get_user_from_token(request)
+        objects = self.get_filtered_objects(
+            request,
+            assigned_to=user,
+            is_closed=True
+        )
+        page = self.paginate_queryset(objects.order_by('id'))
+        if page is not None:
+            serializer = self.serializer_class(page, many=True)
+            return self.get_paginated_response(serializer.data)
 
 
 class TroubleTicketFollowUpAnomalyApiView(PaginatedView):
@@ -169,6 +196,10 @@ class TroubleTicketFollowUpAnomalyApiView(PaginatedView):
 
         assigned_by = FoxhoundUser.objects.get(id=assigned_by_user_id)
         assigned_to = FoxhoundUser.objects.get(id=assigned_to_user_id)
+        tt_anomaly.assigned_by = assigned_by
+        tt_anomaly.assigned_to = assigned_to
+        tt_anomaly.save()
+
         tt_follow_up_anomaly = TroubleTicketFollowUpAnomaly(
             trouble_ticket=tt_anomaly,
             follow_up_datetime=datetime.datetime.now(),
@@ -190,8 +221,10 @@ class TroubleTicketUsersApiView(APIView):
         token = request.META.get('HTTP_AUTHORIZATION').split()[1]
         tenant_id = Token.objects.get(key=token).user.tenant_id
 
-        response = UserNameSerializer(FoxhoundUser.objects.filter(
-            tenant_id=tenant_id), many=True).data
+        response = UserNameSerializer(
+            FoxhoundUser.objects.filter(
+                tenant_id=tenant_id
+            ), many=True).data
         return Response(response)
 
 
@@ -225,13 +258,6 @@ def close_tt(request, id):
     )
     follow_up.save()
     return Response({'ok': 'tt closed'})
-
-
-OPERATIONS = {
-    'bytes_sent': ('bytes_sent'),
-    'bytes_received': ('bytes_received'),
-
-}
 
 
 class TroubleTicketDetailApiView(APIView):

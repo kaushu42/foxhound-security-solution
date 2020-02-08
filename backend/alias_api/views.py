@@ -26,8 +26,8 @@ class IPAliasApiView(PaginatedView):
             source_kwargs['source_address'] = ip
             destination_kwargs['destination_address'] = ip
         if alias:
-            source_kwargs['alias'] = ip
-            destination_kwargs['alias'] = ip
+            source_kwargs['alias'] = alias
+            destination_kwargs['alias'] = alias
 
         source_objects = DailySourceIP.objects.filter(
             firewall_rule__in=firewall_ids,
