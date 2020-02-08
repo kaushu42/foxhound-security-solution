@@ -4,13 +4,13 @@ import {connect} from "react-redux";
 import MasterLayout from "./layout/MasterLayout";
 import {contentLayout, drawerInfoStyle, ROOT_URL} from "../utils";
 import axios from 'axios';
-import {Col, PageHeader, Row, Input, Button, Table, Drawer, Spin, Statistic, Alert} from "antd";
+import {Col, PageHeader, Row, Input, Button, Table, Drawer, Spin, Statistic, Alert, Card} from "antd";
 import moment from "moment";
 import QuickIpView from "../views/QuickIpView"
 import {search} from "../actions/ipSearchAction";
 
 
-const SET_ALIAS_API = `${ROOT_URL}profile/ip/`;
+const SET_ALIAS_API = `${ROOT_URL}alias/edit/`;
 const FETCH_ALIAS_API = `${ROOT_URL}alias/`
 
 class ChangeAlias extends Component{
@@ -27,13 +27,9 @@ class ChangeAlias extends Component{
             selectedRecord: null,
             data: [],
             quickIpView: false,
+            searchIP:"",
+            searchAlias:"",
             columns: [
-                {
-                    title: 'Created Date',
-                    dataIndex: 'created_date',
-                    key: 'created_date',
-                    render: text => moment(text).format("YYYY-MM-DD"),
-                },
                 {
                     title: 'IP Address',
                     dataIndex: 'address',
@@ -73,7 +69,11 @@ class ChangeAlias extends Component{
             Authorization: authorization
         };
 
-        axios.post(FETCH_ALIAS_API, null,{headers, params})
+        let bodyFormData = new FormData();
+        bodyFormData.set("ip", this.state.searchIP);
+        bodyFormData.set("alias", this.state.searchAlias);
+
+        axios.post(FETCH_ALIAS_API, bodyFormData,{headers, params})
         .then(res=>{
             const page = this.state.pagination;
             page.total  = res.data.count;
@@ -196,6 +196,36 @@ class ChangeAlias extends Component{
                     <Alert message="Success" type="success" closeText="Close Now" showIcon description={this.state.successMessage} />
                     : null }
                     <Row style = {contentLayout}>
+                    <Card title={
+                        <Fragment>
+                        <Row gutter={[16, 16]} >
+                            <Col xs={24} sm={24} md={24} lg={6} xl={6} offset={6}>
+                                <Input 
+                                    value={this.state.searchIP}
+                                    placeholder="Search IP"
+                                    onChange={(e)=>this.setState({searchIP : e.target.value})}
+                                />
+                            </Col>
+                            <Col xs={24} sm={24} md={24} lg={6} xl={6}>
+                                <Input 
+                                    value={this.state.searchAlias}
+                                    placeholder="Search Alias"
+                                    onChange={(e)=>this.setState({searchAlias : e.target.value})}
+                                />
+                            </Col>
+                            <Col xs={24} sm={24} md={24} lg={6} xl={6}>
+                                <Button 
+                                type="primary"
+                                style={{width:'100%'}}
+                                htmlType="submit"
+                                className="login-form-button"
+                                loading={this.props.rejectUnverifiedRuleLoading}
+                                onClick={e =>this.handleFetchData()}>Search
+                                </Button>
+                            </Col>
+                        </Row>
+                        </Fragment>
+                    }>
                         <Table
                             rowKey={record => record.id}
                             columns={this.state.columns}
@@ -203,7 +233,9 @@ class ChangeAlias extends Component{
                             pagination={this.state.pagination}
                             onChange={this.handleTableChange}
                             loading={this.state.loading}
+                            bordered
                         />
+                        </Card>
                         <Drawer
                             id={"SetAlias"}
                             visible={this.state.setAliasDrawerVisible}

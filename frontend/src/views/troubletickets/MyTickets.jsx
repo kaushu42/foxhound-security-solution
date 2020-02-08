@@ -2,7 +2,7 @@ import React, {Component, Fragment} from 'react';
 import MasterLayout from "../layout/MasterLayout";
 import {PageHeader, Row} from "antd";
 import {contentLayout} from "../../utils";
-import AnomalyBasedTroubleTicketTable from "../../components/tables/AnomalyBasedTroubleTicketTable"
+import MyTroubleTickets from "../../components/tables/MyTroubleTickets"
 class MyTickets extends Component {
     render(){
         return (
@@ -11,7 +11,7 @@ class MyTickets extends Component {
                     style={{background: '#fff'}}
                     title={"My Trouble Tickets"} />
                 <Row style={contentLayout}>
-                    <AnomalyBasedTroubleTicketTable />
+                    <MyTroubleTickets />
                 </Row>
             </MasterLayout>
         )

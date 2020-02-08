@@ -2,13 +2,13 @@ import React, {Component, Fragment} from 'react';
 import {connect} from "react-redux";
 import {axiosHeader, ROOT_URL, bytesToSize} from "../utils";
 import axios from "axios";
-import {Card, List, Drawer, Table} from "antd";
+import {Card, List, Drawer, Table, Spin} from "antd";
 import QuickIpView from "../views/QuickIpView"
 import {search} from "../actions/ipSearchAction";
 
 const FETCH_BLACKLIST_SOURCE_API = `${ROOT_URL}mis/blacklist/source/`;
 const FETCH_BLACKLIST_DESTINATION_API = `${ROOT_URL}mis/blacklist/destination/`;
-const FETCH_APPLICATION_LOG_API = `${ROOT_URL}log/application/`;
+const FETCH_APPLICATION_LOG_API = `${ROOT_URL}log/blacklist/`;
 
 class BlacklistAddress extends Component {
 
@@ -16,8 +16,10 @@ class BlacklistAddress extends Component {
         blacklistSourceData : null,
         blacklistDestinationData: null,
         selectedIPLogData: null,
+        selectedIPAddress:null,
         quickIpView : false, 
         params: {},
+        loading: false,
         pagination: {},
         columns: [
             {
@@ -27,19 +29,13 @@ class BlacklistAddress extends Component {
             },
             {
               title: "Source Address",
-              dataIndex: "source_ip.address",
-              key: "source_ip.address",
-            //   render: (text, record) => (
-            //     <a onClick={() => this.handleShowSourceIpProfile(record)}>{text}</a>
-            //   )
+              dataIndex: "source_ip",
+              key: "source_ip",
             },
             {
               title: "Destination Address",
-              dataIndex: "destination_ip.address",
-              key: "destination_ip.address",
-            //   render: (text, record) => (
-            //     <a onClick={() => this.handleShowDestinationIpProfile(record)}>{text}</a>
-            //   )
+              dataIndex: "destination_ip",
+              key: "destination_ip",
             },
             {
               title: "Bytes Sent",
@@ -57,7 +53,7 @@ class BlacklistAddress extends Component {
               title: "Logged DateTime",
               dataIndex: "logged_datetime",
               key: "logged_datetime",
-              render: text => (new Date(text).toUTCString()).replace(" GMT", "") //moment(text).format("YYYY-MM-DD, HH:MM:SS")
+              render: text => (new Date(text*1000+20700000).toUTCString()).replace(" GMT", "") //moment(text).format("YYYY-MM-DD, HH:MM:SS")
             }
           ],
     }
@@ -73,15 +69,14 @@ class BlacklistAddress extends Component {
         axios.post(FETCH_BLACKLIST_DESTINATION_API,null,{headers})
         .then(res => {
             const response = res.data;
-            console.log("************RESPONSE****************", response)
             this.setState({blacklistDestinationData:response});
         }).catch(error => console.log(error));
     }
 
     selectedIP = (id) =>{
         this.props.dispatchIpSearchValueUpdate(id.target.id);
-        this.setState({quickIpView : true});
-        this.fetchLogData()
+        var ip = id.target.id
+        this.setState({selectedIPAddress:ip, quickIpView : true, loading:true}, this.fetchLogData);
     }
 
     fetchLogData = (params = {}) => {
@@ -91,10 +86,8 @@ class BlacklistAddress extends Component {
         "Content-Type": "application/json",
         Authorization: token
         };
-
         let bodyFormDataForLog = new FormData();
-        bodyFormDataForLog.set("application", "mssql-db-unencrypted");
-        bodyFormDataForLog.set("timestamp",  1551769200);
+        bodyFormDataForLog.set("ip", this.state.selectedIPAddress);
 
         axios.post(FETCH_APPLICATION_LOG_API, bodyFormDataForLog, { headers, params })
         .then(res => {
@@ -102,12 +95,13 @@ class BlacklistAddress extends Component {
             page.total = res.data.count;
             this.setState({
             selectedIPLogData: res.data.results,
-            pagination: page
+            pagination: page,
+            loading:false
             });
         });
     }
     closeQuickIpView  = () => {
-        this.setState({quickIpView: false})
+        this.setState({quickIpView: false, selectedIPLogData:null})
     }
 
     handleTableChange = (pagination, filters, sorter) => {
@@ -165,6 +159,7 @@ class BlacklistAddress extends Component {
                     visible={this.state.quickIpView}>
                     {/* <QuickIpView/> */}
                     <br />
+                    <Spin spinning = {this.state.loading}>
                     <Table
                         columns={this.state.columns}
                         rowKey={record => record.id}
@@ -172,6 +167,7 @@ class BlacklistAddress extends Component {
                         pagination={this.state.pagination}
                         onChange={this.handleTableChange}
                     />
+                    </Spin>
                 </Drawer>
             </Fragment>
         )
