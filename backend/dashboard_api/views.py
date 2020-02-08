@@ -226,12 +226,17 @@ class CountryApiView(APIView):
     def post(self, request, format=None):
         filter_ids = get_filter_ids_from_request(request)
         basis = request.data.get('basis', 'bytes')
-        except_countries = []
+        except_countries = request.data.get('except_countries', '')
+        kwargs = {
+            'filter__in': filter_ids
+        }
+        if except_countries:
+            except_countries.split(',')
         objects = get_objects_with_date_filtered(
             request,
             IPChart,
             'logged_datetime',
-            filter__in=filter_ids
+            **kwargs
         ).values('address').annotate(
             count=Sum('count'),
             bytes=Sum('bytes_sent')+Sum('bytes_received'),
@@ -243,8 +248,9 @@ class CountryApiView(APIView):
         for obj in objects:
             name, code = get_country_name_and_code(obj['address'])
             values[code] += obj[basis]
-
-        return Response({i: values[i] for i in values})
+        return Response({
+            i: values[i] for i in values if i not in except_countries
+        })
 
     def get(self, request, format=None):
         return self.post(request, format=format)
