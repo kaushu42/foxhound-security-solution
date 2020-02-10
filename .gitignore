@@ -1,4 +1,6 @@
 # ignore venv 
+
+inputs/
 venv/
 # ignore config ini file
 *.ini

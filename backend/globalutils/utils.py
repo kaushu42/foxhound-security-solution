@@ -121,11 +121,11 @@ def get_filters(request):
     start_date = request.data.get('start_date', None)
     end_date = request.data.get('end_date', None)
     start_date = str_to_date(start_date)
-    if start_date is not None:
-        start_date -= datetime.timedelta(hours=5, minutes=45)
+    #if start_date is not None:
+    #    start_date -= datetime.timedelta(hours=5, minutes=45)
     end_date = str_to_date(end_date)
-    if end_date is not None:
-        end_date -= datetime.timedelta(hours=5, minutes=45)
+    #if end_date is not None:
+    #    end_date -= datetime.timedelta(hours=5, minutes=45)
     firewall_rule = request.data.get('firewall_rule', None)
     application = request.data.get('application', None)
     protocol = request.data.get('protocol', None)
