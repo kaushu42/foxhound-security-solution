@@ -49,12 +49,12 @@ class IpDateVsPortChart extends Component {
                         name: 'Sales per employee',
                         borderWidth: 1,
                         data: [{
-                            x: 'A',
+                            x: 1,
                             y: 3,
                             value: 10,
                             name: "Point2",
                         }, {
-                            x: 'A',
+                            x: 1,
                             y: 7,
                             value: 10,
                             name: "Point1",

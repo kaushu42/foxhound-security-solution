@@ -7,6 +7,7 @@ from foxhound.mis_engine.MISEngine import MISEngine
 from foxhound.chart_engine.ChartEngine import ChartEngine
 from foxhound.rule_engine.RuleEngine import RuleEngine
 from foxhound.log_engine.LogEngine import LogEngine
+from foxhound.threat_engine.ThreatEngine import ThreatEngine
 import config
 import utils
 
@@ -82,3 +83,7 @@ def rule_engine():
         spark=config.SPARK
     )
     rule.run()
+
+def threat_engine():
+    threat_engine = ThreatEngine(utils.get_db_engine(),config.THREAT_LOGS_INPUT_DIR)
+    threat_engine.run()

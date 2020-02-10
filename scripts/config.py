@@ -34,6 +34,7 @@ DATABASE_URL = f'{DATABASE_BASE_URL}/GeoLite2-City.tar.gz'
 
 MIS_OUTPUT_INPUT_DIR = os.path.join(BASE_PATH, '../outputs/mis')
 TRAFFIC_LOGS_INPUT_DIR = os.path.join(BASE_PATH, '../inputs/traffic_logs')
+THREAT_LOGS_INPUT_DIR = os.path.join(BASE_PATH, '../inputs/threat_logs')
 TRAFFIC_LOGS_OUTPUT_DIR = os.path.join(BASE_PATH, '../outputs/traffic_logs')
 TENANT_PROFILE_OUTPUT_DIR = os.path.join(
     BASE_PATH, "../outputs/tenant_profile")

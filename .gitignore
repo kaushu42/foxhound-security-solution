@@ -2,7 +2,8 @@
 venv/
 # ignore config ini file
 *.ini
-
+frontend/build/*
+frontend/.idea/*
 # Created by https://www.gitignore.io/api/react,python,django
 # Edit at https://www.gitignore.io/?templates=react,python,django
 

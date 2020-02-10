@@ -202,7 +202,7 @@ class TrafficLogDetail(Base):
     protocol_id = Column(ForeignKey(Protocol.id, ondelete='CASCADE'))
     source_zone_id = Column(ForeignKey(Zone.id, ondelete='CASCADE'))
     destination_zone_id = Column(ForeignKey(Zone.id, ondelete='CASCADE'))
-    firewall_rule_id = Column(ForeignKey(FirewallRule.id, ondelete='CASCADE'))
+    firewall_rule = Column(ForeignKey(FirewallRule.id, ondelete='CASCADE'))
     inbound_interface_id = Column(ForeignKey(Interface.id, ondelete='CASCADE'))
     outbound_interface_id = Column(
         ForeignKey(Interface.id, ondelete='CASCADE'))
