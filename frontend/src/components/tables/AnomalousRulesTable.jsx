@@ -62,20 +62,17 @@ class AnomalousRulesTable extends Component {
             {
                 title: 'Application',
                 dataIndex: 'application',
-                key: 'application',
-                render: text => <a>{text}</a>,
+                key: 'application'
             },
             {
                 title: 'Rule Name',
                 dataIndex: 'name',
-                key: 'name',
-                render: text => <a>{text}</a>,
+                key: 'name'
             },
             {
                 title: 'Description',
                 dataIndex: 'description',
-                key: 'description',
-                render: text => <a>{text}</a>,
+                key: 'description'
             },
             {
                 title : 'Actions',
