@@ -107,7 +107,8 @@ class UnverifiedRulesTable extends Component {
         ],
         data: [],
         quickIpView : false,
-        blackListData : [],
+        blackListSourceData : [],
+        blackListDestinationData : [],
         applicationData: [],
         input_source_ip : "",
         input_destination_ip : "",
@@ -146,14 +147,29 @@ class UnverifiedRulesTable extends Component {
 
     componentDidMount() {
         this.handleFetchUnverifiedRulesData(this.state.params)
-        const FETCH_API = `${ROOT_URL}dashboard/blacklist/`;
+        const FETCH_BLACKLISTED_SOURCE_API = `${ROOT_URL}mis/blacklist/source/`;
+        const FETCH_BLACKLISTED_DESTINATION_API = `${ROOT_URL}mis/blacklist/destination/`;
         let auth_token = this.props.auth_token;
         let headers = axiosHeader(auth_token);
-        axios.post(FETCH_API,null,{headers})
+        axios.post(FETCH_BLACKLISTED_SOURCE_API,null,{headers})
             .then(res => {
                 const response = res.data;
-                this.setState({blackListData:response});
+                var blacklistData = []
+                for (var i =0; i<response.length; i++){
+                    blacklistData.push(response[i][1])
+                }
+                this.setState({blackListSourceData:blacklistData});
             }).catch(error => console.log(error));
+
+        axios.post(FETCH_BLACKLISTED_DESTINATION_API,null,{headers})
+        .then(res => {
+            const response = res.data;
+            var blacklistData = []
+            for (var i =0; i<response.length; i++){
+                blacklistData.push(response[i][1])
+            }
+            this.setState({blackListDestinationData:blacklistData});
+        }).catch(error => console.log(error));
         
         filterSelectDataServiceAsync(this.props.auth_token)
         .then(response => {
@@ -210,7 +226,7 @@ class UnverifiedRulesTable extends Component {
     
     render(){
         const {selectedUnverifiedRecordToAccept,selectedUnverifiedRecordToReject,selectedUnverifiedRecordToUpdate} = this.props;
-        const {blackListData} = this.state;
+        const {blackListSourceData} = this.state;
         const applicationSelectListItem = this.state.applicationData.map(
             data => <Select.Option key={data[1]}>{data[1]}</Select.Option>
           );
@@ -299,10 +315,10 @@ class UnverifiedRulesTable extends Component {
                             onChange={this.handleTableChange}
                             bordered
                             rowClassName = {record =>  {
-                                if(this.state.blackListData.request_from_blacklisted_ip && this.state.blackListData.request_from_blacklisted_ip.includes(record.source_ip)){
+                                if(this.state.blackListSourceData && this.state.blackListSourceData.includes(record.source_ip)){
                                     return "redTable"
                                 }
-                                if(this.state.blackListData.request_to_blacklisted_ip && this.state.blackListData.request_to_blacklisted_ip.includes(record.destination_ip)){
+                                if(this.state.blackListDestinationData && this.state.blackListDestinationData.includes(record.destination_ip)){
                                     return "redTable"
                                 }
 
