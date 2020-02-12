@@ -4,18 +4,10 @@ import MasterLayout from "./layout/MasterLayout";
 import {Card, Col, PageHeader, Row} from "antd";
 import Filter from "../components/Filter";
 import {contentLayout} from "../utils";
-import DashboardStats from "../components/stats/DashboardStats";
-import RequestOriginChart from "../components/charts/RequestOriginChart";
-import BandwidthUsageChart from "../charts/BandwidthUsageChart";
-import AnomalyBasedTroubleTicketTable from "../components/tables/AnomalyBasedTroubleTicketTable";
 
 import DashboardFilter from "../components/DashboardFilter";
-import RequestOriginWorldChart from "../components/charts/RequestOriginWorldChart";
-import UnverifiedRulesTable from "../components/tables/UnverifiedRulesTable";
-import VerifiedRulesTable from "../components/tables/VerifiedRulesTable";
-import ApplicationLineChart from "../components/charts/ApplicationLineChart";
-import AnomalousRulesTable from "../components/tables/AnomalousRulesTable";
-import BlacklistAddress from "../components/BlacklistAddress";
+import ThreatApplicationChart from "../components/charts/ThreatApplicationChart";
+import ThreatLogTable from '../components/tables/ThreatLogTable'
 import '../charts/chart.css';
 
 class ThreatDashboard extends Component{
@@ -29,6 +21,13 @@ class ThreatDashboard extends Component{
                         onBack={() => window.history.back()} />
                     <Row style={contentLayout}>
                         <DashboardFilter />
+                    </Row>
+                    <Row style={contentLayout}>
+                        <ThreatApplicationChart />
+                    </Row>
+                    <br />
+                    <Row style={contentLayout}>
+                        <ThreatLogTable />
                     </Row>
                 </MasterLayout>
             </Fragment>
