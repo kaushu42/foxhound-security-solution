@@ -9,8 +9,8 @@ import { search } from "../../actions/ipSearchAction";
 import { Card, Spin, Table, Drawer, Select } from 'antd';
 const { Option } = Select;
 
-const FETCH_API = `${ROOT_URL}dashboard/application/`;
-const FETCH_APPLICATION_LOG_API = `${ROOT_URL}log/application/`;
+const FETCH_API = `${ROOT_URL}dashboard/threat/application/`;
+const FETCH_APPLICATION_LOG_API = `${ROOT_URL}log/threat/application/`;
 
 class ThreatApplicationChart extends Component{
     constructor(props){
@@ -50,21 +50,19 @@ class ThreatApplicationChart extends Component{
                     )
                 },
                 {
-                    title: "Bytes Sent",
-                    dataIndex: "bytes_sent",
-                    key: "bytes_sent",
-                    render: (text, record) => bytesToSize(text)
+                    title: "Source Port",
+                    dataIndex: "source_port",
+                    key: "source_port"
                 },
                 {
-                    title: "Bytes Received",
-                    dataIndex: "bytes_received",
-                    key: "bytes_received",
-                    render: (text, record) => bytesToSize(text)
+                    title: "Destination Port",
+                    dataIndex: "destination_port",
+                    key: "destination_port"
                 },
                 {
                     title: "Logged DateTime",
-                    dataIndex: "logged_datetime",
-                    key: "logged_datetime",
+                    dataIndex: "received_datetime",
+                    key: "received_datetime",
                     render: text => (new Date(text*1000+20700000).toUTCString()).replace(" GMT", "")
                 }
             ],
@@ -247,7 +245,7 @@ class ThreatApplicationChart extends Component{
         for (let i = 0; i < data.length; i++) {
             this.chart.addSeries({
                 name: data[i].name,
-                type: "areaspline",
+                type: "spline",
                 data: data[i].data,
                 showInNavigator: true,
                 events: {
