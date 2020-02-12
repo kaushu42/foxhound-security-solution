@@ -256,7 +256,7 @@ export function acceptRule(auth_token,description,record){
 
 
 
-export function updateRule(auth_token,source_ip,destination_ip,application,description,params,pagination){
+export function updateRule(auth_token,source_ip,destination_ip,application,description,params,pagination,searchSourceIP, searchDestinationIP, searchAlias, searchApplication){
     return (dispatch) => {
        //console.log(auth_token,source_ip,destination_ip,application);
         let headers = axiosHeader(auth_token);
@@ -277,7 +277,7 @@ export function updateRule(auth_token,source_ip,destination_ip,application,descr
             })
             .then(res => {
                 dispatch(updateRuleComplete());
-                dispatch(fetchUnverifiedRulesData(auth_token,params,pagination));
+                dispatch(fetchUnverifiedRulesData(auth_token,params,searchSourceIP, searchDestinationIP, searchAlias, searchApplication,pagination,));
                 setTimeout(()=>{dispatch(cleanAllDrawerState())},5000);
                 dispatch(toggleUpdateDrawer());
 
@@ -328,7 +328,7 @@ export function fetchUnverifiedRulesData(auth_token, params, searchSourceIP, sea
         axios.post(FETCH_API,bodyFormData,{headers, params})
             .then(res => {
                 const response = res.data;
-                console.log(response);
+                // console.log("***********************************",response);
                 const page = pagination;
                 page.total  = response.count;
                 updatePagination(page);
