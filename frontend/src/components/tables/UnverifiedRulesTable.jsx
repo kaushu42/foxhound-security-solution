@@ -199,11 +199,17 @@ class UnverifiedRulesTable extends Component {
     handleUpdateRuleSubmit = (e) => {
         e.preventDefault();
         const {auth_token,unverifiedRulePagination} = this.props;
+
         const source_ip = this.source_ip.state.value;
         const destination_ip = this.destination_ip.state.value;
         const application = this.application.state.value;
         const description = this.description.state.value;
-        this.props.dispatchUpdateRule(auth_token,source_ip,destination_ip,application,description,{}, unverifiedRulePagination);
+        const searchSourceIP = this.state.searchSourceIP
+        const searchDestinationIP = this.state.searchDestinationIP
+        const searchAlias = this.state.searchAlias
+        const searchApplication = this.state.searchApplication
+        
+        this.props.dispatchUpdateRule(auth_token,source_ip,destination_ip,application,description,{}, unverifiedRulePagination, searchSourceIP, searchDestinationIP, searchAlias, searchApplication);
     }
 
     handleShowUnverifiedIpDashboard(record){
@@ -549,7 +555,7 @@ const mapDispatchToProps = dispatch => {
         dispatchHandleDrawerClose : () => dispatch(handleDrawerClose()),
         dispatchAcceptRule : (auth_token,description,record) => dispatch(acceptRule(auth_token,description,record)),
         dispatchRejectRule : (auth_token,description,record) => dispatch(rejectRule(auth_token,description,record)),
-        dispatchUpdateRule : (auth_token,source_ip,destination_ip,application,description,params, pagination) => dispatch(updateRule(auth_token,source_ip,destination_ip,application,description,params, pagination)),
+        dispatchUpdateRule : (auth_token,source_ip,destination_ip,application,description,params, pagination, searchSourceIP, searchDestinationIP, searchAlias, searchApplication) => dispatch(updateRule(auth_token,source_ip,destination_ip,application,description,params, pagination, searchSourceIP, searchDestinationIP, searchAlias, searchApplication)),
         dispatchPaginationUpdate : (pager) => dispatch(updatePagination(pager)),
 
 

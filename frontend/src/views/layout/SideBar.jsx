@@ -22,6 +22,12 @@ class SideBar extends Component {
                                     <span>Home</span>
                                 </a>
                             </Menu.Item>
+                            <Menu.Item key="threatdashboard">
+                                <a href={"/threats"}>
+                                    <Icon type="dashboard" />
+                                    <span>Threat Dashboard</span>
+                                </a>
+                            </Menu.Item>
                             <Menu.Item key="ip">
                                 <a href={"/ip"} >
                                     <Icon type="link" />
