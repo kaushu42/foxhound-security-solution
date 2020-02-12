@@ -7,6 +7,7 @@ import { connect } from "react-redux";
 import IpAddressProfile from "./views/Ip";
 import Logout from "./views/auth/Logout";
 import Dashboard from "./views/Dashboard";
+import ThreadDashboard from "./views/ThreatDashboard"
 import Test from "./views/Test";
 import "./App.css";
 import UnverifiedRules from "./views/rules/UnverifiedRules";
@@ -37,6 +38,13 @@ class App extends Component {
             path="/"
             activePageKey={"dashboard"}
             component={Dashboard}
+          />
+          <AuthenticatedRoute
+            auth_token={this.props.auth_token}
+            exact
+            path="/threats"
+            activePageKey={"threatdashboard"}
+            component={ThreadDashboard}
           />
           <AuthenticatedRoute
             auth_token={this.props.auth_token}

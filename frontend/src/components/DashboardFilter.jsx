@@ -274,14 +274,7 @@ class DashboardFilter extends Component {
                 {destinationZoneSelectListItem}
               </Select>
             </Col>
-          </Row>
-          <Row>
-            <Col
-              sm={{ span: 24 }}
-              md={{ span: 12, push: 12 }}
-              lg={{ span: 4, push: 20 }}
-              xl={{ span: 4, push: 20 }}
-            >
+            <Col xs={24} sm={24} md={8} lg={5} xl={5} offset={19}>
               <Button
                 type={"primary"}
                 style={{ width: "100%" }}

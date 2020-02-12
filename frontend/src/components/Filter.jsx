@@ -39,7 +39,7 @@ class Filter extends Component{
     componentDidMount() {
         filterSelectDataServiceAsync(this.props.auth_token)
             .then(response => {
-                const data = response.data;
+                const data = response[0].data;
                 console.log(data);
                 this.setState({
                     firewall_rule_select_data : data.firewall_rule,
@@ -194,9 +194,7 @@ class Filter extends Component{
                                 }
                             </Select>
                         </Col>
-                    </Row>
-                    <Row>
-                        <Col sm={{span:24}} md={{span:12,push:12}} lg={{span:8, push:16}} xl={{span:4, push:16}}>
+                        <Col xs={24} sm={24} md={12} lg={8} xl={4} offset={20}>
                             <Button type={"primary"} style={{width:'100%'}} onClick={this.handleFilterApplyChanges}>Apply Filter</Button>
                         </Col>
                     </Row>
