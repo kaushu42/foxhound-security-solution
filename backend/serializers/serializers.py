@@ -11,7 +11,8 @@ from core.models import (
     ProcessedLogDetail,
     TenantIPAddressInfo,
     TimeSeriesChart,
-    FirewallRule
+    FirewallRule,
+    ThreatLogs
 )
 
 from batch.models import Log as BatchMonitorLog
@@ -253,3 +254,9 @@ class MisDailyDestinationIpSerializer(serializers.ModelSerializer):
 class MisIpSerializer(serializers.Serializer):
     address = serializers.CharField()
     alias = serializers.CharField(required=False)
+
+
+class ThreatLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ThreatLogs
+        fields = '__all__'

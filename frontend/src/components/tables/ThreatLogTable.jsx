@@ -7,7 +7,7 @@ import { filterSelectDataServiceAsync } from "../../services/filterSelectDataSer
 import { search } from "../../actions/ipSearchAction";
 import QuickIpView from '../../views/QuickIpView'
 
-const FETCH_LOG_API =`${ROOT_URL}tt/open/`
+const FETCH_LOG_API =`${ROOT_URL}dashboard/threat/log/`
 const { Option } = Select;
 
 class ThreatLogTable extends Component{
@@ -22,9 +22,9 @@ class ThreatLogTable extends Component{
                 },
                 {
                     title:"Logged Date",
-                    dataIndex:"date",
-                    key:"date",
-                    render: text => (new Date(parseInt(1580001000)*1000).toUTCString()).replace(" GMT", "")
+                    dataIndex:"received_datetime",
+                    key:"received_datetime",
+                    render: text => (new Date(parseInt(text)*1000+20700000).toUTCString()).replace(" GMT", "")
                 },
                 {
                     title:"Source Address",
@@ -49,8 +49,8 @@ class ThreatLogTable extends Component{
                 },
                 {
                     title:"Log Name",
-                    dataIndex:"log.log_name",
-                    key:"log.log_name"
+                    dataIndex:"log_name",
+                    key:"log_name"
                 }
             ],
             data: null,

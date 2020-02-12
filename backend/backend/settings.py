@@ -86,10 +86,10 @@ DATABASES = {
         'TEST_NAME': 'test_db',
         'HOST': os.environ.get('CASSANDRA_NODES', '127.0.0.1'),
         'OPTIONS': {
-            'replication': {
-                'strategy_class': 'SimpleStrategy',
-                'replication_factor': 1
-            }
+                'replication': {
+                    'strategy_class': 'SimpleStrategy',
+                    'replication_factor': 1
+                }
         }
     }
 }

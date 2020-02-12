@@ -14,7 +14,8 @@ from core.models import (
     TrafficLog, TrafficLogDetailGranularHour,
     Country,
     ProcessedLogDetail,
-    Application
+    Application,
+    ThreatLogs
 )
 from mis.models import (
     DailyRequestFromBlackListEvent,
@@ -24,7 +25,8 @@ from views.views import PaginatedView
 from serializers.serializers import (
     ProcessedLogDetailSerializer,
     TrafficLogDetailGranularHourSerializer,
-    SourceDestinationIPSerializer
+    SourceDestinationIPSerializer,
+    ThreatLogSerializer
 )
 from globalutils.utils import (
     get_tenant_id_from_token,
@@ -154,6 +156,38 @@ class ApplicationLogApiView(PaginatedView):
         if country:
             kwargs['source_country'] = country
         objects = TrafficLogDetailGranularHour.objects.filter(
+            **kwargs
+        ).order_by('id')
+
+        page = self.paginate_queryset(objects)
+        if page is not None:
+            serializer = self.serializer_class(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        return Response({})
+
+    def post(self, request):
+        return self.get(request)
+
+
+class ThreatApplicationLogApiView(PaginatedView):
+    serializer_class = ThreatLogSerializer
+
+    def get(self, request):
+        firewall_ids = get_firewall_rules_id_from_request(request)
+        application = request.data.get('application', '')
+        timestamp = int(request.data.get('timestamp'))
+
+        tz_ktm = pytz.timezone('Asia/Kathmandu')
+        start_date = datetime.datetime.fromtimestamp(
+            timestamp).astimezone(tz_ktm)
+        end_date = start_date + datetime.timedelta(hours=1)
+        kwargs = {
+            'firewall_rule__in': firewall_ids,
+            'application': application,
+            'received_datetime__range': (start_date, end_date)
+        }
+
+        objects = ThreatLogs.objects.filter(
             **kwargs
         ).order_by('id')
 
