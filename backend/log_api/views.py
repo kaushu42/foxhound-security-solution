@@ -184,7 +184,7 @@ class ThreatApplicationLogApiView(PaginatedView):
         kwargs = {
             'firewall_rule__in': firewall_ids,
             'application': application,
-            'logged_datetime__range': (start_date, end_date)
+            'received_datetime__range': (start_date, end_date)
         }
 
         objects = ThreatLogs.objects.filter(

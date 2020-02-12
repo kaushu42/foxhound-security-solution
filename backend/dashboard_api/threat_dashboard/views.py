@@ -94,14 +94,14 @@ class ApplicationApiView(APIView):
         objects = get_objects_with_date_filtered(
             request,
             ThreatLogs,
-            'logged_datetime',
+            'received_datetime',
             firewall_rule__in=firewall_rule_ids
         )
         applications = objects.values('application').annotate(
             sum=Sum('repeat_count')).order_by('-sum').values('application')[:top_count]
 
         objects = objects.filter(application__in=applications).values(
-            'logged_datetime',
+            'received_datetime',
             'application'
         ).annotate(
             repeat_count=Sum('repeat_count'),
@@ -109,9 +109,9 @@ class ApplicationApiView(APIView):
         ).values(
             'count',
             'repeat_count',
-            date=F('logged_datetime'),
+            date=F('received_datetime'),
             application_name=F('application'),
-        ).order_by('logged_datetime')
+        ).order_by('received_datetime')
 
         applications = []
         max = 0
