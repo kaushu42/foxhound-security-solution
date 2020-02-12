@@ -79,18 +79,18 @@ DATABASES = {
         'PASSWORD': os.environ.get('FH_DB_PASSWORD', 'foxhound123'),
         'HOST': 'localhost',
         'PORT': '5432'
-    },
-    'cassandra': {
-        'ENGINE': 'django_cassandra_engine',
-        'NAME': 'casdb',
-        'TEST_NAME': 'test_db',
-        'HOST': os.environ.get('CASSANDRA_NODES', '127.0.0.1'),
-        'OPTIONS': {
-            'replication': {
-                'strategy_class': 'SimpleStrategy',
-                'replication_factor': 1
-            }
-        }
+        # },
+        # 'cassandra': {
+        #     'ENGINE': 'django_cassandra_engine',
+        #     'NAME': 'casdb',
+        #     'TEST_NAME': 'test_db',
+        #     'HOST': os.environ.get('CASSANDRA_NODES', '127.0.0.1'),
+        #     'OPTIONS': {
+        #         'replication': {
+        #             'strategy_class': 'SimpleStrategy',
+        #             'replication_factor': 1
+        #         }
+        #     }
     }
 }
 
