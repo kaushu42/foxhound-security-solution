@@ -8,6 +8,7 @@ import {contentLayout} from "../utils";
 import DashboardFilter from "../components/DashboardFilter";
 import ThreatApplicationChart from "../components/charts/ThreatApplicationChart";
 import ThreatLogTable from '../components/tables/ThreatLogTable'
+import ThreatRequestOriginWorldChart from '../components/charts/ThreatRequestOriginWorldChart'
 import '../charts/chart.css';
 
 class ThreatDashboard extends Component{
@@ -23,7 +24,12 @@ class ThreatDashboard extends Component{
                         <DashboardFilter />
                     </Row>
                     <Row style={contentLayout}>
-                        <ThreatApplicationChart />
+                        <Col xs={24} sm={24} md={24} lg={24} xl={12}>
+                            <ThreatRequestOriginWorldChart />
+                        </Col>
+                        <Col xs={24} sm={24} md={24} lg={24} xl={12}>
+                            <ThreatApplicationChart />
+                        </Col>
                     </Row>
                     <br />
                     <Row style={contentLayout}>
