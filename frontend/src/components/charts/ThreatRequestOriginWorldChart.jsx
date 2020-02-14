@@ -8,11 +8,12 @@ import axios from 'axios';
 import {Drawer, Spin, Table, Row, Col, Card, Statistic, Select} from 'antd';
 import ThreatApplicationChart from './ThreatApplicationChart';
 import QuickIpView from '../../views/QuickIpView';
+import ThreatLogTable from '../tables/ThreatLogTable'
 import {search} from '../../actions/ipSearchAction';
 
-const FETCH_API = `${ROOT_URL}dashboard/country/`;
-const FETCH_API_COUNTRY_NAMES = `${ROOT_URL}dashboard/country_list/`;
-const FETCH_API_COUNTRY_LOGS = `${ROOT_URL}log/request-origin/`;
+const FETCH_API = `${ROOT_URL}dashboard/threat/country/`;
+const FETCH_API_COUNTRY_NAMES = `${ROOT_URL}dashboard/threat/country_list/`;
+const FETCH_API_COUNTRY_LOGS = `${ROOT_URL}dashboard/threat/log/`;
 
 class ThreatRequestOriginWorldChart extends Component{
   state ={
@@ -33,47 +34,6 @@ class ThreatRequestOriginWorldChart extends Component{
     totalBytesReceived:null,
     excludeCountries: [],
     QuickIpView: false,
-    columns: [
-      {
-        title: "Source Address",
-        dataIndex: "source_ip",
-        key: "source_ip",
-        render: (text, record) => (
-          <a onClick={() => this.handleShowSourceIpProfile(record)}>{text}</a>
-        )
-      },
-      {
-        title: "Destination Address",
-        dataIndex: "destination_ip",
-        key: "destination_ip",
-        render: (text, record) => (
-          <a onClick={() => this.handleShowDestinationIpProfile(record)}>
-            {text}
-          </a>
-        )
-      },
-      {
-        title: "Application",
-        dataIndex: "application",
-        key: "application"
-      },
-      {
-          title: 'Source Port',
-          dataIndex: 'source_port',
-          key: 'source_port',
-      },
-      {
-        title: "Destination Port",
-        dataIndex: "destination_port",
-        key: "destination_port"
-      },
-      {
-        title: "Logged DateTime",
-        dataIndex: "logged_datetime",
-        key: "logged_datetime",
-        render: text => (new Date(text*1000+20700000).toUTCString()).replace(" GMT", "")
-      }
-    ],
   }
 
   handleShowSourceIpProfile(record) {
@@ -152,7 +112,8 @@ class ThreatRequestOriginWorldChart extends Component{
       String(prevProps.protocol) !== String(this.props.protocol) ||
       String(prevProps.source_zone) !== String(this.props.source_zone) ||
       String(prevProps.destination_zone) !== String(this.props.destination_zone) ||
-      String(prevState.basis) !== String(this.state.basis)
+      String(prevState.basis) !== String(this.state.basis) ||
+      String(prevState.selectedCountryName) !== String(this.state.selectedCountryName)
     ){
       this.handleFetchData()
     }
@@ -324,7 +285,7 @@ class ThreatRequestOriginWorldChart extends Component{
           visible={this.state.logDrawerVisible}
         >
           <Spin spinning={this.state.logLoading}>
-            <div
+            {/* <div
               style={{
                 background: "#fbfbfb",
                 padding: "24px",
@@ -364,7 +325,7 @@ class ThreatRequestOriginWorldChart extends Component{
                   </Card>
                 </Col>
               </Row>
-            </div>
+            </div> */}
             <div
               style={{
                 background: "#fbfbfb",
@@ -385,14 +346,8 @@ class ThreatRequestOriginWorldChart extends Component{
                 borderRadius: 6
               }}
             >
-              <Table
-                columns={this.state.columns}
-                rowKey={record => record.id}
-                dataSource={this.state.selectedCountryLog}
-                loading={this.state.logLoading}
-                pagination={this.state.pagination}
-                onChange={this.handleTableChange}
-              />
+              <ThreatLogTable 
+              selectedCountry={this.state.selectedCountryName}/>
             </div>
           </Spin>
         </Drawer>
