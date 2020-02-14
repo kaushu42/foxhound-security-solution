@@ -231,7 +231,7 @@ class CountryApiView(APIView):
             'filter__in': filter_ids
         }
         if except_countries:
-            except_countries.split(',')
+            except_countries = except_countries.split(',')
         objects = get_objects_with_date_filtered(
             request,
             IPChart,

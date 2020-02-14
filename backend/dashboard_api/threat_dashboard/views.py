@@ -4,6 +4,7 @@ from django.db.models import Sum, Count, F
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from views.views import PaginatedView
 
@@ -14,7 +15,8 @@ from serializers.serializers import ThreatLogSerializer
 from globalutils.utils import (
     get_firewall_rules_id_from_request,
     to_regex,
-    get_objects_with_date_filtered
+    get_objects_with_date_filtered,
+    get_country_name_and_code
 )
 
 
@@ -135,3 +137,32 @@ class ApplicationApiView(APIView):
 
     def get(self, request, format=None):
         return self.post(request, format=format)
+
+
+class CountryApiView(APIView):
+    def post(self, request):
+        firewall_ids = get_firewall_rules_id_from_request(request)
+        objects = ThreatLogs.objects.filter(firewall_rule__in=firewall_ids)
+        except_countries = request.data.get('except_countries', '')
+        if except_countries:
+            except_countries = except_countries.split(',')
+
+        values = defaultdict(int)
+        for obj in objects:
+            name, code = get_country_name_and_code(obj.source_ip)
+            values[code] += obj.repeat_count
+        return Response({
+            i: values[i] for i in values if i not in except_countries
+        })
+
+
+class CountryListApiView(APIView):
+    def post(self, request):
+        firewall_ids = get_firewall_rules_id_from_request(request)
+        objects = ThreatLogs.objects.filter(
+            firewall_rule__in=firewall_ids
+        ).distinct('source_ip').values('source_ip')
+        countries = set()
+        for obj in objects:
+            countries.add(get_country_name_and_code(obj['source_ip']))
+        return Response(countries)
