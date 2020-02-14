@@ -67,11 +67,18 @@ class ThreatLogTableApiView(PaginatedView):
     def post(self, request):
         firewall_ids = get_firewall_rules_id_from_request(request)
         query = self.get_search_queries(request)
+        country = request.data.get('country', '')
+        kwargs = {
+            'firewall_rule__in': firewall_ids,
+        }
+        if country:
+            kwargs['source_country'] = country
+
         objects = ThreatLogs.objects.filter(
-            firewall_rule__in=firewall_ids,
+            **kwargs,
             **query
         )
-        page = self.paginate_queryset(objects)
+        page = self.paginate_queryset(objects.order_by('id'))
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
@@ -93,11 +100,15 @@ class ApplicationApiView(APIView):
             'firewall_rule__in': firewall_rule_ids,
         }
 
+        country = request.data.get('country', '')
+        if country:
+            kwargs['source_country'] = country.title()
+
         objects = get_objects_with_date_filtered(
             request,
             ThreatLogs,
             'received_datetime',
-            firewall_rule__in=firewall_rule_ids
+            **kwargs
         )
         applications = objects.values('application').annotate(
             sum=Sum('repeat_count')).order_by('-sum').values('application')[:top_count]
