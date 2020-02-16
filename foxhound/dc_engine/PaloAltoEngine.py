@@ -1,7 +1,9 @@
 import numpy as np
+import ipaddress
 
 from .Engine import Engine
 import geoip2.database
+import geoip2.errors
 import pandas as pd
 import pyspark
 from pyspark.sql.types import StringType
@@ -51,12 +53,14 @@ class PaloAltoEngine(Engine):
     @staticmethod
     def _resolve_ip_country(df, file):
         def getCountryNameFromIp(ip_address):
+            if ipaddress.ip_address(ip_address).is_private:
+                return "np"
             reader = geoip2.database.Reader(file)
             try:
                 response = reader.city(ip_address)
                 return response.country.iso_code.lower()
-            except Exception as e:
-                return "np"
+            except geoip2.errors.AddressNotFoundError:
+                return "unk"
 
         getCountryNameFromIpUdf = udf(
             lambda x: getCountryNameFromIp(x), StringType())
