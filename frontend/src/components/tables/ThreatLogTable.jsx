@@ -92,6 +92,12 @@ class ThreatLogTable extends Component{
         .catch(error => console.log(error));
     }
 
+    componentDidUpdate = (prevProps, prevState) => {
+        if(String(prevProps.selectedCountry) !== String(this.props.selectedCountry)){
+            this.fetchLogData()
+        }
+    }
+
     fetchLogData = (params = {}) => {
         this.setState({
             loading:true
@@ -105,6 +111,7 @@ class ThreatLogTable extends Component{
         };
 
         let bodyFormData = new FormData();
+        bodyFormData.set("country", this.props.selectedCountry)
         bodyFormData.set("source_ip", this.state.searchSourceIP);
         bodyFormData.set("destination_ip", this.state.searchDestinationIP);
         bodyFormData.set("application", this.state.searchApplication);
@@ -227,6 +234,10 @@ class ThreatLogTable extends Component{
             </Fragment>
         )
     }
+}
+
+ThreatLogTable.defaultProps = {
+    selectedCountry: ""
 }
 
 const mapStateToProps = state =>{
