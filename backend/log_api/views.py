@@ -151,7 +151,8 @@ class ApplicationLogApiView(PaginatedView):
         kwargs = {
             'firewall_rule__in': firewall_ids,
             'application': application,
-            'logged_datetime__range': (start_date, end_date)
+            'logged_datetime__gte': start_date,
+            'logged_datetime__lt': end_date
         }
         if country:
             kwargs['source_country'] = country
@@ -184,7 +185,8 @@ class ThreatApplicationLogApiView(PaginatedView):
         kwargs = {
             'firewall_rule__in': firewall_ids,
             'application': application,
-            'received_datetime__range': (start_date, end_date)
+            'received_datetime__gte': start_date,
+            'received_datetime__lt': end_date
         }
 
         objects = ThreatLogs.objects.filter(
