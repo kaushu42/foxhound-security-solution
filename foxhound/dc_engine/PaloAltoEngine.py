@@ -61,6 +61,12 @@ class PaloAltoEngine(Engine):
                 return response.country.iso_code.lower()
             except geoip2.errors.AddressNotFoundError:
                 return "unk"
+            except AttributeError:
+                print("*****"*20)
+                print(response.country)
+                print(response.country.iso_code)
+                print("*****"*20)
+                return "unk"
 
         getCountryNameFromIpUdf = udf(
             lambda x: getCountryNameFromIp(x), StringType())
