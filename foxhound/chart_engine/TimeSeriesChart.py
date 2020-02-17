@@ -49,11 +49,7 @@ class TimeSeriesChart(BaseChart):
             'packets_sent',
             'packets_received',
             'count',
-            'id']].withColumnRenamed('id', 'filter_id')\
-            .withColumn('bytes_sent', grouped_df['bytes_sent'].cast("int"))\
-            .withColumn('bytes_received', grouped_df['bytes_received'].cast("int"))\
-            .withColumn('packets_sent', grouped_df['packets_sent'].cast("int"))\
-            .withColumn('packets_received', grouped_df['packets_received'].cast("int"))
+            'id']].withColumnRenamed('id', 'filter_id')
 
         # Write to db
         self._write_df_to_postgres(grouped_df, 'core_timeserieschart')

@@ -54,14 +54,6 @@ class IPChart(BaseChart):
             'id',
             'count'
         ]]\
-            .withColumn('bytes_sent', grouped_df['bytes_sent']
-                        .cast("int"))\
-            .withColumn('bytes_received', grouped_df['bytes_received']
-                        .cast("int"))\
-            .withColumn('packets_sent', grouped_df['packets_sent']
-                        .cast("int"))\
-            .withColumn('packets_received', grouped_df['packets_received']
-                        .cast("int"))\
             .withColumnRenamed('source_ip_id', 'address')\
             .withColumnRenamed('id', 'filter_id')
 
