@@ -25,13 +25,13 @@ try:
     # seedutils.seed()
     # run.log_engine()
     # run.mis_engine()
-    # run.ml_engine()
+    # # run.ml_engine()
     # run.dc_engine()
     # run.rule_engine()
-    # run.chart_engine()
+    run.chart_engine()
     # run.db_engine()
     # run.tt_engine()
-    run.threat_engine()
+    # run.threat_engine()
 
 except Exception as e:
     logging.exception(f'Terminated on {datetime.datetime.now()}')
