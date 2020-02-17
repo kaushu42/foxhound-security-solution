@@ -120,6 +120,9 @@ class ThreatRequestOriginWorldChart extends Component{
   }
   
   handleMapChartLogView = (e) => {
+    if (event.point.name == "United States of America"){
+      event.point.name = "United States"
+    }
     this.setState({
       selectedCountryCode: event.point['hc-key'],
       selectedCountryName: event.point.name,
