@@ -1,13 +1,17 @@
 import React, { Component, Fragment } from "react";
 import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
-import { Card, Row, Spin, Select } from "antd";
+import { Card, Row, Spin, Select, Drawer, Table } from "antd";
 import { connect } from "react-redux";
 import axios from "axios";
-import { ROOT_URL,getDivisionFactorUnitsFromBasis } from "../utils";
+import QuickIpView from "../views/QuickIpView"
+import {search} from "../actions/ipSearchAction"
+import { ROOT_URL,getDivisionFactorUnitsFromBasis, bytesToSize } from "../utils";
 require("highcharts/modules/exporting")(Highcharts);
 import "./chart.css";
+
 const FETCH_API = `${ROOT_URL}dashboard/usage/`;
+const FETCH_LOG_API = `${ROOT_URL}log/application/`;
 const { Option } = Select;
 
 
@@ -19,27 +23,64 @@ class BandwidthUsageChart extends Component {
       data: [],
       unit: "MB",
       basis: "bytes",
+      selectedTimeStamp: null,
+      logDrawerVisible: false,
+      logData: null,
+      params: {},
+      pagination: {},
+      quickIpView: false,
       options: {
+        plotOptions: {
+          arearange: {
+            showInLegend: true,
+            stickyTracking: true,
+            trackByArea: false,
+            dataGrouping: {
+              enabled: false
+            }
+          },
+          areaspline: {
+            showInLegend: true,
+            stickyTracking: true,
+            trackByArea: false,
+            marker: {
+              enabled: false
+            },
+            softThreshold: false,
+            connectNulls: false,
+            dataGrouping: {
+              enabled: false
+            }
+          },
+          series: {
+            stickyTracking: false,
+            trackByArea: false,
+            turboThreshold: 0,
+            events: {
+              legendItemClick: () => {
+                return true;
+              }
+            },
+            dataGrouping: {
+              enabled: false
+            }
+          }
+        },
         title: {
           text: null
         },
         chart: {
           zoomType: "x",
-          events: {
-            click: function(e) {
-              console.log(
-                Highcharts.dateFormat("%Y-%m-%d %H:%M", e.xAxis[0].value),
-                e.yAxis[0].value
-              );
-            }
-          }
         },
         xAxis: {
           type: "datetime",
           dateTimeLabelFormats: {
             day: "%Y-%b-%d"
           },
-          crosshair:true
+          crosshair:true,
+          labels: {
+            enabled: true
+          }
         },
         yAxis:{
           crosshair:true
@@ -57,13 +98,71 @@ class BandwidthUsageChart extends Component {
         tooltip: {
           valueDecimals: 2
         }
-      }
+      },
+      columns: [
+        {
+          title: "ID",
+          dataIndex: "id",
+          key: "id",
+        },
+        {
+          title: "Source Address",
+          dataIndex: "source_ip",
+          key: "source_ip",
+          render: (text, record) => (
+            <a onClick={() => this.handleShowSourceIpProfile(record)}>{text}</a>
+          )
+        },
+        {
+          title: "Destination Address",
+          dataIndex: "destination_ip",
+          key: "destination_ip",
+          render: (text, record) => (
+            <a onClick={() => this.handleShowDestinationIpProfile(record)}>
+              {text}
+            </a>
+          )
+        },
+        {
+          title: "Bytes Sent",
+          dataIndex: "bytes_sent",
+          key: "bytes_sent",
+          render: (text, record) => bytesToSize(text)
+        },
+        {
+          title: "Bytes Received",
+          dataIndex: "bytes_received",
+          key: "bytes_received",
+          render: (text, record) => bytesToSize(text)
+        },
+        {
+          title: "Logged DateTime",
+          dataIndex: "logged_datetime",
+          key: "logged_datetime",
+          render: text => (new Date(text*1000+20700000).toUTCString()).replace(" GMT", "") //moment(text).format("YYYY-MM-DD, HH:MM:SS")
+        }
+      ],
     };
   }
+
+  handleShowSourceIpProfile(record) {
+    this.props.dispatchIpSearchValueUpdate(record.source_ip);
+    this.setState({ quickIpView: true });
+  }
+
+  handleShowDestinationIpProfile(record) {
+    this.props.dispatchIpSearchValueUpdate(record.destination_ip);
+    this.setState({ quickIpView: true });
+  }
+
+  closeQuickIpView = () => {
+    this.setState({ quickIpView: false });
+  };
 
   componentDidMount() {
     this.handleFetchData();
     this.chart = this.refs.chart.chart;
+    this.chart.component = this;
     if (document.addEventListener) {
       document.addEventListener(
         "webkitfullscreenchange",
@@ -180,7 +279,13 @@ class BandwidthUsageChart extends Component {
             id: this.state.basis,
             type: "areaspline",
             name: this.state.basis + "(" + unit + ")",
-            data: data
+            data: data,
+            events: {
+              click: function(e) {
+                const self = this.chart.component;
+                self.handleChartLogView(e.point.x);
+              }
+            }
           }
         ],
         yAxis: {
@@ -201,6 +306,63 @@ class BandwidthUsageChart extends Component {
         loading: false
       });
     }
+  };
+
+  handleChartLogView = (
+    selectedTimeStamp
+  ) => {
+    this.setState({
+      selectedTimeStamp: selectedTimeStamp,
+      logDrawerVisible: true
+    });
+    this.fetchChartLog();
+  };
+
+  fetchChartLog = (params = {}) => {
+    const token = `Token ${this.props.auth_token}`;
+    let headers = {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: token
+    };
+
+    let bodyFormDataForLog = new FormData();
+    bodyFormDataForLog.set("application", "ssl");
+    bodyFormDataForLog.set("timestamp", this.state.selectedTimeStamp/1000);
+
+    axios
+      .post(FETCH_LOG_API, bodyFormDataForLog, { headers, params })
+      .then(res => {
+        const page = this.state.pagination;
+        page.total = res.data.count;
+        this.setState({
+          logData: res.data.results,
+          pagination: page
+        });
+      });
+  };
+
+  handleTableChange = (pagination, filters, sorter) => {
+    console.log("pagination", pagination);
+    console.log("filter", filters);
+    console.log("sorter", sorter);
+    const pager = { ...this.state.pagination };
+    pager.current = pagination.current;
+    (this.state.pagination = pager),
+      this.fetchChartLog({
+        // results: pagination.pageSize,
+        page: pagination.current,
+        sortField: sorter.field,
+        sortOrder: sorter.order,
+        ...filters
+      });
+  };
+
+  handleCloseLogDrawer = () => {
+    this.setState({
+      logDrawerVisible: false,
+      logData: null
+    });
   };
 
   render() {
@@ -232,7 +394,32 @@ class BandwidthUsageChart extends Component {
               ref={"chart"}
             />
           </Spin>
-        </Card>
+          </Card>
+          <Drawer
+          title={`Event Logs for time ${(new Date(this.state.selectedTimeStamp+20700000).toUTCString()).replace(" GMT", "")}`}
+          width={1100}
+          visible={this.state.logDrawerVisible}
+          closable={true}
+          onClose={this.handleCloseLogDrawer}
+        >
+          {this.state.logData ? (
+            <Table
+              rowKey={record => record.id}
+              columns={this.state.columns}
+              dataSource={this.state.logData}
+              pagination={this.state.pagination}
+              onChange={this.handleTableChange}
+            />
+          ) : null}
+        </Drawer>
+        <Drawer
+          closable={true}
+          width={800}
+          placement={"right"}
+          onClose={this.closeQuickIpView}
+          visible={this.state.quickIpView}
+        ><QuickIpView />
+        </Drawer>
       </Fragment>
     );
   }
@@ -252,4 +439,11 @@ const mapStateToProps = state => {
     destination_zone: state.filter.destination_zone
   };
 };
-export default connect(mapStateToProps, null)(BandwidthUsageChart);
+
+const mapDispatchToProps = dispatch => {
+  return {
+    dispatchIpSearchValueUpdate: value => dispatch(search(value))
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(BandwidthUsageChart);
