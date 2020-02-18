@@ -56,10 +56,15 @@ class Domain(models.Model):
         return self.name
 
 
-class TrafficLog(models.Model):
+class Log(models.Model):
+    class Meta:
+        abstract = True
     processed_datetime = models.DateField(auto_now_add=True)
     log_date = models.DateField()
     log_name = models.CharField(max_length=200)
+
+
+class TrafficLog(Log):
     mis_engine_ran = models.BooleanField(null=True)
     chart_engine_ran = models.BooleanField(null=True)
     db_engine_ran = models.BooleanField(null=True)
@@ -71,6 +76,10 @@ class TrafficLog(models.Model):
 
     def __str__(self):
         return self.__repr__()
+
+
+class ThreatLog(Log):
+    pass
 
 
 class IPAddress(models.Model):
@@ -298,6 +307,17 @@ class ProcessedLogDetail(models.Model):
     def __str__(self):
         return self.__repr__()
 
+    class Meta:
+        abstract = True
+
+
+class ProcessedTrafficLogDetail(ProcessedLogDetail):
+    pass
+
+
+class ProcessedThreatLogDetail(ProcessedLogDetail):
+    pass
+
 
 @architect.install(
     'partition', type='range',
@@ -450,7 +470,7 @@ class SankeyChart(BaseFilteredChart):
     destination_ip = models.CharField(max_length=15)
 
 
-class ThreatLogs(models.Model):
+class ThreatLogDetail(models.Model):
     logged_datetime = models.DateTimeField()
     processed_datetime = models.DateTimeField()
     log_name = models.CharField(max_length=500, null=False)
