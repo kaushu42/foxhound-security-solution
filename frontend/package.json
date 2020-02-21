@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@ant-design/dark-theme": "^1.0.3",
     "antd": "latest",
     "axios": "latest",
     "d3": "^5.12.0",
