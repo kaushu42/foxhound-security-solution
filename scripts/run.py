@@ -27,7 +27,11 @@ def ml_engine(init=True, mle=True, create_model=True, predict=True):
 
 
 def log_engine():
-    log = LogEngine(config.TRAFFIC_LOGS_INPUT_DIR, spark=config.SPARK)
+    log = LogEngine(
+        config.TRAFFIC_LOGS_INPUT_DIR,
+        config.THREAT_LOGS_INPUT_DIR,
+        spark=config.SPARK
+    )
     log.run()
 
 
@@ -84,6 +88,8 @@ def rule_engine():
     )
     rule.run()
 
+
 def threat_engine():
-    threat_engine = ThreatEngine(utils.get_db_engine(),config.THREAT_LOGS_INPUT_DIR)
+    threat_engine = ThreatEngine(
+        utils.get_db_engine(), config.THREAT_LOGS_INPUT_DIR)
     threat_engine.run()

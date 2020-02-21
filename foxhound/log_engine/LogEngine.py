@@ -6,8 +6,9 @@ from pyspark.sql.functions import lit
 
 
 class LogEngine:
-    def __init__(self, input_dir, *, spark):
-        self._csvs = self._get_files(input_dir)
+    def __init__(self, traffic_input_dir, threat_input_dir, *, spark):
+        self._traffic_csvs = self._get_files(traffic_input_dir)
+        self._threat_csvs = self._get_files(threat_input_dir)
         self._spark = spark
 
     def _read_table_from_postgres(self, table):
@@ -51,7 +52,7 @@ class LogEngine:
                        filename)[0].replace("_", "/")
         return self.str_to_date(d)
 
-    def _write_log_detail(self, df, log_name):
+    def _write_log_detail(self, df, log_name, table_name):
         grouped = df.groupby('Rule').count(
         ).withColumn('log', lit(log_name)).withColumnRenamed(
             'Rule', 'firewall_rule_id'
@@ -71,7 +72,7 @@ class LogEngine:
         ).withColumn('processed_date', lit(datetime.date.today()))
 
         log_detail = self._read_table_from_postgres(
-            'core_processedlogdetail')
+            table_name)
         grouped = grouped.join(
             log_detail,
             on=[
@@ -81,20 +82,21 @@ class LogEngine:
             ],
             how='leftanti'
         )
-        self._write_df_to_postgres(grouped, 'core_processedlogdetail')
+        self._write_df_to_postgres(grouped, table_name)
 
-    def run(self):
-        logs_in_db = self._read_table_from_postgres('core_trafficlog')
+    def get_log_info(self, csvs, table_name):
         logs = []
-        for file in self._csvs:
+        for file in csvs:
             log_name = os.path.basename(file)
             log_date = self.get_date_from_filename(file)
             processed_datetime = datetime.date.today()
             logs.append([log_name, log_date, processed_datetime])
 
             df = self._spark.read.csv(file, header=True)
-            self._write_log_detail(df, log_name)
+            self._write_log_detail(df, log_name, table_name)
+        return logs
 
+    def get_df_from_list(self, logs, logs_in_db):
         logs = self._spark.createDataFrame(logs)\
             .withColumnRenamed('_1', 'log_name')\
             .withColumnRenamed('_2', 'log_date')\
@@ -105,4 +107,23 @@ class LogEngine:
             on=[logs.log_name == logs_in_db.log_name],
             how='leftanti'
         )
-        self._write_df_to_postgres(logs, 'core_trafficlog')
+        return logs
+
+    def run(self):
+        TRAFFIC_LOG_TABLE = 'core_trafficlog'
+        THREAT_LOG_TABLE = 'core_threatlog'
+        traffic_logs_in_db = self._read_table_from_postgres(TRAFFIC_LOG_TABLE)
+        threat_logs_in_db = self._read_table_from_postgres(THREAT_LOG_TABLE)
+        traffic_logs = self.get_log_info(
+            self._traffic_csvs,
+            'core_processedtrafficlogdetail'
+        )
+        threat_logs = self.get_log_info(
+            self._threat_csvs,
+            'core_processedthreatlogdetail'
+        )
+        traffic_logs = self.get_df_from_list(traffic_logs, traffic_logs_in_db)
+        threat_logs = self.get_df_from_list(threat_logs, threat_logs_in_db)
+
+        self._write_df_to_postgres(traffic_logs, TRAFFIC_LOG_TABLE)
+        self._write_df_to_postgres(threat_logs, THREAT_LOG_TABLE)

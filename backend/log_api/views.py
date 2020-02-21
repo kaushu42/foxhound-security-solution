@@ -13,9 +13,10 @@ from rest_framework.status import (
 from core.models import (
     TrafficLog, TrafficLogDetailGranularHour,
     Country,
-    ProcessedLogDetail,
+    ProcessedTrafficLogDetail,
+    ProcessedThreatLogDetail,
     Application,
-    ThreatLogs
+    ThreatLog
 )
 from mis.models import (
     DailyRequestFromBlackListEvent,
@@ -42,7 +43,7 @@ class TrafficLogApiView(PaginatedView):
 
     def get(self, request):
         firewall_ids = get_firewall_rules_id_from_request(request)
-        objects = ProcessedLogDetail.objects.filter(
+        objects = ProcessedTrafficLogDetail.objects.filter(
             firewall_rule__in=firewall_ids
         ).values('log', 'processed_date').annotate(
             rows=Sum('rows'),
@@ -61,10 +62,35 @@ class TrafficLogApiView(PaginatedView):
 class TrafficLogDetailApiView(PaginatedView):
     serializer_class = TrafficLogDetailGranularHourSerializer
 
-    def get(self, request, id):
+    def get(self, request):
         firewall_ids = get_firewall_rules_id_from_request(request)
+        id = request.data.get('log_id', '')
+        ip = request.data.get('ip', '')
+        timestamp = request.data.get('timestamp', '')
+        hour = request.data.get('hour', '')
+
+        kwargs = {
+            'firewall_rule__in': firewall_ids,
+        }
+        if id:
+            kwargs['traffic_log__id'] = int(id)
+
+        if ip:
+            kwargs['source_ip'] = ip
+
+        if hour:
+            kwargs['logged_datetime__hour'] = hour
+
+        if timestamp:
+            tz_ktm = pytz.timezone('Asia/Kathmandu')
+            start_date = datetime.datetime.fromtimestamp(
+                int(timestamp)).astimezone(tz_ktm)
+            end_date = start_date + datetime.timedelta(hours=1)
+            kwargs['logged_datetime__gte'] = start_date
+            kwargs['logged_datetime__lt'] = end_date
+
         objects = TrafficLogDetailGranularHour.objects.filter(
-            traffic_log__id=id, firewall_rule__in=firewall_ids
+            **kwargs
         ).order_by('-id')
 
         page = self.paginate_queryset(objects)
@@ -72,8 +98,8 @@ class TrafficLogDetailApiView(PaginatedView):
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
 
-    def post(self, request, id):
-        return self.get(request, id)
+    def post(self, request):
+        return self.get(request)
 
 
 class RequestOriginLogApiView(PaginatedView):
@@ -189,7 +215,7 @@ class ThreatApplicationLogApiView(PaginatedView):
             'received_datetime__lt': end_date
         }
 
-        objects = ThreatLogs.objects.filter(
+        objects = ThreatLog.objects.filter(
             **kwargs
         ).order_by('id')
 
@@ -232,11 +258,11 @@ class SankeyLogApiView(PaginatedView):
         return self.post(request)
 
 
-class LatestLogDate(APIView):
-    def post(self, request):
+class LatestLogDateApiView(APIView):
+    def get_response(self, request, model):
         firewall_ids = get_firewall_rules_id_from_request(request)
         try:
-            objects = ProcessedLogDetail.objects.filter(
+            objects = model.objects.filter(
                 firewall_rule__in=firewall_ids
             ).latest('id')
             date = get_date_from_filename(objects.log)
@@ -247,6 +273,16 @@ class LatestLogDate(APIView):
             return Response({
                 'date': datetime.date.today()
             })
+
+
+class LatestTrafficLogDateApiView(LatestLogDateApiView):
+    def post(self, request):
+        return self.get_response(request, ProcessedTrafficLogDetail)
+
+
+class LatestThreatLogDateApiView(LatestLogDateApiView):
+    def post(self, request):
+        return self.get_response(request, ProcessedThreatLogDetail)
 
 
 class BlacklistLogApiView(PaginatedView):
