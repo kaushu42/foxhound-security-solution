@@ -34,6 +34,7 @@ import {search} from "../../actions/ipSearchAction";
 import QuickIpView from "../../views/QuickIpView";
 import { filterSelectDataServiceAsync } from "../../services/filterSelectDataService";
 import moment from "moment";
+import ExportJsonExcel from 'js-export-excel';
 import '../../views/rules/rules.css'
 import axios from "axios";
 const { Search } = Input;
@@ -230,6 +231,41 @@ class UnverifiedRulesTable extends Component {
         this.handleFetchUnverifiedRulesData(this.state.params)   
     }
     
+    downloadExcel = () => {
+        const data = this.props.unverifiedRulesData ? this.props.unverifiedRulesData : '';//tabular data
+         var option={};
+         let dataTable = [];
+         if (data) {
+            console.log(data);
+           for (let i in data) {
+             if(data){
+               let obj = {
+                            'Created datetime': data[i].created_date_time,
+                            'Source address': data[i].source_ip,
+                            'Source address alias': data[i].source_ip_alias,
+                            'Destination address': data[i].destination_ip,
+                            'Destination address alias': data[i].destination_ip_alias,
+                            'Application':data[i].application,
+                            'Firewall rule':data[i].name,
+                            'Actions':data[i].actions
+               }
+               dataTable.push(obj);
+             }
+           }
+         }
+            option.fileName = 'Unverified Rule'
+         option.datas=[
+           {
+             sheetData:dataTable,
+             sheetName:'sheet',
+                    sheetFilter:['Created Datetime','Source address','Source address alias','Destination address','Destination address alias','Application','Firewall rule','Actions'],
+                    sheetHeader:['Created Datetime','Source address','Source address alias','Destination address','Destination address alias','Application','Firewall rule','Actions']
+           }
+         ];
+        
+         var toExcel = new ExportJsonExcel(option); 
+         toExcel.saveExcel();        
+    }
     render(){
         const {selectedUnverifiedRecordToAccept,selectedUnverifiedRecordToReject,selectedUnverifiedRecordToUpdate} = this.props;
         const {blackListSourceData} = this.state;
@@ -313,6 +349,7 @@ class UnverifiedRulesTable extends Component {
                         </Row>
                     </Fragment>
                     }>
+                        <Button onClick={this.downloadExcel}>Export Excel Table</Button>
                         <Table
                             rowKey={record => record.id}
                             columns={this.state.columns}
