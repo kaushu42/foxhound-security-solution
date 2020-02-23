@@ -33,11 +33,11 @@
                 searchApplication: "",
                 searchLogname: "",
                 columns : [
-                    {
-                        title: 'Id',
-                        dataIndex: 'id',
-                        key: 'id',
-                    },
+                    // {
+                    //     title: 'Id',
+                    //     dataIndex: 'id',
+                    //     key: 'id',
+                    // },
                     {
                         title: 'Source Address',
                         dataIndex: 'source_ip',
@@ -56,9 +56,33 @@
                         key: 'application',
                     },
                     {
-                        title: 'Log Name',
-                        dataIndex: 'log.log_name',
-                        key: 'log.log_name',
+                        title: "Destination Port",
+                        dataIndex: "destination_port",
+                        key: "destination_port"
+                    },
+                    {
+                        title: "Bytes Sent",
+                        dataIndex: "bytes_sent",
+                        key: "bytes_sent",
+                        render: (text, record) => bytesToSize(text)
+                    },
+                    {
+                        title: "Bytes Received",
+                        dataIndex: "bytes_received",
+                        key: "bytes_received",
+                        render: (text, record) => bytesToSize(text)
+                    },
+                    // {
+                    //     title: 'Log Name',
+                    //     dataIndex: 'log.log_name',
+                    //     key: 'log.log_name',
+                    // },
+                    {
+                        title: "Created DateTime",
+                        dataIndex: "created_datetime",
+                        key: "created_datetime",
+                        // render: text => moment(text).format("YYYY-MM-DD, HH:MM:SS")
+                        render: text => (new Date(text*1000+20700000).toUTCString()).replace(" GMT", "")
                     },
                     {
                         title: 'Action',
@@ -266,15 +290,17 @@
                 })
             }   
             var dataToShow = []
-            dataToShow.push(<Fragment key={"date_"}><b>Created Date: </b> {(new Date((parseInt(record.created_datetime)+20700)*1000).toUTCString()).replace(" GMT", "")}</Fragment>)
-            dataToShow.push(<Fragment key={"bytes_sent_"}><br/><b>Bytes Sent:</b> {bytesToSize(record.bytes_sent)} </Fragment>)
-            dataToShow.push(<Fragment key={"bytes_received_"}><br/><b>Bytes Received:</b> {bytesToSize(record.bytes_received)} </Fragment>)
-            dataToShow.push(<Fragment key={"packets_sent_"}><br/><b>Packets Sent:</b> {record.packets_sent} </Fragment>)
-            dataToShow.push(<Fragment key={"packets_received_"}><br/><b>Packets Received:</b> {record.packets_received} </Fragment>)
-            dataToShow.push(<Fragment key={"source_port_"}><br/><b>Source Port:</b> {record.source_port} </Fragment>)
-            dataToShow.push(<Fragment key={"destination_port_"}><br/><b>Destination Port:</b> {record.destination_port} </Fragment>)
+            dataToShow.push(<Fragment key={"protocol_"}><br/><b>Protocol:</b> {record.protocol} </Fragment>)
+            dataToShow.push(<Fragment key={"source_zone_"}><br/><b>Source Zone:</b> {record.source_zone} </Fragment>)
+            dataToShow.push(<Fragment key={"destination_zone_"}><br/><b>Destination Zone:</b> {record.destination_zone} </Fragment>)
+            dataToShow.push(<Fragment key={"inbound_interface_"}><br/><b>Inbound Interface:</b> {record.inbound_interface} </Fragment>)
+            dataToShow.push(<Fragment key={"outbound_interface_"}><br/><b>Outbound Interface:</b> {record.outbound_interface} </Fragment>)
             dataToShow.push(<Fragment key={"action_"}><br/><b>Action:</b> {record.action} </Fragment>)
+            dataToShow.push(<Fragment key={"category_"}><br/><b>Category:</b> {record.category} </Fragment>)
             dataToShow.push(<Fragment key={"session_end_reason_"}><br/><b>Session End Reason:</b> {record.session_end_reason} </Fragment>)
+            dataToShow.push(<Fragment key={"packets_received_"}><br/><b>Packets Received:</b> {record.packets_received} </Fragment>)
+            dataToShow.push(<Fragment key={"packets_sent_"}><br/><b>Packets Sent:</b> {record.packets_sent} </Fragment>)
+            dataToShow.push(<Fragment key={"time_elapsed_"}><br/><b>Time Elapsed:</b> {record.time_elapsed} </Fragment>)
             dataToShow.push(<hr key = {"linebreak"}></hr>)
             dataToShow.push(<Fragment key={"reasons"}><b>Reasons For Anomaly:</b></Fragment>)
             {this.state.ttDetailCategorical ? (

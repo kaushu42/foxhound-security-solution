@@ -11,7 +11,7 @@ require("highcharts/modules/exporting")(Highcharts);
 import "./chart.css";
 
 const FETCH_API = `${ROOT_URL}dashboard/usage/`;
-const FETCH_LOG_API = `${ROOT_URL}log/application/`;
+const FETCH_LOG_API = `${ROOT_URL}log/detail/`;
 const { Option } = Select;
 
 
@@ -101,11 +101,6 @@ class BandwidthUsageChart extends Component {
       },
       columns: [
         {
-          title: "ID",
-          dataIndex: "id",
-          key: "id",
-        },
-        {
           title: "Source Address",
           dataIndex: "source_ip",
           key: "source_ip",
@@ -124,6 +119,16 @@ class BandwidthUsageChart extends Component {
           )
         },
         {
+          title: "Application",
+          dataIndex: "application",
+          key: "application"
+        },
+        {
+          title: "Destination Port",
+          dataIndex: "destination_port",
+          key: "destination_port"
+        },
+        {
           title: "Bytes Sent",
           dataIndex: "bytes_sent",
           key: "bytes_sent",
@@ -139,7 +144,7 @@ class BandwidthUsageChart extends Component {
           title: "Logged DateTime",
           dataIndex: "logged_datetime",
           key: "logged_datetime",
-          render: text => (new Date(text*1000+20700000).toUTCString()).replace(" GMT", "") //moment(text).format("YYYY-MM-DD, HH:MM:SS")
+          render: text => (new Date(text*1000+20700000).toUTCString()).replace(" GMT", "")
         }
       ],
     };
@@ -327,7 +332,6 @@ class BandwidthUsageChart extends Component {
     };
 
     let bodyFormDataForLog = new FormData();
-    bodyFormDataForLog.set("application", "ssl");
     bodyFormDataForLog.set("timestamp", this.state.selectedTimeStamp/1000);
 
     axios
@@ -366,6 +370,21 @@ class BandwidthUsageChart extends Component {
   };
 
   render() {
+    const expandedRowRender = record => <p><b>Firewall Rule: </b>{record.firewall_rule}<br/>
+                                      <b>Protocol: </b>{record.protocol}<br/>
+                                      <b>Source Zone: </b>{record.source_zone}<br/>
+                                      <b>Destination Zone: </b>{record.destination_zone}<br/>
+                                      <b>Inbound Interface: </b>{record.inbound_interface}<br/>
+                                      <b>Outbound Interface: </b>{record.outbound_interface}<br/>
+                                      <b>Action: </b>{record.action}<br/>
+                                      <b>Category: </b>{record.category}<br/>
+                                      <b>Session End Reason: </b>{record.session_end_reason}<br/>
+                                      <b>Packets Received: </b>{record.packets_received}<br/>
+                                      <b>Packets Sent: </b>{record.packets_sent}<br/>
+                                      <b>Time Elapsed: </b>{record.time_elapsed}<br/>
+                                      <b>Source Country: </b>{record.source_country}<br/>
+                                      <b>Destination Country: </b>{record.destination_country}<br/>
+                                      </p>;
     return (
       <Fragment>
         <Card
@@ -407,6 +426,7 @@ class BandwidthUsageChart extends Component {
               rowKey={record => record.id}
               columns={this.state.columns}
               dataSource={this.state.logData}
+              expandedRowRender={expandedRowRender}
               pagination={this.state.pagination}
               onChange={this.handleTableChange}
             />

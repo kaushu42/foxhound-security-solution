@@ -58,36 +58,53 @@ class IpAsDestinationSankeyChart extends Component {
                 ]
             },
             logColumns : [
-                // {
-                //     title: 'Id',
-                //     dataIndex: 'id',
-                //     key: 'id',
-                // },
                 {
-                    title: 'Application',
-                    dataIndex: 'application',
-                    key: 'application',
-                    // render : (text,record) => bytesToSize(text)
+                  title: "Source Address",
+                  dataIndex: "source_ip",
+                  key: "source_ip",
+                  render: (text, record) => (
+                    <a onClick={() => this.handleShowSourceIpProfile(record)}>{text}</a>
+                  )
                 },
                 {
-                    title: 'Bytes Sent',
-                    dataIndex: 'bytes_sent',
-                    key: 'bytes_sent',
-                    render : (text,record) => bytesToSize(text)
+                  title: "Destination Address",
+                  dataIndex: "destination_ip",
+                  key: "destination_ip",
+                  render: (text, record) => (
+                    <a onClick={() => this.handleShowDestinationIpProfile(record)}>
+                      {text}
+                    </a>
+                  )
                 },
                 {
-                    title: 'Bytes Received',
-                    dataIndex: 'bytes_received',
-                    key: 'bytes_received',
-                    render : (text,record) => bytesToSize(text)
-
+                  title: "Application",
+                  dataIndex: "application",
+                  key: "application"
                 },
                 {
-                    title: 'Logged DateTime',
-                    dataIndex: 'logged_datetime',
-                    key: 'logged_datetime',
-                    render: text => (new Date(text*1000+20700000).toUTCString()).replace(" GMT", "")
+                  title: "Destination Port",
+                  dataIndex: "destination_port",
+                  key: "destination_port"
                 },
+                {
+                  title: "Bytes Sent",
+                  dataIndex: "bytes_sent",
+                  key: "bytes_sent",
+                  render: (text, record) => bytesToSize(text)
+                },
+                {
+                  title: "Bytes Received",
+                  dataIndex: "bytes_received",
+                  key: "bytes_received",
+                  render: (text, record) => bytesToSize(text)
+                },
+                {
+                  title: "Logged DateTime",
+                  dataIndex: "logged_datetime",
+                  key: "logged_datetime",
+                  // render: text => moment(text).format("YYYY-MM-DD, HH:MM:SS")
+                  render: text => (new Date(text*1000+20700000).toUTCString()).replace(" GMT", "")
+                }
               ],
         }
     }
@@ -293,6 +310,21 @@ class IpAsDestinationSankeyChart extends Component {
     )}
 
     render() {
+        const expandedRowRender = record => <p><b>Firewall Rule: </b>{record.firewall_rule}<br/>
+                                      <b>Protocol: </b>{record.protocol}<br/>
+                                      <b>Source Zone: </b>{record.source_zone}<br/>
+                                      <b>Destination Zone: </b>{record.destination_zone}<br/>
+                                      <b>Inbound Interface: </b>{record.inbound_interface}<br/>
+                                      <b>Outbound Interface: </b>{record.outbound_interface}<br/>
+                                      <b>Action: </b>{record.action}<br/>
+                                      <b>Category: </b>{record.category}<br/>
+                                      <b>Session End Reason: </b>{record.session_end_reason}<br/>
+                                      <b>Packets Received: </b>{record.packets_received}<br/>
+                                      <b>Packets Sent: </b>{record.packets_sent}<br/>
+                                      <b>Time Elapsed: </b>{record.time_elapsed}<br/>
+                                      <b>Source Country: </b>{record.source_country}<br/>
+                                      <b>Destination Country: </b>{record.destination_country}<br/>
+                                      </p>;
         return (
             <Fragment>
                 <Card
@@ -335,6 +367,7 @@ class IpAsDestinationSankeyChart extends Component {
                             <Table
                             rowKey={record => record.id}
                             columns={this.state.logColumns}
+                            expandedRowRender={expandedRowRender}
                             dataSource={this.state.selectedSourceToDestinationLogData}
                             pagination={this.state.pagination}
                             onChange={this.handleTableChange}

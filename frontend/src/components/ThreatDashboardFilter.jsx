@@ -49,8 +49,8 @@ class DashboardFilter extends Component {
     filterSelectDataServiceAsync(this.props.auth_token)
       .then(response => {
         const filter_data = response[0].data;
-        const defaultDate = response[1].data;
-        
+        const defaultDate = response[2].data;
+
         // const ip_data = response[1].data;
         this.setState({
           defaultDate: defaultDate.date,
@@ -125,6 +125,7 @@ class DashboardFilter extends Component {
       // ip_value
     } = this.state;
     event.preventDefault();
+    console.log("********************APPLYING FILTER*************",defaultDate,date_range_value,firewall_rule_value,application_value,protocol_value,source_zone_value,destination_zone_value)
     this.props.dispatchRangePickerUpdate(date_range_value,defaultDate);
     // this.props.dispatchIpAddressRuleFilterUpdate(ip_value);
     this.props.dispatchDestinationZoneFilterUpdate(application_value);

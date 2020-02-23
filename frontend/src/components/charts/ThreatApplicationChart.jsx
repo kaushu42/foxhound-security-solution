@@ -29,42 +29,47 @@ class ThreatApplicationChart extends Component{
             pagination: {},
             applicationlogColumns: [
                 {
-                    title: "ID",
-                    dataIndex: "id",
-                    key: "id",
-                },
-                {
-                    title: "Source Address",
-                    dataIndex: "source_ip",
-                    key: "source_ip",
+                    title:"Source Address",
+                    dataIndex:"source_ip",
+                    key:"source_ip",
                     render: (text, record) => (
                         <a onClick={() => this.handleShowSourceIpProfile(record)}>{text}</a>
                     )
                 },
                 {
-                    title: "Destination Address",
-                    dataIndex: "destination_ip",
-                    key: "destination_ip",
+                    title:"Destination Address",
+                    dataIndex:"destination_ip",
+                    key:"destination_ip",
                     render: (text, record) => (
                         <a onClick={() => this.handleShowDestinationIpProfile(record)}>{text}</a>
                     )
                 },
                 {
-                    title: "Source Port",
-                    dataIndex: "source_port",
-                    key: "source_port"
+                    title:"Application",
+                    dataIndex:"application",
+                    key:"application"
                 },
                 {
-                    title: "Destination Port",
-                    dataIndex: "destination_port",
-                    key: "destination_port"
+                    title:"Destination Port",
+                    dataIndex:"destination_port",
+                    key:"destination_port"
                 },
                 {
-                    title: "Logged DateTime",
-                    dataIndex: "received_datetime",
-                    key: "received_datetime",
-                    render: text => (new Date(text*1000+20700000).toUTCString()).replace(" GMT", "")
-                }
+                    title:"Severity",
+                    dataIndex:"severity",
+                    key:"severity"
+                },
+                {
+                    title:"Threat Content Type",
+                    dataIndex:"threat_content_type",
+                    key:"threat_content_type"
+                },
+                {
+                    title:"Logged Date",
+                    dataIndex:"received_datetime",
+                    key:"received_datetime",
+                    render: text => (new Date(parseInt(text)*1000+20700000).toUTCString()).replace(" GMT", "")
+                },
             ],
             quickIpView: false
         }
@@ -175,6 +180,7 @@ class ThreatApplicationChart extends Component{
             String(prevProps.source_zone) !== String(this.props.source_zone) ||
             String(prevProps.destination_zone) !== String(this.props.destination_zone)
         ) {
+            console.log("********************FETCHING FILTERED DATA*************",this.props.date_range,this.props.firewall_rule,this.props.application,this.props.protocol,this.props.source_zone,this.props.destination_zone)
             this.handleFetchData();
         }
         if (prevState.data !== this.state.data) {
@@ -405,6 +411,23 @@ class ThreatApplicationChart extends Component{
                 ]
             }
         };
+        const expandedRowRender = record => <p>
+                                      <b>Protocol: </b>{record.ip_protocol}<br/>
+                                      <b>Source Zone: </b>{record.source_zone}<br/>
+                                      <b>Destination Zone: </b>{record.destination_zone}<br/>
+                                      <b>Inbound Interface: </b>{record.inbound_interface}<br/>
+                                      <b>Outbound Interface: </b>{record.outbound_interface}<br/>
+                                      <b>Action: </b>{record.action}<br/>
+                                      <b>Category: </b>{record.category}<br/>
+                                      <b>Direction: </b>{record.direction}<br/>
+                                      <b>Threat Content Name: </b>{record.threat_content_name}<br/>
+                                      <b>Packets Received: </b>{record.packets_received}<br/>
+                                      <b>Packets Sent: </b>{record.packets_sent}<br/>
+                                      <b>Time Elapsed: </b>{record.time_elapsed}<br/>
+                                      <b>Source Country: </b>{record.source_country}<br/>
+                                      <b>Destination Country: </b>{record.destination_country}<br/>
+                                      <b>Log Name: </b>{record.log_name}<br/>
+                                      </p>;
         return(
             <Fragment>
                 <Card
@@ -447,6 +470,7 @@ class ThreatApplicationChart extends Component{
                         <Table
                         rowKey={record => record.id}
                         columns={this.state.applicationlogColumns}
+                        expandedRowRender={expandedRowRender}
                         dataSource={this.state.selectedApplicationLogData}
                         pagination={this.state.pagination}
                         onChange={this.handleTableChange}

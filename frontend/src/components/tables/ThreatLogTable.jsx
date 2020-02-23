@@ -16,17 +16,6 @@ class ThreatLogTable extends Component{
         this.state = {
             columns:[
                 {
-                    title: 'Id',
-                    dataIndex: 'id',
-                    key: 'id',
-                },
-                {
-                    title:"Logged Date",
-                    dataIndex:"received_datetime",
-                    key:"received_datetime",
-                    render: text => (new Date(parseInt(text)*1000+20700000).toUTCString()).replace(" GMT", "")
-                },
-                {
                     title:"Source Address",
                     dataIndex:"source_ip",
                     key:"source_ip",
@@ -48,10 +37,26 @@ class ThreatLogTable extends Component{
                     key:"application"
                 },
                 {
-                    title:"Log Name",
-                    dataIndex:"log_name",
-                    key:"log_name"
-                }
+                    title:"Destination Port",
+                    dataIndex:"destination_port",
+                    key:"destination_port"
+                },
+                {
+                    title:"Severity",
+                    dataIndex:"severity",
+                    key:"severity"
+                },
+                {
+                    title:"Threat Content Type",
+                    dataIndex:"threat_content_type",
+                    key:"threat_content_type"
+                },
+                {
+                    title:"Logged Date",
+                    dataIndex:"received_datetime",
+                    key:"received_datetime",
+                    render: text => (new Date(parseInt(text)*1000+20700000).toUTCString()).replace(" GMT", "")
+                },
             ],
             data: null,
             pagination: {},
@@ -154,6 +159,23 @@ class ThreatLogTable extends Component{
         const applicationSelectListItem = this.state.applicationData.map(
             data => <Option key={data[1]}>{data[1]}</Option>
         );
+        const expandedRowRender = record => <p>
+                                      <b>Protocol: </b>{record.ip_protocol}<br/>
+                                      <b>Source Zone: </b>{record.source_zone}<br/>
+                                      <b>Destination Zone: </b>{record.destination_zone}<br/>
+                                      <b>Inbound Interface: </b>{record.inbound_interface}<br/>
+                                      <b>Outbound Interface: </b>{record.outbound_interface}<br/>
+                                      <b>Action: </b>{record.action}<br/>
+                                      <b>Category: </b>{record.category}<br/>
+                                      <b>Direction: </b>{record.direction}<br/>
+                                      <b>Threat Content Name: </b>{record.threat_content_name}<br/>
+                                      <b>Packets Received: </b>{record.packets_received}<br/>
+                                      <b>Packets Sent: </b>{record.packets_sent}<br/>
+                                      <b>Time Elapsed: </b>{record.time_elapsed}<br/>
+                                      <b>Source Country: </b>{record.source_country}<br/>
+                                      <b>Destination Country: </b>{record.destination_country}<br/>
+                                      <b>Log Name: </b>{record.log_name}<br/>
+                                      </p>;
         return(
             <Fragment>
                 <Card title={
@@ -215,6 +237,7 @@ class ThreatLogTable extends Component{
                         <Table 
                             rowKey={record => record.id}
                             columns={this.state.columns}
+                            expandedRowRender={expandedRowRender}
                             dataSource={this.state.data}
                             pagination={this.state.pagination}
                             onChange={this.handleTableChange}
