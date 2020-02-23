@@ -8,6 +8,7 @@
     import axios from 'axios';
     import QuickIpView from "../../views/QuickIpView"
     import {search} from "../../actions/ipSearchAction";
+    import ExportJsonExcel from 'js-export-excel';
     import { filterSelectDataServiceAsync } from "../../services/filterSelectDataService";
     import moment from "moment"
     const { Option } = Select;
@@ -72,16 +73,10 @@
                         key: "bytes_received",
                         render: (text, record) => bytesToSize(text)
                     },
-                    // {
-                    //     title: 'Log Name',
-                    //     dataIndex: 'log.log_name',
-                    //     key: 'log.log_name',
-                    // },
                     {
                         title: "Created DateTime",
                         dataIndex: "created_datetime",
                         key: "created_datetime",
-                        // render: text => moment(text).format("YYYY-MM-DD, HH:MM:SS")
                         render: text => (new Date(text*1000+20700000).toUTCString()).replace(" GMT", "")
                     },
                     {
@@ -384,6 +379,52 @@
         filterData = (v) =>{
             this.fetch()   
         }
+
+        downloadExcel = () => {
+            const data = this.state.data ? this.state.data : '';//tabular data
+             var option={};
+             let dataTable = [];
+             if (data) {
+                console.log(data);
+               for (let i in data) {
+                 if(data){
+                   let obj = {
+                                'Created datetime': (new Date(parseInt(data[i].created_datetime)*1000+20700000).toUTCString()).replace(" GMT", ""),
+                                'Source address': data[i].source_ip,
+                                'Destination address': data[i].destination_ip,
+                                'Application':data[i].application,
+                                'Destination port':data[i].destination_port,
+                                'Bytes sent':data[i].bytes_sent,
+                                'Bytes received':data[i].bytes_received,
+                                'Protocol':data[i].protocol,
+                                'Source zone':data[i].source_zone,
+                                'Destination zone':data[i].destination_zone,
+                                'Inbound interface':data[i].inbound_interface,
+                                'Outbound interface':data[i].outbound_interface,
+                                'Action':data[i].action,
+                                'Category':data[i].category,
+                                'Session end reason':data[i].session_end_reason,
+                                'Packets received':data[i].packets_received,
+                                'Packets sent':data[i].packets_sent,
+                                'Time elapsed':data[i].time_elapsed
+                   }
+                   dataTable.push(obj);
+                 }
+               }
+             }
+                option.fileName = 'Anomalous Trouble Tickets'
+             option.datas=[
+               {
+                 sheetData:dataTable,
+                 sheetName:'sheet',
+                        sheetFilter:['Created datetime','Source address','Destination address','Application','Destination port','Bytes sent','Bytes received','Protocol','Source zone','Destination zone','Inbound interface','Outbound interface','Action','Category','Session end reason','Packets received','Packets sent','Time elapsed'],
+                        sheetHeader:['Created Datetime','Source address','Destination address','Application','Destination port','Bytes sent','Bytes received','Protocol','Source zone','Destination zone','Inbound interface','Outbound interface','Action','Category','Session end reason','Packets received','Packets sent','Time elapsed']
+               }
+             ];
+            
+             var toExcel = new ExportJsonExcel(option); 
+             toExcel.saveExcel();        
+        }
         
         render() {
             const applicationSelectListItem = this.state.applicationData.map(
@@ -394,21 +435,26 @@
                     <Card title={
                         <Fragment>
                         <Row gutter={[16, 16]}>
-                            <Col xs={24} sm={24} md={24} lg={5} xl={5}>
+                        <Col xs={24} sm={24} md={24} lg={4} xl={4}>
+                            <Button type="primary" shape="round" icon="download"
+                                onClick={this.downloadExcel}>Export Excel Table
+                                </Button>
+                            </Col>
+                            <Col xs={24} sm={24} md={24} lg={4} xl={4}>
                                 <Input 
                                     value={this.state.searchSourceIP}
                                     placeholder="Search Source IP"
                                     onChange={(e)=>this.setState({searchSourceIP : e.target.value})}
                                 />
                             </Col>
-                            <Col xs={24} sm={24} md={24} lg={5} xl={5}>
+                            <Col xs={24} sm={24} md={24} lg={4} xl={4}>
                                 <Input 
                                     value={this.state.searchDestinationIP}
                                     placeholder="Search Destination IP"
                                     onChange={(e)=>this.setState({searchDestinationIP : e.target.value})}
                                 />
                             </Col>
-                            <Col xs={24} sm={24} md={24} lg={5} xl={5}>
+                            <Col xs={24} sm={24} md={24} lg={4} xl={4}>
                                 <Select
                                     id="filterApplication"
                                     mode="multiple"
@@ -426,7 +472,7 @@
                                     {applicationSelectListItem}
                                 </Select>
                             </Col>
-                            <Col xs={24} sm={24} md={24} lg={5} xl={5}>
+                            <Col xs={24} sm={24} md={24} lg={4} xl={4}>
                                 <Input 
                                     value={this.state.searchLogname}
                                     placeholder="Log Name"

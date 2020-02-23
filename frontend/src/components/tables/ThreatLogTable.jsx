@@ -6,6 +6,7 @@ import {ROOT_URL} from "../../utils"
 import { filterSelectDataServiceAsync } from "../../services/filterSelectDataService";
 import { search } from "../../actions/ipSearchAction";
 import QuickIpView from '../../views/QuickIpView'
+import ExportJsonExcel from 'js-export-excel';
 
 const FETCH_LOG_API =`${ROOT_URL}dashboard/threat/log/`
 const { Option } = Select;
@@ -155,6 +156,54 @@ class ThreatLogTable extends Component{
         this.fetchLogData()
     }
 
+    downloadExcel = () => {
+        const data = this.state.data ? this.state.data : '';//tabular data
+         var option={};
+         let dataTable = [];
+         if (data) {
+            console.log(data);
+           for (let i in data) {
+             if(data){
+               let obj = {
+                            'Logged datetime': (new Date(parseInt(data[i].received_datetime)*1000+20700000).toUTCString()).replace(" GMT", ""),
+                            'Source address': data[i].source_ip,
+                            'Destination address': data[i].destination_ip,
+                            'Application':data[i].application,
+                            'Destination port':data[i].destination_port,
+                            'Severity':data[i].severity,
+                            'Threat content type':data[i].threat_content_type,
+                            'Protocol':data[i].ip_protocol,
+                            'Source zone':data[i].source_zone,
+                            'Destination zone':data[i].destination_zone,
+                            'Inbound interface':data[i].inbound_interface,
+                            'Outbound interface':data[i].outbound_interface,
+                            'Action':data[i].action,
+                            'Category':data[i].category,
+                            'Threat content name':data[i].threat_content_name,
+                            'Packets received':data[i].packets_received,
+                            'Packets sent':data[i].packets_sent,
+                            'Time elapsed':data[i].time_elapsed,
+                            'Source country':data[i].source_country,
+                            'Destination country':data[i].destination_country,
+               }
+               dataTable.push(obj);
+             }
+           }
+         }
+            option.fileName = 'Threat Log'
+         option.datas=[
+           {
+             sheetData:dataTable,
+             sheetName:'sheet',
+                    sheetFilter:['Logged datetime','Source address','Destination address','Application','Destination port','Severity','Threat content type','Protocol','Source zone','Destination zone','Inbound interface','Outbound interface','Action','Category','Threat content name','Packets received','Packets sent','Time elapsed','Source country','Destination country'],
+                    sheetHeader:['Logged datetime','Source address','Destination address','Application','Destination port','Severity','Threat content type','Protocol','Source zone','Destination zone','Inbound interface','Outbound interface','Action','Category','Threat content name','Packets received','Packets sent','Time elapsed','Source country','Destination country']
+           }
+         ];
+        
+         var toExcel = new ExportJsonExcel(option); 
+         toExcel.saveExcel();        
+    }
+
     render(){
         const applicationSelectListItem = this.state.applicationData.map(
             data => <Option key={data[1]}>{data[1]}</Option>
@@ -181,21 +230,26 @@ class ThreatLogTable extends Component{
                 <Card title={
                     <Fragment>
                     <Row gutter={[16, 16]}>
-                        <Col xs={24} sm={24} md={24} lg={5} xl={5}>
+                    <Col xs={24} sm={24} md={24} lg={4} xl={4}>
+                            <Button type="primary" shape="round" icon="download"
+                                onClick={this.downloadExcel}>Export Excel Table
+                                </Button>
+                            </Col>
+                        <Col xs={24} sm={24} md={24} lg={4} xl={4}>
                             <Input 
                                 value={this.state.searchSourceIP}
                                 placeholder="Search Source IP"
                                 onChange={(e)=>this.setState({searchSourceIP : e.target.value})}
                             />
                         </Col>
-                        <Col xs={24} sm={24} md={24} lg={5} xl={5}>
+                        <Col xs={24} sm={24} md={24} lg={4} xl={4}>
                             <Input 
                                 value={this.state.searchDestinationIP}
                                 placeholder="Search Destination IP"
                                 onChange={(e)=>this.setState({searchDestinationIP : e.target.value})}
                             />
                         </Col>
-                        <Col xs={24} sm={24} md={24} lg={5} xl={5}>
+                        <Col xs={24} sm={24} md={24} lg={4} xl={4}>
                             <Select
                                 id="filterApplication"
                                 mode="multiple"
@@ -213,7 +267,7 @@ class ThreatLogTable extends Component{
                                 {applicationSelectListItem}
                             </Select>
                         </Col>
-                        <Col xs={24} sm={24} md={24} lg={5} xl={5}>
+                        <Col xs={24} sm={24} md={24} lg={4} xl={4}>
                             <Input 
                                 value={this.state.searchLogname}
                                 placeholder="Log Name"

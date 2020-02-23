@@ -11,6 +11,7 @@ import {
 import {axiosHeader, drawerInfoStyle, ROOT_URL} from "../../utils";
 import moment from "moment";
 import QuickIpView from "../../views/QuickIpView"
+import ExportJsonExcel from 'js-export-excel';
 import {search} from "../../actions/ipSearchAction";
 import { filterSelectDataServiceAsync } from "../../services/filterSelectDataService";
 const { Search } = Input;
@@ -156,6 +157,43 @@ class VerifiedRulesTable extends Component {
     filterData = (v) =>{
         this.handleFetchVerifiedRulesData(this.state.params)
     }
+
+    downloadExcel = () => {
+        const data = this.props.verifiedRulesData ? this.props.verifiedRulesData : '';//tabular data
+         var option={};
+         let dataTable = [];
+         if (data) {
+            console.log(data);
+           for (let i in data) {
+             if(data){
+               let obj = {
+                            'Created datetime': (new Date(parseInt(data[i].created_date_time)*1000).toUTCString()).replace(" GMT", ""),
+                            'Source address': data[i].source_ip,
+                            'Source address alias': data[i].source_ip_alias,
+                            'Destination address': data[i].destination_ip,
+                            'Destination address alias': data[i].destination_ip_alias,
+                            'Application':data[i].application,
+                            'Firewall rule':data[i].name,
+                            'Verified date':(new Date(parseInt(data[i].verified_date_time)*1000).toUTCString()).replace(" GMT", ""),
+                            'Verified by':data[i].verified_by_user.username
+               }
+               dataTable.push(obj);
+             }
+           }
+         }
+            option.fileName = 'Verified Rule'
+         option.datas=[
+           {
+             sheetData:dataTable,
+             sheetName:'sheet',
+                    sheetFilter:['Created datetime','Source address','Source address alias','Destination address','Destination address alias','Application','Firewall rule','Verified date', 'Verified by'],
+                    sheetHeader:['Created Datetime','Source address','Source address alias','Destination address','Destination address alias','Application','Firewall rule','Verified date', 'Verified by']
+           }
+         ];
+        
+         var toExcel = new ExportJsonExcel(option); 
+         toExcel.saveExcel();        
+    }
     
     render(){
         const {selectedVerifiedRecordToReject} = this.props;
@@ -173,28 +211,33 @@ class VerifiedRulesTable extends Component {
                 <Card title={
                     <Fragment>
                     <Row gutter={[16, 16]}>
-                        <Col xs={24} sm={24} md={24} lg={5} xl={5}>
+                    <Col xs={24} sm={24} md={24} lg={4} xl={4}>
+                            <Button type="primary" shape="round" icon="download"
+                                onClick={this.downloadExcel}>Export Excel Table
+                                </Button>
+                            </Col>
+                        <Col xs={24} sm={24} md={24} lg={4} xl={4}>
                             <Input 
                                 value={this.state.searchSourceIP}
                                 placeholder="Search Source IP"
                                 onChange={(e)=>this.setState({searchSourceIP : e.target.value})}
                             />
                         </Col>
-                        <Col xs={24} sm={24} md={24} lg={5} xl={5}>
+                        <Col xs={24} sm={24} md={24} lg={4} xl={4}>
                             <Input 
                                 value={this.state.searchDestinationIP}
                                 placeholder="Search Destination IP"
                                 onChange={(e)=>this.setState({searchDestinationIP : e.target.value})}
                             />
                         </Col>
-                        <Col xs={24} sm={24} md={24} lg={5} xl={5}>
+                        <Col xs={24} sm={24} md={24} lg={4} xl={4}>
                             <Input 
                                 value={this.state.searchAlias}
                                 placeholder="Search Alias"
                                 onChange={(e)=>this.setState({searchAlias : e.target.value})}
                             />
                         </Col>
-                        <Col xs={24} sm={24} md={24} lg={5} xl={5}>
+                        <Col xs={24} sm={24} md={24} lg={4} xl={4}>
                             <Select
                                 id="filterApplication"
                                 mode="multiple"
