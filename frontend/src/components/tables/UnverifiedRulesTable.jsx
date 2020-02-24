@@ -240,14 +240,13 @@ class UnverifiedRulesTable extends Component {
            for (let i in data) {
              if(data){
                let obj = {
-                            'Created datetime': data[i].created_date_time,
+                            'Created datetime': (new Date(parseInt(data[i].created_date_time)*1000).toUTCString()).replace(" GMT", ""),
                             'Source address': data[i].source_ip,
                             'Source address alias': data[i].source_ip_alias,
                             'Destination address': data[i].destination_ip,
                             'Destination address alias': data[i].destination_ip_alias,
                             'Application':data[i].application,
                             'Firewall rule':data[i].name,
-                            'Actions':data[i].actions
                }
                dataTable.push(obj);
              }
@@ -258,14 +257,15 @@ class UnverifiedRulesTable extends Component {
            {
              sheetData:dataTable,
              sheetName:'sheet',
-                    sheetFilter:['Created Datetime','Source address','Source address alias','Destination address','Destination address alias','Application','Firewall rule','Actions'],
-                    sheetHeader:['Created Datetime','Source address','Source address alias','Destination address','Destination address alias','Application','Firewall rule','Actions']
+                    sheetFilter:['Created datetime','Source address','Source address alias','Destination address','Destination address alias','Application','Firewall rule'],
+                    sheetHeader:['Created Datetime','Source address','Source address alias','Destination address','Destination address alias','Application','Firewall rule']
            }
          ];
         
          var toExcel = new ExportJsonExcel(option); 
          toExcel.saveExcel();        
     }
+    
     render(){
         const {selectedUnverifiedRecordToAccept,selectedUnverifiedRecordToReject,selectedUnverifiedRecordToUpdate} = this.props;
         const {blackListSourceData} = this.state;
@@ -297,28 +297,33 @@ class UnverifiedRulesTable extends Component {
                     <Card title={
                     <Fragment>
                         <Row gutter={[16, 16]}>
-                            <Col xs={24} sm={24} md={24} lg={5} xl={5}>
+                            <Col xs={24} sm={24} md={24} lg={4} xl={4}>
+                                <Button type="primary" shape="round" icon="download"
+                                onClick={this.downloadExcel}>Export Excel Table
+                                </Button>
+                            </Col>
+                            <Col xs={24} sm={24} md={24} lg={4} xl={4}>
                                 <Input 
                                     value={this.state.searchSourceIP}
                                     placeholder="Search Source IP"
                                     onChange={(e)=>this.setState({searchSourceIP : e.target.value})}
                                 />
                             </Col>
-                            <Col xs={24} sm={24} md={24} lg={5} xl={5}>
+                            <Col xs={24} sm={24} md={24} lg={4} xl={4}>
                                 <Input 
                                     value={this.state.searchDestinationIP}
                                     placeholder="Search Destination IP"
                                     onChange={(e)=>this.setState({searchDestinationIP : e.target.value})}
                                 />
                             </Col>
-                            <Col xs={24} sm={24} md={24} lg={5} xl={5}>
+                            <Col xs={24} sm={24} md={24} lg={4} xl={4}>
                                 <Input 
                                     value={this.state.searchAlias}
                                     placeholder="Search Alias"
                                     onChange={(e)=>this.setState({searchAlias : e.target.value})}
                                 />
                             </Col>
-                            <Col xs={24} sm={24} md={24} lg={5} xl={5}>
+                            <Col xs={24} sm={24} md={24} lg={4} xl={4}>
                                 <Select
                                     id="filterApplication"
                                     mode="multiple"
@@ -349,7 +354,7 @@ class UnverifiedRulesTable extends Component {
                         </Row>
                     </Fragment>
                     }>
-                        <Button onClick={this.downloadExcel}>Export Excel Table</Button>
+                        
                         <Table
                             rowKey={record => record.id}
                             columns={this.state.columns}

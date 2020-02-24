@@ -57,11 +57,6 @@ class RequestOriginWorldChart extends Component {
         dataIndex: "application",
         key: "application"
       },
-      // {
-      //     title: 'Source Port',
-      //     dataIndex: 'source_port',
-      //     key: 'source_port',
-      // },
       {
         title: "Destination Port",
         dataIndex: "destination_port",
@@ -330,6 +325,21 @@ class RequestOriginWorldChart extends Component {
       mapSelectedCountryTotalBytesSentUnit,
       mapSelectedCountryTotalBytesReceivedUnit
     } = this.props;
+    const expandedRowRender = record => <p><b>Firewall Rule: </b>{record.firewall_rule}<br/>
+                                      <b>Protocol: </b>{record.protocol}<br/>
+                                      <b>Source Zone: </b>{record.source_zone}<br/>
+                                      <b>Destination Zone: </b>{record.destination_zone}<br/>
+                                      <b>Inbound Interface: </b>{record.inbound_interface}<br/>
+                                      <b>Outbound Interface: </b>{record.outbound_interface}<br/>
+                                      <b>Action: </b>{record.action}<br/>
+                                      <b>Category: </b>{record.category}<br/>
+                                      <b>Session End Reason: </b>{record.session_end_reason}<br/>
+                                      <b>Packets Received: </b>{record.packets_received}<br/>
+                                      <b>Packets Sent: </b>{record.packets_sent}<br/>
+                                      <b>Time Elapsed: </b>{record.time_elapsed}<br/>
+                                      <b>Source Country: </b>{record.source_country}<br/>
+                                      <b>Destination Country: </b>{record.destination_country}<br/>
+                                      </p>;
     return (
       <Fragment>
         <Spin spinning={mapChartLoading}>
@@ -461,6 +471,7 @@ class RequestOriginWorldChart extends Component {
               <Table
                 columns={this.state.columns}
                 rowKey={record => record.id}
+                expandedRowRender={expandedRowRender}
                 dataSource={mapSelectedCountryLogData}
                 loading={this.props.countryLogDataLoading}
                 pagination={this.props.requestOriginMapPagination}

@@ -23,19 +23,32 @@ class BlacklistAddress extends Component {
         pagination: {},
         columns: [
             {
-              title: "Id",
-              dataIndex: "id",
-              key: "id"
-            },
-            {
               title: "Source Address",
               dataIndex: "source_ip",
               key: "source_ip",
+              render: (text, record) => (
+                <a onClick={() => this.handleShowSourceIpProfile(record)}>{text}</a>
+              )
             },
             {
               title: "Destination Address",
               dataIndex: "destination_ip",
               key: "destination_ip",
+              render: (text, record) => (
+                <a onClick={() => this.handleShowDestinationIpProfile(record)}>
+                  {text}
+                </a>
+              )
+            },
+            {
+              title: "Application",
+              dataIndex: "application",
+              key: "application"
+            },
+            {
+              title: "Destination Port",
+              dataIndex: "destination_port",
+              key: "destination_port"
             },
             {
               title: "Bytes Sent",
@@ -53,7 +66,8 @@ class BlacklistAddress extends Component {
               title: "Logged DateTime",
               dataIndex: "logged_datetime",
               key: "logged_datetime",
-              render: text => (new Date(text*1000+20700000).toUTCString()).replace(" GMT", "") //moment(text).format("YYYY-MM-DD, HH:MM:SS")
+              // render: text => moment(text).format("YYYY-MM-DD, HH:MM:SS")
+              render: text => (new Date(text*1000+20700000).toUTCString()).replace(" GMT", "")
             }
           ],
     }
@@ -121,6 +135,21 @@ class BlacklistAddress extends Component {
     };
 
     render() {
+        const expandedRowRender = record => <p><b>Firewall Rule: </b>{record.firewall_rule}<br/>
+                                      <b>Protocol: </b>{record.protocol}<br/>
+                                      <b>Source Zone: </b>{record.source_zone}<br/>
+                                      <b>Destination Zone: </b>{record.destination_zone}<br/>
+                                      <b>Inbound Interface: </b>{record.inbound_interface}<br/>
+                                      <b>Outbound Interface: </b>{record.outbound_interface}<br/>
+                                      <b>Action: </b>{record.action}<br/>
+                                      <b>Category: </b>{record.category}<br/>
+                                      <b>Session End Reason: </b>{record.session_end_reason}<br/>
+                                      <b>Packets Received: </b>{record.packets_received}<br/>
+                                      <b>Packets Sent: </b>{record.packets_sent}<br/>
+                                      <b>Time Elapsed: </b>{record.time_elapsed}<br/>
+                                      <b>Source Country: </b>{record.source_country}<br/>
+                                      <b>Destination Country: </b>{record.destination_country}<br/>
+                                      </p>;
         return (
             <Fragment>
                 <Card title={"Request From Blacklisted Address"}>
@@ -163,6 +192,7 @@ class BlacklistAddress extends Component {
                     <Table
                         columns={this.state.columns}
                         rowKey={record => record.id}
+                        expandedRowRender={expandedRowRender}
                         dataSource={this.state.selectedIPLogData}
                         pagination={this.state.pagination}
                         onChange={this.handleTableChange}

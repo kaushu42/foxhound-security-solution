@@ -8,6 +8,7 @@
     import axios from 'axios';
     import QuickIpView from "../../views/QuickIpView"
     import {search} from "../../actions/ipSearchAction";
+    import ExportJsonExcel from 'js-export-excel';
     import { filterSelectDataServiceAsync } from "../../services/filterSelectDataService";
     import moment from "moment"
     const { Option } = Select;
@@ -33,11 +34,11 @@
                 searchApplication: "",
                 searchLogname: "",
                 columns : [
-                    {
-                        title: 'Id',
-                        dataIndex: 'id',
-                        key: 'id',
-                    },
+                    // {
+                    //     title: 'Id',
+                    //     dataIndex: 'id',
+                    //     key: 'id',
+                    // },
                     {
                         title: 'Source Address',
                         dataIndex: 'source_ip',
@@ -56,9 +57,27 @@
                         key: 'application',
                     },
                     {
-                        title: 'Log Name',
-                        dataIndex: 'log.log_name',
-                        key: 'log.log_name',
+                        title: "Destination Port",
+                        dataIndex: "destination_port",
+                        key: "destination_port"
+                    },
+                    {
+                        title: "Bytes Sent",
+                        dataIndex: "bytes_sent",
+                        key: "bytes_sent",
+                        render: (text, record) => bytesToSize(text)
+                    },
+                    {
+                        title: "Bytes Received",
+                        dataIndex: "bytes_received",
+                        key: "bytes_received",
+                        render: (text, record) => bytesToSize(text)
+                    },
+                    {
+                        title: "Created DateTime",
+                        dataIndex: "created_datetime",
+                        key: "created_datetime",
+                        render: text => (new Date(text*1000+20700000).toUTCString()).replace(" GMT", "")
                     },
                     {
                         title: 'Action',
@@ -266,15 +285,17 @@
                 })
             }   
             var dataToShow = []
-            dataToShow.push(<Fragment key={"date_"}><b>Created Date: </b> {(new Date((parseInt(record.created_datetime)+20700)*1000).toUTCString()).replace(" GMT", "")}</Fragment>)
-            dataToShow.push(<Fragment key={"bytes_sent_"}><br/><b>Bytes Sent:</b> {bytesToSize(record.bytes_sent)} </Fragment>)
-            dataToShow.push(<Fragment key={"bytes_received_"}><br/><b>Bytes Received:</b> {bytesToSize(record.bytes_received)} </Fragment>)
-            dataToShow.push(<Fragment key={"packets_sent_"}><br/><b>Packets Sent:</b> {record.packets_sent} </Fragment>)
-            dataToShow.push(<Fragment key={"packets_received_"}><br/><b>Packets Received:</b> {record.packets_received} </Fragment>)
-            dataToShow.push(<Fragment key={"source_port_"}><br/><b>Source Port:</b> {record.source_port} </Fragment>)
-            dataToShow.push(<Fragment key={"destination_port_"}><br/><b>Destination Port:</b> {record.destination_port} </Fragment>)
+            dataToShow.push(<Fragment key={"protocol_"}><br/><b>Protocol:</b> {record.protocol} </Fragment>)
+            dataToShow.push(<Fragment key={"source_zone_"}><br/><b>Source Zone:</b> {record.source_zone} </Fragment>)
+            dataToShow.push(<Fragment key={"destination_zone_"}><br/><b>Destination Zone:</b> {record.destination_zone} </Fragment>)
+            dataToShow.push(<Fragment key={"inbound_interface_"}><br/><b>Inbound Interface:</b> {record.inbound_interface} </Fragment>)
+            dataToShow.push(<Fragment key={"outbound_interface_"}><br/><b>Outbound Interface:</b> {record.outbound_interface} </Fragment>)
             dataToShow.push(<Fragment key={"action_"}><br/><b>Action:</b> {record.action} </Fragment>)
+            dataToShow.push(<Fragment key={"category_"}><br/><b>Category:</b> {record.category} </Fragment>)
             dataToShow.push(<Fragment key={"session_end_reason_"}><br/><b>Session End Reason:</b> {record.session_end_reason} </Fragment>)
+            dataToShow.push(<Fragment key={"packets_received_"}><br/><b>Packets Received:</b> {record.packets_received} </Fragment>)
+            dataToShow.push(<Fragment key={"packets_sent_"}><br/><b>Packets Sent:</b> {record.packets_sent} </Fragment>)
+            dataToShow.push(<Fragment key={"time_elapsed_"}><br/><b>Time Elapsed:</b> {record.time_elapsed} </Fragment>)
             dataToShow.push(<hr key = {"linebreak"}></hr>)
             dataToShow.push(<Fragment key={"reasons"}><b>Reasons For Anomaly:</b></Fragment>)
             {this.state.ttDetailCategorical ? (
@@ -358,6 +379,52 @@
         filterData = (v) =>{
             this.fetch()   
         }
+
+        downloadExcel = () => {
+            const data = this.state.data ? this.state.data : '';//tabular data
+             var option={};
+             let dataTable = [];
+             if (data) {
+                console.log(data);
+               for (let i in data) {
+                 if(data){
+                   let obj = {
+                                'Created datetime': (new Date(parseInt(data[i].created_datetime)*1000+20700000).toUTCString()).replace(" GMT", ""),
+                                'Source address': data[i].source_ip,
+                                'Destination address': data[i].destination_ip,
+                                'Application':data[i].application,
+                                'Destination port':data[i].destination_port,
+                                'Bytes sent':data[i].bytes_sent,
+                                'Bytes received':data[i].bytes_received,
+                                'Protocol':data[i].protocol,
+                                'Source zone':data[i].source_zone,
+                                'Destination zone':data[i].destination_zone,
+                                'Inbound interface':data[i].inbound_interface,
+                                'Outbound interface':data[i].outbound_interface,
+                                'Action':data[i].action,
+                                'Category':data[i].category,
+                                'Session end reason':data[i].session_end_reason,
+                                'Packets received':data[i].packets_received,
+                                'Packets sent':data[i].packets_sent,
+                                'Time elapsed':data[i].time_elapsed
+                   }
+                   dataTable.push(obj);
+                 }
+               }
+             }
+                option.fileName = 'Anomalous Trouble Tickets'
+             option.datas=[
+               {
+                 sheetData:dataTable,
+                 sheetName:'sheet',
+                        sheetFilter:['Created datetime','Source address','Destination address','Application','Destination port','Bytes sent','Bytes received','Protocol','Source zone','Destination zone','Inbound interface','Outbound interface','Action','Category','Session end reason','Packets received','Packets sent','Time elapsed'],
+                        sheetHeader:['Created Datetime','Source address','Destination address','Application','Destination port','Bytes sent','Bytes received','Protocol','Source zone','Destination zone','Inbound interface','Outbound interface','Action','Category','Session end reason','Packets received','Packets sent','Time elapsed']
+               }
+             ];
+            
+             var toExcel = new ExportJsonExcel(option); 
+             toExcel.saveExcel();        
+        }
         
         render() {
             const applicationSelectListItem = this.state.applicationData.map(
@@ -368,21 +435,26 @@
                     <Card title={
                         <Fragment>
                         <Row gutter={[16, 16]}>
-                            <Col xs={24} sm={24} md={24} lg={5} xl={5}>
+                        <Col xs={24} sm={24} md={24} lg={4} xl={4}>
+                            <Button type="primary" shape="round" icon="download"
+                                onClick={this.downloadExcel}>Export Excel Table
+                                </Button>
+                            </Col>
+                            <Col xs={24} sm={24} md={24} lg={4} xl={4}>
                                 <Input 
                                     value={this.state.searchSourceIP}
                                     placeholder="Search Source IP"
                                     onChange={(e)=>this.setState({searchSourceIP : e.target.value})}
                                 />
                             </Col>
-                            <Col xs={24} sm={24} md={24} lg={5} xl={5}>
+                            <Col xs={24} sm={24} md={24} lg={4} xl={4}>
                                 <Input 
                                     value={this.state.searchDestinationIP}
                                     placeholder="Search Destination IP"
                                     onChange={(e)=>this.setState({searchDestinationIP : e.target.value})}
                                 />
                             </Col>
-                            <Col xs={24} sm={24} md={24} lg={5} xl={5}>
+                            <Col xs={24} sm={24} md={24} lg={4} xl={4}>
                                 <Select
                                     id="filterApplication"
                                     mode="multiple"
@@ -400,7 +472,7 @@
                                     {applicationSelectListItem}
                                 </Select>
                             </Col>
-                            <Col xs={24} sm={24} md={24} lg={5} xl={5}>
+                            <Col xs={24} sm={24} md={24} lg={4} xl={4}>
                                 <Input 
                                     value={this.state.searchLogname}
                                     placeholder="Log Name"

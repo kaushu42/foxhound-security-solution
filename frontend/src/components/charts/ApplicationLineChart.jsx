@@ -32,11 +32,6 @@ class ApplicationLineChart extends Component {
       pagination: {},
       applicationlogColumns: [
         {
-          title: "ID",
-          dataIndex: "id",
-          key: "id",
-        },
-        {
           title: "Source Address",
           dataIndex: "source_ip",
           key: "source_ip",
@@ -55,6 +50,16 @@ class ApplicationLineChart extends Component {
           )
         },
         {
+          title: "Application",
+          dataIndex: "application",
+          key: "application"
+        },
+        {
+          title: "Destination Port",
+          dataIndex: "destination_port",
+          key: "destination_port"
+        },
+        {
           title: "Bytes Sent",
           dataIndex: "bytes_sent",
           key: "bytes_sent",
@@ -70,7 +75,8 @@ class ApplicationLineChart extends Component {
           title: "Logged DateTime",
           dataIndex: "logged_datetime",
           key: "logged_datetime",
-          render: text => (new Date(text*1000+20700000).toUTCString()).replace(" GMT", "") //moment(text).format("YYYY-MM-DD, HH:MM:SS")
+          // render: text => moment(text).format("YYYY-MM-DD, HH:MM:SS")
+          render: text => (new Date(text*1000+20700000).toUTCString()).replace(" GMT", "")
         }
       ],
       quickIpView: false
@@ -438,6 +444,21 @@ class ApplicationLineChart extends Component {
         ]
       }
     };
+    const expandedRowRender = record => <p><b>Firewall Rule: </b>{record.firewall_rule}<br/>
+                                      <b>Protocol: </b>{record.protocol}<br/>
+                                      <b>Source Zone: </b>{record.source_zone}<br/>
+                                      <b>Destination Zone: </b>{record.destination_zone}<br/>
+                                      <b>Inbound Interface: </b>{record.inbound_interface}<br/>
+                                      <b>Outbound Interface: </b>{record.outbound_interface}<br/>
+                                      <b>Action: </b>{record.action}<br/>
+                                      <b>Category: </b>{record.category}<br/>
+                                      <b>Session End Reason: </b>{record.session_end_reason}<br/>
+                                      <b>Packets Received: </b>{record.packets_received}<br/>
+                                      <b>Packets Sent: </b>{record.packets_sent}<br/>
+                                      <b>Time Elapsed: </b>{record.time_elapsed}<br/>
+                                      <b>Source Country: </b>{record.source_country}<br/>
+                                      <b>Destination Country: </b>{record.destination_country}<br/>
+                                      </p>;
     return (
       <Fragment>
         <div>
@@ -494,6 +515,7 @@ class ApplicationLineChart extends Component {
             <Table
               rowKey={record => record.id}
               columns={this.state.applicationlogColumns}
+              expandedRowRender={expandedRowRender}
               dataSource={this.state.selectedApplicationLogData}
               pagination={this.state.pagination}
               onChange={this.handleTableChange}

@@ -16,7 +16,8 @@ from core.models import (
     ProcessedTrafficLogDetail,
     ProcessedThreatLogDetail,
     Application,
-    ThreatLog
+    ThreatLog,
+    ThreatLogDetail
 )
 from mis.models import (
     DailyRequestFromBlackListEvent,
@@ -202,20 +203,22 @@ class ThreatApplicationLogApiView(PaginatedView):
     def get(self, request):
         firewall_ids = get_firewall_rules_id_from_request(request)
         application = request.data.get('application', '')
-        timestamp = int(request.data.get('timestamp'))
-
-        tz_ktm = pytz.timezone('Asia/Kathmandu')
-        start_date = datetime.datetime.fromtimestamp(
-            timestamp).astimezone(tz_ktm)
-        end_date = start_date + datetime.timedelta(hours=1)
+        timestamp = request.data.get('timestamp')
         kwargs = {
             'firewall_rule__in': firewall_ids,
-            'application': application,
-            'received_datetime__gte': start_date,
-            'received_datetime__lt': end_date
         }
+        if application:
+            kwargs['application'] = application
+        if timestamp:
+            timestamp = int(timestamp)
+            tz_ktm = pytz.timezone('Asia/Kathmandu')
+            start_date = datetime.datetime.fromtimestamp(
+                timestamp).astimezone(tz_ktm)
+            end_date = start_date + datetime.timedelta(hours=1)
+            kwargs['received_datetime__gte'] = start_date
+            kwargs['received_datetime__lt'] = end_date
 
-        objects = ThreatLog.objects.filter(
+        objects = ThreatLogDetail.objects.filter(
             **kwargs
         ).order_by('id')
 

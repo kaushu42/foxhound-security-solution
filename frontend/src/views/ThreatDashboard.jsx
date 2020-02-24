@@ -5,7 +5,7 @@ import {Card, Col, PageHeader, Row} from "antd";
 import Filter from "../components/Filter";
 import {contentLayout} from "../utils";
 
-import DashboardFilter from "../components/DashboardFilter";
+import ThreatDashboardFilter from "../components/ThreatDashboardFilter";
 import ThreatApplicationChart from "../components/charts/ThreatApplicationChart";
 import ThreatLogTable from '../components/tables/ThreatLogTable'
 import ThreatRequestOriginWorldChart from '../components/charts/ThreatRequestOriginWorldChart'
@@ -21,7 +21,7 @@ class ThreatDashboard extends Component{
                         title={"Threat Dashboard"}
                         onBack={() => window.history.back()} />
                     <Row style={contentLayout}>
-                        <DashboardFilter />
+                        <ThreatDashboardFilter />
                     </Row>
                     <Row style={contentLayout}>
                         <Col xs={24} sm={24} md={24} lg={24} xl={12}>
