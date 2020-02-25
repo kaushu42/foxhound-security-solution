@@ -5,11 +5,20 @@ import {
     PROTOCOL_FILTER_UPDATED,
     SOURCE_ZONE_FILTER_UPDATED,
     DESTINATION_ZONE_FILTER_UPDATED,
-    // IP_ADDRESS_FILTER_UPDATED
+    DEFAULT_DATE_SET
 } from '../actionTypes/filterActionType'
 
 
-export const updateDateRangePickerFilter = (value, defaultDate) => {
+export const defaultDateSet = (value) =>{
+    return{
+        type: DEFAULT_DATE_SET,
+        payload:{
+            defaultDate: value
+        }
+    }
+}
+
+export const updateDateRangePickerFilter = (value) => {
           
     return {
         type: DATE_RANGE_PICKER_FILTER_UPDATED,

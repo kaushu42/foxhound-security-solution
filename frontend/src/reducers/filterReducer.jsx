@@ -5,7 +5,7 @@ import {
     PROTOCOL_FILTER_UPDATED,
     SOURCE_ZONE_FILTER_UPDATED,
     DESTINATION_ZONE_FILTER_UPDATED,
-    IP_ADDRESS_FILTER_UPDATED
+    DEFAULT_DATE_SET
 } from "../actionTypes/filterActionType";
 
 const initialState = {
@@ -50,11 +50,11 @@ const filterReducer = (state=initialState,action) => {
                 ...state,
                 destination_zone: action.payload.destination_zone
             }
-        // case IP_ADDRESS_FILTER_UPDATED:
-        //     return{
-        //         ...state,
-        //         ip_address: action.payload.ip_address
-        //     }
+        case DEFAULT_DATE_SET:
+            return{
+                ...state,
+                defaultDate: action.payload.defaultDate
+            }
         default:
             return state;
     }

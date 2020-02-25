@@ -8,7 +8,7 @@ import {
   updateProtocolFilter,
   updateSourceZoneFilter,
   updateDestinationZoneFilter,
-  updateIpAddressFilter
+  defaultDateSet
 } from "../actions/filterAction";
 import { filterSelectDataServiceAsync } from "../services/filterSelectDataService";
 import {ROOT_URL} from "../utils"
@@ -125,7 +125,7 @@ class DashboardFilter extends Component {
       // ip_value
     } = this.state;
     event.preventDefault();
-    this.props.dispatchRangePickerUpdate(date_range_value,defaultDate);
+    this.props.dispatchRangePickerUpdate(date_range_value);
     // this.props.dispatchIpAddressRuleFilterUpdate(ip_value);
     this.props.dispatchDestinationZoneFilterUpdate(application_value);
     this.props.dispatchSourceZoneFilterUpdate(protocol_value);
@@ -157,7 +157,8 @@ class DashboardFilter extends Component {
     return (
       <Fragment>  
         {this.state.defaultDate ?
-        (<div
+        (this.props.dispatchDefaultDateSet(this.state.defaultDate),
+        <div
           style={{
             padding: 24,
             background: "#fbfbfb",
@@ -307,8 +308,9 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    dispatchRangePickerUpdate: (value, defaultDate) =>
-      dispatch(updateDateRangePickerFilter(value, defaultDate)),
+    dispatchDefaultDateSet:(value)=>dispatch(defaultDateSet(value)),
+    dispatchRangePickerUpdate: (value) =>
+      dispatch(updateDateRangePickerFilter(value)),
     dispatchFirewallRuleFilterUpdate: value =>
       dispatch(updateFirewallRuleFilter(value)),
     dispatchProtocolFilterUpdate: value =>

@@ -29,6 +29,7 @@ class BandwidthUsageChart extends Component {
       params: {},
       pagination: {},
       quickIpView: false,
+      chartTitle: null,
       options: {
         plotOptions: {
           arearange: {
@@ -255,7 +256,7 @@ class BandwidthUsageChart extends Component {
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (
-      String(prevProps.ip_address) !== String(this.props.ip_address) ||
+      String(prevProps.defaultDate) !== String(this.props.defaultDate) ||
       String(prevProps.date_range[0]) !== String(this.props.date_range[0]) ||
       String(prevProps.date_range[1]) !== String(this.props.date_range[1]) ||
       String(prevProps.firewall_rule) !== String(this.props.firewall_rule) ||
@@ -265,6 +266,13 @@ class BandwidthUsageChart extends Component {
       String(prevProps.destination_zone) !== String(this.props.destination_zone) ||
       String(prevState.basis) !== String(this.state.basis)
     ) {
+      {this.props.date_range[0]?this.setState({
+        chartTitle:`Bandwidth Usage Chart from ${this.props.date_range[0]} to ${this.props.date_range[1]}`
+        }):
+        this.setState({
+          chartTitle:`Bandwidth Usage Chart for ${this.props.defaultDate}`
+        })
+      }
       this.handleFetchData();
     }
     if (prevState.data !== this.state.data) {
@@ -279,6 +287,9 @@ class BandwidthUsageChart extends Component {
   updateChart = (data, unit) => {
     if (data != undefined) {
       this.chart.update({
+        title: {
+          text: this.state.chartTitle
+        },
         series: [
           {
             id: this.state.basis,
@@ -451,6 +462,7 @@ const mapStateToProps = state => {
 
     ip_address: state.filter.ip_address,
 
+    defaultDate: state.filter.defaultDate,
     date_range: state.filter.date_range,
     firewall_rule: state.filter.firewall_rule,
     application: state.filter.application,
