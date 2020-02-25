@@ -82,7 +82,8 @@ class RequestOriginWorldChart extends Component {
         render: text => (new Date(text*1000+20700000).toUTCString()).replace(" GMT", "")
       }
     ],
-    quickIpView: false
+    quickIpView: false,
+    chartTitle: null
   };
 
   handleShowSourceIpProfile(record) {
@@ -118,6 +119,7 @@ class RequestOriginWorldChart extends Component {
   handlefetchSelectedCountryLog = (params = {}) => {
     const {
       auth_token,
+      defaultDate,
       start_date,
       end_date,
       firewall_rule,
@@ -205,7 +207,7 @@ class RequestOriginWorldChart extends Component {
     } = this.props;
     if (
       prevProps.excludeCountries != this.props.excludeCountries ||
-      String(prevProps.ip_address) !== String(this.props.ip_address) ||
+      String(prevProps.defaultDate) !== String(this.props.defaultDate) ||
       String(prevProps.start_date) !== String(this.props.start_date) ||
       String(prevProps.end_date) !== String(this.props.end_date) ||
       String(prevProps.firewall_rule) !== String(this.props.firewall_rule) ||
@@ -215,6 +217,13 @@ class RequestOriginWorldChart extends Component {
       String(prevProps.destination_zone) !== String(this.props.destination_zone) ||
       String(prevState.basis) !== String(this.state.basis)
     ) {
+      {this.props.start_date?this.setState({
+        chartTitle:`Request Origin Chart from ${this.props.start_date} to ${this.props.end_date}`
+        }):
+        this.setState({
+          chartTitle:`Request Origin Chart for ${this.props.defaultDate}`
+        })
+      }
       dispatchFetchRequestOriginMapData(
         auth_token,
         start_date,
@@ -259,7 +268,7 @@ class RequestOriginWorldChart extends Component {
       requestOriginMapPagination
     );
   }
-
+  
   toTitleCase(str) {
     return str
       .toLowerCase()
@@ -276,7 +285,7 @@ class RequestOriginWorldChart extends Component {
     const options = {
       chart: {},
       title: {
-        text: null
+        text: this.state.chartTitle
       },
       mapNavigation: {
         enabled: true,
@@ -514,6 +523,7 @@ const mapStateToProps = state => {
     requestOriginMapPagination:
       state.requestOriginChart.requestOriginMapPagination,
 
+    defaultDate: state.filter.defaultDate,
     start_date: state.filter.date_range[0],
     end_date: state.filter.date_range[1],
     firewall_rule: state.filter.firewall_rule,

@@ -30,6 +30,7 @@ class ApplicationLineChart extends Component {
       selectedTimeStamp: null,
       params: {},
       pagination: {},
+      chartTitle: null,
       applicationlogColumns: [
         {
           title: "Source Address",
@@ -181,7 +182,7 @@ class ApplicationLineChart extends Component {
         String(this.props.selectedCountry) ||
       String(prevState.top_count) !== String(this.state.top_count) ||
       String(prevState.basis) !== String(this.state.basis) ||
-      String(prevProps.ip_address) !== String(this.props.ip_address) ||
+      String(prevProps.defaultDate) !== String(this.props.defaultDate) ||
       String(prevProps.date_range[0]) !== String(this.props.date_range[0]) ||
       String(prevProps.date_range[1]) !== String(this.props.date_range[1]) ||
       String(prevProps.firewall_rule) !== String(this.props.firewall_rule) ||
@@ -190,6 +191,13 @@ class ApplicationLineChart extends Component {
       String(prevProps.source_zone) !== String(this.props.source_zone) ||
       String(prevProps.destination_zone) !== String(this.props.destination_zone)
     ) {
+      {this.props.date_range[0]?this.setState({
+        chartTitle:`Application Line Chart from ${this.props.date_range[0]} to ${this.props.date_range[1]}`
+        }):
+        this.setState({
+          chartTitle:`Application Line Chart for ${this.props.defaultDate}`
+        })
+      }
       this.handleFetchData();
     }
     if (prevState.data !== this.state.data) {
@@ -226,6 +234,9 @@ class ApplicationLineChart extends Component {
 
   updateChart = (data,unit) => {
     this.chart.update({
+      title: {
+        text: this.state.chartTitle
+      },
       tooltip: {
         valueSuffix: unit,
         shared: true,
@@ -425,7 +436,7 @@ class ApplicationLineChart extends Component {
       },
 
       title: {
-        text: null
+        text: this.state.chartTitle
       },
       responsive: {
         rules: [
@@ -546,6 +557,7 @@ const mapStateToProps = state => {
 
     ip_address: state.ipSearchBar.ip_address,
 
+    defaultDate: state.filter.defaultDate,
     date_range: state.filter.date_range,
     firewall_rule: state.filter.firewall_rule,
     application: state.filter.application,

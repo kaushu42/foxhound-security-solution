@@ -137,19 +137,19 @@ class DashboardFilter extends Component {
 
   render() {
     const applicationSelectListItem = this.state.application_select_data.map(
-      data => <Option key={data[0]}>{data[1]}</Option>
+      data => <Option key={data[1]}>{data[1]}</Option>
     );
     const firewallRuleSelectListItem = this.state.firewall_rule_select_data.map(
-      data => <Option key={data[0]}>{data[1]}</Option>
+      data => <Option key={data[1]}>{data[1]}</Option>
     );
     const protocolSelectListItem = this.state.protocol_select_data.map(data => (
-      <Option key={data[0]}>{data[1]}</Option>
+      <Option key={data[1]}>{data[1]}</Option>
     ));
     const sourceZoneSelectListItem = this.state.source_zone_select_data.map(
-      data => <Option key={data[0]}>{data[1]}</Option>
+      data => <Option key={data[1]}>{data[1]}</Option>
     );
     const destinationZoneSelectListItem = this.state.destination_zone_select_data.map(
-      data => <Option key={data[0]}>{data[1]}</Option>
+      data => <Option key={data[1]}>{data[1]}</Option>
     );
     // const ipAddressSelectListItem = this.state.ip_address_select_data.map(
     //   data => <Option key={data["id"]}>{data["address"]}</Option>
