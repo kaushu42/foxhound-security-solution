@@ -127,7 +127,6 @@ class ApplicationApiView(APIView):
             request, model_name='', datetime_field_name='received_datetime')
         objects = get_objects_from_query(queries, model=ThreatLogDetail)
         firewall_rule_ids = get_firewall_rules_id_from_request(request)
-
         kwargs = {
             'firewall_rule__in': firewall_rule_ids,
         }
@@ -140,7 +139,9 @@ class ApplicationApiView(APIView):
             sum=Sum('repeat_count')
         ).order_by('-sum').values('application')[:top_count]
 
-        objects = objects.filter(application__in=applications).values(
+        objects = objects.filter(
+            application__in=applications, **kwargs
+        ).values(
             'received_datetime',
             'application'
         ).annotate(
@@ -180,8 +181,14 @@ class ApplicationApiView(APIView):
 class CountryApiView(APIView):
     def post(self, request):
         firewall_ids = get_firewall_rules_id_from_request(request)
-        objects = ThreatLogDetail.objects.filter(
-            firewall_rule__in=firewall_ids)
+        queries = get_query_from_request(
+            request, model_name='', datetime_field_name='received_datetime')
+
+        objects = get_objects_from_query(
+            queries,
+            model=ThreatLogDetail
+        )
+
         except_countries = request.data.get('except_countries', '')
         if except_countries:
             except_countries = except_countries.split(',')
@@ -190,6 +197,7 @@ class CountryApiView(APIView):
         for obj in objects:
             name, code = get_country_name_and_code(obj.source_ip)
             values[code] += obj.repeat_count
+
         return Response({
             i: values[i] for i in values if i not in except_countries
         })

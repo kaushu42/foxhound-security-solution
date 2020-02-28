@@ -180,11 +180,11 @@ def _get_date_queries(start_date, end_date, model_name, datetime_field_name):
             start_date_query_field: start_date
         },
         'end_date': {
-            end_date_query_field: end_date
+            end_date_query_field: end_date if start_date != end_date else start_date +
+            datetime.timedelta(days=1)
         }
     }
     queries = []
-
     if start_date:
         start_date_query = Q(**date_queries['start_date'])
         queries.append(start_date_query)
@@ -265,19 +265,19 @@ def get_query_from_request(
 
 
 def get_objects_from_query(queries, model=TrafficLogDetailGranularHour,
-                           type='model'):
+                           type='model', **kwargs):
     if queries:
         result = queries.pop(0)
         for query in queries:
             result &= query
         if type == 'model':
-            return model.objects.filter(result)
+            return model.objects.filter(result, **kwargs)
         elif type == 'queryset':
-            return model.filter(result)
+            return model.filter(result, **kwargs)
         else:
             raise Exception("type can be 'model' or 'queryset'")
     if type == 'model':
-        return model.objects.filter()
+        return model.objects.filter(**kwargs)
     elif type == 'queryset':
         return model
 
