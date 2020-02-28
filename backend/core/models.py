@@ -494,7 +494,7 @@ class ThreatLogDetail(models.Model):
     source_port = models.IntegerField(null=True)
     destination_port = models.IntegerField(null=True)
     flags = models.CharField(max_length=300, null=True)
-    ip_protocol = models.CharField(max_length=300, null=True)
+    protocol = models.CharField(max_length=300, null=True)
     action = models.CharField(max_length=300, null=True)
     url_filename = models.CharField(max_length=300, null=True)
     threat_content_name = models.CharField(max_length=300, null=True)

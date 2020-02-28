@@ -16,8 +16,38 @@ from globalutils.utils import (
     get_firewall_rules_id_from_request,
     to_regex,
     get_objects_with_date_filtered,
-    get_country_name_and_code
+    get_country_name_and_code,
+    get_filters,
+    get_query_from_request,
+    get_objects_from_query
 )
+
+
+class ThreatFiltersApiView(APIView):
+    def _get_objs(self, objects, field_name):
+        return objects.values_list(
+            field_name
+        ).distinct().order_by(field_name)
+
+    def post(self, request):
+        firewall_ids = get_firewall_rules_id_from_request(request)
+        objects = ThreatLogDetail.objects.filter(
+            firewall_rule__in=firewall_ids
+        )
+        firewall_rule = objects.values_list(
+            'firewall_rule', 'firewall_rule__name').distinct()
+        application = self._get_objs(objects, 'application')
+        protocol = self._get_objs(objects, 'protocol')
+        source_zone = self._get_objs(objects, 'source_zone')
+        destination_zone = self._get_objs(objects, 'destination_zone')
+        response = {
+            "firewall_rule": firewall_rule,
+            "application": application,
+            "protocol": protocol,
+            "source_zone": source_zone,
+            "destination_zone": destination_zone
+        }
+        return Response(response)
 
 
 class ThreatLogTableApiView(PaginatedView):
@@ -93,7 +123,9 @@ class ApplicationApiView(APIView):
         # Send all applications if top_count is 0
         # Assuming applications < 10000
         top_count = top_count if top_count else 10000
-
+        queries = get_query_from_request(
+            request, model_name='', datetime_field_name='received_datetime')
+        objects = get_objects_from_query(queries, model=ThreatLogDetail)
         firewall_rule_ids = get_firewall_rules_id_from_request(request)
 
         kwargs = {
@@ -104,14 +136,9 @@ class ApplicationApiView(APIView):
         if country:
             kwargs['source_country'] = country.title()
 
-        objects = get_objects_with_date_filtered(
-            request,
-            ThreatLogDetail,
-            'received_datetime',
-            **kwargs
-        )
         applications = objects.values('application').annotate(
-            sum=Sum('repeat_count')).order_by('-sum').values('application')[:top_count]
+            sum=Sum('repeat_count')
+        ).order_by('-sum').values('application')[:top_count]
 
         objects = objects.filter(application__in=applications).values(
             'received_datetime',
