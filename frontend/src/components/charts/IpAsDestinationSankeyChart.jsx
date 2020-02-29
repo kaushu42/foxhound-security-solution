@@ -7,9 +7,9 @@ require("highcharts/modules/exporting")(Highcharts);
 import axios from 'axios';
 import {connect} from "react-redux";
 import mapdata from "../../charts/mapdata";
-import {Card, Row, Spin, Drawer, Table, Select} from "antd";
+import {Card, Row, Spin, Drawer, Table, Select, Button} from "antd";
 import HighchartsReact from "highcharts-react-official";
-import moment from "moment";
+import ExportJsonExcel from 'js-export-excel';
 import {getDivisionFactorUnitsFromBasis} from '../../utils'
 
 const FETCH_API = `${ROOT_URL}profile/sankey/`;
@@ -327,6 +327,54 @@ class IpAsDestinationSankeyChart extends Component {
         }
     )}
 
+    downloadExcel = () => {
+        const data = this.state.selectedSourceToDestinationLogData ? this.state.selectedSourceToDestinationLogData : '';//tabular data
+         var option={};
+         let dataTable = [];
+         if (data) {
+            console.log("******DOWNLOADING EXCEL***********",data);
+           for (let i in data) {
+             if(data){
+               let obj = {
+                            'Logged datetime': (new Date(parseInt(data[i].logged_datetime)*1000+20700000).toUTCString()).replace(" GMT", ""),
+                            'Source address': data[i].source_ip,
+                            'Destination address': data[i].destination_ip,
+                            'Application':data[i].application,
+                            'Bytes sent':data[i].bytes_sent,
+                            'Bytes received':data[i].bytes_received,
+                            'Destination Port':data[i].destination_port,
+                            'Protocol':data[i].protocol,
+                            'Source zone':data[i].source_zone,
+                            'Destination zone':data[i].destination_zone,
+                            'Inbound interface':data[i].inbound_interface,
+                            'Outbound interface':data[i].outbound_interface,
+                            'Action':data[i].action,
+                            'Category':data[i].category,
+                            'Session end reason':data[i].session_end_reason,
+                            'Packets received':data[i].packets_received,
+                            'Packets sent':data[i].packets_sent,
+                            'Time elapsed':data[i].time_elapsed,
+                            'Source country':data[i].source_country,
+                            'Destination country':data[i].destination_country
+               }
+               dataTable.push(obj);
+             }
+           }
+         }
+            option.fileName = 'Sankey Log'
+         option.datas=[
+           {
+             sheetData:dataTable,
+             sheetName:'sheet',
+                    sheetFilter:['Logged datetime','Source address','Destination address','Application','Bytes sent','Bytes received','Destination Port','Protocol','Source zone','Destination zone','Inbound interface','Outbound interface','Action','Category','Session end reason','Packets received','Packets sent','Time elapsed','Source country','Destination country'],
+                    sheetHeader:['Logged datetime','Source address','Destination address','Application','Bytes sent','Bytes received','Destination Port','Protocol','Source zone','Destination zone','Inbound interface','Outbound interface','Action','Category','Session end reason','Packets received','Packets sent','Time elapsed','Source country','Destination country']
+           }
+         ];
+        
+         var toExcel = new ExportJsonExcel(option); 
+         toExcel.saveExcel();        
+    }
+
     render() {
         const expandedRowRender = record => <p><b>Firewall Rule: </b>{record.firewall_rule}<br/>
                                       <b>Protocol: </b>{record.protocol}<br/>
@@ -380,6 +428,9 @@ class IpAsDestinationSankeyChart extends Component {
                     closable={true}
                     onClose={this.handleCloseLogDrawer}
                 >
+                    <Button type="primary" shape="round" icon="download"
+                                onClick={this.downloadExcel}>Export Excel Table
+                    </Button>
                     {
                         this.state.selectedSourceToDestinationLogData ? (
                             <Table

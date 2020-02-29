@@ -127,10 +127,10 @@ class DashboardFilter extends Component {
     event.preventDefault();
     this.props.dispatchRangePickerUpdate(date_range_value);
     // this.props.dispatchIpAddressRuleFilterUpdate(ip_value);
-    this.props.dispatchDestinationZoneFilterUpdate(application_value);
-    this.props.dispatchSourceZoneFilterUpdate(protocol_value);
-    this.props.dispatchProtocolFilterUpdate(source_zone_value);
-    this.props.dispatchApplicationFilterUpdate(destination_zone_value);
+    this.props.dispatchDestinationZoneFilterUpdate(destination_zone_value);
+    this.props.dispatchSourceZoneFilterUpdate(source_zone_value);
+    this.props.dispatchProtocolFilterUpdate(protocol_value);
+    this.props.dispatchApplicationFilterUpdate(application_value);
     this.props.dispatchFirewallRuleFilterUpdate(firewall_rule_value);
   };
 
