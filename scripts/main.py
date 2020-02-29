@@ -23,7 +23,7 @@ import batch_logger
 # logging.info(f'Script ran on {datetime.datetime.now()}')
 try:
     # seedutils.seed()
-    # run.log_engine()
+    run.log_engine()
     # run.mis_engine()
     # run.ml_engine()
     # run.dc_engine()
@@ -31,7 +31,7 @@ try:
     # run.chart_engine()
     # run.db_engine()
     # run.tt_engine()
-    run.threat_engine()
+    # run.threat_engine()
 
 except Exception as e:
     logging.exception(f'Terminated on {datetime.datetime.now()}')

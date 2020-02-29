@@ -7,7 +7,8 @@ import {
     updateApplicationFilter,
     updateProtocolFilter,
     updateSourceZoneFilter,
-    updateDestinationZoneFilter
+    updateDestinationZoneFilter,
+    defaultDateSet
 } from "../actions/filterAction";
 import {filterSelectDataServiceAsync} from "../services/filterSelectDataService";
 
@@ -32,28 +33,29 @@ class Filter extends Component{
             application_value :[],
             protocol_value:[],
             source_zone_value : [],
-            destination_zone_value : []
+            destination_zone_value : [],
+            defaultDate:null
         }
    }
 
     componentDidMount() {
         filterSelectDataServiceAsync(this.props.auth_token)
             .then(response => {
-                const data = response[0].data;
-                console.log(data);
+                const filter_data = response[0].data;
+                const defaultDate = response[1].data;
                 this.setState({
-                    firewall_rule_select_data : data.firewall_rule,
-                    application_select_data : data.application,
-                    protocol_select_data : data.protocol,
-                    source_zone_select_data : data.source_zone,
-                    destination_zone_select_data : data.destination_zone,
+                    defaultDate: defaultDate.date,
+                    firewall_rule_select_data : filter_data.firewall_rule,
+                    application_select_data : filter_data.application,
+                    protocol_select_data : filter_data.protocol,
+                    source_zone_select_data : filter_data.source_zone,
+                    destination_zone_select_data : filter_data.destination_zone,
                     loading_firewall_rule_select : false,
                     loading_application_select : false,
                     loading_protocol_select : false,
                     loading_source_zone_select : false,
                     loading_destination_zone_select : false,
                 });
-
             })
             .catch((error) => console.log(error));
     }
@@ -104,10 +106,10 @@ class Filter extends Component{
         const {date_range_value,firewall_rule_value,application_value,protocol_value,source_zone_value,destination_zone_value} = this.state;
         event.preventDefault();
         this.props.dispatchRangePickerUpdate(date_range_value);
-        this.props.dispatchDestinationZoneFilterUpdate(application_value);
-        this.props.dispatchSourceZoneFilterUpdate(protocol_value);
-        this.props.dispatchProtocolFilterUpdate(source_zone_value);
-        this.props.dispatchApplicationFilterUpdate(destination_zone_value);
+        this.props.dispatchDestinationZoneFilterUpdate(destination_zone_value);
+        this.props.dispatchSourceZoneFilterUpdate(source_zone_value);
+        this.props.dispatchProtocolFilterUpdate(protocol_value);
+        this.props.dispatchApplicationFilterUpdate(application_value);
         this.props.dispatchFirewallRuleFilterUpdate(firewall_rule_value);
 
     }
@@ -121,6 +123,7 @@ class Filter extends Component{
 
         return(
             <Fragment>
+                {this.state.defaultDate ?(this.props.dispatchDefaultDateSet(this.state.defaultDate),
                 <div style={{padding:24,background:'#fbfbfb',border: '1px solid #d9d9d9',borderRadius: 6}}>
                     <Row gutter={[16,16]}>
                         <Col xs={24} sm={24} md={12} lg={4} xl={4}>
@@ -198,7 +201,7 @@ class Filter extends Component{
                             <Button type={"primary"} style={{width:'100%'}} onClick={this.handleFilterApplyChanges}>Apply Filter</Button>
                         </Col>
                     </Row>
-                </div>
+                </div>):null}
             </Fragment>
         )
     }
@@ -219,6 +222,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
+        dispatchDefaultDateSet:(value)=>dispatch(defaultDateSet(value)),
         dispatchRangePickerUpdate: value => dispatch(updateDateRangePickerFilter(value)),
         dispatchFirewallRuleFilterUpdate:value => dispatch(updateFirewallRuleFilter(value)),
         dispatchProtocolFilterUpdate:value => dispatch(updateProtocolFilter(value)),

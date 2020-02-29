@@ -180,9 +180,6 @@ class ThreatLogTable extends Component{
                             'Action':data[i].action,
                             'Category':data[i].category,
                             'Threat content name':data[i].threat_content_name,
-                            'Packets received':data[i].packets_received,
-                            'Packets sent':data[i].packets_sent,
-                            'Time elapsed':data[i].time_elapsed,
                             'Source country':data[i].source_country,
                             'Destination country':data[i].destination_country,
                }
@@ -195,8 +192,8 @@ class ThreatLogTable extends Component{
            {
              sheetData:dataTable,
              sheetName:'sheet',
-                    sheetFilter:['Logged datetime','Source address','Destination address','Application','Destination port','Severity','Threat content type','Protocol','Source zone','Destination zone','Inbound interface','Outbound interface','Action','Category','Threat content name','Packets received','Packets sent','Time elapsed','Source country','Destination country'],
-                    sheetHeader:['Logged datetime','Source address','Destination address','Application','Destination port','Severity','Threat content type','Protocol','Source zone','Destination zone','Inbound interface','Outbound interface','Action','Category','Threat content name','Packets received','Packets sent','Time elapsed','Source country','Destination country']
+                    sheetFilter:['Logged datetime','Source address','Destination address','Application','Destination port','Severity','Threat content type','Protocol','Source zone','Destination zone','Inbound interface','Outbound interface','Action','Category','Threat content name', 'Source country','Destination country'],
+                    sheetHeader:['Logged datetime','Source address','Destination address','Application','Destination port','Severity','Threat content type','Protocol','Source zone','Destination zone','Inbound interface','Outbound interface','Action','Category','Threat content name', 'Source country','Destination country']
            }
          ];
         
@@ -218,9 +215,6 @@ class ThreatLogTable extends Component{
                                       <b>Category: </b>{record.category}<br/>
                                       <b>Direction: </b>{record.direction}<br/>
                                       <b>Threat Content Name: </b>{record.threat_content_name}<br/>
-                                      <b>Packets Received: </b>{record.packets_received}<br/>
-                                      <b>Packets Sent: </b>{record.packets_sent}<br/>
-                                      <b>Time Elapsed: </b>{record.time_elapsed}<br/>
                                       <b>Source Country: </b>{record.source_country}<br/>
                                       <b>Destination Country: </b>{record.destination_country}<br/>
                                       <b>Log Name: </b>{record.log_name}<br/>

@@ -27,6 +27,7 @@ class ThreatApplicationChart extends Component{
             selectedTimeStamp: null,
             params: {},
             pagination: {},
+            chartTitle: null,
             applicationlogColumns: [
                 {
                     title:"Source Address",
@@ -171,7 +172,7 @@ class ThreatApplicationChart extends Component{
         if (
             String(prevProps.selectedCountry) !== String(this.props.selectedCountry) ||
             String(prevState.top_count) !== String(this.state.top_count) ||
-            String(prevProps.ip_address) !== String(this.props.ip_address) ||
+            String(prevProps.defaultDate) !== String(this.props.defaultDate) ||
             String(prevProps.date_range[0]) !== String(this.props.date_range[0]) ||
             String(prevProps.date_range[1]) !== String(this.props.date_range[1]) ||
             String(prevProps.firewall_rule) !== String(this.props.firewall_rule) ||
@@ -180,7 +181,13 @@ class ThreatApplicationChart extends Component{
             String(prevProps.source_zone) !== String(this.props.source_zone) ||
             String(prevProps.destination_zone) !== String(this.props.destination_zone)
         ) {
-            console.log("********************FETCHING FILTERED DATA*************",this.props.date_range,this.props.firewall_rule,this.props.application,this.props.protocol,this.props.source_zone,this.props.destination_zone)
+            {this.props.date_range[0]?this.setState({
+                chartTitle:`Threat Application Line Chart from ${this.props.date_range[0]} to ${this.props.date_range[1]}`
+                }):
+                this.setState({
+                    chartTitle:`Threat Application Line Chart for ${this.props.defaultDate}`
+                })
+            }
             this.handleFetchData();
         }
         if (prevState.data !== this.state.data) {
@@ -210,6 +217,9 @@ class ThreatApplicationChart extends Component{
 
     updateChart = (data,unit) => {
         this.chart.update({
+        title: {
+            text: this.state.chartTitle
+        },
         tooltip: {
             valueSuffix: unit,
             shared: true,
@@ -390,9 +400,8 @@ class ThreatApplicationChart extends Component{
             chart: {
                 zoomType: "x"
             },
-        
             title: {
-                text: null
+                text: this.state.chartTitle
             },
             responsive: {
                 rules: [
@@ -498,6 +507,7 @@ ThreatApplicationChart.defaultProps = {
 const mapStateToProps = state => {
     return{
         auth_token: state.auth.auth_token,
+        defaultDate: state.filter.defaultDate,
         date_range: state.filter.date_range,
         firewall_rule: state.filter.firewall_rule,
         application: state.filter.application,

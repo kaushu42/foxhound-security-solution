@@ -29,6 +29,7 @@ class IpAsSourceSankeyChart extends Component {
             selectedSourceToDestinationLogDrawerVisible : false,
             selectedSourceToDestinationLogData : [],
             basis:"bytes",
+            chartTitle: null,
             options : {
                 chart : {
                     margin : 50,
@@ -215,6 +216,20 @@ class IpAsSourceSankeyChart extends Component {
             (String(prevProps.destination_zone)!==String(this.props.destination_zone)) ||
             (String(prevState.basis)!==String(this.state.basis))
         ){
+            if(this.props.ip_address != ""){
+                {this.props.date_range[0]?this.setState({
+                    chartTitle:`Sankey Chart for IP as Source from ${this.props.date_range[0]} to ${this.props.date_range[1]}`
+                    }):
+                    this.setState({
+                        chartTitle:`Sankey Chart for IP as Source for ${this.props.defaultDate}`
+                    })
+                }
+              }
+              else{
+                  this.setState({
+                      chartTitle:null
+                  })
+              }
             this.handleFetchData();
         }
         if(prevState.data!==this.state.data){
@@ -234,6 +249,9 @@ class IpAsSourceSankeyChart extends Component {
         }
 
         this.chart.update({
+            title: {
+                text: this.state.chartTitle
+              },
             series: [
                 {
                     keys: ['from', 'to', 'weight'],
@@ -388,7 +406,7 @@ const mapStateToProps = state => {
         auth_token : state.auth.auth_token,
 
         ip_address : state.ipSearchBar.ip_address,
-
+        defaultDate: state.filter.defaultDate,
         date_range : state.filter.date_range,
         firewall_rule : state.filter.firewall_rule,
         application : state.filter.application,

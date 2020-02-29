@@ -18,6 +18,7 @@ class IpUsageTimeSeriesChart extends Component {
       data: [],
       unit: "",
       basis: "bytes",
+      chartTitle: null,
       options: {
         title: {
           text: null
@@ -118,6 +119,7 @@ class IpUsageTimeSeriesChart extends Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (
       String(prevProps.ip_address) !== String(this.props.ip_address) ||
+      String(prevProps.defaultDate) !== String(this.props.defaultDate) ||
       String(prevProps.date_range[0]) !== String(this.props.date_range[0]) ||
       String(prevProps.date_range[1]) !== String(this.props.date_range[1]) ||
       String(prevProps.firewall_rule) !== String(this.props.firewall_rule) ||
@@ -127,6 +129,20 @@ class IpUsageTimeSeriesChart extends Component {
       String(prevProps.destination_zone) !== String(this.props.destination_zone) ||
       String(prevState.basis) !== String(this.state.basis)
     ) {
+      if(this.props.ip_address != ""){
+        {this.props.date_range[0]?this.setState({
+            chartTitle:`Bandwidth Usage Chart from ${this.props.date_range[0]} to ${this.props.date_range[1]}`
+            }):
+            this.setState({
+                chartTitle:`Bandwidth Usage Chart for ${this.props.defaultDate}`
+            })
+        }
+      }
+      else{
+          this.setState({
+              chartTitle:null
+          })
+      }
       this.handleFetchData();
     }
     if (prevState.data !== this.state.data) {
@@ -153,7 +169,7 @@ class IpUsageTimeSeriesChart extends Component {
     console.log("******BYTES RECEIVED*******", bytesReceived)
     this.chart.update({
       title: {
-        text: null
+        text: this.state.chartTitle
       },
       series: [
         {
@@ -218,7 +234,7 @@ const mapStateToProps = state => {
     auth_token: state.auth.auth_token,
 
     ip_address: state.ipSearchBar.ip_address,
-
+    defaultDate: state.filter.defaultDate,
     date_range: state.filter.date_range,
     firewall_rule: state.filter.firewall_rule,
     application: state.filter.application,
