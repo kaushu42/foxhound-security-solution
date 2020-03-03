@@ -180,8 +180,8 @@ def _get_date_queries(start_date, end_date, model_name, datetime_field_name):
             start_date_query_field: start_date
         },
         'end_date': {
-            end_date_query_field: end_date if start_date != end_date else start_date +
-            datetime.timedelta(days=1)
+            end_date_query_field: end_date if start_date != end_date else (start_date +
+                                                                           datetime.timedelta(days=1) if start_date is not None else None)
         }
     }
     queries = []
