@@ -1,11 +1,12 @@
 import React, { Component, Fragment } from "react";
 import Highcharts from "highcharts/highstock";
 import HighchartsReact from "highcharts-react-official";
-import { Card, Row, Spin, Select, Drawer, Table } from "antd";
+import { Card, Row, Spin, Select, Drawer, Table, Button } from "antd";
 import { connect } from "react-redux";
 import axios from "axios";
 import QuickIpView from "../views/QuickIpView"
 import {search} from "../actions/ipSearchAction"
+import ExportJsonExcel from 'js-export-excel';
 import { ROOT_URL,getDivisionFactorUnitsFromBasis, bytesToSize } from "../utils";
 require("highcharts/modules/exporting")(Highcharts);
 import "./chart.css";
@@ -380,6 +381,54 @@ class BandwidthUsageChart extends Component {
     });
   };
 
+  downloadExcel = () => {
+    const data = this.state.logData ? this.state.logData : '';//tabular data
+     var option={};
+     let dataTable = [];
+     if (data) {
+       for (let i in data) {
+         if(data){
+           let obj = {
+                        'Logged datetime': (new Date(parseInt(data[i].logged_datetime)*1000+20700000).toUTCString()).replace(" GMT", ""),
+                        'Source address': data[i].source_ip,
+                        'Destination address': data[i].destination_ip,
+                        'Application':data[i].application,
+                        'Bytes sent':data[i].bytes_sent,
+                        'Bytes received':data[i].bytes_received,
+                        'Destination Port':data[i].destination_port,
+                        'Firewall rule':data[i].firewall_rule,
+                        'Protocol':data[i].protocol,
+                        'Source zone':data[i].source_zone,
+                        'Destination zone':data[i].destination_zone,
+                        'Inbound interface':data[i].inbound_interface,
+                        'Outbound interface':data[i].outbound_interface,
+                        'Action':data[i].action,
+                        'Category':data[i].category,
+                        'Session end reason':data[i].session_end_reason,
+                        'Packets received':data[i].packets_received,
+                        'Packets sent':data[i].packets_sent,
+                        'Time elapsed':data[i].time_elapsed,
+                        'Source country':data[i].source_country,
+                        'Destination country':data[i].destination_country
+           }
+           dataTable.push(obj);
+         }
+       }
+     }
+        option.fileName = `Event Logs for time ${(new Date(this.state.selectedTimeStamp+20700000).toUTCString()).replace(" GMT", "")}`
+     option.datas=[
+       {
+         sheetData:dataTable,
+         sheetName:'sheet',
+                sheetFilter:['Logged datetime','Source address','Destination address','Application','Bytes sent','Bytes received','Destination Port','Firewall rule','Protocol','Source zone','Destination zone','Inbound interface','Outbound interface','Action','Category','Session end reason','Packets received','Packets sent','Time elapsed','Source country','Destination country'],
+                sheetHeader:['Logged datetime','Source address','Destination address','Application','Bytes sent','Bytes received','Destination Port','Firewall rule','Protocol','Source zone','Destination zone','Inbound interface','Outbound interface','Action','Category','Session end reason','Packets received','Packets sent','Time elapsed','Source country','Destination country']
+       }
+     ];
+    
+     var toExcel = new ExportJsonExcel(option); 
+     toExcel.saveExcel();        
+  }
+
   render() {
     const expandedRowRender = record => <p><b>Firewall Rule: </b>{record.firewall_rule}<br/>
                                       <b>Protocol: </b>{record.protocol}<br/>
@@ -432,6 +481,9 @@ class BandwidthUsageChart extends Component {
           closable={true}
           onClose={this.handleCloseLogDrawer}
         >
+          <Button type="primary" shape="round" icon="download"
+                                onClick={this.downloadExcel}>Export Excel Table
+              </Button>
           {this.state.logData ? (
             <Table
               rowKey={record => record.id}

@@ -334,7 +334,6 @@ class IpAsSourceSankeyChart extends Component {
          var option={};
          let dataTable = [];
          if (data) {
-            console.log("******DOWNLOADING EXCEL***********",data);
            for (let i in data) {
              if(data){
                let obj = {
@@ -345,6 +344,7 @@ class IpAsSourceSankeyChart extends Component {
                             'Bytes sent':data[i].bytes_sent,
                             'Bytes received':data[i].bytes_received,
                             'Destination Port':data[i].destination_port,
+                            'Firewall rule':data[i].firewall_rule,
                             'Protocol':data[i].protocol,
                             'Source zone':data[i].source_zone,
                             'Destination zone':data[i].destination_zone,
@@ -368,8 +368,8 @@ class IpAsSourceSankeyChart extends Component {
            {
              sheetData:dataTable,
              sheetName:'sheet',
-                    sheetFilter:['Logged datetime','Source address','Destination address','Application','Bytes sent','Bytes received','Destination Port','Protocol','Source zone','Destination zone','Inbound interface','Outbound interface','Action','Category','Session end reason','Packets received','Packets sent','Time elapsed','Source country','Destination country'],
-                    sheetHeader:['Logged datetime','Source address','Destination address','Application','Bytes sent','Bytes received','Destination Port','Protocol','Source zone','Destination zone','Inbound interface','Outbound interface','Action','Category','Session end reason','Packets received','Packets sent','Time elapsed','Source country','Destination country']
+                    sheetFilter:['Logged datetime','Source address','Destination address','Application','Bytes sent','Bytes received','Destination Port','Firewall rule','Protocol','Source zone','Destination zone','Inbound interface','Outbound interface','Action','Category','Session end reason','Packets received','Packets sent','Time elapsed','Source country','Destination country'],
+                    sheetHeader:['Logged datetime','Source address','Destination address','Application','Bytes sent','Bytes received','Destination Port','Firewall rule','Protocol','Source zone','Destination zone','Inbound interface','Outbound interface','Action','Category','Session end reason','Packets received','Packets sent','Time elapsed','Source country','Destination country']
            }
          ];
         

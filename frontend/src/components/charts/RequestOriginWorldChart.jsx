@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import HighchartsReact from "highcharts-react-official";
 import Highcharts from "highcharts";
 import mapdata from "../../charts/mapdata";
-import moment from "moment";
+import ExportJsonExcel from 'js-export-excel';
 import {
   countrySelectedInMapChart,
   fetchCountryListData,
@@ -22,7 +22,8 @@ import {
   Row,
   Col,
   Statistic,
-  Icon
+  Icon,
+  Button
 } from "antd";
 import ApplicationLineChart from "./ApplicationLineChart";
 import QuickIpView from "../../views/QuickIpView";
@@ -279,6 +280,54 @@ class RequestOriginWorldChart extends Component {
       .join(" ");
   }
 
+  downloadExcel = () => {
+    const data = this.props.mapSelectedCountryLogData ? this.props.mapSelectedCountryLogData : '';//tabular data
+     var option={};
+     let dataTable = [];
+     if (data) {
+       for (let i in data) {
+         if(data){
+           let obj = {
+                        'Logged datetime': (new Date(parseInt(data[i].logged_datetime)*1000+20700000).toUTCString()).replace(" GMT", ""),
+                        'Source address': data[i].source_ip,
+                        'Destination address': data[i].destination_ip,
+                        'Application':data[i].application,
+                        'Bytes sent':data[i].bytes_sent,
+                        'Bytes received':data[i].bytes_received,
+                        'Destination Port':data[i].destination_port,
+                        'Firewall rule':data[i].firewall_rule,
+                        'Protocol':data[i].protocol,
+                        'Source zone':data[i].source_zone,
+                        'Destination zone':data[i].destination_zone,
+                        'Inbound interface':data[i].inbound_interface,
+                        'Outbound interface':data[i].outbound_interface,
+                        'Action':data[i].action,
+                        'Category':data[i].category,
+                        'Session end reason':data[i].session_end_reason,
+                        'Packets received':data[i].packets_received,
+                        'Packets sent':data[i].packets_sent,
+                        'Time elapsed':data[i].time_elapsed,
+                        'Source country':data[i].source_country,
+                        'Destination country':data[i].destination_country
+           }
+           dataTable.push(obj);
+         }
+       }
+     }
+        option.fileName = `Log of ${this.props.mapChartSelectedCountryName}`
+     option.datas=[
+       {
+         sheetData:dataTable,
+         sheetName:'sheet',
+                sheetFilter:['Logged datetime','Source address','Destination address','Application','Bytes sent','Bytes received','Destination Port','Firewall rule','Protocol','Source zone','Destination zone','Inbound interface','Outbound interface','Action','Category','Session end reason','Packets received','Packets sent','Time elapsed','Source country','Destination country'],
+                sheetHeader:['Logged datetime','Source address','Destination address','Application','Bytes sent','Bytes received','Destination Port','Firewall rule','Protocol','Source zone','Destination zone','Inbound interface','Outbound interface','Action','Category','Session end reason','Packets received','Packets sent','Time elapsed','Source country','Destination country']
+       }
+     ];
+    
+     var toExcel = new ExportJsonExcel(option); 
+     toExcel.saveExcel();        
+  }
+
   render() {
     const { mapChartData } = this.props;
     console.log("**** map chart data ***",mapChartData)
@@ -477,6 +526,9 @@ class RequestOriginWorldChart extends Component {
                 borderRadius: 6
               }}
             >
+              <Button type="primary" shape="round" icon="download"
+                                onClick={this.downloadExcel}>Export Excel Table
+              </Button>
               <Table
                 columns={this.state.columns}
                 rowKey={record => record.id}
