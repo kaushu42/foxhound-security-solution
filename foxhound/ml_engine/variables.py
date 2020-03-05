@@ -18,6 +18,17 @@ features_list = ['logged_datetime',
                  'time_elapsed',
                  'packets_received']
 
+features_to_convert_to_number = [
+    'application_id',
+    'source_zone_id',
+    'source_port',
+    'destination_port',
+    'protocol_id',
+    'category_id',
+    'action_id',
+    'session_end_reason_id', 
+]
+
 categorical_features = [
     'application_id',
     'source_zone_id',
