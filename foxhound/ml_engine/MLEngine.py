@@ -6,10 +6,13 @@ import ipaddress
 import numpy as np
 import pandas as pd
 
+import dask.dataframe as dd
+import multiprocessing
+
 import csv
 import joblib
 
-from .variables import features_list, categorical_features
+from .variables import features_list, categorical_features, features_to_convert_to_number
 from .model import AutoEncoder
 
 
@@ -98,6 +101,14 @@ class MLEngine(AutoEncoder):
                         c.writerow(df.columns)
                     c.writerow(row.values)
 
+    def _str_to_num(self, column):
+        column = [sum([(weight+1)*char for weight, char in enumerate(list(bytearray(cell, encoding='utf8'))[::-1])]) if isinstance(cell, str) else cell for cell in column]
+        return column
+
+    def _dask_apply(self, df, apply_func, axis): # axis col because canot operate using axis=0 for sin cos time int coversion and axis=0 is faster than axis=1
+        df = dd.from_pandas(df, npartitions=2*multiprocessing.cpu_count()).map_partitions(lambda data: data.apply(lambda series: apply_func(series), axis=axis, result_type='broadcast'), meta=df.head(0)).compute(scheduler='processes')
+        return df
+    
     def _preprocess(self, df):
         """Method to preprocess dataframe
 
@@ -113,18 +124,15 @@ class MLEngine(AutoEncoder):
         """
         temp = df.copy()
 
-        temp[self._TIME_FEATURE] = temp[self._TIME_FEATURE].apply(
-            lambda x: x[-8:-6])  # remove date information from dataframe
-        temp['sin_time'] = temp.logged_datetime.apply(lambda x: np.sin((2*np.pi/24)*int(x)))
-        temp['cos_time'] = temp.logged_datetime.apply(lambda x: np.cos((2*np.pi/24)*int(x)))
+        temp[self._TIME_FEATURE] = self._dask_apply(temp[[self._TIME_FEATURE]], lambda x: x.str[-8:-6], 1)
+        temp['sin_time'] = self._dask_apply(temp[[self._TIME_FEATURE]], lambda x: np.sin((2*np.pi/24)*int(x)), 1)
+        temp['cos_time'] = self._dask_apply(temp[[self._TIME_FEATURE]], lambda x: np.sin((2*np.pi/24)*int(x)), 1)
+        
         temp.drop(columns=[self._TIME_FEATURE], inplace=True)
 
-        columns = temp.columns
-        rows = temp = temp.values
-
-        rows = [[sum([(weight+1)*char for weight, char in enumerate(list(bytearray(cell, encoding='utf8'))[::-1])])
-                 if isinstance(cell, str) else cell for cell in row] for row in rows]
-        return pd.DataFrame(rows, index=df.index, columns=columns)
+        temp[features_to_convert_to_number] = self._dask_apply(temp[features_to_convert_to_number], self._str_to_num, 0)
+        
+        return temp
 
     def _get_categorical_params(self, df):
         total = len(df.index)
