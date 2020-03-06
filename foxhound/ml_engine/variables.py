@@ -19,6 +19,7 @@ features_list = ['logged_datetime',
                  'packets_received']
 
 features_to_convert_to_number = [
+    'destination_ip_id',
     'application_id',
     'source_zone_id',
     'source_port',
