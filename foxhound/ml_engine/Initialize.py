@@ -80,20 +80,7 @@ class Initialize():
         dest_file_path : str
             Provide the location of tenant's csv file in tenant profile directory to search/use tosave data
         """
-        if os.path.isfile(dest_file_path):
-            with open(dest_file_path, 'a') as outfile:
-                c = csv.writer(outfile)
-                for index, row in df.iterrows():
-                    c.writerow(row.values)
-        else:
-            count = 0
-            with open(dest_file_path, 'w') as outfile:
-                c = csv.writer(outfile)
-                for index, row in df.iterrows():
-                    if count == 0:
-                        count = 1
-                        c.writerow(df.columns)
-                    c.writerow(row.values)
+        df.to_csv(dest_file_path, mode='a', index=False)
 
     def _create_ip_profile(self, df, dest_path):
         """Method to create tenant profile from daily csv file

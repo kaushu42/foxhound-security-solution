@@ -86,20 +86,7 @@ class MLEngine(AutoEncoder):
         dest_file_path : str
             Provide the location of tenant's csv file in tenant profile directory to search/use tosave data
         """
-        if os.path.isfile(dest_file_path):
-            with open(dest_file_path, 'a') as outfile:
-                c = csv.writer(outfile)
-                for index, row in df.iterrows():
-                    c.writerow(row.values)
-        else:
-            count = 0
-            with open(dest_file_path, 'w') as outfile:
-                c = csv.writer(outfile)
-                for index, row in df.iterrows():
-                    if count == 0:
-                        count = 1
-                        c.writerow(df.columns)
-                    c.writerow(row.values)
+        df.to_csv(dest_file_path, mode='a', index=False)
 
     def _str_to_num(self, column):
         column = [sum([(weight+1)*char for weight, char in enumerate(list(bytearray(cell, encoding='utf8'))[::-1])]) if isinstance(cell, str) else cell for cell in column]
