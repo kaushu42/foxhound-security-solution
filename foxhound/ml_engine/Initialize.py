@@ -80,7 +80,10 @@ class Initialize():
         dest_file_path : str
             Provide the location of tenant's csv file in tenant profile directory to search/use tosave data
         """
-        df.to_csv(dest_file_path, mode='a', index=False)
+        if os.path.isfile(dest_file_path):
+            df.to_csv(dest_file_path, mode='a', index=False, header=False)
+        else:
+            df.to_csv(dest_file_path, mode='a', index=False)
 
     def _create_ip_profile(self, df, dest_path):
         """Method to create tenant profile from daily csv file
@@ -94,8 +97,10 @@ class Initialize():
         features_list : list of strings
             List of features to consider for analysis
         """
+        df = df.copy()
+        
         df.session_end_reason_id.fillna('unknown', inplace=True)
-
+    
         for tenant in df[self._TENANT_FEATURE].unique():
             tenant_path = os.path.join(dest_path, tenant)
             if os.path.exists(tenant_path) is not True:
@@ -112,6 +117,7 @@ class Initialize():
                 ip_df.reset_index(inplace=True)
                 ip_df = ip_df.drop(
                     columns=['index', self._TENANT_FEATURE, self._USER_FEATURE])
+
                 ip_df = self._preprocess(ip_df)
 
                 self._save_to_csv(ip_df, ip_csv_path)
