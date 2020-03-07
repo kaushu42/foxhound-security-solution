@@ -6,8 +6,8 @@ import ipaddress
 import numpy as np
 import pandas as pd
 
-import dask.dataframe as dd
-import multiprocessing
+# import dask.dataframe as dd
+# import multiprocessing
 
 import csv
 import joblib
@@ -86,15 +86,20 @@ class MLEngine(AutoEncoder):
         dest_file_path : str
             Provide the location of tenant's csv file in tenant profile directory to search/use tosave data
         """
-        df.to_csv(dest_file_path, mode='a', index=False)
+        if os.path.isfile(dest_file_path):
+            df.to_csv(dest_file_path, mode='a', index=False, header=False)
+        else:
+            df.to_csv(dest_file_path, mode='a', index=False)
 
     def _str_to_num(self, column):
         column = [sum([(weight+1)*char for weight, char in enumerate(list(bytearray(cell, encoding='utf8'))[::-1])]) if isinstance(cell, str) else cell for cell in column]
         return column
 
-    def _dask_apply(self, df, apply_func, axis): # axis col because canot operate using axis=0 for sin cos time int coversion and axis=0 is faster than axis=1
-        df = dd.from_pandas(df, npartitions=2*multiprocessing.cpu_count()).map_partitions(lambda data: data.apply(lambda series: apply_func(series), axis=axis, result_type='broadcast'), meta=df.head(0)).compute(scheduler='processes')
-        return df
+    # def _dask_apply(self, df, apply_func, axis): # axis col because canot operate using axis=0 for sin cos time int coversion and axis=0 is faster than axis=1
+    #     df = df.copy()
+    #     temp = dd.from_pandas(df, npartitions=2*multiprocessing.cpu_count()).map_partitions(lambda data: data.apply(lambda series: apply_func(series), axis=axis, result_type='broadcast'), meta=df.head(0))
+    #     df = temp.compute(scheduler='processes')
+    #     return df
     
     def _preprocess(self, df):
         """Method to preprocess dataframe
@@ -111,13 +116,16 @@ class MLEngine(AutoEncoder):
         """
         temp = df.copy()
 
-        temp[self._TIME_FEATURE] = self._dask_apply(temp[[self._TIME_FEATURE]], lambda x: x.str[-8:-6], 1)
-        temp['sin_time'] = self._dask_apply(temp[[self._TIME_FEATURE]], lambda x: np.sin((2*np.pi/24)*int(x)), 1)
-        temp['cos_time'] = self._dask_apply(temp[[self._TIME_FEATURE]], lambda x: np.sin((2*np.pi/24)*int(x)), 1)
+        temp[self._TIME_FEATURE] = temp[[self._TIME_FEATURE]].apply(lambda x: x.str[-8:-6], 1)
+        temp['sin_time'] = temp[[self._TIME_FEATURE]].apply(lambda x: np.sin((2*np.pi/24)*int(x)), 1)
+        temp['cos_time'] = temp[[self._TIME_FEATURE]].apply(lambda x: np.sin((2*np.pi/24)*int(x)), 1)
         
         temp.drop(columns=[self._TIME_FEATURE], inplace=True)
+        
+        # _str_to_num = lambda column : [sum([(weight+1)*char for weight, char in enumerate(list(bytearray(cell, encoding='utf8'))[::-1])]) if isinstance(cell, str) else cell for cell in column]
+        # temp[features_to_convert_to_number] = temp[features_to_convert_to_number].apply(_str_to_num, 0)
 
-        temp[features_to_convert_to_number] = self._dask_apply(temp[features_to_convert_to_number], self._str_to_num, 0)
+        temp[features_to_convert_to_number] = temp[features_to_convert_to_number].apply(self._str_to_num, 0)
         
         return temp
 
@@ -209,7 +217,7 @@ class MLEngine(AutoEncoder):
                     self._model_path = os.path.join(tenant_model_dir, csv_file[:-4])
                     df = pd.read_csv(csv_path)
 
-                    if len(df.index) > 10000:
+                    if len(df.index) > 1000:
                         categorical_params = self._get_categorical_params(df)
                         df, standarizer = self.normalize_data(df)
 
@@ -320,15 +328,17 @@ class MLEngine(AutoEncoder):
                 self._model_path = os.path.join(
                     self._TENANT_MODEL_DIR, tenant, ip)
 
-                ip_df = tenant_df[tenant_df[self._USER_FEATURE] == ip]
+                ip_df = tenant_df[tenant_df[self._USER_FEATURE] == ip].copy()
                 #ip_df.reset_index(inplace=True)
                 #print(ip)
                 ip_df = ip_df.drop(
                     columns=[self._TENANT_FEATURE, self._USER_FEATURE])
 
                 if os.path.exists(self._model_path) is True:
+                    clear_session()
                     ip_df = self._preprocess(ip_df)
                     has_anomaly, indices, reasons, updated_categorical_params = self._predict(ip_df, 800)
+                    clear_session()
 
                     if has_anomaly:
                         anomalous_features.extend(reasons)
