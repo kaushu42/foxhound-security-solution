@@ -159,7 +159,7 @@ class Interface(ModelWithName):
 
 @architect.install(
     'partition', type='range',
-    subtype='date', constraint='month',
+    subtype='date', constraint='day',
     column='logged_datetime'
 )
 class TrafficLogDetail(models.Model):
@@ -321,7 +321,7 @@ class ProcessedThreatLogDetail(ProcessedLogDetail):
 
 @architect.install(
     'partition', type='range',
-    subtype='date', constraint='month',
+    subtype='date', constraint='day',
     column='logged_datetime'
 )
 class TrafficLogDetailGranularHour(models.Model):
@@ -444,6 +444,11 @@ class StagingFilter(BaseFilter):
     destination_zone_id = models.IntegerField()
 
 
+@architect.install(
+    'partition', type='range',
+    subtype='date', constraint='day',
+    column='logged_datetime'
+)
 class ApplicationChart(BaseChart):
     firewall_rule = models.ForeignKey(FirewallRule, on_delete=models.CASCADE)
     logged_datetime = models.DateTimeField()
@@ -455,15 +460,30 @@ class RequestOriginChart(BaseFilteredChart):
     country_code = models.CharField(max_length=10)
 
 
+@architect.install(
+    'partition', type='range',
+    subtype='date', constraint='day',
+    column='logged_datetime'
+)
 class TimeSeriesChart(BaseFilteredChart):
     logged_datetime = models.DateTimeField()
 
 
+@architect.install(
+    'partition', type='range',
+    subtype='date', constraint='day',
+    column='logged_datetime'
+)
 class IPChart(BaseFilteredChart):
     logged_datetime = models.DateTimeField()
     address = models.CharField(max_length=15)
 
 
+@architect.install(
+    'partition', type='range',
+    subtype='date', constraint='day',
+    column='logged_datetime'
+)
 class SankeyChart(BaseFilteredChart):
     logged_datetime = models.DateTimeField()
     source_ip = models.CharField(max_length=15)
