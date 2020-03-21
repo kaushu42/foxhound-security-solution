@@ -124,11 +124,12 @@ class Initialize():
 
     def _parse_in_chunks(self, src_file_path, dest_path, features_list):
         n_chunks = 0
-        df = pd.read_csv(src_file_path, usecols=features_list, chunksize=100000000)# 100 million
+        df = pd.read_csv(src_file_path)#, usecols=features_list)#, chunksize=100000000)# 100 million
 
-        for df_chunk in df:
-            self._create_ip_profile(df_chunk[features_list], dest_path)
-            n_chunks += 1
+        # for df_chunk in df:
+            # self._create_ip_profile(df_chunk[features_list], dest_path)
+        self._create_ip_profile(df[features_list], dest_path)
+        n_chunks += 1
 
         return n_chunks
 
