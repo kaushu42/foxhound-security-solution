@@ -173,7 +173,7 @@ class MLEngine(AutoEncoder):
 
         return categorical_params
 
-    def _save_model_and_params(self, model_params, categorical_params):
+    def _save_model_and_params(self, model_params, categorical_params, has_model):
         """Method to save parameters of ml model
 
         Parameters
@@ -183,9 +183,10 @@ class MLEngine(AutoEncoder):
         model_path : str
             Location to save model's parameters to
         """
-        if os.path.exists(self._model_path) is not True:
-            os.makedirs(self._model_path)
-        self.save_model(self._model_path)
+        if has_model:
+            if os.path.exists(self._model_path) is not True:
+                os.makedirs(self._model_path)
+            self.save_model(self._model_path)
         joblib.dump(model_params, f'{self._model_path}/model_params.sav')
         self._save_categorical_params(categorical_params)
 
@@ -228,11 +229,11 @@ class MLEngine(AutoEncoder):
                     self._model_path = os.path.join(
                         tenant_model_dir, csv_file[:-4])
                     df = pd.read_csv(csv_path)
+                    
+                    categorical_params = self._get_categorical_params(df)
+                    df, standarizer = self.normalize_data(df)
 
                     if len(df.index) > 10000:
-                        categorical_params = self._get_categorical_params(df)
-                        df, standarizer = self.normalize_data(df)
-
                         training_for = ': '.join(csv_path.split('/')[-2:])[:-4]
                         print(
                             f'**************** Training model for {training_for}****************')
@@ -240,10 +241,12 @@ class MLEngine(AutoEncoder):
                         print(
                             f'**************** Trained model for {training_for}****************')
                         self._save_model_and_params(
-                            {'standarizer': standarizer}, categorical_params
+                            {'standarizer': standarizer}, categorical_params, True
                         )
                     else:
-                        pass
+                        self._save_model_and_params(
+                            {'standarizer': standarizer}, categorical_params, False
+                        )
 
     def _get_anomaly_reasons(self, df, model_params, updated_categorical_params, df_categorical_params, anomaly_prop_threshold):
         anomalies = df.copy()
