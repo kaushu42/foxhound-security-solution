@@ -312,11 +312,17 @@ class MLEngine(AutoEncoder):
                     df.iloc[indices], model_params, updated_categorical_params, df_categorical_params, 0.05
                 )
         else:
+            # print('no model')
             anomalies_reasons = self._get_anomaly_reasons(
-                    df, model_params, updated_categorical_params, df_categorical_params, 0.05
+                    df, model_params, updated_categorical_params, df_categorical_params, 0.5
                 )
-            indices = [index for index, anomaly_reasons in enumerate(anomalies_reasons) if len(anomaly_reasons)>2]
+            # print('**************************old*********************************')
+            # print(anomalies_reasons)
+            indices = [index for index, anomaly_reasons in enumerate(anomalies_reasons) if len(anomaly_reasons.split(','))>6]
+            # print('***********************new************************************')
             anomalies_reasons = np.array(anomalies_reasons)[indices]
+            # print(anomalies_reasons)
+            # print('************************new finish***********************************')
 
         if len(indices) is not 0:
                 return True, indices, anomalies_reasons, updated_categorical_params
