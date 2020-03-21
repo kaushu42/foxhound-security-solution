@@ -5,7 +5,10 @@ import ipaddress
 
 import csv
 
-from .variables import features_list
+import dask.dataframe as dd
+import multiprocessing
+
+from .variables import features_list, features_to_convert_to_number
 
 
 class Initialize():
@@ -34,6 +37,14 @@ class Initialize():
         self._USER_FEATURE = 'source_ip_id'
         self._TIME_FEATURE = 'logged_datetime'
 
+    def _str_to_num(self, column):
+        column = [sum([(weight+1)*char for weight, char in enumerate(list(bytearray(cell, encoding='utf8'))[::-1])]) if isinstance(cell, str) else cell for cell in column]
+        return column
+
+    def _dask_apply(self, df, apply_func, axis): # axis col because canot operate using axis=0 for sin cos time int coversion and axis=0 is faster than axis=1
+        df = dd.from_pandas(df, npartitions=2*multiprocessing.cpu_count()).map_partitions(lambda data: data.apply(lambda series: apply_func(series), axis=axis, result_type='broadcast'), meta=df.head(0)).compute(scheduler='processes')
+        return df
+    
     def _preprocess(self, df):
         """Method to preprocess dataframe
 
@@ -49,18 +60,15 @@ class Initialize():
         """
         temp = df.copy()
 
-        temp[self._TIME_FEATURE] = temp[self._TIME_FEATURE].apply(
-            lambda x: x[-8:-6])  # remove date information from dataframe
-        temp['sin_time'] = temp.logged_datetime.apply(lambda x: np.sin((2*np.pi/24)*int(x)))
-        temp['cos_time'] = temp.logged_datetime.apply(lambda x: np.cos((2*np.pi/24)*int(x)))
+        temp[self._TIME_FEATURE] = self._dask_apply(temp[[self._TIME_FEATURE]], lambda x: x.str[-8:-6], 1)
+        temp['sin_time'] = self._dask_apply(temp[[self._TIME_FEATURE]], lambda x: np.sin((2*np.pi/24)*int(x)), 1)
+        temp['cos_time'] = self._dask_apply(temp[[self._TIME_FEATURE]], lambda x: np.sin((2*np.pi/24)*int(x)), 1)
+        
         temp.drop(columns=[self._TIME_FEATURE], inplace=True)
 
-        columns = temp.columns
-        rows = temp = temp.values
-
-        rows = [[sum([(weight+1)*char for weight, char in enumerate(list(bytearray(cell, encoding='utf8'))[::-1])])
-                 if isinstance(cell, str) else cell for cell in row] for row in rows]
-        return pd.DataFrame(rows, index=df.index, columns=columns)
+        temp[features_to_convert_to_number] = self._dask_apply(temp[features_to_convert_to_number], self._str_to_num, 0)
+        
+        return temp
 
     def _save_to_csv(self, df, dest_file_path):
         """Method to save dataframe to respective tenant's csv if available, else create one
@@ -73,19 +81,9 @@ class Initialize():
             Provide the location of tenant's csv file in tenant profile directory to search/use tosave data
         """
         if os.path.isfile(dest_file_path):
-            with open(dest_file_path, 'a') as outfile:
-                c = csv.writer(outfile)
-                for index, row in df.iterrows():
-                    c.writerow(row.values)
+            df.to_csv(dest_file_path, mode='a', index=False, header=False)
         else:
-            count = 0
-            with open(dest_file_path, 'w') as outfile:
-                c = csv.writer(outfile)
-                for index, row in df.iterrows():
-                    if count == 0:
-                        count = 1
-                        c.writerow(df.columns)
-                    c.writerow(row.values)
+            df.to_csv(dest_file_path, mode='a', index=False)
 
     def _create_ip_profile(self, df, dest_path):
         """Method to create tenant profile from daily csv file
@@ -99,8 +97,10 @@ class Initialize():
         features_list : list of strings
             List of features to consider for analysis
         """
+        df = df.copy()
+        
         df.session_end_reason_id.fillna('unknown', inplace=True)
-
+    
         for tenant in df[self._TENANT_FEATURE].unique():
             tenant_path = os.path.join(dest_path, tenant)
             if os.path.exists(tenant_path) is not True:
@@ -117,6 +117,7 @@ class Initialize():
                 ip_df.reset_index(inplace=True)
                 ip_df = ip_df.drop(
                     columns=['index', self._TENANT_FEATURE, self._USER_FEATURE])
+
                 ip_df = self._preprocess(ip_df)
 
                 self._save_to_csv(ip_df, ip_csv_path)

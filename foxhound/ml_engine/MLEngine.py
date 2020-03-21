@@ -6,10 +6,13 @@ import ipaddress
 import numpy as np
 import pandas as pd
 
+# import dask.dataframe as dd
+# import multiprocessing
+
 import csv
 import joblib
 
-from .variables import features_list, categorical_features
+from .variables import features_list, categorical_features, features_to_convert_to_number
 from .model import AutoEncoder
 
 
@@ -84,19 +87,20 @@ class MLEngine(AutoEncoder):
             Provide the location of tenant's csv file in tenant profile directory to search/use tosave data
         """
         if os.path.isfile(dest_file_path):
-            with open(dest_file_path, 'a') as outfile:
-                c = csv.writer(outfile)
-                for index, row in df.iterrows():
-                    c.writerow(row.values)
+            df.to_csv(dest_file_path, mode='a', index=False, header=False)
         else:
-            count = 0
-            with open(dest_file_path, 'w') as outfile:
-                c = csv.writer(outfile)
-                for index, row in df.iterrows():
-                    if count == 0:
-                        count = 1
-                        c.writerow(df.columns)
-                    c.writerow(row.values)
+            df.to_csv(dest_file_path, mode='a', index=False)
+
+    def _str_to_num(self, column):
+        column = [sum([(weight+1)*char for weight, char in enumerate(list(bytearray(cell,
+                                                                                    encoding='utf8'))[::-1])]) if isinstance(cell, str) else cell for cell in column]
+        return column
+
+    # def _dask_apply(self, df, apply_func, axis): # axis col because canot operate using axis=0 for sin cos time int coversion and axis=0 is faster than axis=1
+    #     df = df.copy()
+    #     temp = dd.from_pandas(df, npartitions=2*multiprocessing.cpu_count()).map_partitions(lambda data: data.apply(lambda series: apply_func(series), axis=axis, result_type='broadcast'), meta=df.head(0))
+    #     df = temp.compute(scheduler='processes')
+    #     return df
 
     def _preprocess(self, df):
         """Method to preprocess dataframe
@@ -113,22 +117,27 @@ class MLEngine(AutoEncoder):
         """
         temp = df.copy()
 
-        temp[self._TIME_FEATURE] = temp[self._TIME_FEATURE].apply(
-            lambda x: x[-8:-6])  # remove date information from dataframe
-        temp['sin_time'] = temp.logged_datetime.apply(lambda x: np.sin((2*np.pi/24)*int(x)))
-        temp['cos_time'] = temp.logged_datetime.apply(lambda x: np.cos((2*np.pi/24)*int(x)))
+        temp[self._TIME_FEATURE] = temp[[self._TIME_FEATURE]].apply(
+            lambda x: x.str[-8:-6], 1)
+        temp['sin_time'] = temp[[self._TIME_FEATURE]].apply(
+            lambda x: np.sin((2*np.pi/24)*int(x)), 1)
+        temp['cos_time'] = temp[[self._TIME_FEATURE]].apply(
+            lambda x: np.sin((2*np.pi/24)*int(x)), 1)
+
         temp.drop(columns=[self._TIME_FEATURE], inplace=True)
 
-        columns = temp.columns
-        rows = temp = temp.values
+        # _str_to_num = lambda column : [sum([(weight+1)*char for weight, char in enumerate(list(bytearray(cell, encoding='utf8'))[::-1])]) if isinstance(cell, str) else cell for cell in column]
+        # temp[features_to_convert_to_number] = temp[features_to_convert_to_number].apply(_str_to_num, 0)
 
-        rows = [[sum([(weight+1)*char for weight, char in enumerate(list(bytearray(cell, encoding='utf8'))[::-1])])
-                 if isinstance(cell, str) else cell for cell in row] for row in rows]
-        return pd.DataFrame(rows, index=df.index, columns=columns)
+        temp[features_to_convert_to_number] = temp[features_to_convert_to_number].apply(
+            self._str_to_num, 0)
+
+        return temp
 
     def _get_categorical_params(self, df):
         total = len(df.index)
-        prop = dict([(category, dict(df[category].value_counts()/total)) for category in self._CATEGORICAL_FEATURES])
+        prop = dict([(category, dict(df[category].value_counts()/total))
+                     for category in self._CATEGORICAL_FEATURES])
         params = {'total': total, 'proportion': prop}
 
         return params
@@ -143,19 +152,24 @@ class MLEngine(AutoEncoder):
         history_ratio = history_total/(history_total+df_total)
         df_ratio = df_total/(history_total+df_total)
 
-        updated_prop = dict([[feature, dict([(key, history_ratio*history_prop[feature].get(key, 0)+df_ratio*df_prop[feature].get(key, 0)) for key in history_prop[feature].keys()|df_prop[feature].keys()])] for feature in self._CATEGORICAL_FEATURES])
+        updated_prop = dict([[feature, dict([(key, history_ratio*history_prop[feature].get(key, 0)+df_ratio*df_prop[feature].get(key, 0))
+                                             for key in history_prop[feature].keys() | df_prop[feature].keys()])] for feature in self._CATEGORICAL_FEATURES])
         updated_total = history_total+df_total
 
-        max_prop = dict([(feature, updated_prop[feature][max(updated_prop[feature], key=updated_prop[feature].get)]) for feature in updated_prop])
-        updated_params = {'total': updated_total, 'proportion': updated_prop, 'max_proportion': max_prop}
+        max_prop = dict([(feature, updated_prop[feature][max(
+            updated_prop[feature], key=updated_prop[feature].get)]) for feature in updated_prop])
+        updated_params = {'total': updated_total,
+                          'proportion': updated_prop, 'max_proportion': max_prop}
 
         return updated_params
 
     def _save_categorical_params(self, categorical_params):
-        joblib.dump(categorical_params, self._model_path+"/categorical_params.sav")
+        joblib.dump(categorical_params, self._model_path +
+                    "/categorical_params.sav")
 
     def _load_categorical_params(self):
-        categorical_params = joblib.load(self._model_path+'/categorical_params.sav')
+        categorical_params = joblib.load(
+            self._model_path+'/categorical_params.sav')
 
         return categorical_params
 
@@ -211,7 +225,8 @@ class MLEngine(AutoEncoder):
 
                 for csv_file in sorted(os.listdir(tenant_profile_dir)):
                     csv_path = os.path.join(tenant_profile_dir, csv_file)
-                    self._model_path = os.path.join(tenant_model_dir, csv_file[:-4])
+                    self._model_path = os.path.join(
+                        tenant_model_dir, csv_file[:-4])
                     df = pd.read_csv(csv_path)
 
                     if len(df.index) > 10000:
@@ -226,7 +241,7 @@ class MLEngine(AutoEncoder):
                             f'**************** Trained model for {training_for}****************')
                         self._save_model_and_params(
                             {'standarizer': standarizer}, categorical_params
-                            )
+                        )
                     else:
                         pass
 
@@ -243,12 +258,16 @@ class MLEngine(AutoEncoder):
 
         truth_table[self._CATEGORICAL_FEATURES] = False
 
-        get_proportion = lambda anomaly, features, params: pd.Series([params[feature].get(anomaly[feature], 0) for feature in features])
+        def get_proportion(anomaly, features, params): return pd.Series(
+            [params[feature].get(anomaly[feature], 0) for feature in features])
 
-        anomalies[self._CATEGORICAL_FEATURES] = anomalies.apply(lambda x: get_proportion(x, self._CATEGORICAL_FEATURES, df_prop), axis=1)
-        max_prop = np.array([max_prop[feature] for feature in self._CATEGORICAL_FEATURES])
+        anomalies[self._CATEGORICAL_FEATURES] = anomalies.apply(
+            lambda x: get_proportion(x, self._CATEGORICAL_FEATURES, df_prop), axis=1)
+        max_prop = np.array([max_prop[feature]
+                             for feature in self._CATEGORICAL_FEATURES])
 
-        truth_table[self._CATEGORICAL_FEATURES] = anomalies[self._CATEGORICAL_FEATURES] < (max_prop*anomaly_prop_threshold)
+        truth_table[self._CATEGORICAL_FEATURES] = anomalies[self._CATEGORICAL_FEATURES] < (
+            max_prop*anomaly_prop_threshold)
 
         reasons = [', '.join(df.columns[row])
                    for index, row in truth_table.iterrows()]
@@ -272,7 +291,8 @@ class MLEngine(AutoEncoder):
         """
         model, model_params, history_categorical_params = self._load_model_and_params()
         df_categorical_params = self._get_categorical_params(df)
-        updated_categorical_params = self._update_categorical_params(history_categorical_params, df_categorical_params)
+        updated_categorical_params = self._update_categorical_params(
+            history_categorical_params, df_categorical_params)
 
         x = model_params['standarizer'].transform(df)
         preds = model.predict(x)
@@ -307,7 +327,8 @@ class MLEngine(AutoEncoder):
 
         truncated_df.session_end_reason_id.fillna('unknown', inplace=True)
 
-        private_ips_index = truncated_df.source_ip_id.apply(lambda x: ipaddress.ip_address(x).is_private)
+        private_ips_index = truncated_df.source_ip_id.apply(
+            lambda x: ipaddress.ip_address(x).is_private)
         truncated_df = truncated_df[private_ips_index]
 
         anomalous_df = df.head(0)
@@ -325,15 +346,16 @@ class MLEngine(AutoEncoder):
                 self._model_path = os.path.join(
                     self._TENANT_MODEL_DIR, tenant, ip)
 
-                ip_df = tenant_df[tenant_df[self._USER_FEATURE] == ip]
-                #ip_df.reset_index(inplace=True)
-                #print(ip)
+                ip_df = tenant_df[tenant_df[self._USER_FEATURE] == ip].copy()
+                # ip_df.reset_index(inplace=True)
+                # print(ip)
                 ip_df = ip_df.drop(
                     columns=[self._TENANT_FEATURE, self._USER_FEATURE])
 
                 if os.path.exists(self._model_path) is True:
                     ip_df = self._preprocess(ip_df)
-                    has_anomaly, indices, reasons, updated_categorical_params = self._predict(ip_df, 800)
+                    has_anomaly, indices, reasons, updated_categorical_params = self._predict(
+                        ip_df, 800)
 
                     if has_anomaly:
                         anomalous_features.extend(reasons)
@@ -367,7 +389,7 @@ class MLEngine(AutoEncoder):
         ano_with_model_count = 0
         total_data_count = 0
 
-        df = pd.read_csv(csv_file_path)# 100 million
+        df = pd.read_csv(csv_file_path)  # 100 million
 
         # for df_chunk in df:
         anomalous_df, ano_without_model = self.get_ip_anomalies(
@@ -394,8 +416,10 @@ class MLEngine(AutoEncoder):
             csv_folder_count = 1
             if total_csv_folders is not 0:
                 for csv_folder in csv_folders:
-                    csv_folder_path = os.path.join(self._DAILY_CSV_DIR, csv_folder)
-                    csv_folder_files = sorted([file for file in os.listdir(csv_folder_path) if file.endswith('.csv')])
+                    csv_folder_path = os.path.join(
+                        self._DAILY_CSV_DIR, csv_folder)
+                    csv_folder_files = sorted([file for file in os.listdir(
+                        csv_folder_path) if file.endswith('.csv')])
                     total_folder_files = len(csv_folder_files)
                     csv_file_count = 1
 
@@ -406,8 +430,10 @@ class MLEngine(AutoEncoder):
                             csv_file_path = os.path.join(csv_folder_path, csv)
                             print(
                                 f'[{csv_folder_count}/{total_csv_folders}]->[Part: {csv_file_count}/{total_folder_files}] ********** Processing {csv_folder} file **********')
-                            ano_with_model_count, ano_with_no_model_count, n_chunks = self._predict_in_chunks(csv_file_path)
-                            print(f"[{csv_folder_count}/{total_csv_folders}]->[Part: {csv_file_count}/{total_folder_files}] ********** Processed {csv_folder} in {n_chunks} chunk **********")
+                            ano_with_model_count, ano_with_no_model_count, n_chunks = self._predict_in_chunks(
+                                csv_file_path)
+                            print(
+                                f"[{csv_folder_count}/{total_csv_folders}]->[Part: {csv_file_count}/{total_folder_files}] ********** Processed {csv_folder} in {n_chunks} chunk **********")
                             print(
                                 f'[{csv_folder_count}/{total_csv_folders}]->[Part: {csv_file_count}/{total_folder_files}] ********** Predictions: Anomalous model -> [{ano_with_model_count}] Anomalous without model -> [{ano_with_no_model_count}]  **********'
                             )
@@ -417,9 +443,11 @@ class MLEngine(AutoEncoder):
                         else:
                             pass
                     csv_folder_count += 1
-                    print(f'Total Anomaly: {total_ano_with_model_count} in file {csv_folder}')
+                    print(
+                        f'Total Anomaly: {total_ano_with_model_count} in file {csv_folder}')
             else:
-                print("[Warning]: No csv to find anomaly, TRAFFIC_LOGS_OUTPUT_DIR is empty")
+                print(
+                    "[Warning]: No csv to find anomaly, TRAFFIC_LOGS_OUTPUT_DIR is empty")
 
         else:
             print("Daily csv directory does not exist")

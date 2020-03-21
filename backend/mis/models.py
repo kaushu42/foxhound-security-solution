@@ -3,6 +3,7 @@ from core.models import FirewallRule
 import uuid
 from cassandra.cqlengine import columns
 from django_cassandra_engine.models import DjangoCassandraModel
+import architect
 
 
 class DailyIP(models.Model):
@@ -15,6 +16,11 @@ class DailyIP(models.Model):
         abstract = True
 
 
+@architect.install(
+    'partition', type='range',
+    subtype='date', constraint='day',
+    column='logged_datetime'
+)
 class DailySourceIP(DailyIP):
     source_address = models.CharField(max_length=250)
 
@@ -25,6 +31,11 @@ class DailySourceIP(DailyIP):
         return self.source_address
 
 
+@architect.install(
+    'partition', type='range',
+    subtype='date', constraint='day',
+    column='logged_datetime'
+)
 class DailyDestinationIP(DailyIP):
     destination_address = models.CharField(max_length=250)
 
@@ -35,6 +46,11 @@ class DailyDestinationIP(DailyIP):
         return self.destination_address
 
 
+@architect.install(
+    'partition', type='range',
+    subtype='date', constraint='day',
+    column='logged_datetime'
+)
 class DailyApplication(models.Model):
     logged_datetime = models.DateField(null=True)
     processed_datetime = models.DateField(null=True)
@@ -48,6 +64,11 @@ class DailyApplication(models.Model):
         return self.application_name
 
 
+@architect.install(
+    'partition', type='range',
+    subtype='date', constraint='day',
+    column='logged_datetime'
+)
 class Daily(models.Model):
     logged_datetime = models.DateField(null=True)
     processed_datetime = models.DateField(null=True)
@@ -100,14 +121,29 @@ class DailyBlacklistEvent(models.Model):
         abstract = True
 
 
+@architect.install(
+    'partition', type='range',
+    subtype='date', constraint='day',
+    column='logged_datetime'
+)
 class DailyRequestFromBlackListEvent(DailyBlacklistEvent):
     pass
 
 
+@architect.install(
+    'partition', type='range',
+    subtype='date', constraint='day',
+    column='logged_datetime'
+)
 class DailyResponseToBlackListEvent(DailyBlacklistEvent):
     pass
 
 
+@architect.install(
+    'partition', type='range',
+    subtype='date', constraint='day',
+    column='logged_datetime'
+)
 class DailyPerSourceDestinationPair(models.Model):
     logged_datetime = models.DateTimeField(null=True)
     processed_datetime = models.DateField(null=True)
