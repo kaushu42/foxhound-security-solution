@@ -314,7 +314,7 @@ class MLEngine(AutoEncoder):
         else:
             # print('no model')
             anomalies_reasons = self._get_anomaly_reasons(
-                    df, model_params, updated_categorical_params, df_categorical_params, 0.5
+                    df, model_params, updated_categorical_params, df_categorical_params, 0.01
                 )
             # print('**************************old*********************************')
             # print(anomalies_reasons)
