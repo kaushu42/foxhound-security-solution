@@ -23,8 +23,8 @@ import batch_logger
 # logging.info(f'Script ran on {datetime.datetime.now()}')
 try:
     # seedutils.seed()
-    run.log_engine()
-    # run.mis_engine()
+    # run.log_engine()
+    run.mis_engine()
     # run.ml_engine()
     # run.dc_engine()
     # run.rule_engine()

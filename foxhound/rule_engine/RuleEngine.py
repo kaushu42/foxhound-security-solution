@@ -1,6 +1,7 @@
 import os
 import datetime
-
+import traceback
+from ..logger import Logger
 from pyspark.sql.functions import concat, col, lit
 
 
@@ -95,6 +96,14 @@ class RuleEngine:
         self._write_df_to_postgres(df, 'rules_rule')
 
     def run(self):
+        logger = Logger()
         for csv in self._csv_paths:
-            print('****Processing File:', csv)
-            self._run_for_one(csv)
+            try:
+                logger.info(f'Rule Engine: {csv}')
+                print('****Processing File:', csv)
+                self._run_for_one(csv)
+            except Exception as e:
+                logger.error(str(traceback.format_exc()))
+                logger.info(f'Skipping {csv}')
+                continue
+        logger.close()
