@@ -1,16 +1,17 @@
 import React, {Component, Fragment} from 'react';
-import IpDateVsPortChart from "../components/charts/IpDateVsPortChart";
-import NetworkXChart from "../components/charts/NetworkXChart";
-import IncidentThreatOrigin from "../components/charts/IncidentThreatOrigin";
-import BandwidthUsageChart from "../charts/BandwidthUsageChart"
-
+import ReactPolling from 'react-polling';
 
 class Test extends Component {
     render() {
         return (
             <Fragment>
-                {/* <IncidentThreatOrigin /> */}
-                <BandwidthUsageChart />
+					<ReactPolling
+					  url={'https://jsonplaceholder.typicode.com/todos/1'}
+					  interval= {3000} // in milliseconds(ms)
+					  retryCount={3} // this is optional
+					  onSuccess={() => console.log('handle success')}
+					  onFailure={() => console.log('handle failure')} // this is optional
+					  method={'GET'} />
             </Fragment>
             )
     }

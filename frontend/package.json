@@ -20,6 +20,7 @@
     "react-calendar-heatmap": "^1.8.1",
     "react-dom": "^16.11.0",
     "react-input-switch": "^2.2.1",
+    "react-polling": "^1.0.5",
     "react-redux": "latest",
     "react-redux-toastr": "^7.6.4",
     "react-router-dom": "latest",
