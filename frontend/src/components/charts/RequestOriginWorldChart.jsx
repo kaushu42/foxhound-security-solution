@@ -271,6 +271,9 @@ class RequestOriginWorldChart extends Component {
   }
   
   toTitleCase(str) {
+    if(str == null || str== undefined || str==""){
+      return str;
+    }
     return str
       .toLowerCase()
       .split(" ")
