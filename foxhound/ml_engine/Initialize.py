@@ -1,4 +1,6 @@
 import os
+import time
+
 import numpy as np
 import pandas as pd
 import ipaddress
@@ -100,27 +102,24 @@ class Initialize():
         df = df.copy()
         
         df.session_end_reason_id.fillna('unknown', inplace=True)
-    
-        for tenant in df[self._TENANT_FEATURE].unique():
+
+        ips = df[self._USER_FEATURE].unique()
+        private_ips = ips[[ipaddress.ip_address(
+                ip).is_private for ip in ips]]
+        df = df.loc[df[self._USER_FEATURE].isin(private_ips), :]
+
+        for (tenant, ip), ip_df in df.groupby([self._TENANT_FEATURE, self._USER_FEATURE]):
             tenant_path = os.path.join(dest_path, tenant)
             if os.path.exists(tenant_path) is not True:
                 os.makedirs(tenant_path)
-            tenant_df = df[df[self._TENANT_FEATURE] == tenant]
+            
+            ip_csv_path = os.path.join(tenant_path, (ip+'.csv'))
+            ip_df.reset_index(inplace=True)
+            ip_df = ip_df.drop(
+                columns=['index', self._TENANT_FEATURE, self._USER_FEATURE])
+            ip_df = self._preprocess(ip_df)
 
-            ips = tenant_df[self._USER_FEATURE].unique()
-            private_ips = ips[[ipaddress.ip_address(
-                ip).is_private for ip in ips]]
-
-            for ip in sorted(private_ips):
-                ip_csv_path = os.path.join(tenant_path, (ip+'.csv'))
-                ip_df = tenant_df[tenant_df[self._USER_FEATURE] == ip]
-                ip_df.reset_index(inplace=True)
-                ip_df = ip_df.drop(
-                    columns=['index', self._TENANT_FEATURE, self._USER_FEATURE])
-
-                ip_df = self._preprocess(ip_df)
-
-                self._save_to_csv(ip_df, ip_csv_path)
+            self._save_to_csv(ip_df, ip_csv_path)
 
     def _parse_in_chunks(self, src_file_path, dest_path, features_list):
         n_chunks = 0
