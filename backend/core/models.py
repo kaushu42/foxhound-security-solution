@@ -40,6 +40,9 @@ class FirewallRule(models.Model):
     def __repr__(self):
         return self.name
 
+    class Meta:
+        db_table = 'fh_prd_fw_rule_f'
+
 
 class Domain(models.Model):
     name = models.CharField(max_length=250
@@ -59,28 +62,31 @@ class Domain(models.Model):
 class Log(models.Model):
     class Meta:
         abstract = True
-    processed_datetime = models.DateField(auto_now_add=True)
+    processed_datetime = models.DateTimeField(auto_now_add=True)
     log_date = models.DateField()
-    log_name = models.CharField(max_length=200)
+    log_name = models.CharField(max_length=200,unique=True)
 
 
 class TrafficLog(Log):
-    mis_engine_ran = models.BooleanField(null=True)
-    chart_engine_ran = models.BooleanField(null=True)
-    db_engine_ran = models.BooleanField(null=True)
-    dc_engine_ran = models.BooleanField(null=True)
-    ml_engine_ran = models.BooleanField(null=True)
-
     def __repr__(self):
         return self.log_name
 
     def __str__(self):
         return self.__repr__()
 
+    class Meta:
+        db_table = 'fh_prd_trfc_log_f'
+
 
 class ThreatLog(Log):
-    pass
+    def __repr__(self):
+        return self.log_name
 
+    def __str__(self):
+        return self.__repr__()
+
+    class Meta:
+        db_table = 'fh_prd_thrt_log_f'
 
 class IPAddress(models.Model):
     address = models.CharField(max_length=15)
@@ -299,7 +305,7 @@ class ProcessedLogDetail(models.Model):
     )
     log = models.CharField(max_length=250, null=True)
     rows = models.IntegerField(default=0)
-    processed_date = models.DateField(null=True)
+    processed_datetime = models.DateTimeField(null=True)
 
     def __repr__(self):
         return f'{self.log}'
@@ -312,11 +318,23 @@ class ProcessedLogDetail(models.Model):
 
 
 class ProcessedTrafficLogDetail(ProcessedLogDetail):
-    pass
+    class Meta:
+        db_table = 'fh_prd_trfc_log_dtl_f'
 
 
 class ProcessedThreatLogDetail(ProcessedLogDetail):
-    pass
+    class Meta:
+        db_table = 'fh_prd_thrt_log_dtl_f'
+
+
+class StageTrafficLogDetail(ProcessedLogDetail):
+    class Meta:
+        db_table = 'fh_stg_trfc_log_dtl_f'
+
+
+class StageThreatLogDetail(ProcessedLogDetail):
+    class Meta:
+        db_table = 'fh_stg_thrt_log_dtl_f'
 
 
 @architect.install(
@@ -362,6 +380,99 @@ class TrafficLogDetailGranularHour(models.Model):
     def __str__(self):
         return self.__repr__()
 
+
+class StageTrafficLogDetailHourly(models.Model):
+    traffic_log = models.ForeignKey(
+        TrafficLog,
+        on_delete=models.CASCADE, null=True
+    )
+    firewall_rule = models.ForeignKey(
+        FirewallRule, on_delete=models.CASCADE, null=True,
+        related_name='firewall_rule_stage_traffic_log_detail_hourly'
+    )
+    logged_datetime = models.DateTimeField()
+    threat_content_type = models.CharField(max_length=50, null=True) 
+    source_address = models.CharField(max_length=50, null=True)
+    destination_address = models.CharField(max_length=50, null=True)
+    nat_source_ip = models.CharField(max_length=50, null=True)
+    nat_destination_ip = models.CharField(max_length=50, null=True)
+    destination_port = models.PositiveIntegerField()
+    nat_destination_port = models.PositiveIntegerField()
+    application = models.CharField(max_length=250, null=True)
+    protocol = models.CharField(max_length=50, null=True)
+    log_action = models.CharField(max_length=50, null=True)
+    source_zone = models.CharField(max_length=250, null=True)
+    destination_zone = models.CharField(max_length=250, null=True)
+    inbound_interface = models.CharField(max_length=250, null=True)
+    outbound_interface = models.CharField(max_length=250, null=True)
+    action = models.CharField(max_length=250, null=True)
+    category = models.CharField(max_length=250, null=True)
+    session_end_reason = models.CharField(max_length=250, null=True)
+    source_country = models.CharField(max_length=3, null=True)
+    destination_country = models.CharField(max_length=3, null=True)
+    device_name = models.CharField(max_length=3, null=True)
+    sum_bytes_sent = models.BigIntegerField()
+    sum_bytes_received = models.BigIntegerField()
+    avg_repeat_count = models.PositiveIntegerField()
+    sum_packets_received = models.BigIntegerField()
+    sum_packets_sent = models.BigIntegerField()
+    sum_time_elapsed = models.BigIntegerField()
+    
+    def __repr__(self):
+        return f'Log-{self.traffic_log}'
+
+    def __str__(self):
+        return self.__repr__()
+    
+    class Meta:
+        db_table='fh_stg_prd_trfc_log_dtl_hr_a'
+
+
+class StageTrafficLogDetailDaily(models.Model):
+    traffic_log = models.ForeignKey(
+        TrafficLog,
+        on_delete=models.CASCADE, null=True
+    )
+    firewall_rule = models.ForeignKey(
+        FirewallRule, on_delete=models.CASCADE, null=True,
+        related_name='firewall_rule_stage_traffic_log_detail_daily'
+    )
+    logged_datetime = models.DateTimeField()
+    threat_content_type = models.CharField(max_length=50, null=True) 
+    source_address = models.CharField(max_length=50, null=True)
+    destination_address = models.CharField(max_length=50, null=True)
+    nat_source_ip = models.CharField(max_length=50, null=True)
+    nat_destination_ip = models.CharField(max_length=50, null=True)
+    destination_port = models.PositiveIntegerField()
+    nat_destination_port = models.PositiveIntegerField()
+    application = models.CharField(max_length=250, null=True)
+    protocol = models.CharField(max_length=50, null=True)
+    log_action = models.CharField(max_length=50, null=True)
+    source_zone = models.CharField(max_length=250, null=True)
+    destination_zone = models.CharField(max_length=250, null=True)
+    inbound_interface = models.CharField(max_length=250, null=True)
+    outbound_interface = models.CharField(max_length=250, null=True)
+    action = models.CharField(max_length=250, null=True)
+    category = models.CharField(max_length=250, null=True)
+    session_end_reason = models.CharField(max_length=250, null=True)
+    source_country = models.CharField(max_length=3, null=True)
+    destination_country = models.CharField(max_length=3, null=True)
+    device_name = models.CharField(max_length=3, null=True)
+    sum_bytes_sent = models.BigIntegerField()
+    sum_bytes_received = models.BigIntegerField()
+    avg_repeat_count = models.PositiveIntegerField()
+    sum_packets_received = models.BigIntegerField()
+    sum_packets_sent = models.BigIntegerField()
+    sum_time_elapsed = models.BigIntegerField()
+    
+    def __repr__(self):
+        return f'Log-{self.traffic_log}'
+
+    def __str__(self):
+        return self.__repr__()
+    
+    class Meta:
+        db_table='fh_stg_prd_trfc_log_dtl_dy_a'
 
 class DBLock(models.Model):
     table_name = models.CharField(max_length=80, null=True, unique=True)
