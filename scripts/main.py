@@ -11,7 +11,7 @@ import pandas as pd
 import config
 import seedutils
 import utils
-import run
+# import run
 from batch_logger import create_batch_log, update_batch_state
 import batch_logger
 
@@ -22,9 +22,9 @@ import batch_logger
 # )
 # logging.info(f'Script ran on {datetime.datetime.now()}')
 try:
-    # seedutils.seed()
+    seedutils.seed()
     # run.log_engine()
-    run.mis_engine()
+    #run.mis_engine()
     # run.ml_engine()
     # run.dc_engine()
     # run.rule_engine()
