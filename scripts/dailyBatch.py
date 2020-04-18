@@ -7,6 +7,7 @@ from foxhound.log_engine.DailyThreatLogEngine  import DailyThreatLogEngine
 import config
 import utils
 import pandas as pd
+import datetime
 
 def is_traffic_log_already_processed(input_traffic_log):
    processed_logs_from_db = pd.read_sql_table('fh_prd_trfc_log_f', utils.get_db_engine()).set_index("log_name").to_dict()["id"]
@@ -55,4 +56,10 @@ def ready_for_staging():
 
 def commit_changes_to_production():
    # commit changes to production using bulk insert or insert
-   pass
+   db_engine = utils.get_db_engine()
+   with db_engine.connect() as con:
+      con.execute(f"BEGIN TRANSACTION")
+      # create insert dynamic insert statements for insertion without id
+      # rs = con.execute(f"INSERT INTO fh_prd_thrt_log_dtl_evnt_f SELECT * FROM fh_stg_thrt_log_dtl_evnt_f")
+      con.execute(f"COMMIT")
+

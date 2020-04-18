@@ -646,6 +646,56 @@ class ThreatLogDetail(models.Model):
     sig_flags = models.CharField(max_length=300, null=True)
 
 
+class ThreatLogDetailEvent(models.Model):
+    threat_log = models.ForeignKey(
+        ThreatLog, on_delete=models.CASCADE,
+        related_name='prod_threat_log_traffic_log_id', null=True)
+    firewall_rule = models.ForeignKey(
+        FirewallRule, on_delete=models.CASCADE,
+        related_name='prod_threat_log_firewall_rule_id', null=True)
+    received_datetime = models.DateTimeField()
+    log_type = models.CharField(max_length=300, null=True)
+    threat_content_type = models.CharField(max_length=300, null=True)
+    config_version = models.CharField(max_length=300, null=True)
+    source_address = models.CharField(max_length=300, null=True)
+    destination_address = models.CharField(max_length=300, null=True)
+    nat_source_ip = models.CharField(max_length=300, null=True)
+    nat_destination_ip = models.CharField(max_length=300, null=True)
+    application = models.CharField(max_length=300, null=True)
+    virtual_system = models.CharField(max_length=300, null=True)
+    source_zone = models.CharField(max_length=300, null=True)
+    destination_zone = models.CharField(max_length=300, null=True)
+    inbound_interface = models.CharField(max_length=300, null=True)
+    outbound_interface = models.CharField(max_length=300, null=True)
+    log_action = models.CharField(max_length=300, null=True)
+    repeat_count = models.IntegerField(null=True)
+    source_port = models.IntegerField(null=True)
+    destination_port = models.IntegerField(null=True)
+    nat_source_port = models.IntegerField(null=True)
+    nat_destination_port = models.IntegerField(null=True)
+    flags = models.CharField(max_length=300, null=True)
+    protocol = models.CharField(max_length=300, null=True)
+    action = models.CharField(max_length=300, null=True)
+    url_filename = models.CharField(max_length=300, null=True)
+    threat_content_name = models.CharField(max_length=300, null=True)
+    category = models.CharField(max_length=300, null=True)
+    severity = models.CharField(max_length=300, null=True)
+    direction = models.CharField(max_length=300, null=True)
+    sequence_number = models.CharField(max_length=300, null=True)
+    action_flags = models.CharField(max_length=300, null=True)
+    source_country = models.CharField(max_length=300, null=True)
+    destination_country = models.CharField(max_length=300, null=True)
+    cpadding = models.CharField(max_length=300, null=True)
+    contenttype = models.CharField(max_length=300, null=True)
+    url_idx = models.CharField(max_length=300, null=True)
+    device_name = models.CharField(max_length=300, null=True)
+    file_url = models.CharField(max_length=300, null=True)
+    thr_category = models.CharField(max_length=300, null=True)
+    contentver = models.CharField(max_length=300, null=True)
+    sig_flags = models.CharField(max_length=300, null=True)
+
+    class Meta:
+        db_table = 'fh_prd_thrt_log_dtl_evnt_f' 
 
 
 class StageThreatLogDetailEvent(models.Model):
