@@ -52,7 +52,7 @@ class DailyTrafficMISEngine(object):
             os.makedirs(output_dir)
         self._spark = spark_session
         self._db_engine = db_engine
-        self._INPUT_TRAFFIC_LOG = os.path.join(py_config.TRAFFIC_LOGS_INPUT_DIR,input_traffic_log)
+        self._INPUT_TRAFFIC_LOG = input_traffic_log
         self._OUTPUT_DIR = output_dir
         self._REQUIRED_COLUMNS = ['Source address', 'Destination address', 'Application',
                                   'IP Protocol', 'Source Zone', 'Destination Zone', 'Rule',

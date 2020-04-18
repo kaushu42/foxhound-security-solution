@@ -51,7 +51,7 @@ COUNTRY_DB_FILEPATH = py_config.COUNTRY_DB_FILEPATH
 
 class DailyTrafficLogEngine:
     def __init__(self, input_traffic_log,output_dir,country_db_file,db_engine, spark):
-        self._INPUT_TRAFFIC_LOG = os.path.join(py_config.TRAFFIC_LOGS_INPUT_DIR ,input_traffic_log)
+        self._INPUT_TRAFFIC_LOG = input_traffic_log
         self._country_db_file = country_db_file
         self._db_engine = db_engine
         self._spark = spark
