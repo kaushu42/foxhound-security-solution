@@ -2,6 +2,7 @@ import os
 import foxhound as fh
 from foxhound.log_engine.DailyTrafficLogEngine import DailyTrafficLogEngine
 from foxhound.mis_engine.DailyTrafficMISEngine import DailyTrafficMISEngine
+from foxhound.mis_engine.DailyThreatMISEngine import DailyThreatMISEngine
 from foxhound.rule_engine.DailyTrafficRuleEngine import DailyTrafficRuleEngine
 from foxhound.log_engine.DailyThreatLogEngine  import DailyThreatLogEngine
 import config
@@ -27,6 +28,10 @@ def is_threat_log_already_processed(input_threat_log):
 
 def traffic_mis_engine(input_traffic_log):
    mis = DailyTrafficMISEngine(config.SPARK,utils.get_db_engine(),input_traffic_log,config.MIS_OUTPUT_INPUT_DIR)
+   mis.run()
+
+def threat_mis_engine(input_threat_log):
+   mis = DailyThreatMISEngine(config.SPARK,utils.get_db_engine(),input_threat_log,config.MIS_OUTPUT_INPUT_DIR)
    mis.run()
 
 

@@ -126,7 +126,7 @@ class DailyThreatLogEngine:
     
         
     def _set_firewall_rules_id_to_data(self):
-        self._df = self._df.fillna({'firewall_rule':'Default'})
+        self._df = self._df.fillna({'firewall_rule':'default'})
         firewall_rules_from_db = self._read_firewall_rules_from_db()
         
         @F.udf(returnType=IntegerType())

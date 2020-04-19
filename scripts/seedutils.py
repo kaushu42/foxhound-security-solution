@@ -4,7 +4,7 @@ import wget
 import shutil
 
 from foxhound.db_engine.core_models import (
-    VirtualSystem, Tenant,
+    VirtualSystem, Tenant,FirewallRule,
     Domain
 )
 import utils
@@ -37,7 +37,7 @@ def seed(run=True):
     if not run:
         return
     #get_ip_db()
-    utils.get_blacklisted_ip(engine)
+    #utils.get_blacklisted_ip(engine)
     if session.query(VirtualSystem).count() == 0:
         print('Seeding database....')
         print('Creating Default Virtual System')
@@ -48,5 +48,10 @@ def seed(run=True):
         default_tenant = Tenant(
             virtual_system_id=default_vsys.id, name='default')
         session.add(default_tenant)
+        session.flush()
+        print('Creating Default Firewall Rule')
+        default_fw_rule = FirewallRule(
+            tenant_id=default_tenant.id, name='default')
+        session.add(default_fw_rule)
         session.flush()
         session.commit()

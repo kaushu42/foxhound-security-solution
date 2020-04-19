@@ -134,6 +134,9 @@ class DailyTrafficMISEngine(object):
         self._df = self._df.toDF(*self._HEADER_NAMES)
         self._df = self._df.withColumn("logged_datetime", to_timestamp(
             self._df.logged_datetime, 'yyyy/MM/dd'))
+        self._df = self._df.withColumn("processed_datetime", current_date())
+        self._df = self._df.withColumn('processed_datetime',
+                           to_timestamp(self._df.processed_datetime))
         self._df = self._df.withColumn(
             "source_port", self._df["source_port"].cast(IntegerType()))
         self._df = self._df.withColumn(
@@ -189,7 +192,34 @@ class DailyTrafficMISEngine(object):
         df = df.withColumn("logged_datetime", unix_timestamp(
             lit(csv_date), 'yyyy-MM-dd').cast("timestamp"))
         return df
-    
+
+    def _extract_mis_daily(self):
+        GROUPING_COLUMNS = ['processed_datetime','logged_datetime', 'firewall_rule_id','source_zone', 'destination_zone', 'application', 'protocol']
+        COLUMN_HEADERS = ['processed_datetime', 'logged_datetime', 'source_zone', 'destination_zone', 'application', 'protocol',
+                          'avg_repeat_count', 'sum_bytes_sent', 'sum_bytes_received', 'sum_packets_received', 'sum_packets_sent',
+                          'sum_time_elapsed', 'count_events', 'firewall_rule_id']
+        grouped_df = self._df.groupby(*GROUPING_COLUMNS)
+        grouped_agg = grouped_df.agg({
+            'repeat_count': 'mean',
+            'bytes_sent': 'sum',
+            'bytes_received': 'sum',
+            'time_elapsed': 'sum',
+            'packets_sent': 'sum',
+            'packets_received': 'sum',
+            'count_events': 'count'})
+        grouped_agg = grouped_agg.withColumnRenamed(
+            "sum(time_elapsed)", "sum_time_elapsed").withColumnRenamed(
+            "sum(bytes_received)", "sum_bytes_received").withColumnRenamed(
+            "sum(packets_received)", "sum_packets_received").withColumnRenamed(
+            "sum(packets_sent)", "sum_packets_sent").withColumnRenamed(
+            "avg(repeat_count)", "avg_repeat_count").withColumnRenamed(
+            "sum(bytes_sent)", "sum_bytes_sent").withColumnRenamed(
+            "count(count_events)", "count_events")
+        grouped_agg = grouped_agg.select(*COLUMN_HEADERS)
+        self._write_df_to_postgres(grouped_agg,"fh_stg_trfc_mis_dy_a","append")
+        print("fh_stg_trfc_mis_dy_a successfully loaded")
+        del grouped_agg,grouped_df
+
     def _extract_mis_new_source_address(self):
         @F.udf(returnType=BooleanType())
         def filter_public_records(source_ip):
@@ -200,7 +230,7 @@ class DailyTrafficMISEngine(object):
         new_unique_source_address = self._df.filter(filter_public_records(self._df.source_address))
         new_unique_source_address = new_unique_source_address.join(ip_from_db_df, on=['firewall_rule_id','source_address'], how='left_anti')
         
-        GROUPING_COLUMNS = ['firewall_rule_id','source_address']
+        GROUPING_COLUMNS = ['processed_datetime','logged_datetime','firewall_rule_id','source_address']
         COLUMN_HEADERS = ['processed_datetime', 'logged_datetime','source_address','avg_repeat_count', 'sum_bytes_sent', 'sum_bytes_received', 'sum_packets_received', 'sum_packets_sent',
                           'sum_time_elapsed', 'count_events', 'firewall_rule_id',]
         grouped_df = new_unique_source_address.groupby(*GROUPING_COLUMNS)
@@ -220,8 +250,6 @@ class DailyTrafficMISEngine(object):
             "avg(repeat_count)", "avg_repeat_count").withColumnRenamed(
             "sum(bytes_sent)", "sum_bytes_sent").withColumnRenamed(
             "count(count_events)", "count_events")
-        grouped_agg = self._set_logged_datetime(grouped_agg)
-        grouped_agg = self._set_processed_datetime(grouped_agg)
         grouped_agg = grouped_agg.select(*COLUMN_HEADERS)
         self._write_df_to_postgres(grouped_agg,"fh_stg_trfc_mis_new_src_ip_dy_a","append")
         print("fh_stg_trfc_mis_new_src_ip_dy_a successfully loaded")
@@ -237,7 +265,7 @@ class DailyTrafficMISEngine(object):
         new_unique_destination_address = self._df.filter(filter_public_records(self._df.destination_address))
         new_unique_destination_address = new_unique_destination_address.join(ip_from_db_df, on=['firewall_rule_id','destination_address'], how='left_anti')
         
-        GROUPING_COLUMNS = ['firewall_rule_id','destination_address']
+        GROUPING_COLUMNS = ['processed_datetime','logged_datetime','firewall_rule_id','destination_address']
         COLUMN_HEADERS = ['processed_datetime', 'logged_datetime','destination_address','avg_repeat_count', 'sum_bytes_sent', 'sum_bytes_received', 'sum_packets_received', 'sum_packets_sent',
                           'sum_time_elapsed', 'count_events', 'firewall_rule_id',]
         grouped_df = new_unique_destination_address.groupby(*GROUPING_COLUMNS)
@@ -257,8 +285,6 @@ class DailyTrafficMISEngine(object):
             "avg(repeat_count)", "avg_repeat_count").withColumnRenamed(
             "sum(bytes_sent)", "sum_bytes_sent").withColumnRenamed(
             "count(count_events)", "count_events")
-        grouped_agg = self._set_logged_datetime(grouped_agg)
-        grouped_agg = self._set_processed_datetime(grouped_agg)
         grouped_agg = grouped_agg.select(*COLUMN_HEADERS)
         self._write_df_to_postgres(grouped_agg,"fh_stg_trfc_mis_new_dst_ip_dy_a","append")
         print("fh_stg_trfc_mis_new_dst_ip_dy_a successfully loaded")
@@ -269,7 +295,7 @@ class DailyTrafficMISEngine(object):
                                                                 ).select("firewall_rule_id", "application")
         new_unique_application = self._df.join(app_from_db_df, on=['firewall_rule_id','application'], how='left_anti')
         
-        GROUPING_COLUMNS = ['firewall_rule_id','application']
+        GROUPING_COLUMNS = ['processed_datetime','logged_datetime','firewall_rule_id','application']
         COLUMN_HEADERS = ['processed_datetime', 'logged_datetime','application','avg_repeat_count', 'sum_bytes_sent', 'sum_bytes_received', 'sum_packets_received', 'sum_packets_sent',
                           'sum_time_elapsed', 'count_events', 'firewall_rule_id',]
         grouped_df = new_unique_application.groupby(*GROUPING_COLUMNS)
@@ -289,8 +315,6 @@ class DailyTrafficMISEngine(object):
             "avg(repeat_count)", "avg_repeat_count").withColumnRenamed(
             "sum(bytes_sent)", "sum_bytes_sent").withColumnRenamed(
             "count(count_events)", "count_events")
-        grouped_agg = self._set_logged_datetime(grouped_agg)
-        grouped_agg = self._set_processed_datetime(grouped_agg)
         grouped_agg = grouped_agg.select(*COLUMN_HEADERS)
         self._write_df_to_postgres(grouped_agg,"fh_stg_trfc_mis_new_app_dy_a","append")
         print("fh_stg_trfc_mis_new_app_dy_a successfully loaded")
@@ -306,7 +330,7 @@ class DailyTrafficMISEngine(object):
                           'sum_bytes_received', 'sum_packets_received', 'sum_packets_sent',
                           'sum_time_elapsed', 'count_events']
         
-        GROUPING_COLUMNS = ['firewall_rule_id', 'source_address', 'destination_address', 'application',
+        GROUPING_COLUMNS = ['processed_datetime','logged_datetime','firewall_rule_id', 'source_address', 'destination_address', 'application',
                           'protocol', 'source_zone', 'destination_zone', 'inbound_interface', 'outbound_interface',
                           'action', 'category', 'session_end_reason','destination_port']
         grouped_df = filtered_df.groupby(*GROUPING_COLUMNS)
@@ -342,7 +366,7 @@ class DailyTrafficMISEngine(object):
                           'inbound_interface', 'outbound_interface','action', 'category', 'session_end_reason', 
                           'destination_port','avg_repeat_count', 'sum_bytes_sent', 'sum_bytes_received', 'sum_packets_received', 
                           'sum_packets_sent','sum_time_elapsed', 'count_events']
-        GROUPING_COLUMNS = ['firewall_rule_id', 'source_address', 'destination_address', 'application',
+        GROUPING_COLUMNS = ['processed_datetime','logged_datetime', 'firewall_rule_id', 'source_address', 'destination_address', 'application',
                           'protocol', 'source_zone', 'destination_zone', 'inbound_interface', 'outbound_interface',
                           'action', 'category', 'session_end_reason','destination_port']
         grouped_df = filtered_df.groupby(*GROUPING_COLUMNS)
@@ -375,6 +399,7 @@ class DailyTrafficMISEngine(object):
         self._preprocess()
         self._write_new_firewall_rules_to_db()
         self._set_firewall_rules_id_to_data()
+        self._extract_mis_daily()
         self._extract_mis_new_source_address()
         self._extract_mis_new_destination_address()
         self._extract_mis_new_application()
