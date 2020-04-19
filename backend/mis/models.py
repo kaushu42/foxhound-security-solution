@@ -26,7 +26,6 @@ class StageTrafficMisNewSourceIPDaily(DailyIP):
     sum_time_elapsed = models.BigIntegerField()
     count_events = models.BigIntegerField()
 
-
     class Meta:
         db_table = 'fh_stg_trfc_mis_new_src_ip_dy_a'
 
@@ -105,7 +104,6 @@ class StageTrafficMisRequestFromBlacklistedIPDaily(models.Model):
     class Meta:
         db_table = 'fh_stg_trfc_mis_req_frm_blip_dy_a'
 
-
 class StageTrafficMisResponseToBlacklistedIPDaily(models.Model):
     logged_datetime = models.DateTimeField(null=True)
     processed_datetime = models.DateField(null=True)
@@ -181,12 +179,7 @@ class DailyApplication(models.Model):
         return self.application_name
 
 
-@architect.install(
-    'partition', type='range',
-    subtype='date', constraint='day',
-    column='logged_datetime'
-)
-class Daily(models.Model):
+class TrafficMisDaily(models.Model):
     logged_datetime = models.DateField(null=True)
     processed_datetime = models.DateField(null=True)
     firewall_rule = models.ForeignKey(FirewallRule, on_delete=models.CASCADE)
@@ -207,6 +200,9 @@ class Daily(models.Model):
 
     def __repr__(self):
         return self.__str__()
+
+    class Meta:
+        db_table='fh_prd_trfc_mis_dy_a'
 
 
 class StageTrafficMisDaily(models.Model):
