@@ -8,6 +8,9 @@ import config
 import utils
 import pandas as pd
 import datetime
+import psycopg2
+from sqlalchemy.orm import sessionmaker
+
 
 def is_traffic_log_already_processed(input_traffic_log):
    processed_logs_from_db = pd.read_sql_table('fh_prd_trfc_log_f', utils.get_db_engine()).set_index("log_name").to_dict()["id"]
@@ -54,12 +57,42 @@ def ready_for_staging():
    # Truncate Hourly and Daily Staging Table for Staging
    pass
 
+def insert_stage_data_to_prod_table(con,stage_table,prod_table):
+   # get all columns from stage_table and save it as array
+   rs = con.execute(
+      f"select count(*) mismatch,1,1 from (select column_name from information_schema.columns where table_name = '{stage_table}' except select column_name from information_schema.columns where table_name = '{prod_table}')a"
+   )
+   mismatch_count = rs.fetchone()[0]
+   print(mismatch_count)
+   if(mismatch_count != 0):
+      print("Stage table and prod table do not match")
+      return
+   rs = con.execute(
+      f"SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name ='{stage_table}'"
+   )
+   stage_columns = []
+   for row in rs:
+         if (row[0] != 'id'):
+            stage_columns.append(row[0])
+   col_in_string = ','.join(map(str, stage_columns)) 
+   insert_sql = f"INSERT INTO {prod_table}({col_in_string}) SELECT {col_in_string} FROM {stage_table}"
+   print('******')
+   print(insert_sql)
+   print('******')
+   rs = con.execute(insert_sql)
+   print(f"stage data from {stage_table} loaded to {prod_table} sucessfully")
+      
 def commit_changes_to_production():
-   # commit changes to production using bulk insert or insert
-   db_engine = utils.get_db_engine()
-   with db_engine.connect() as con:
-      con.execute(f"BEGIN TRANSACTION")
-      # create insert dynamic insert statements for insertion without id
-      # rs = con.execute(f"INSERT INTO fh_prd_thrt_log_dtl_evnt_f SELECT * FROM fh_stg_thrt_log_dtl_evnt_f")
-      con.execute(f"COMMIT")
-
+   engine = utils.get_db_engine()
+   Session = sessionmaker(bind=engine,autocommit=True)
+   session = Session()
+   session.begin()
+   try:
+      insert_stage_data_to_prod_table(session,'fh_stg_thrt_log_dtl_evnt_f','fh_prd_thrt_log_dtl_evnt_f')
+   except:
+      session.rollback()
+      raise
+   finally:
+      session.commit()
+      session.close()
+ 
