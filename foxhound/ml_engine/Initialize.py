@@ -1,4 +1,5 @@
 import os
+import math
 import time
 
 import numpy as np
@@ -70,13 +71,14 @@ class Initialize():
             return sum([(weight+1)*char for weight, char in enumerate(list(bytearray(x, encoding='utf8'))[::-1])])
 
         slice_hour = udf(lambda x: x[-8:-6])
-        sin_time = udf(lambda x: np.sin((2*np.pi/24)*int(x)))
-        cos_time = udf(lambda x: np.cos((2*np.pi/24)*int(x)))
+        sin_time = udf(lambda x: round(math.sin((2*math.pi/24)*int(x)), 3))
+        cos_time = udf(lambda x: round(math.cos((2*math.pi/24)*int(x)), 3))
         convert_to_num = udf(lambda x: str_to_num(x))
 
         df = df.withColumn(self._TIME_FEATURE, slice_hour(df[self._TIME_FEATURE]))     
         df = df.withColumn('sin_time', sin_time(df[self._TIME_FEATURE]))
         df = df.withColumn('cos_time', cos_time(df[self._TIME_FEATURE]))
+
         df = df.drop(*[self._TIME_FEATURE])
         df = df.select(*[convert_to_num(column).name(column) if column in features_to_convert_to_number else column for column in df.columns])
 
@@ -101,7 +103,7 @@ class Initialize():
         if os.path.isdir(dest_file_path):
             df.write.csv(dest_file_path, mode='append', header=False)
         else:
-            df.write.csv(dest_file_path, mode='append')
+            df.write.csv(dest_file_path, header=True)
 
     def _create_ip_profile(self, df, dest_path):
         """Method to create tenant profile from daily csv file
@@ -120,13 +122,35 @@ class Initialize():
 
         ips = df.select(self._USER_FEATURE).toPandas()[self._USER_FEATURE].unique()
         private_ips = ips[[ipaddress.ip_address(ip).is_private for ip in ips]].tolist()
+
+        # print(df.show(2))
+        # print(df.filter(df[self._USER_FEATURE].isin(private_ips)).show(2))
+        # input()
         
         df = df.filter(df[self._USER_FEATURE].isin(private_ips))
         
         df = self._preprocess(df)
-        input("Input mode")
+        print(df.show(2))
+        input()
         # for ip in private_ips:
+        tenants = df.select(self._TENANT_FEATURE).toPandas()[self._TENANT_FEATURE].unique()
+        print(df.show(2))
+        input()
 
+        for tenant in tenants:
+            tenant_path = os.path.join(dest_path, tenant)
+            if os.path.exists(tenant_path) is not True:
+                os.makedirs(tenant_path)
+            for ip in private_ips:
+                ip_csv_path = os.path.join(tenant_path, (ip+'.csv'))
+                ip_df = df.filter((df[self._TENANT_FEATURE] == tenant) & (df[self._USER_FEATURE] == ip))
+                # ip_df = ip_df.drop(*[self._TENANT_FEATURE, self._USER_FEATURE])
+                print(ip_df.show())
+                input()
+                ip_df.write.csv(ip_csv_path, mode='append', header=True)
+                # self._save_to_csv(ip_df, ip_csv_path)
+                input("Input mode")
+                
 
         for (tenant, ip), ip_df in df.groupby([self._TENANT_FEATURE, self._USER_FEATURE]):
             tenant_path = os.path.join(dest_path, tenant)
