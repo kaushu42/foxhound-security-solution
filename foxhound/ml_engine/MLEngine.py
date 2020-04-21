@@ -122,7 +122,7 @@ class MLEngine(AutoEncoder):
         temp['sin_time'] = temp[[self._TIME_FEATURE]].apply(
             lambda x: np.sin((2*np.pi/24)*int(x)), 1)
         temp['cos_time'] = temp[[self._TIME_FEATURE]].apply(
-            lambda x: np.sin((2*np.pi/24)*int(x)), 1)
+            lambda x: np.cos((2*np.pi/24)*int(x)), 1)
 
         temp.drop(columns=[self._TIME_FEATURE], inplace=True)
 

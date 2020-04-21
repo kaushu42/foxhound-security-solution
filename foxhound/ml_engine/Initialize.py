@@ -64,7 +64,7 @@ class Initialize():
 
         temp[self._TIME_FEATURE] = self._dask_apply(temp[[self._TIME_FEATURE]], lambda x: x.str[-8:-6], 1)
         temp['sin_time'] = self._dask_apply(temp[[self._TIME_FEATURE]], lambda x: np.sin((2*np.pi/24)*int(x)), 1)
-        temp['cos_time'] = self._dask_apply(temp[[self._TIME_FEATURE]], lambda x: np.sin((2*np.pi/24)*int(x)), 1)
+        temp['cos_time'] = self._dask_apply(temp[[self._TIME_FEATURE]], lambda x: np.cos((2*np.pi/24)*int(x)), 1)
         
         temp.drop(columns=[self._TIME_FEATURE], inplace=True)
 
