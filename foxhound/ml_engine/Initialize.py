@@ -66,15 +66,17 @@ class Initialize():
             Dataframe after removing unnecessary features and numeric representation
         """
         # temp = df.copy()
+        def str_to_num(x): # passing object function i.e self._str to lambda function causes pickling error
+            return sum([(weight+1)*char for weight, char in enumerate(list(bytearray(x, encoding='utf8'))[::-1])])
 
         slice_hour = udf(lambda x: x[-8:-6])
         sin_time = udf(lambda x: np.sin((2*np.pi/24)*int(x)))
         cos_time = udf(lambda x: np.cos((2*np.pi/24)*int(x)))
-        convert_to_num = udf(lambda x: self._str_to_num(x))
+        convert_to_num = udf(lambda x: str_to_num(x))
 
-        df = df.WithColumn(self._TIME_FEATURE, slice_hour(df[self._TIME_FEATURE]))     
-        df = df.WithColumn('sin_time', sin_time(df[self._TIME_FEATURE]))
-        df = df.WithColumn('cos_time', cos_time(df[self._TIME_FEATURE]))
+        df = df.withColumn(self._TIME_FEATURE, slice_hour(df[self._TIME_FEATURE]))     
+        df = df.withColumn('sin_time', sin_time(df[self._TIME_FEATURE]))
+        df = df.withColumn('cos_time', cos_time(df[self._TIME_FEATURE]))
         df = df.drop(*[self._TIME_FEATURE])
         df = df.select(*[convert_to_num(column).name(column) if column in features_to_convert_to_number else column for column in df.columns])
 
@@ -120,8 +122,11 @@ class Initialize():
         private_ips = ips[[ipaddress.ip_address(ip).is_private for ip in ips]].tolist()
         
         df = df.filter(df[self._USER_FEATURE].isin(private_ips))
-
+        
+        df = self._preprocess(df)
         input("Input mode")
+        # for ip in private_ips:
+
 
         for (tenant, ip), ip_df in df.groupby([self._TENANT_FEATURE, self._USER_FEATURE]):
             tenant_path = os.path.join(dest_path, tenant)
