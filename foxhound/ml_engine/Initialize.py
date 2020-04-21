@@ -113,15 +113,15 @@ class Initialize():
         features_list : list of strings
             List of features to consider for analysis
         """
-        input("Input mode")
-        df = df.copy()
-        
-        df.session_end_reason_id.fillna('unknown', inplace=True)
 
-        ips = df[self._USER_FEATURE].unique()
-        private_ips = ips[[ipaddress.ip_address(
-                ip).is_private for ip in ips]]
-        df = df.loc[df[self._USER_FEATURE].isin(private_ips), :]
+        df = df.na.fill('unknown', subset=['session_end_reason_id'])
+
+        ips = df.select(self._USER_FEATURE).toPandas()[self._USER_FEATURE].unique()
+        private_ips = ips[[ipaddress.ip_address(ip).is_private for ip in ips]].tolist()
+        
+        df = df.filter(df[self._USER_FEATURE].isin(private_ips))
+
+        input("Input mode")
 
         for (tenant, ip), ip_df in df.groupby([self._TENANT_FEATURE, self._USER_FEATURE]):
             tenant_path = os.path.join(dest_path, tenant)
