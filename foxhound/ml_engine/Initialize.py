@@ -117,53 +117,30 @@ class Initialize():
         features_list : list of strings
             List of features to consider for analysis
         """
-
+        start = time.time()
         df = df.na.fill('unknown', subset=['session_end_reason_id'])
-
-        ips = df.select(self._USER_FEATURE).toPandas()[self._USER_FEATURE].unique()
+        ips = np.array(df.select(self._USER_FEATURE).distinct().rdd.flatMap(lambda x: x).collect())
+        # ips = df.select(self._USER_FEATURE).toPandas()[self._USER_FEATURE].unique()
         private_ips = ips[[ipaddress.ip_address(ip).is_private for ip in ips]].tolist()
 
-        # print(df.show(2))
-        # print(df.filter(df[self._USER_FEATURE].isin(private_ips)).show(2))
-        # input()
-        
         df = df.filter(df[self._USER_FEATURE].isin(private_ips))
-        
         df = self._preprocess(df)
-        print(df.show(2))
-        input()
-        # for ip in private_ips:
-        tenants = df.select(self._TENANT_FEATURE).toPandas()[self._TENANT_FEATURE].unique()
-        print(df.show(2))
-        input()
 
-        for tenant in tenants:
-            tenant_path = os.path.join(dest_path, tenant)
-            if os.path.exists(tenant_path) is not True:
-                os.makedirs(tenant_path)
-            for ip in private_ips:
-                ip_csv_path = os.path.join(tenant_path, (ip+'.csv'))
-                ip_df = df.filter((df[self._TENANT_FEATURE] == tenant) & (df[self._USER_FEATURE] == ip))
-                # ip_df = ip_df.drop(*[self._TENANT_FEATURE, self._USER_FEATURE])
-                print(ip_df.show())
-                input()
-                ip_df.write.csv(ip_csv_path, mode='append', header=True)
-                # self._save_to_csv(ip_df, ip_csv_path)
-                input("Input mode")
-                
+        df.repartition(1).write.partitionBy([self._TENANT_FEATURE, self._USER_FEATURE]).csv(dest_path+'test.csv', header=True)
 
-        for (tenant, ip), ip_df in df.groupby([self._TENANT_FEATURE, self._USER_FEATURE]):
-            tenant_path = os.path.join(dest_path, tenant)
-            if os.path.exists(tenant_path) is not True:
-                os.makedirs(tenant_path)
-            
-            ip_csv_path = os.path.join(tenant_path, (ip+'.csv'))
-            ip_df.reset_index(inplace=True)
-            ip_df = ip_df.drop(
-                columns=['index', self._TENANT_FEATURE, self._USER_FEATURE])
-            ip_df = self._preprocess(ip_df)
-
-            self._save_to_csv(ip_df, ip_csv_path)
+        # tenants = df.select(self._TENANT_FEATURE).toPandas()[self._TENANT_FEATURE].unique()
+        # for tenant in tenants:
+        #     tenant_path = os.path.join(dest_path, tenant)
+        #     if os.path.exists(tenant_path) is not True:
+        #         os.makedirs(tenant_path)
+        #     for ip in private_ips:
+        #         ip_csv_path = os.path.join(tenant_path, (ip+'.csv'))
+        #         ip_df = df.filter((df[self._TENANT_FEATURE] == tenant) & (df[self._USER_FEATURE] == ip))
+        #         ip_df = ip_df.drop(*[self._TENANT_FEATURE, self._USER_FEATURE])
+        #         # ip_df.write.csv(ip_csv_path, mode='append', header=True)
+        #         if ip_df.count() > 0:
+        #             self._save_to_csv(ip_df, ip_csv_path)      
+        print(time.time() - start)          
 
     def parse_all_csv(self):
         """Method to parse all history csv to create tenant profile
