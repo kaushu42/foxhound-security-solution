@@ -96,7 +96,7 @@ class RuleEngine:
         self._write_df_to_postgres(df, 'rules_rule')
 
     def run(self):
-        logger = Logger()
+        logger = Logger.getInstance()
         for csv in self._csv_paths:
             try:
                 logger.info(f'Rule Engine: {csv}')
@@ -106,4 +106,3 @@ class RuleEngine:
                 logger.error(str(traceback.format_exc()))
                 logger.info(f'Skipping {csv}')
                 continue
-        logger.close()

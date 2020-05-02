@@ -43,6 +43,5 @@ class ApplicationChart(BaseChart):
             'packets_sent', 'packets_received',
             'count'
         ]]
-
         # Write to db
-        self._write_df_to_postgres(grouped_df, 'core_applicationchart')
+        self._write_df_to_postgres(grouped_df, 'fh_stg_trfc_chrt_app_dt_hr_a')

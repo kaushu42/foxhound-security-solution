@@ -36,7 +36,7 @@ class TTAnomaly:
             password='foxhound123').mode(mode).save()
 
     def run(self):
-        logger = Logger()
+        logger = Logger.getInstance()
         logger.info('TT Engine started')
         for csv in self._csvs:
             try:
@@ -74,4 +74,3 @@ class TTAnomaly:
                 logger.info(f'Skipping {csv}')
                 continue
         logger.info('TT Engine: Done')
-        logger.close()

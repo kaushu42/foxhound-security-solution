@@ -173,7 +173,7 @@ class ChartEngine(BaseChart):
         self._clear_staging_area()
 
     def run(self):
-        logger = Logger()
+        logger = Logger.getInstance()
         for csv in self._csv_paths:
             try:
                 logger.info(f'Chart Engine: {csv}')
@@ -218,5 +218,5 @@ class ChartEngine(BaseChart):
                 logger.info(f'Skipping {csv}')
                 continue
         logger.info('Chart Engine: Done')
-        logger.close()
+
         print('Chart Engine finished running on:', datetime.datetime.now())

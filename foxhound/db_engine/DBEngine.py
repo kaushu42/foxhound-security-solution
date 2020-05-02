@@ -36,7 +36,7 @@ class DBEngine:
             password='foxhound123').mode(mode).save()
 
     def run(self, verbose=True):
-        logger = Logger()
+        logger = Logger.getInstance()
         logger.info(f'DB Engine: Started')
         print('******RUNNING DB ENGINE******')
         for csv in self._granular_csvs:
@@ -74,4 +74,3 @@ class DBEngine:
                 logger.info(f'Skipping {csv}')
                 continue
         logger.info('DB Engine: Done')
-        logger.close()

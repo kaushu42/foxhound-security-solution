@@ -444,7 +444,7 @@ class MISEngine(object):
         return grouped_agg
 
     def run(self):
-        logger = Logger()
+        logger = Logger.getInstance()
         logger.info('MIS Engine running')
         for root, dirs, files in os.walk(self._INPUT_DIR):
             for file in files:
@@ -559,4 +559,3 @@ class MISEngine(object):
                     logger.info(f'Skipping {file}')
                     continue
         logger.info('Threat Engine: Done')
-        logger.close()

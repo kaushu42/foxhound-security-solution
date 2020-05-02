@@ -18,7 +18,7 @@ class IPChart(BaseChart):
         grouped_df = df.groupBy(
             *self.headers,
             'logged_datetime',
-            'source_ip_id'
+            'source_address'
         )
 
         # Aggregate the bytes
@@ -27,15 +27,15 @@ class IPChart(BaseChart):
             'bytes_received': 'sum',
             'packets_sent': 'sum',
             'packets_received': 'sum',
-            'source_ip_id': 'count'
+            'source_address': 'count'
         }).withColumnRenamed('sum(bytes_received)', 'bytes_received')\
             .withColumnRenamed('sum(bytes_sent)', 'bytes_sent')\
-            .withColumnRenamed('count(source_ip_id)', 'count')\
+            .withColumnRenamed('count(source_address)', 'count')\
             .withColumnRenamed('sum(packets_received)', 'packets_received')\
             .withColumnRenamed('sum(packets_sent)', 'packets_sent')\
 
         # Get the filters from db
-        filters = self._read_table_from_postgres('core_filter')
+        filters = self._read_table_from_postgres('fh_prd_trfc_fltr_f')
 
         # Get filter ids to write to db
         ipchart = grouped_df.join(filters, on=[
@@ -46,7 +46,7 @@ class IPChart(BaseChart):
             grouped_df.protocol_id == filters.protocol_id,
         ])[[
             'logged_datetime',
-            'source_ip_id',
+            'source_address',
             'bytes_sent',
             'bytes_received',
             'packets_sent',
@@ -54,10 +54,10 @@ class IPChart(BaseChart):
             'id',
             'count'
         ]]\
-            .withColumnRenamed('source_ip_id', 'address')\
+            .withColumnRenamed('source_address', 'address')\
             .withColumnRenamed('id', 'filter_id')
 
         # Write to db
-        self._write_df_to_postgres(ipchart, 'core_ipchart')
+        self._write_df_to_postgres(ipchart, 'fh_stg_trfc_chrt_ip_dt_hr_a')
 
         return ipchart

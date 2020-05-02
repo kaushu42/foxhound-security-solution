@@ -123,7 +123,7 @@ class Engine(ABC):
                   verbose=verbose, message='Deleted:')
 
     def _run(self, callback, csvs, verbose=False, message='Processing:'):
-        logger = Logger()
+        logger = Logger.getInstance()
         for csv in csvs:
             try:
                 logger.info(f'DC Engine: {csv}')
@@ -134,4 +134,3 @@ class Engine(ABC):
                 logger.error(str(traceback.format_exc()))
                 logger.info(f'Skipping {csv}')
                 continue
-        logger.close()

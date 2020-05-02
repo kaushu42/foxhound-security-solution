@@ -116,7 +116,7 @@ class ThreatEngine(object):
                         if_exists='append', index=False)
 
     def run(self):
-        logger = Logger()
+        logger = Logger.getInstance()
         logger.info('Threat Engine Running')
         for root, dirs, files in os.walk(self._INPUT_DIR):
             for file in files:
@@ -136,4 +136,3 @@ class ThreatEngine(object):
                     logger.info(f'Skipping {file}')
                     continue
         logger.info('Threat Engine: Done')
-        logger.close()

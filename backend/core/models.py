@@ -64,7 +64,7 @@ class Log(models.Model):
         abstract = True
     processed_datetime = models.DateTimeField(auto_now_add=True)
     log_date = models.DateField()
-    log_name = models.CharField(max_length=200,unique=True)
+    log_name = models.CharField(max_length=200, unique=True)
 
 
 class TrafficLog(Log):
@@ -87,6 +87,7 @@ class ThreatLog(Log):
 
     class Meta:
         db_table = 'fh_prd_thrt_log_f'
+
 
 class IPAddress(models.Model):
     address = models.CharField(max_length=15)
@@ -116,15 +117,18 @@ class ModelWithName(models.Model):
 
 
 class Application(ModelWithName):
-    pass
+    class Meta:
+        db_table = 'fh_prd_trfc_appl_f'
 
 
 class Protocol(ModelWithName):
-    pass
+    class Meta:
+        db_table = 'fh_prd_trfc_prot_f'
 
 
 class Zone(ModelWithName):
-    pass
+    class Meta:
+        db_table = 'fh_prd_trfc_zone_f'
 
 
 class FirewallRuleZone(models.Model):
@@ -148,7 +152,8 @@ class FirewallRuleZone(models.Model):
 
 
 class SessionEndReason(ModelWithName):
-    pass
+    class Meta:
+        db_table = 'fh_prd_trfc_sess_end_f'
 
 
 class Category(ModelWithName):
@@ -337,6 +342,21 @@ class StageThreatLogDetail(ProcessedLogDetail):
         db_table = 'fh_stg_thrt_log_dtl_f'
 
 
+class StageApplication(ModelWithName):
+    class Meta:
+        db_table = 'fh_stg_trfc_appl_f'
+
+
+class StageProtocol(ModelWithName):
+    class Meta:
+        db_table = 'fh_stg_trfc_prot_f'
+
+
+class StageZone(ModelWithName):
+    class Meta:
+        db_table = 'fh_stg_trfc_zone_f'
+
+
 @architect.install(
     'partition', type='range',
     subtype='date', constraint='day',
@@ -391,7 +411,7 @@ class StageTrafficLogDetailHourly(models.Model):
         related_name='firewall_rule_stage_traffic_log_detail_hourly'
     )
     logged_datetime = models.DateTimeField()
-    threat_content_type = models.CharField(max_length=50, null=True) 
+    threat_content_type = models.CharField(max_length=50, null=True)
     source_address = models.CharField(max_length=50, null=True)
     destination_address = models.CharField(max_length=50, null=True)
     nat_source_ip = models.CharField(max_length=50, null=True)
@@ -417,15 +437,15 @@ class StageTrafficLogDetailHourly(models.Model):
     sum_packets_received = models.BigIntegerField()
     sum_packets_sent = models.BigIntegerField()
     sum_time_elapsed = models.BigIntegerField()
-    
+
     def __repr__(self):
         return f'Log-{self.traffic_log}'
 
     def __str__(self):
         return self.__repr__()
-    
+
     class Meta:
-        db_table='fh_stg_prd_trfc_log_dtl_hr_a'
+        db_table = 'fh_stg_prd_trfc_log_dtl_hr_a'
 
 
 class StageTrafficLogDetailDaily(models.Model):
@@ -438,7 +458,7 @@ class StageTrafficLogDetailDaily(models.Model):
         related_name='firewall_rule_stage_traffic_log_detail_daily'
     )
     logged_datetime = models.DateTimeField()
-    threat_content_type = models.CharField(max_length=50, null=True) 
+    threat_content_type = models.CharField(max_length=50, null=True)
     source_address = models.CharField(max_length=50, null=True)
     destination_address = models.CharField(max_length=50, null=True)
     nat_source_ip = models.CharField(max_length=50, null=True)
@@ -464,15 +484,16 @@ class StageTrafficLogDetailDaily(models.Model):
     sum_packets_received = models.BigIntegerField()
     sum_packets_sent = models.BigIntegerField()
     sum_time_elapsed = models.BigIntegerField()
-    
+
     def __repr__(self):
         return f'Log-{self.traffic_log}'
 
     def __str__(self):
         return self.__repr__()
-    
+
     class Meta:
-        db_table='fh_stg_prd_trfc_log_dtl_dy_a'
+        db_table = 'fh_stg_prd_trfc_log_dtl_dy_a'
+
 
 class DBLock(models.Model):
     table_name = models.CharField(max_length=80, null=True, unique=True)
@@ -528,6 +549,8 @@ class BaseFilter(models.Model):
 
 
 class Filter(BaseFilter):
+    class Meta:
+        db_table = 'fh_prd_trfc_fltr_f'
     source_zone = models.ForeignKey(
         Zone, on_delete=models.CASCADE, related_name=f'filter_source_zone')
     destination_zone = models.ForeignKey(
@@ -551,6 +574,8 @@ class BaseFilteredChart(BaseChart):
 
 
 class StagingFilter(BaseFilter):
+    class Meta:
+        db_table = 'fh_stg_trfc_fltr_f'
     source_zone_id = models.IntegerField()
     destination_zone_id = models.IntegerField()
 
@@ -561,12 +586,16 @@ class StagingFilter(BaseFilter):
     column='logged_datetime'
 )
 class ApplicationChart(BaseChart):
+    class Meta:
+        db_table = 'fh_prd_trfc_chrt_app_dt_hr_a'
     firewall_rule = models.ForeignKey(FirewallRule, on_delete=models.CASCADE)
     logged_datetime = models.DateTimeField()
     application = models.ForeignKey(Application, on_delete=models.CASCADE)
 
 
 class RequestOriginChart(BaseFilteredChart):
+    class Meta:
+        db_table = 'fh_prd_trfc_chrt_req_org_dt_hr_a'
     country_name = models.CharField(max_length=100)
     country_code = models.CharField(max_length=10)
 
@@ -577,6 +606,8 @@ class RequestOriginChart(BaseFilteredChart):
     column='logged_datetime'
 )
 class TimeSeriesChart(BaseFilteredChart):
+    class Meta:
+        db_table = 'fh_prd_trfc_chrt_tm_srs_dt_hr_a'
     logged_datetime = models.DateTimeField()
 
 
@@ -586,6 +617,8 @@ class TimeSeriesChart(BaseFilteredChart):
     column='logged_datetime'
 )
 class IPChart(BaseFilteredChart):
+    class Meta:
+        db_table = 'fh_prd_trfc_chrt_ip_dt_hr_a'
     logged_datetime = models.DateTimeField()
     address = models.CharField(max_length=15)
 
@@ -596,6 +629,8 @@ class IPChart(BaseFilteredChart):
     column='logged_datetime'
 )
 class SankeyChart(BaseFilteredChart):
+    class Meta:
+        db_table = 'fh_prd_trfc_chrt_con_dt_hr_a'
     logged_datetime = models.DateTimeField()
     source_ip = models.CharField(max_length=15)
     destination_ip = models.CharField(max_length=15)
@@ -695,7 +730,7 @@ class ThreatLogDetailEvent(models.Model):
     sig_flags = models.CharField(max_length=300, null=True)
 
     class Meta:
-        db_table = 'fh_prd_thrt_log_dtl_evnt_f' 
+        db_table = 'fh_prd_thrt_log_dtl_evnt_f'
 
 
 class StageThreatLogDetailEvent(models.Model):
@@ -747,4 +782,40 @@ class StageThreatLogDetailEvent(models.Model):
     sig_flags = models.CharField(max_length=300, null=True)
 
     class Meta:
-        db_table = 'fh_stg_thrt_log_dtl_evnt_f' 
+        db_table = 'fh_stg_thrt_log_dtl_evnt_f'
+
+
+class StageApplicationChart(BaseChart):
+    class Meta:
+        db_table = 'fh_stg_trfc_chrt_app_dt_hr_a'
+    firewall_rule = models.ForeignKey(FirewallRule, on_delete=models.CASCADE)
+    logged_datetime = models.DateTimeField()
+    application = models.ForeignKey(Application, on_delete=models.CASCADE)
+
+
+class StageRequestOriginChart(BaseFilteredChart):
+    class Meta:
+        db_table = 'fh_stg_trfc_chrt_req_org_dt_hr_a'
+    country_name = models.CharField(max_length=100)
+    country_code = models.CharField(max_length=10)
+
+
+class StageTimeSeriesChart(BaseFilteredChart):
+    class Meta:
+        db_table = 'fh_stg_trfc_chrt_tm_srs_dt_hr_a'
+    logged_datetime = models.DateTimeField()
+
+
+class StageIPChart(BaseFilteredChart):
+    class Meta:
+        db_table = 'fh_stg_trfc_chrt_ip_dt_hr_a'
+    logged_datetime = models.DateTimeField()
+    address = models.CharField(max_length=15)
+
+
+class StageSankeyChart(BaseFilteredChart):
+    class Meta:
+        db_table = 'fh_stg_trfc_chrt_con_dt_hr_a'
+    logged_datetime = models.DateTimeField()
+    source_address = models.CharField(max_length=15)
+    destination_address = models.CharField(max_length=15)

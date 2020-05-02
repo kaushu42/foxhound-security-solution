@@ -33,7 +33,7 @@ class TimeSeriesChart(BaseChart):
             .withColumnRenamed('count(application_id)', 'count')
 
         # Get filters from db
-        filters = self._read_table_from_postgres('core_filter')
+        filters = self._read_table_from_postgres('fh_prd_trfc_fltr_f')
 
         # Map filters to foreign keys
         grouped_df = grouped_df.join(filters, on=[
@@ -52,6 +52,7 @@ class TimeSeriesChart(BaseChart):
             'id']].withColumnRenamed('id', 'filter_id')
 
         # Write to db
-        self._write_df_to_postgres(grouped_df, 'core_timeserieschart')
+        self._write_df_to_postgres(
+            grouped_df, 'fh_stg_trfc_chrt_tm_srs_dt_hr_a')
 
         return grouped_df
