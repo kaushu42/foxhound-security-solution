@@ -401,6 +401,56 @@ class TrafficLogDetailGranularHour(models.Model):
         return self.__repr__()
 
 
+class TrafficLogDetailHourly(models.Model):
+    traffic_log = models.ForeignKey(
+        TrafficLog,
+        on_delete=models.CASCADE, null=True
+    )
+    firewall_rule = models.ForeignKey(
+        FirewallRule, on_delete=models.CASCADE, null=True,
+        related_name='firewall_rule_prod_traffic_log_detail_hourly'
+    )
+    logged_datetime = models.DateTimeField()
+    threat_content_type = models.CharField(max_length=50, null=True)
+    source_address = models.CharField(max_length=50, null=True)
+    destination_address = models.CharField(max_length=50, null=True)
+    nat_source_ip = models.CharField(max_length=50, null=True)
+    nat_destination_ip = models.CharField(max_length=50, null=True)
+    destination_port = models.PositiveIntegerField()
+    nat_destination_port = models.PositiveIntegerField()
+    application = models.CharField(max_length=250, null=True)
+    protocol = models.CharField(max_length=50, null=True)
+    log_action = models.CharField(max_length=50, null=True)
+    source_zone = models.CharField(max_length=250, null=True)
+    destination_zone = models.CharField(max_length=250, null=True)
+    inbound_interface = models.CharField(max_length=250, null=True)
+    outbound_interface = models.CharField(max_length=250, null=True)
+    action = models.CharField(max_length=250, null=True)
+    category = models.CharField(max_length=250, null=True)
+    session_end_reason = models.CharField(max_length=250, null=True)
+    source_country = models.CharField(max_length=3, null=True)
+    destination_country = models.CharField(max_length=3, null=True)
+    device_name = models.CharField(max_length=250, null=True)
+    flags = models.CharField(max_length=50, null=True)
+    vsys = models.CharField(max_length=50, null=True)
+    sum_bytes_sent = models.BigIntegerField()
+    sum_bytes_received = models.BigIntegerField()
+    avg_repeat_count = models.PositiveIntegerField()
+    sum_packets_received = models.BigIntegerField()
+    sum_packets_sent = models.BigIntegerField()
+    sum_time_elapsed = models.BigIntegerField()
+    count_events = models.BigIntegerField()
+
+    def __repr__(self):
+        return f'Log-{self.traffic_log}'
+
+    def __str__(self):
+        return self.__repr__()
+
+    class Meta:
+        db_table = 'fh_prd_trfc_log_dtl_hr_a'
+
+
 class StageTrafficLogDetailHourly(models.Model):
     traffic_log = models.ForeignKey(
         TrafficLog,
@@ -430,13 +480,17 @@ class StageTrafficLogDetailHourly(models.Model):
     session_end_reason = models.CharField(max_length=250, null=True)
     source_country = models.CharField(max_length=3, null=True)
     destination_country = models.CharField(max_length=3, null=True)
-    device_name = models.CharField(max_length=3, null=True)
+    device_name = models.CharField(max_length=250, null=True)
+    flags = models.CharField(max_length=50, null=True)
+    vsys = models.CharField(max_length=50, null=True)
     sum_bytes_sent = models.BigIntegerField()
     sum_bytes_received = models.BigIntegerField()
     avg_repeat_count = models.PositiveIntegerField()
     sum_packets_received = models.BigIntegerField()
     sum_packets_sent = models.BigIntegerField()
     sum_time_elapsed = models.BigIntegerField()
+    count_events = models.BigIntegerField()
+
 
     def __repr__(self):
         return f'Log-{self.traffic_log}'
@@ -445,8 +499,57 @@ class StageTrafficLogDetailHourly(models.Model):
         return self.__repr__()
 
     class Meta:
-        db_table = 'fh_stg_prd_trfc_log_dtl_hr_a'
+        db_table = 'fh_stg_trfc_log_dtl_hr_a'
 
+class TrafficLogDetailDaily(models.Model):
+    traffic_log = models.ForeignKey(
+        TrafficLog,
+        on_delete=models.CASCADE, null=True
+    )
+    firewall_rule = models.ForeignKey(
+        FirewallRule, on_delete=models.CASCADE, null=True,
+        related_name='firewall_rule_prod_traffic_log_detail_daily'
+    )
+    logged_datetime = models.DateTimeField()
+    threat_content_type = models.CharField(max_length=50, null=True)
+    source_address = models.CharField(max_length=50, null=True)
+    destination_address = models.CharField(max_length=50, null=True)
+    nat_source_ip = models.CharField(max_length=50, null=True)
+    nat_destination_ip = models.CharField(max_length=50, null=True)
+    destination_port = models.PositiveIntegerField()
+    nat_destination_port = models.PositiveIntegerField()
+    application = models.CharField(max_length=250, null=True)
+    protocol = models.CharField(max_length=50, null=True)
+    log_action = models.CharField(max_length=50, null=True)
+    source_zone = models.CharField(max_length=250, null=True)
+    destination_zone = models.CharField(max_length=250, null=True)
+    inbound_interface = models.CharField(max_length=250, null=True)
+    outbound_interface = models.CharField(max_length=250, null=True)
+    action = models.CharField(max_length=250, null=True)
+    category = models.CharField(max_length=250, null=True)
+    session_end_reason = models.CharField(max_length=250, null=True)
+    source_country = models.CharField(max_length=3, null=True)
+    destination_country = models.CharField(max_length=3, null=True)
+    device_name = models.CharField(max_length=250, null=True)
+    flags = models.CharField(max_length=50, null=True)
+    vsys = models.CharField(max_length=50, null=True)
+    sum_bytes_sent = models.BigIntegerField()
+    sum_bytes_received = models.BigIntegerField()
+    avg_repeat_count = models.PositiveIntegerField()
+    sum_packets_received = models.BigIntegerField()
+    sum_packets_sent = models.BigIntegerField()
+    sum_time_elapsed = models.BigIntegerField()
+    count_events = models.BigIntegerField()
+
+
+    def __repr__(self):
+        return f'Log-{self.traffic_log}'
+
+    def __str__(self):
+        return self.__repr__()
+
+    class Meta:
+        db_table = 'fh_prd_trfc_log_dtl_dy_a'
 
 class StageTrafficLogDetailDaily(models.Model):
     traffic_log = models.ForeignKey(
@@ -477,13 +580,16 @@ class StageTrafficLogDetailDaily(models.Model):
     session_end_reason = models.CharField(max_length=250, null=True)
     source_country = models.CharField(max_length=3, null=True)
     destination_country = models.CharField(max_length=3, null=True)
-    device_name = models.CharField(max_length=3, null=True)
+    device_name = models.CharField(max_length=250, null=True)
+    flags = models.CharField(max_length=50, null=True)
+    vsys = models.CharField(max_length=50, null=True)
     sum_bytes_sent = models.BigIntegerField()
     sum_bytes_received = models.BigIntegerField()
     avg_repeat_count = models.PositiveIntegerField()
     sum_packets_received = models.BigIntegerField()
     sum_packets_sent = models.BigIntegerField()
     sum_time_elapsed = models.BigIntegerField()
+    count_events = models.BigIntegerField()
 
     def __repr__(self):
         return f'Log-{self.traffic_log}'
@@ -492,7 +598,7 @@ class StageTrafficLogDetailDaily(models.Model):
         return self.__repr__()
 
     class Meta:
-        db_table = 'fh_stg_prd_trfc_log_dtl_dy_a'
+        db_table = 'fh_stg_trfc_log_dtl_dy_a'
 
 
 class DBLock(models.Model):

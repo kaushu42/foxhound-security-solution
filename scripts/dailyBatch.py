@@ -1,5 +1,4 @@
 import os
-import foxhound as fh
 from foxhound.log_engine.DailyTrafficLogEngine import DailyTrafficLogEngine
 from foxhound.mis_engine.DailyTrafficMISEngine import DailyTrafficMISEngine
 from foxhound.mis_engine.DailyThreatMISEngine import DailyThreatMISEngine
@@ -91,7 +90,6 @@ def insert_stage_data_to_prod_table(con, stage_table, prod_table):
         f"select count(*) mismatch,1,1 from (select column_name from information_schema.columns where table_name = '{stage_table}' except select column_name from information_schema.columns where table_name = '{prod_table}')a"
     )
     mismatch_count = rs.fetchone()[0]
-    print(mismatch_count)
     if(mismatch_count != 0):
         print("Stage table and prod table do not match")
         return
@@ -117,11 +115,38 @@ def commit_changes_to_production():
     session = Session()
     session.begin()
     try:
-        insert_stage_data_to_prod_table(
-            session, 'fh_stg_thrt_log_dtl_evnt_f', 'fh_prd_thrt_log_dtl_evnt_f')
+        ## traffic log mis
+        ## TODO: Create production table for these
+        insert_stage_data_to_prod_table(session,'fh_stg_trfc_mis_dy_a','fh_prd_trfc_mis_dy_a')
+        insert_stage_data_to_prod_table(session,'fh_stg_trfc_mis_new_app_dy_a','fh_prd_trfc_mis_new_app_dy_a')
+        insert_stage_data_to_prod_table(session,'fh_stg_trfc_mis_new_dst_ip_dy_a','fh_prd_trfc_mis_new_dst_ip_dy_a')
+        insert_stage_data_to_prod_table(session,'fh_stg_trfc_mis_new_src_ip_dy_a','fh_prd_trfc_mis_new_src_ip_dy_a')
+        insert_stage_data_to_prod_table(session,'fh_stg_trfc_mis_req_frm_blip_dy_a','fh_prd_trfc_mis_req_frm_blip_dy_a')
+        insert_stage_data_to_prod_table(session,'fh_stg_trfc_mis_res_to_blip_dy_a','fh_prd_trfc_mis_res_to_blip_dy_a')
+
+        ## traffic log log
+        insert_stage_data_to_prod_table(session,'fh_stg_trfc_log_dtl_f','fh_prd_trfc_log_dtl_f')
+        insert_stage_data_to_prod_table(session,'fh_stg_trfc_log_dtl_hr_a','fh_prd_trfc_log_dtl_hr_a')
+        insert_stage_data_to_prod_table(session,'fh_stg_trfc_log_dtl_dy_a','fh_prd_trfc_log_dtl_dy_a')
+
+        ## traffic log rule
+
+        ## traffic log chart
+
+
+        ## traffic log trouble ticket
+        
+
+        ## threat log mis
+        ## no any staging in this process        
+
+        ## threat log log
+        insert_stage_data_to_prod_table(session,'fh_stg_thrt_log_dtl_f','fh_prd_thrt_log_dtl_f')
+        insert_stage_data_to_prod_table(session,'fh_stg_thrt_log_dtl_evnt_f','fh_prd_thrt_log_dtl_evnt_f')
     except:
         session.rollback()
         raise
     finally:
         session.commit()
         session.close()
+

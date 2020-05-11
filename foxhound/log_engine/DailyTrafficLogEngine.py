@@ -173,7 +173,7 @@ class DailyTrafficLogEngine:
         self._df = self._df.withColumn('start_time_day', to_timestamp(
             self._df["start_time"], "MM/dd/YYYY"))
         self._df = self._df.withColumn(
-            "destination_port", self._df["nat_destination_port"].cast(IntegerType()))
+            "nat_destination_port", self._df["nat_destination_port"].cast(IntegerType()))
         self._df = self._df.withColumn(
             "destination_port", self._df["destination_port"].cast(IntegerType()))
         self._df = self._df.withColumn(
@@ -207,18 +207,18 @@ class DailyTrafficLogEngine:
         grouped.withColumn('processed_datetime',
                            lit(datetime.datetime.today()))
         self._write_df_to_postgres(grouped, 'fh_stg_trfc_log_dtl_f', 'append')
-        print("fh_prd_trfc_log_f successfully loaded")
+        print("fh_stg_trfc_log_dtl_f successfully loaded")
 
     def _extract_traffic_logs_details_hourly(self):
         GROUPING_COLUMNS = ["start_time_hour", "threat_content_type", "source_address", "destination_address",
                             'nat_source_ip', "nat_destination_ip", "application", "log_action",
-                            "destination_port", "nat_destination_port", "firewall_rule",
+                            "destination_port", "nat_destination_port", "firewall_rule_id",
                             "flags", "protocol", "source_zone", "destination_zone",
                             "inbound_interface", "outbound_interface", "action",
                             "category", "session_end_reason", 'vsys', 'device_name']
-        COLUMN_HEADERS = ["start_time", "threat_content_type", "source_address", "destination_address",
+        COLUMN_HEADERS = ["logged_datetime", "threat_content_type", "source_address", "destination_address",
                           'nat_source_ip', "nat_destination_ip", "application", "log_action",
-                          "destination_port", "nat_destination_port", "firewall_rule",
+                          "destination_port", "nat_destination_port", "firewall_rule_id",
                           "flags", "protocol", "source_zone", "destination_zone",
                           "inbound_interface", "outbound_interface", "action",
                           "category", "session_end_reason", 'vsys', 'device_name', 'sum_time_elapsed',
@@ -240,7 +240,7 @@ class DailyTrafficLogEngine:
             "sum(packets_sent)", "sum_packets_sent").withColumnRenamed(
             "avg(repeat_count)", "avg_repeat_count").withColumnRenamed(
             "sum(bytes_sent)", "sum_bytes_sent").withColumnRenamed(
-            "count(count_events)", "count_events").withColumnRenamed("start_time_hour", "start_time")
+            "count(count_events)", "count_events").withColumnRenamed("start_time_hour", "logged_datetime")
         grouped_agg = grouped_agg.select(*COLUMN_HEADERS)
         self._write_df_to_postgres(
             grouped_agg, 'fh_stg_trfc_log_dtl_hr_a', 'append')
@@ -249,13 +249,13 @@ class DailyTrafficLogEngine:
     def _extract_traffic_logs_details_daily(self):
         GROUPING_COLUMNS = ["start_time_day", "threat_content_type", "source_address", "destination_address",
                             'nat_source_ip', "nat_destination_ip", "application", "log_action",
-                            "destination_port", "nat_destination_port", "firewall_rule",
+                            "destination_port", "nat_destination_port", "firewall_rule_id",
                             "flags", "protocol", "source_zone", "destination_zone",
                             "inbound_interface", "outbound_interface", "action",
                             "category", "session_end_reason", 'vsys', 'device_name']
-        COLUMN_HEADERS = ["start_time", "threat_content_type", "source_address", "destination_address",
+        COLUMN_HEADERS = ["logged_datetime", "threat_content_type", "source_address", "destination_address",
                           'nat_source_ip', "nat_destination_ip", "application", "log_action",
-                          "destination_port", "nat_destination_port", "firewall_rule",
+                          "destination_port", "nat_destination_port", "firewall_rule_id",
                           "flags", "protocol", "source_zone", "destination_zone",
                           "inbound_interface", "outbound_interface", "action",
                           "category", "session_end_reason", 'vsys', 'device_name', 'sum_time_elapsed',
@@ -277,7 +277,7 @@ class DailyTrafficLogEngine:
             "sum(packets_sent)", "sum_packets_sent").withColumnRenamed(
             "avg(repeat_count)", "avg_repeat_count").withColumnRenamed(
             "sum(bytes_sent)", "sum_bytes_sent").withColumnRenamed(
-            "count(count_events)", "count_events").withColumnRenamed("start_time_day", "start_time")
+            "count(count_events)", "count_events").withColumnRenamed("start_time_day", "logged_datetime")
         grouped_agg = grouped_agg.select(*COLUMN_HEADERS)
         self._write_df_to_postgres(
             grouped_agg, 'fh_stg_trfc_log_dtl_dy_a', 'append')

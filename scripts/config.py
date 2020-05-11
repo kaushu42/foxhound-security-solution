@@ -57,9 +57,6 @@ SPARK = SparkSession.builder.master(
     SPARK_MASTER_URL
 ).appName(
     SPARK_APP_NAME
-).config(
-    'spark.cassandra.connection.host',
-    ','.join(CLUSTER_SEEDS)
 ).getOrCreate()
 
 COUNTRY_DB_FILEPATH = os.path.join(BASE_PATH, IP_DB_FILENAME)
