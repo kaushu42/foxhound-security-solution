@@ -5,6 +5,7 @@ from foxhound.mis_engine.DailyThreatMISEngine import DailyThreatMISEngine
 from foxhound.rule_engine.DailyTrafficRuleEngine import DailyTrafficRuleEngine
 from foxhound.log_engine.DailyThreatLogEngine import DailyThreatLogEngine
 from foxhound.chart_engine.DailyChartEngine import DailyChartEngine
+from foxhound.tt_engine.DailyTTEngine import DailyTTEngine
 from foxhound.logger.Logger import Logger
 import config
 import utils
@@ -16,32 +17,37 @@ from sqlalchemy.orm import sessionmaker
 logger = Logger(filename='logs/main.log')
 logger.info(f'Script started on {datetime.datetime.now()}')
 
+
 def check_create_bookmark(input_log):
     engine = utils.get_db_engine()
     Session = sessionmaker(bind=engine, autocommit=True)
     session = Session()
     session.begin()
-    rs = session.execute(f"SELECT log_name from fh_bookmark where log_name = '{input_log}'")
+    rs = session.execute(
+        f"SELECT log_name from fh_bookmark where log_name = '{input_log}'")
     if (rs.fetchone() is None):
-        rs = session.execute(f"INSERT INTO fh_bookmark (datetime, log_name, bookmark) VALUES ('{datetime.datetime.now()}','{input_log}','none')")
+        rs = session.execute(
+            f"INSERT INTO fh_bookmark (datetime, log_name, bookmark) VALUES ('{datetime.datetime.now()}','{input_log}','none')")
         session.commit()
         session.close()
         return "none"
-    else :
-        rs = session.execute(f"SELECT bookmark from fh_bookmark where log_name = '{input_log}'")
+    else:
+        rs = session.execute(
+            f"SELECT bookmark from fh_bookmark where log_name = '{input_log}'")
         return(rs.fetchone()[0])
     session.commit()
     session.close()
 
-def set_bookmark(input_log,bookmark):
+
+def set_bookmark(input_log, bookmark):
     engine = utils.get_db_engine()
     Session = sessionmaker(bind=engine, autocommit=True)
     session = Session()
     session.begin()
-    rs = session.execute(f"UPDATE fh_bookmark set bookmark = '{bookmark}' where log_name='{input_log}'")
+    rs = session.execute(
+        f"UPDATE fh_bookmark set bookmark = '{bookmark}' where log_name='{input_log}'")
     session.commit()
     session.close()
-
 
 
 def is_traffic_log_already_processed(input_traffic_log):
@@ -65,15 +71,15 @@ def traffic_mis_engine(input_traffic_log):
         mis = DailyTrafficMISEngine(config.SPARK, utils.get_db_engine(
         ), input_traffic_log, config.MIS_OUTPUT_INPUT_DIR)
         mis.run()
-        set_bookmark(input_traffic_log,"log")
+        set_bookmark(input_traffic_log, "log")
 
 
 def threat_mis_engine(input_threat_log):
-    if(check_create_bookmark(input_threat_log)=="none"):
+    if(check_create_bookmark(input_threat_log) == "none"):
         mis = DailyThreatMISEngine(config.SPARK, utils.get_db_engine(
         ), input_threat_log, config.MIS_OUTPUT_INPUT_DIR)
         mis.run()
-        set_bookmark(input_threat_log,"log")
+        set_bookmark(input_threat_log, "log")
 
 
 def traffic_log_engine(input_traffic_log):
@@ -84,7 +90,7 @@ def traffic_log_engine(input_traffic_log):
             config.COUNTRY_DB_FILEPATH,
             utils.get_db_engine(), config.SPARK)
         log.run()
-        set_bookmark(input_traffic_log,"rule")
+        set_bookmark(input_traffic_log, "rule")
 
 
 def traffic_rule_engine(input_traffic_log):
@@ -92,7 +98,7 @@ def traffic_rule_engine(input_traffic_log):
         rule = DailyTrafficRuleEngine(
             input_traffic_log, utils.get_db_engine(), config.SPARK)
         rule.run()
-        set_bookmark(input_traffic_log,"chart")
+        set_bookmark(input_traffic_log, "chart")
 
 
 def threat_log_engine(input_threat_log):
@@ -103,7 +109,7 @@ def threat_log_engine(input_threat_log):
             config.COUNTRY_DB_FILEPATH,
             utils.get_db_engine(), config.SPARK)
         log.run()
-        set_bookmark(input_threat_log,"complete")
+        set_bookmark(input_threat_log, "complete")
 
 
 def traffic_chart_engine(input_traffic_log):
@@ -114,7 +120,17 @@ def traffic_chart_engine(input_traffic_log):
             db_engine=utils.get_db_engine()
         )
         chart.run()
-        set_bookmark(input_traffic_log,"complete")
+        set_bookmark(input_traffic_log, "complete")
+
+
+def traffic_tt_engine(input_anomaly_log):
+    # if check_create_bookmark(input_anomaly_log) == "tt":
+    tt = DailyTTEngine(
+        input_anomaly_log,
+        spark=config.SPARK
+    )
+    tt.run()
+    # set_bookmark(input_anomaly_log, "complete")
 
 
 def ready_for_staging():
@@ -154,35 +170,53 @@ def commit_changes_to_production():
     session = Session()
     session.begin()
     try:
-        ## traffic log mis
-        insert_stage_data_to_prod_table(session,'fh_stg_trfc_mis_dy_a','fh_prd_trfc_mis_dy_a')
-        insert_stage_data_to_prod_table(session,'fh_stg_trfc_mis_new_app_dy_a','fh_prd_trfc_mis_new_app_dy_a')
-        insert_stage_data_to_prod_table(session,'fh_stg_trfc_mis_new_dst_ip_dy_a','fh_prd_trfc_mis_new_dst_ip_dy_a')
-        insert_stage_data_to_prod_table(session,'fh_stg_trfc_mis_new_src_ip_dy_a','fh_prd_trfc_mis_new_src_ip_dy_a')
-        insert_stage_data_to_prod_table(session,'fh_stg_trfc_mis_req_frm_blip_dy_a','fh_prd_trfc_mis_req_frm_blip_dy_a')
-        insert_stage_data_to_prod_table(session,'fh_stg_trfc_mis_res_to_blip_dy_a','fh_prd_trfc_mis_res_to_blip_dy_a')
+        # traffic log mis
+        insert_stage_data_to_prod_table(
+            session, 'fh_stg_trfc_mis_dy_a', 'fh_prd_trfc_mis_dy_a')
+        insert_stage_data_to_prod_table(
+            session, 'fh_stg_trfc_mis_new_app_dy_a', 'fh_prd_trfc_mis_new_app_dy_a')
+        insert_stage_data_to_prod_table(
+            session, 'fh_stg_trfc_mis_new_dst_ip_dy_a', 'fh_prd_trfc_mis_new_dst_ip_dy_a')
+        insert_stage_data_to_prod_table(
+            session, 'fh_stg_trfc_mis_new_src_ip_dy_a', 'fh_prd_trfc_mis_new_src_ip_dy_a')
+        insert_stage_data_to_prod_table(
+            session, 'fh_stg_trfc_mis_req_frm_blip_dy_a', 'fh_prd_trfc_mis_req_frm_blip_dy_a')
+        insert_stage_data_to_prod_table(
+            session, 'fh_stg_trfc_mis_res_to_blip_dy_a', 'fh_prd_trfc_mis_res_to_blip_dy_a')
 
-        ## traffic log log
-        insert_stage_data_to_prod_table(session,'fh_stg_trfc_log_dtl_f','fh_prd_trfc_log_dtl_f')
-        insert_stage_data_to_prod_table(session,'fh_stg_trfc_log_dtl_hr_a','fh_prd_trfc_log_dtl_hr_a')
-        insert_stage_data_to_prod_table(session,'fh_stg_trfc_log_dtl_dy_a','fh_prd_trfc_log_dtl_dy_a')
+        # traffic log log
+        insert_stage_data_to_prod_table(
+            session, 'fh_stg_trfc_log_dtl_f', 'fh_prd_trfc_log_dtl_f')
+        insert_stage_data_to_prod_table(
+            session, 'fh_stg_trfc_log_dtl_hr_a', 'fh_prd_trfc_log_dtl_hr_a')
+        insert_stage_data_to_prod_table(
+            session, 'fh_stg_trfc_log_dtl_dy_a', 'fh_prd_trfc_log_dtl_dy_a')
 
-        ## TODO: Create production table for these
-        ## traffic log rule
+        # TODO: Create production table for these
+        # traffic log rule
 
-        ## traffic log chart
-        
+        # traffic log chart
+        insert_stage_data_to_prod_table(
+            session, 'fh_stg_trfc_chrt_app_dt_hr_a', 'fh_prd_trfc_chrt_app_dt_hr_a')
+        insert_stage_data_to_prod_table(
+            session, 'fh_stg_trfc_chrt_con_dt_hr_a', 'fh_prd_trfc_chrt_con_dt_hr_a')
+        insert_stage_data_to_prod_table(
+            session, 'fh_stg_trfc_chrt_ip_dt_hr_a', 'fh_prd_trfc_chrt_ip_dt_hr_a')
+        insert_stage_data_to_prod_table(
+            session, 'fh_stg_trfc_chrt_tm_srs_dt_hr_a', 'fh_prd_trfc_chrt_tm_srs_dt_hr_a')
+        # traffic log trouble ticket
 
-        ## traffic log trouble ticket
-        
+        # threat log log
+        insert_stage_data_to_prod_table(
+            session, 'fh_stg_thrt_log_dtl_f', 'fh_prd_thrt_log_dtl_f')
+        insert_stage_data_to_prod_table(
+            session, 'fh_stg_thrt_log_dtl_evnt_f', 'fh_prd_thrt_log_dtl_evnt_f')
 
-        ## threat log log
-        insert_stage_data_to_prod_table(session,'fh_stg_thrt_log_dtl_f','fh_prd_thrt_log_dtl_f')
-        insert_stage_data_to_prod_table(session,'fh_stg_thrt_log_dtl_evnt_f','fh_prd_thrt_log_dtl_evnt_f')
+        insert_stage_data_to_prod_table(
+            session, 'fh_stg_tt_anmly_f', 'fh_prd_tt_anmly_f')
     except:
         session.rollback()
         raise
     finally:
         session.commit()
         session.close()
-

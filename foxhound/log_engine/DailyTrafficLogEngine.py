@@ -191,7 +191,7 @@ class DailyTrafficLogEngine:
         self._df = self._df.withColumn("count_events", lit(1))
 
     def _write_log_to_traffic_logs(self):
-        data = [(self._CSV_DATE, self._INPUT_TRAFFIC_LOG)]
+        data = [(self._CSV_DATE, os.path.basename(self._INPUT_TRAFFIC_LOG))]
         log = self._spark.createDataFrame(data, ['log_date', 'log_name'])
         log = log.withColumn('log_date', to_timestamp(
             log.log_date, 'yyyy/MM/dd'))
@@ -201,7 +201,7 @@ class DailyTrafficLogEngine:
         print("fh_prd_trfc_log_f successfully loaded")
 
     def _extract_traffic_log_details(self):
-        log_name = self._INPUT_TRAFFIC_LOG
+        log_name = os.path.basename(self._INPUT_TRAFFIC_LOG)
         grouped = self._df.groupby('firewall_rule_id').count(
         ).withColumn('log', lit(log_name)).withColumnRenamed('count', 'rows')
         grouped.withColumn('processed_datetime',
