@@ -22,6 +22,7 @@ import ThreatLogs from "./views/processedlogs/ThreatLogs";
 import ChangeAlias from "./views/ChangeAlias";
 import BackgoundJob from "./views/core/BackgroundJob";
 import BatchMonitor from "./views/core/BatchMonitor";
+import KibanaDash from "./views/KibanaDash";
 
 class App extends Component {
   render() {
@@ -31,6 +32,7 @@ class App extends Component {
           <Route path="/auth/login" component={Login} />
           <Route path="/auth/logout" component={Logout} />
           <Route path="/test" component={Test} />
+          <Route path="/kibana" component={KibanaDash} />
           {/*Dashboard*/}
           <AuthenticatedRoute
             auth_token={this.props.auth_token}
