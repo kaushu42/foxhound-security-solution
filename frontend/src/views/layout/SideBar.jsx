@@ -22,6 +22,18 @@ class SideBar extends Component {
                                     <span>Home</span>
                                 </a>
                             </Menu.Item>
+                            <Menu.Item key="kibanadashboard">
+                                <a href={"/kibanadashboard"} target="_blank">
+                                    <Icon type="dashboard" />
+                                    <span>Kibana Dashboard</span>
+                                </a>
+                            </Menu.Item>
+                            <Menu.Item key="kibanalivedashboard">
+                                <a href={"/kibanalivedashboard"} target="_blank">
+                                    <Icon type="dashboard" />
+                                    <span>Kibana Live Dashboard</span>
+                                </a>
+                            </Menu.Item>
                             <Menu.Item key="threatdashboard">
                                 <a href={"/threats"}>
                                     <Icon type="dashboard" />
