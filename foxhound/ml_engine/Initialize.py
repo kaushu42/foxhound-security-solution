@@ -10,9 +10,6 @@ import csv
 
 from pyspark.sql.functions import udf
 
-import dask.dataframe as dd
-import multiprocessing
-
 from .variables import features_list, features_to_convert_to_number
 
 
@@ -126,7 +123,7 @@ class Initialize():
         df = df.filter(df[self._USER_FEATURE].isin(private_ips))
         df = self._preprocess(df)
 
-        df.repartition(1).write.partitionBy([self._TENANT_FEATURE, self._USER_FEATURE]).csv(dest_path+'test.csv', header=True)
+        df.repartition(1).write.partitionBy([self._TENANT_FEATURE, self._USER_FEATURE]).csv(dest_path, mode='append', header=True)
 
         # tenants = df.select(self._TENANT_FEATURE).toPandas()[self._TENANT_FEATURE].unique()
         # for tenant in tenants:
