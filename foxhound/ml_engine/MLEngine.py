@@ -1,5 +1,5 @@
 import os
-
+import pdb
 import datetime as dt
 import ipaddress
 
@@ -25,7 +25,7 @@ class MLEngine(AutoEncoder):
         MLEngine class object to create model for tenant profile and predict anomaly
     """
 
-    def __init__(self, tenant_profile_dir, tenant_model_dir, daily_csv_path, anomalies_csv_output_path, verbose=0):
+    def __init__(self, tenant_profile_dir, tenant_model_dir, daily_csv_path, anomalies_csv_output_path, spark_session, verbose=0):
         """Constructor for MLEngine class
 
         Arguments:
@@ -67,6 +67,8 @@ class MLEngine(AutoEncoder):
         self._CATEGORICAL_FEATURES = categorical_features
         self._DAILY_CSV_DIR = daily_csv_path
         self._ANOMALIES_CSV_OUTPUT_DIR = anomalies_csv_output_path
+
+        self._SPARK = spark_session
 
         self._TENANT_FEATURE = 'firewall_rule_id'
         self._USER_FEATURE = 'source_ip_id'
@@ -215,35 +217,46 @@ class MLEngine(AutoEncoder):
             os.makedirs(self._TENANT_MODEL_DIR)
 
         if os.path.exists(self._TENANT_PROFILE_DIR) is True:
+            
             for tenant in sorted(os.listdir(self._TENANT_PROFILE_DIR)):
                 tenant_profile_dir = os.path.join(
                     self._TENANT_PROFILE_DIR, tenant)
                 tenant_model_dir = os.path.join(self._TENANT_MODEL_DIR, tenant)
 
-                if os.path.exists(tenant_model_dir) is not True:
-                    os.makedirs(tenant_model_dir)
+                if os.path.isdir(tenant_profile_dir):
 
-                for csv_file in sorted(os.listdir(tenant_profile_dir)):
-                    csv_path = os.path.join(tenant_profile_dir, csv_file)
-                    self._model_path = os.path.join(
-                        tenant_model_dir, csv_file[:-4])
-                    df = pd.read_csv(csv_path)
+                    if os.path.exists(tenant_model_dir) is not True:
+                        os.makedirs(tenant_model_dir)
 
-                    if len(df.index) > 10000:
-                        categorical_params = self._get_categorical_params(df)
-                        df, standarizer = self.normalize_data(df)
+                    for csv_file in sorted(os.listdir(tenant_profile_dir)):
+                        csv_path = os.path.join(tenant_profile_dir, csv_file)
+                        self._model_path = os.path.join(
+                            tenant_model_dir, csv_file)
+                        
+                        df = self._SPARK.read.csv(csv_path, header=True)
+                        # df = pd.read_csv(csv_path)
+                        
+                        # if len(df.index) > 10000:
+                        print(df.count()) #change this
+                        if df.count() > 1000:
+                            # pdb.set_trace()
+                            df = df.toPandas()
+                            categorical_params = self._get_categorical_params(df)
+                            df, standarizer = self.normalize_data(df)
 
-                        training_for = ': '.join(csv_path.split('/')[-2:])[:-4]
-                        print(
-                            f'**************** Training model for {training_for}****************')
-                        self.train_model(df, self._model_path)
-                        print(
-                            f'**************** Trained model for {training_for}****************')
-                        self._save_model_and_params(
-                            {'standarizer': standarizer}, categorical_params
-                        )
-                    else:
-                        pass
+                            training_for = ': '.join(csv_path.split('/')[-2:])[:-4]
+                            print(
+                                f'**************** Training model for {training_for}****************')
+                            self.train_model(df, self._model_path)
+                            print(
+                                f'**************** Trained model for {training_for}****************')
+                            self._save_model_and_params(
+                                {'standarizer': standarizer}, categorical_params
+                            )
+
+                            os.rmdir(csv_path)
+                        else:
+                            pass
 
     def _get_anomaly_reasons(self, df, model_params, updated_categorical_params, df_categorical_params, anomaly_prop_threshold):
         anomalies = df.copy()
@@ -414,6 +427,7 @@ class MLEngine(AutoEncoder):
             csv_folders = sorted(os.listdir(self._DAILY_CSV_DIR))
             total_csv_folders = len(csv_folders)
             csv_folder_count = 1
+            pdb.set_trace()
             if total_csv_folders is not 0:
                 for csv_folder in csv_folders:
                     csv_folder_path = os.path.join(
