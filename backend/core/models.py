@@ -64,7 +64,7 @@ class Log(models.Model):
         abstract = True
     processed_datetime = models.DateTimeField(auto_now_add=True)
     log_date = models.DateField()
-    log_name = models.CharField(max_length=200, unique=True)
+    log_name = models.CharField(max_length=500, unique=True)
 
 
 class TrafficLog(Log):
@@ -925,3 +925,11 @@ class StageSankeyChart(BaseFilteredChart):
     logged_datetime = models.DateTimeField()
     source_address = models.CharField(max_length=15)
     destination_address = models.CharField(max_length=15)
+
+
+class Bookmark(models.Model):
+    datetime = models.DateTimeField(auto_now_add=True)
+    log_name = models.CharField(max_length=500)
+    bookmark = models.CharField(max_length=50,default="none")
+    class Meta:
+        db_table = 'fh_bookmark'

@@ -16,6 +16,33 @@ from sqlalchemy.orm import sessionmaker
 logger = Logger(filename='logs/main.log')
 logger.info(f'Script started on {datetime.datetime.now()}')
 
+def check_create_bookmark(input_log):
+    engine = utils.get_db_engine()
+    Session = sessionmaker(bind=engine, autocommit=True)
+    session = Session()
+    session.begin()
+    rs = session.execute(f"SELECT log_name from fh_bookmark where log_name = '{input_log}'")
+    if (rs.fetchone() is None):
+        rs = session.execute(f"INSERT INTO fh_bookmark (datetime, log_name, bookmark) VALUES ('{datetime.datetime.now()}','{input_log}','none')")
+        session.commit()
+        session.close()
+        return "none"
+    else :
+        rs = session.execute(f"SELECT bookmark from fh_bookmark where log_name = '{input_log}'")
+        return(rs.fetchone()[0])
+    session.commit()
+    session.close()
+
+def set_bookmark(input_log,bookmark):
+    engine = utils.get_db_engine()
+    Session = sessionmaker(bind=engine, autocommit=True)
+    session = Session()
+    session.begin()
+    rs = session.execute(f"UPDATE fh_bookmark set bookmark = '{bookmark}' where log_name='{input_log}'")
+    session.commit()
+    session.close()
+
+
 
 def is_traffic_log_already_processed(input_traffic_log):
     processed_logs_from_db = pd.read_sql_table(
@@ -34,48 +61,60 @@ def is_threat_log_already_processed(input_threat_log):
 
 
 def traffic_mis_engine(input_traffic_log):
-    mis = DailyTrafficMISEngine(config.SPARK, utils.get_db_engine(
-    ), input_traffic_log, config.MIS_OUTPUT_INPUT_DIR)
-    mis.run()
+    if check_create_bookmark(input_traffic_log) == "none":
+        mis = DailyTrafficMISEngine(config.SPARK, utils.get_db_engine(
+        ), input_traffic_log, config.MIS_OUTPUT_INPUT_DIR)
+        mis.run()
+        set_bookmark(input_traffic_log,"log")
 
 
 def threat_mis_engine(input_threat_log):
-    mis = DailyThreatMISEngine(config.SPARK, utils.get_db_engine(
-    ), input_threat_log, config.MIS_OUTPUT_INPUT_DIR)
-    mis.run()
+    if(check_create_bookmark(input_threat_log)=="none"):
+        mis = DailyThreatMISEngine(config.SPARK, utils.get_db_engine(
+        ), input_threat_log, config.MIS_OUTPUT_INPUT_DIR)
+        mis.run()
+        set_bookmark(input_threat_log,"log")
 
 
 def traffic_log_engine(input_traffic_log):
-    log = DailyTrafficLogEngine(
-        input_traffic_log,
-        config.TRAFFIC_LOGS_OUTPUT_DIR,
-        config.COUNTRY_DB_FILEPATH,
-        utils.get_db_engine(), config.SPARK)
-    log.run()
+    if check_create_bookmark(input_traffic_log) == "log":
+        log = DailyTrafficLogEngine(
+            input_traffic_log,
+            config.TRAFFIC_LOGS_OUTPUT_DIR,
+            config.COUNTRY_DB_FILEPATH,
+            utils.get_db_engine(), config.SPARK)
+        log.run()
+        set_bookmark(input_traffic_log,"rule")
 
 
 def traffic_rule_engine(input_traffic_log):
-    rule = DailyTrafficRuleEngine(
-        input_traffic_log, utils.get_db_engine(), config.SPARK)
-    rule.run()
+    if check_create_bookmark(input_traffic_log) == "rule":
+        rule = DailyTrafficRuleEngine(
+            input_traffic_log, utils.get_db_engine(), config.SPARK)
+        rule.run()
+        set_bookmark(input_traffic_log,"chart")
 
 
 def threat_log_engine(input_threat_log):
-    log = DailyThreatLogEngine(
-        input_threat_log,
-        config.TRAFFIC_LOGS_OUTPUT_DIR,
-        config.COUNTRY_DB_FILEPATH,
-        utils.get_db_engine(), config.SPARK)
-    log.run()
+    if check_create_bookmark(input_threat_log) == "log":
+        log = DailyThreatLogEngine(
+            input_threat_log,
+            config.TRAFFIC_LOGS_OUTPUT_DIR,
+            config.COUNTRY_DB_FILEPATH,
+            utils.get_db_engine(), config.SPARK)
+        log.run()
+        set_bookmark(input_threat_log,"complete")
 
 
 def traffic_chart_engine(input_traffic_log):
-    chart = DailyChartEngine(
-        input_traffic_log,
-        spark=config.SPARK,
-        db_engine=utils.get_db_engine()
-    )
-    chart.run()
+    if check_create_bookmark(input_traffic_log) == "chart":
+        chart = DailyChartEngine(
+            input_traffic_log,
+            spark=config.SPARK,
+            db_engine=utils.get_db_engine()
+        )
+        chart.run()
+        set_bookmark(input_traffic_log,"complete")
 
 
 def ready_for_staging():
@@ -116,7 +155,6 @@ def commit_changes_to_production():
     session.begin()
     try:
         ## traffic log mis
-        ## TODO: Create production table for these
         insert_stage_data_to_prod_table(session,'fh_stg_trfc_mis_dy_a','fh_prd_trfc_mis_dy_a')
         insert_stage_data_to_prod_table(session,'fh_stg_trfc_mis_new_app_dy_a','fh_prd_trfc_mis_new_app_dy_a')
         insert_stage_data_to_prod_table(session,'fh_stg_trfc_mis_new_dst_ip_dy_a','fh_prd_trfc_mis_new_dst_ip_dy_a')
@@ -129,16 +167,14 @@ def commit_changes_to_production():
         insert_stage_data_to_prod_table(session,'fh_stg_trfc_log_dtl_hr_a','fh_prd_trfc_log_dtl_hr_a')
         insert_stage_data_to_prod_table(session,'fh_stg_trfc_log_dtl_dy_a','fh_prd_trfc_log_dtl_dy_a')
 
+        ## TODO: Create production table for these
         ## traffic log rule
 
         ## traffic log chart
-
+        
 
         ## traffic log trouble ticket
         
-
-        ## threat log mis
-        ## no any staging in this process        
 
         ## threat log log
         insert_stage_data_to_prod_table(session,'fh_stg_thrt_log_dtl_f','fh_prd_thrt_log_dtl_f')
