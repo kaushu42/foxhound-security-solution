@@ -1,4 +1,5 @@
 import os
+import shutil
 import pdb
 import datetime as dt
 import ipaddress
@@ -228,6 +229,24 @@ class MLEngine(AutoEncoder):
                     if os.path.exists(tenant_model_dir) is not True:
                         os.makedirs(tenant_model_dir)
 
+                    self._model_path = os.path.join(
+                            tenant_model_dir)
+
+                    df = self._SPARK.read.csv(tenant_profile_dir, header=True).drop(self._USER_FEATURE)
+                    df = df.toPandas()
+                    categorical_params = self._get_categorical_params(df)
+                    df, standarizer = self.normalize_data(df)
+
+                    training_for = ': '.join(tenant_profile_dir.split('/')[-2:])
+                    print(
+                        f'**************** Training model for {training_for}****************')
+                    self.train_model(df, self._model_path)
+                    print(
+                        f'**************** Trained model for {training_for}****************')
+                    self._save_model_and_params(
+                        {'standarizer': standarizer}, categorical_params
+                    )
+
                     for csv_file in sorted(os.listdir(tenant_profile_dir)):
                         csv_path = os.path.join(tenant_profile_dir, csv_file)
                         self._model_path = os.path.join(
@@ -254,7 +273,7 @@ class MLEngine(AutoEncoder):
                                 {'standarizer': standarizer}, categorical_params
                             )
 
-                            os.rmdir(csv_path)
+                            shutil.rmtree(csv_path)
                         else:
                             pass
 
