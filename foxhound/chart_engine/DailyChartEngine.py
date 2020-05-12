@@ -64,13 +64,13 @@ class DailyChartEngine(BaseChart):
 
     def _write_new_items_to_db(self, df):
         self._write_new_items_to_db_for_one(
-            df, 'FH_STG_TRFC_APPL_F', 'application')
+            df, 'FH_PRD_TRFC_APPL_F', 'application')
         self._write_new_items_to_db_for_one(
-            df, 'FH_STG_TRFC_ZONE_F', 'source_zone')
+            df, 'FH_PRD_TRFC_ZONE_F', 'source_zone')
         self._write_new_items_to_db_for_one(
-            df, 'FH_STG_TRFC_ZONE_F', 'destination_zone')
+            df, 'FH_PRD_TRFC_ZONE_F', 'destination_zone')
         self._write_new_items_to_db_for_one(
-            df, 'FH_STG_TRFC_PROT_F', 'protocol')
+            df, 'FH_PRD_TRFC_PROT_F', 'protocol')
 
     # Stage filters to a temp table
     def _stage_filters(self, groups):
