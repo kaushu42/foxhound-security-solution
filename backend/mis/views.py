@@ -1,10 +1,10 @@
 from django.db.models import Count, F
 from views.views import PaginatedView
 from .models import (
-    DailyDestinationIP,
-    DailySourceIP,
-    DailyRequestFromBlackListEvent,
-    DailyResponseToBlackListEvent
+    TrafficMisNewDestinationIPDaily,
+    TrafficMisNewSourceIPDaily,
+    TrafficMisRequestFromBlacklistedIPDaily,
+    StageTrafficMisResponseToBlacklistedIPDaily
 )
 from serializers.serializers import (
     MisDailySourceIpSerializer,
@@ -37,13 +37,13 @@ class DailyApiView(APIView):
 
 class DailySourceIpApiView(DailyApiView):
     def post(self, request):
-        ips = self._get_items(request, DailySourceIP, 'source_address')
+        ips = self._get_items(request, TrafficMisNewSourceIPDaily, 'source_address')
         return Response(ips)
 
 
 class DailyDestinationIpApiView(DailyApiView):
     def post(self, request):
-        ips = self._get_items(request, DailyDestinationIP,
+        ips = self._get_items(request, TrafficMisNewDestinationIPDaily,
                               'destination_address')
         return Response(ips)
 
@@ -68,13 +68,13 @@ class IPCountChart(APIView):
 
 class SourceIPCountChart(IPCountChart):
     def post(self, request):
-        items = self._get_items(request, DailySourceIP)
+        items = self._get_items(request, TrafficMisNewSourceIPDaily)
         return Response(items)
 
 
 class DestinationIPCountChart(IPCountChart):
     def post(self, request):
-        items = self._get_items(request, DailyDestinationIP)
+        items = self._get_items(request, TrafficMisNewDestinationIPDaily)
         return Response(items)
 
 
@@ -83,17 +83,17 @@ class BlacklistedIP(APIView):
         firewall_ids = get_firewall_rules_id_from_request(request)
         objects = model.objects.filter(
             firewall_rule__in=firewall_ids
-        ).values_list('source_ip', 'destination_ip')
+        ).values_list('source_address', 'destination_address')
         return objects
 
 
 class SourceBlacklistedIP(BlacklistedIP):
     def post(self, request):
-        objects = self.get_objects(request, DailyRequestFromBlackListEvent)
+        objects = self.get_objects(request, TrafficMisRequestFromBlacklistedIPDaily)
         return Response(objects)
 
 
 class DestinationBlacklistedIP(BlacklistedIP):
     def post(self, request):
-        objects = self.get_objects(request, DailyResponseToBlackListEvent)
+        objects = self.get_objects(request, StageTrafficMisResponseToBlacklistedIPDaily)
         return Response(objects)

@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from core.models import (
     TrafficLog, TrafficLogDetail,
-    TrafficLogDetailGranularHour,
+    TrafficLogDetailHourly,
     Tenant, Domain,
     VirtualSystem,
     IPAddress,
@@ -16,13 +16,13 @@ from core.models import (
 )
 
 from batch.models import Log as BatchMonitorLog
-from mis.models import DailySourceIP, DailyDestinationIP
+from mis.models import TrafficMisNewSourceIPDaily, TrafficMisNewDestinationIPDaily
 
 from troubleticket.models import (
     TroubleTicketAnomaly,
     TroubleTicketFollowUpAnomaly
 )
-from rules.models import Rule
+from rules.models import TrafficRule
 from users.models import FoxhoundUser
 from globalutils.utils import get_date_from_filename
 
@@ -125,7 +125,7 @@ class TrafficLogDetailGranularHourSerializer(serializers.ModelSerializer):
     firewall_rule = serializers.SerializerMethodField('get_firewall_rule_name')
 
     class Meta:
-        model = TrafficLogDetailGranularHour
+        model = TrafficLogDetailHourly
         exclude = ('traffic_log',)
 
     def get_firewall_rule_name(self, obj):
@@ -164,7 +164,7 @@ class RuleSerializer(serializers.ModelSerializer):
     destination_ip_alias = serializers.CharField(required=False)
 
     class Meta:
-        model = Rule
+        model = TrafficRule
         fields = '__all__'
 
 
@@ -241,13 +241,13 @@ class BatchLogSerializer(serializers.ModelSerializer):
 
 class MisDailySourceIpSerializer(serializers.ModelSerializer):
     class Meta:
-        model = DailySourceIP
+        model = TrafficMisNewSourceIPDaily
         fields = '__all__'
 
 
 class MisDailyDestinationIpSerializer(serializers.ModelSerializer):
     class Meta:
-        model = DailyDestinationIP
+        model = TrafficMisNewDestinationIPDaily
         fields = '__all__'
 
 

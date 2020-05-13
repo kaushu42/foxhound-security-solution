@@ -26,11 +26,11 @@ class TimeSeriesChart(BaseChart):
             'packets_received': 'sum',
             'application_id': 'count'
         })\
-            .withColumnRenamed('sum(bytes_received)', 'bytes_received')\
-            .withColumnRenamed('sum(bytes_sent)', 'bytes_sent')\
-            .withColumnRenamed('sum(packets_received)', 'packets_received')\
-            .withColumnRenamed('sum(packets_sent)', 'packets_sent')\
-            .withColumnRenamed('count(application_id)', 'count')
+            .withColumnRenamed('sum(bytes_received)', 'sum_bytes_received')\
+            .withColumnRenamed('sum(bytes_sent)', 'sum_bytes_sent')\
+            .withColumnRenamed('sum(packets_received)', 'sum_packets_received')\
+            .withColumnRenamed('sum(packets_sent)', 'sum_packets_sent')\
+            .withColumnRenamed('count(application_id)', 'count_events')
 
         # Get filters from db
         filters = self._read_table_from_postgres('fh_prd_trfc_fltr_f')
@@ -44,11 +44,11 @@ class TimeSeriesChart(BaseChart):
             grouped_df.protocol_id == filters.protocol_id,
         ])[[
             'logged_datetime',
-            'bytes_sent',
-            'bytes_received',
-            'packets_sent',
-            'packets_received',
-            'count',
+            'sum_bytes_sent',
+            'sum_bytes_received',
+            'sum_packets_sent',
+            'sum_packets_received',
+            'count_events',
             'id']].withColumnRenamed('id', 'filter_id')
 
         # Write to db

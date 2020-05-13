@@ -55,14 +55,14 @@ class UnverifiedRulesTable extends Component {
                 children:[
                     {   
                         title: "IP Address",
-                        dataIndex: 'source_ip',
-                        key: 'source_ip',
+                        dataIndex: 'source_address',
+                        key: 'source_address',
                         render: (text,record) => <a onClick={()=> this.handleShowUnverifiedIpDashboard(record)}>{text}</a>,
                     },
                     {   
                         title: "Alias",
-                        dataIndex: 'source_ip_alias',
-                        key: 'source_ip_alias'
+                        dataIndex: 'source_address_alias',
+                        key: 'source_address_alias'
                     }
                 ]
             },
@@ -71,8 +71,8 @@ class UnverifiedRulesTable extends Component {
                 children:[
                     {   
                         title: "IP Address",
-                        dataIndex: 'destination_ip',
-                        key: 'destination_ip',
+                        dataIndex: 'destination_address',
+                        key: 'destination_address',
                         render: (text,record) => <a onClick={()=> this.handleShowUnverifiedIpDashboardDestinationIP(record)}>{text}</a>,
                     },
                     {   

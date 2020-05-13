@@ -11,7 +11,7 @@ from rest_framework.status import (
     HTTP_400_BAD_REQUEST
 )
 from core.models import (
-    TrafficLog, TrafficLogDetailGranularHour,
+    TrafficLog, TrafficLogDetailHourly,
     Country,
     ProcessedTrafficLogDetail,
     ProcessedThreatLogDetail,
@@ -20,8 +20,8 @@ from core.models import (
     ThreatLogDetail
 )
 from mis.models import (
-    DailyRequestFromBlackListEvent,
-    DailyResponseToBlackListEvent
+    TrafficMisRequestFromBlacklistedIPDaily,
+    TrafficMisResponseToBlacklistedIPDaily
 )
 from views.views import PaginatedView
 from serializers.serializers import (
@@ -90,7 +90,7 @@ class TrafficLogDetailApiView(PaginatedView):
             kwargs['logged_datetime__gte'] = start_date
             kwargs['logged_datetime__lt'] = end_date
 
-        objects = TrafficLogDetailGranularHour.objects.filter(
+        objects = TrafficLogDetailHourly.objects.filter(
             **kwargs
         ).order_by('-id')
 
@@ -114,12 +114,12 @@ class RequestOriginLogApiView(PaginatedView):
         }
         if country:
             kwargs['source_country'] = country
-        objects = TrafficLogDetailGranularHour.objects.filter(
+        objects = TrafficLogDetailHourly.objects.filter(
             **kwargs
         )
         aggregates = objects.aggregate(
-            bytes_sent=Sum('bytes_sent'),
-            bytes_received=Sum('bytes_received'),
+            bytes_sent=Sum('sum_bytes_sent'),
+            bytes_received=Sum('sum_bytes_received'),
             rows=Count('firewall_rule_id')
         )
         page = self.paginate_queryset(objects.order_by('id'))
@@ -183,7 +183,7 @@ class ApplicationLogApiView(PaginatedView):
         }
         if country:
             kwargs['source_country'] = country
-        objects = TrafficLogDetailGranularHour.objects.filter(
+        objects = TrafficLogDetailHourly.objects.filter(
             **kwargs
         ).order_by('id')
 
@@ -245,7 +245,7 @@ class SankeyLogApiView(PaginatedView):
         source_ip = serializer.data['source_ip']
         destination_ip = serializer.data['destination_ip']
 
-        objects = TrafficLogDetailGranularHour.objects.filter(
+        objects = TrafficLogDetailHourly.objects.filter(
             firewall_rule__in=firewall_ids,
             source_ip=source_ip,
             destination_ip=destination_ip
@@ -295,13 +295,13 @@ class BlacklistLogApiView(PaginatedView):
         firewall_ids = get_firewall_rules_id_from_request(request)
         ip = request.data.get('ip')
         objects = list(
-            DailyRequestFromBlackListEvent.objects.filter(
+            TrafficMisRequestFromBlacklistedIPDaily.objects.filter(
                 firewall_rule__in=firewall_ids,
                 source_ip=ip
             )
         )
         objects += list(
-            DailyResponseToBlackListEvent.objects.filter(
+            TrafficMisResponseToBlacklistedIPDaily.objects.filter(
                 firewall_rule__in=firewall_ids,
                 destination_ip=ip
             )

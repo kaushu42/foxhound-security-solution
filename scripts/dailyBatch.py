@@ -171,50 +171,50 @@ def commit_changes_to_production():
     session.begin()
     try:
         # traffic log mis
-        # insert_stage_data_to_prod_table(
-        #     session, 'fh_stg_trfc_mis_dy_a', 'fh_prd_trfc_mis_dy_a')
-        # insert_stage_data_to_prod_table(
-        #     session, 'fh_stg_trfc_mis_new_app_dy_a', 'fh_prd_trfc_mis_new_app_dy_a')
-        # insert_stage_data_to_prod_table(
-        #     session, 'fh_stg_trfc_mis_new_dst_ip_dy_a', 'fh_prd_trfc_mis_new_dst_ip_dy_a')
-        # insert_stage_data_to_prod_table(
-        #     session, 'fh_stg_trfc_mis_new_src_ip_dy_a', 'fh_prd_trfc_mis_new_src_ip_dy_a')
-        # insert_stage_data_to_prod_table(
-        #     session, 'fh_stg_trfc_mis_req_frm_blip_dy_a', 'fh_prd_trfc_mis_req_frm_blip_dy_a')
-        # insert_stage_data_to_prod_table(
-        #     session, 'fh_stg_trfc_mis_res_to_blip_dy_a', 'fh_prd_trfc_mis_res_to_blip_dy_a')
+        insert_stage_data_to_prod_table(
+            session, 'fh_stg_trfc_mis_dy_a', 'fh_prd_trfc_mis_dy_a')
+        insert_stage_data_to_prod_table(
+            session, 'fh_stg_trfc_mis_new_app_dy_a', 'fh_prd_trfc_mis_new_app_dy_a')
+        insert_stage_data_to_prod_table(
+            session, 'fh_stg_trfc_mis_new_dst_ip_dy_a', 'fh_prd_trfc_mis_new_dst_ip_dy_a')
+        insert_stage_data_to_prod_table(
+            session, 'fh_stg_trfc_mis_new_src_ip_dy_a', 'fh_prd_trfc_mis_new_src_ip_dy_a')
+        insert_stage_data_to_prod_table(
+            session, 'fh_stg_trfc_mis_req_frm_blip_dy_a', 'fh_prd_trfc_mis_req_frm_blip_dy_a')
+        insert_stage_data_to_prod_table(
+            session, 'fh_stg_trfc_mis_res_to_blip_dy_a', 'fh_prd_trfc_mis_res_to_blip_dy_a')
 
-        # # traffic log log
-        # insert_stage_data_to_prod_table(
-        #     session, 'fh_stg_trfc_log_dtl_f', 'fh_prd_trfc_log_dtl_f')
-        # insert_stage_data_to_prod_table(
-        #     session, 'fh_stg_trfc_log_dtl_hr_a', 'fh_prd_trfc_log_dtl_hr_a')
-        # insert_stage_data_to_prod_table(
-        #     session, 'fh_stg_trfc_log_dtl_dy_a', 'fh_prd_trfc_log_dtl_dy_a')
+        # traffic log log
+        insert_stage_data_to_prod_table(
+            session, 'fh_stg_trfc_log_dtl_f', 'fh_prd_trfc_log_dtl_f')
+        insert_stage_data_to_prod_table(
+            session, 'fh_stg_trfc_log_dtl_hr_a', 'fh_prd_trfc_log_dtl_hr_a')
+        insert_stage_data_to_prod_table(
+            session, 'fh_stg_trfc_log_dtl_dy_a', 'fh_prd_trfc_log_dtl_dy_a')
 
         # traffic log rule
         insert_stage_data_to_prod_table(
             session, 'fh_stg_trfc_rule_f', 'fh_prd_trfc_rule_f')
 
         # traffic log chart
-        # insert_stage_data_to_prod_table(
-        #     session, 'fh_stg_trfc_chrt_app_dt_hr_a', 'fh_prd_trfc_chrt_app_dt_hr_a')
-        # insert_stage_data_to_prod_table(
-        #     session, 'fh_stg_trfc_chrt_con_dt_hr_a', 'fh_prd_trfc_chrt_con_dt_hr_a')
-        # insert_stage_data_to_prod_table(
-        #     session, 'fh_stg_trfc_chrt_ip_dt_hr_a', 'fh_prd_trfc_chrt_ip_dt_hr_a')
-        # insert_stage_data_to_prod_table(
-        #     session, 'fh_stg_trfc_chrt_tm_srs_dt_hr_a', 'fh_prd_trfc_chrt_tm_srs_dt_hr_a')
-        # # traffic log trouble ticket
+        insert_stage_data_to_prod_table(
+            session, 'fh_stg_trfc_chrt_app_dt_hr_a', 'fh_prd_trfc_chrt_app_dt_hr_a')
+        insert_stage_data_to_prod_table(
+            session, 'fh_stg_trfc_chrt_con_dt_hr_a', 'fh_prd_trfc_chrt_con_dt_hr_a')
+        insert_stage_data_to_prod_table(
+            session, 'fh_stg_trfc_chrt_ip_dt_hr_a', 'fh_prd_trfc_chrt_ip_dt_hr_a')
+        insert_stage_data_to_prod_table(
+            session, 'fh_stg_trfc_chrt_tm_srs_dt_hr_a', 'fh_prd_trfc_chrt_tm_srs_dt_hr_a')
+        # traffic log trouble ticket
 
-        # # threat log log
-        # insert_stage_data_to_prod_table(
-        #     session, 'fh_stg_thrt_log_dtl_f', 'fh_prd_thrt_log_dtl_f')
-        # insert_stage_data_to_prod_table(
-        #     session, 'fh_stg_thrt_log_dtl_evnt_f', 'fh_prd_thrt_log_dtl_evnt_f')
+        # threat log log
+        insert_stage_data_to_prod_table(
+            session, 'fh_stg_thrt_log_dtl_f', 'fh_prd_thrt_log_dtl_f')
+        insert_stage_data_to_prod_table(
+            session, 'fh_stg_thrt_log_dtl_evnt_f', 'fh_prd_thrt_log_dtl_evnt_f')
 
-        # insert_stage_data_to_prod_table(
-        #     session, 'fh_stg_tt_anmly_f', 'fh_prd_tt_anmly_f')
+        insert_stage_data_to_prod_table(
+            session, 'fh_stg_tt_anmly_f', 'fh_prd_tt_anmly_f')
     except:
         session.rollback()
         raise

@@ -200,7 +200,7 @@ class BlacklistAddress extends Component {
                                       </p>;
         return (
             <Fragment>
-                <Card title={"Request From Blacklisted Address"}>
+                <Card title={"Response From Blacklisted Address"}>
                     {this.state.blacklistSourceData ? (
                         <Fragment>
                             <List

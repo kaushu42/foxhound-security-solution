@@ -23,15 +23,17 @@ from core.models import (
     Protocol,
     ApplicationChart,
     IPChart,
-    TrafficLogDetailGranularHour
+    
+    TrafficLogDetailHourly,
+    TrafficLogDetailHourly
 )
 
 from mis.models import (
-    DailySourceIP,
-    DailyDestinationIP
+    TrafficMisNewSourceIPDaily,
+    TrafficMisNewDestinationIPDaily
 )
 
-from rules.models import Rule
+from rules.models import TrafficRule
 
 from serializers.serializers import (
     TimeSeriesChartSerializer,
@@ -52,26 +54,29 @@ class StatsApiView(APIView):
                 filter__in=filter_ids,
             )
             .aggregate(
-                bytes_sent=Sum('bytes_sent'),
-                bytes_received=Sum('bytes_received'),
-                count=Sum('count')
+                bytes_sent=Sum('sum_bytes_sent'),
+                bytes_received=Sum('sum_bytes_received'),
+                count=Sum('count_events')
             )
         )
+        print("**********************")
         response['new_source_ip'] = get_objects_with_date_filtered(
             request,
-            DailySourceIP,
+            TrafficMisNewSourceIPDaily,
             'logged_datetime',
             firewall_rule__in=firewall_rule_ids
         ).count()
+        print("**********************")
         response['new_destination_ip'] = get_objects_with_date_filtered(
             request,
-            DailyDestinationIP,
+            TrafficMisNewDestinationIPDaily,
             'logged_datetime',
             firewall_rule__in=firewall_rule_ids
         ).count()
+        print("**********************")
         response['new_rules'] = get_objects_with_date_filtered(
             request,
-            Rule,
+            TrafficRule,
             'created_date_time',
             firewall_rule__in=firewall_rule_ids
         ).count()
@@ -123,9 +128,9 @@ class UsageApiView(APIView):
             'logged_datetime',
             filter__in=filter_ids,
         ).values('logged_datetime').annotate(
-            bytes=Sum('bytes_sent') + Sum('bytes_received'),
-            packets=Sum('packets_sent') + Sum('packets_received'),
-            count=Sum('count')
+            bytes=Sum('sum_bytes_sent') + Sum('sum_bytes_received'),
+            packets=Sum('sum_packets_sent') + Sum('sum_packets_received'),
+            count=Sum('count_events')
         )
 
         data = []
@@ -166,15 +171,15 @@ class ApplicationApiView(APIView):
 
         objects = get_objects_with_date_filtered(
             request,
-            TrafficLogDetailGranularHour,
+            TrafficLogDetailHourly,
             'logged_datetime',
             **kwargs
         ).values(
             'logged_datetime',
             'application'
         ).annotate(
-            bytes=Sum('bytes_sent')+Sum('bytes_received'),
-            packets=Sum('packets_sent')+Sum('packets_received'),
+            bytes=Sum('sum_bytes_sent')+Sum('sum_bytes_received'),
+            packets=Sum('sum_packets_sent')+Sum('sum_packets_received'),
             count=Count('firewall_rule_id'),
         ).values(
             'bytes',
@@ -238,9 +243,9 @@ class CountryApiView(APIView):
             'logged_datetime',
             **kwargs
         ).values('address').annotate(
-            count=Sum('count'),
-            bytes=Sum('bytes_sent')+Sum('bytes_received'),
-            packets=Sum('packets_sent')+Sum('packets_received'),
+            count=Sum('count_events'),
+            bytes=Sum('sum_bytes_sent')+Sum('sum_bytes_received'),
+            packets=Sum('sum_packets_sent')+Sum('sum_packets_received'),
         )
 
         values = defaultdict(int)

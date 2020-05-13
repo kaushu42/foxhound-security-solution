@@ -28,11 +28,11 @@ class IPChart(BaseChart):
             'packets_sent': 'sum',
             'packets_received': 'sum',
             'source_address': 'count'
-        }).withColumnRenamed('sum(bytes_received)', 'bytes_received')\
-            .withColumnRenamed('sum(bytes_sent)', 'bytes_sent')\
-            .withColumnRenamed('count(source_address)', 'count')\
-            .withColumnRenamed('sum(packets_received)', 'packets_received')\
-            .withColumnRenamed('sum(packets_sent)', 'packets_sent')\
+        }).withColumnRenamed('sum(bytes_received)', 'sum_bytes_received')\
+            .withColumnRenamed('sum(bytes_sent)', 'sum_bytes_sent')\
+            .withColumnRenamed('count(source_address)', 'count_events')\
+            .withColumnRenamed('sum(packets_received)', 'sum_packets_received')\
+            .withColumnRenamed('sum(packets_sent)', 'sum_packets_sent')\
 
         # Get the filters from db
         filters = self._read_table_from_postgres('fh_prd_trfc_fltr_f')
@@ -47,12 +47,12 @@ class IPChart(BaseChart):
         ])[[
             'logged_datetime',
             'source_address',
-            'bytes_sent',
-            'bytes_received',
-            'packets_sent',
-            'packets_received',
+            'sum_bytes_sent',
+            'sum_bytes_received',
+            'sum_packets_sent',
+            'sum_packets_received',
             'id',
-            'count'
+            'count_events'
         ]]\
             .withColumnRenamed('source_address', 'address')\
             .withColumnRenamed('id', 'filter_id')

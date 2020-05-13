@@ -666,11 +666,11 @@ class Filter(BaseFilter):
 class BaseChart(models.Model):
     class Meta:
         abstract = True
-    bytes_sent = models.BigIntegerField()
-    bytes_received = models.BigIntegerField()
-    packets_sent = models.BigIntegerField()
-    packets_received = models.BigIntegerField()
-    count = models.BigIntegerField(default=0)
+    sum_bytes_sent = models.BigIntegerField()
+    sum_bytes_received = models.BigIntegerField()
+    sum_packets_sent = models.BigIntegerField()
+    sum_packets_received = models.BigIntegerField()
+    count_events = models.BigIntegerField(default=0)
 
 
 class BaseFilteredChart(BaseChart):
@@ -738,8 +738,8 @@ class SankeyChart(BaseFilteredChart):
     class Meta:
         db_table = 'fh_prd_trfc_chrt_con_dt_hr_a'
     logged_datetime = models.DateTimeField()
-    source_ip = models.CharField(max_length=15)
-    destination_ip = models.CharField(max_length=15)
+    source_address = models.CharField(max_length=15)
+    destination_address = models.CharField(max_length=15)
 
 
 class ThreatLogDetail(models.Model):

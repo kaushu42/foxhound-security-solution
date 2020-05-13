@@ -16,7 +16,7 @@ class IpSearchBar extends Component {
             <Fragment>
                 {this.props.ip_address ? "" : <p style={{color:'red'}}> Please select or enter an IP address</p>}
                 <Search
-                    placeholder="input IP address"
+                    placeholder="input IP address eg 192.168.240.48"
                     enterButton="Search"
                     size='default'
                     onSearch={value => this.props.dispatchIpSearchValueUpdate(value)}
