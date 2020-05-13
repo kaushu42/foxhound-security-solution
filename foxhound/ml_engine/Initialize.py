@@ -43,13 +43,7 @@ class Initialize():
 
     def _str_to_num(self, column):
         return sum([(weight+1)*char for weight, char in enumerate(list(bytearray(column, encoding='utf8'))[::-1])])
-        # column = [sum([(weight+1)*char for weight, char in enumerate(list(bytearray(cell, encoding='utf8'))[::-1])]) if isinstance(cell, str) else cell for cell in column]
-        # return column
 
-    # def _dask_apply(self, df, apply_func, axis): # axis col because canot operate using axis=0 for sin cos time int coversion and axis=0 is faster than axis=1
-    #     df = dd.from_pandas(df, npartitions=2*multiprocessing.cpu_count()).map_partitions(lambda data: data.apply(lambda series: apply_func(series), axis=axis, result_type='broadcast'), meta=df.head(0)).compute(scheduler='processes')
-    #     return df
-    
     def _preprocess(self, df):
         """Method to preprocess dataframe
 
@@ -78,12 +72,6 @@ class Initialize():
 
         df = df.drop(*[self._TIME_FEATURE])
         df = df.select(*[convert_to_num(column).name(column) if column in features_to_convert_to_number else column for column in df.columns])
-
-        # temp[self._TIME_FEATURE] = self._dask_apply(temp[[self._TIME_FEATURE]], lambda x: x.str[-8:-6], 1)
-        # temp['sin_time'] = self._dask_apply(temp[[self._TIME_FEATURE]], lambda x: np.sin((2*np.pi/24)*int(x)), 1)
-        # temp['cos_time'] = self._dask_apply(temp[[self._TIME_FEATURE]], lambda x: np.cos((2*np.pi/24)*int(x)), 1)
-
-        # temp[features_to_convert_to_number] = self._dask_apply(temp[features_to_convert_to_number], self._str_to_num, 0)
         
         return df
 
@@ -124,19 +112,7 @@ class Initialize():
         df = self._preprocess(df)
 
         df.repartition(1).write.partitionBy([self._TENANT_FEATURE, self._USER_FEATURE]).csv(dest_path, mode='append', header=True)
-
-        # tenants = df.select(self._TENANT_FEATURE).toPandas()[self._TENANT_FEATURE].unique()
-        # for tenant in tenants:
-        #     tenant_path = os.path.join(dest_path, tenant)
-        #     if os.path.exists(tenant_path) is not True:
-        #         os.makedirs(tenant_path)
-        #     for ip in private_ips:
-        #         ip_csv_path = os.path.join(tenant_path, (ip+'.csv'))
-        #         ip_df = df.filter((df[self._TENANT_FEATURE] == tenant) & (df[self._USER_FEATURE] == ip))
-        #         ip_df = ip_df.drop(*[self._TENANT_FEATURE, self._USER_FEATURE])
-        #         # ip_df.write.csv(ip_csv_path, mode='append', header=True)
-        #         if ip_df.count() > 0:
-        #             self._save_to_csv(ip_df, ip_csv_path)      
+    
         print(time.time() - start)          
 
     def parse_all_csv(self):
