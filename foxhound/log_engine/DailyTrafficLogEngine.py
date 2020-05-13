@@ -169,9 +169,9 @@ class DailyTrafficLogEngine:
         self._df = self._df[self._REQUIRED_COLUMNS]
         self._df = self._df.toDF(*self._HEADER_NAMES)
         self._df = self._df.withColumn('start_time_hour', to_timestamp(
-            self._df["start_time"], "MM/dd/YYYY HH"))
+            self._df["start_time"], "yyyy/MM/dd HH"))
         self._df = self._df.withColumn('start_time_day', to_timestamp(
-            self._df["start_time"], "MM/dd/YYYY"))
+            self._df["start_time"], "yyyy/MM/dd"))
         self._df = self._df.withColumn(
             "nat_destination_port", self._df["nat_destination_port"].cast(IntegerType()))
         self._df = self._df.withColumn(
