@@ -39,14 +39,14 @@ from views.views import PaginatedView
 from globalutils.utils import (
     to_regex
 )
-from .models import Rule
+from .models import Rule,TrafficRule
 
 
 class RulePaginatedView(PaginatedView):
     serializer_class = RuleSerializer
 
     def get_alias_from_page(self, page, firewall_ids):
-        ips = {p.source_ip for p in page} | {p.destination_ip for p in page}
+        ips = {p.source_address for p in page} | {p.destination_address for p in page}
         aliases = list(DailySourceIP.objects.filter(
             firewall_rule__in=firewall_ids,
             source_address__in=ips
@@ -64,8 +64,8 @@ class RulePaginatedView(PaginatedView):
         for alias in aliases:
             data[alias['address']] = alias['alias']
         for p in page:
-            p.source_ip_alias = data[p.source_ip]
-            p.destination_ip_alias = data[p.destination_ip]
+            p.source_address_alias = data[p.source_address]
+            p.destination_address_alias = data[p.destination_address]
         return page
 
     def get_filtered_objects(self, request, return_firewall_rules=False, **kwargs):
@@ -73,7 +73,7 @@ class RulePaginatedView(PaginatedView):
         query = self.get_search_queries(request)
         alias = request.data.get('alias', None)
         aliased_ips = self._get_alias_ips(alias)
-        objects = Rule.objects.filter(
+        objects = TrafficRule.objects.filter(
             firewall_rule__in=firewall_rule_ids,
             **kwargs,
             **query,
@@ -81,8 +81,8 @@ class RulePaginatedView(PaginatedView):
         if aliased_ips is not None:
             aliased_ips = [i[0] for i in aliased_ips]
             objects = objects.filter(
-                Q(source_ip__in=aliased_ips) | Q(
-                    destination_ip__in=aliased_ips)
+                Q(source_address__in=aliased_ips) | Q(
+                    destination_address__in=aliased_ips)
             )
         if return_firewall_rules:
             return objects, firewall_rule_ids
@@ -111,8 +111,8 @@ class RulePaginatedView(PaginatedView):
         applications = self._get_items(applications)
         data = {
             'application__in': applications,
-            'source_ip__regex': to_regex(source_ips),
-            'destination_ip__regex': to_regex(destination_ips),
+            'source_address__regex': to_regex(source_ips),
+            'destination_address__regex': to_regex(destination_ips),
         }
         return {i: data[i] for i in data if data[i] is not None}
 
@@ -207,7 +207,7 @@ class AnomalousRulesApiView(RulePaginatedView):
 def verify_rule(request, id):
     try:
         tenant_id = get_tenant_id_from_token(request)
-        rule = Rule.objects.get(id=id, firewall_rule__tenant__id=tenant_id)
+        rule = TrafficRule.objects.get(id=id, firewall_rule__tenant__id=tenant_id)
     except Exception as e:
         return Response({
             "traceback": str(traceback.format_exc()),
@@ -227,7 +227,7 @@ def verify_rule(request, id):
 def flag_rule(request, id):
     try:
         tenant_id = get_tenant_id_from_token(request)
-        rule = Rule.objects.get(id=id, firewall_rule__tenant__id=tenant_id)
+        rule = TrafficRule.objects.get(id=id, firewall_rule__tenant__id=tenant_id)
     except Exception as e:
         return Response({
             "traceback": str(traceback.format_exc()),
@@ -250,19 +250,19 @@ def edit_rule(request):
     serializer = RuleEditSerializer(data=request.data)
     if not serializer.is_valid():
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
-    source_ip = handle_empty_regex(serializer.data['source_ip'])
-    destination_ip = handle_empty_regex(serializer.data['destination_ip'])
+    source_address = handle_empty_regex(serializer.data['source_ip'])
+    destination_address = handle_empty_regex(serializer.data['destination_ip'])
     application = handle_empty_regex(serializer.data['application'])
     description = serializer.data.get('description', '')
     query = {
         'firewall_rule__tenant__id': tenant_id,
-        'source_ip__regex': source_ip,
-        'destination_ip__regex': destination_ip,
+        'source_address__regex': source_address,
+        'destination_address__regex': destination_address,
         'application__regex': application,
         'is_anomalous_rule': False
     }
 
-    results = Rule.objects.filter(**query)
+    results = TrafficRule.objects.filter(**query)
     if not results.count():
         return Response({
             "error": "Input does not match any rules"
@@ -271,13 +271,13 @@ def edit_rule(request):
     results.delete()
     # unlock_rule_table()
     firewall_rule = FirewallRule.objects.filter(tenant__id=tenant_id)[0]
-    rule_name = f'{source_ip}--{destination_ip}--{application}'
+    rule_name = f'{source_address}--{destination_address}--{application}'
     user = get_user_from_token(request)
-    Rule(
+    TrafficRule(
         firewall_rule=firewall_rule,
         name=rule_name,
-        source_ip=source_ip,
-        destination_ip=destination_ip,
+        source_address=source_address,
+        destination_address=destination_address,
         application=application,
         description=description,
         is_verified_rule=True,
