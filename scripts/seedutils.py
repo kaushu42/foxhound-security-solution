@@ -4,7 +4,7 @@ import wget
 import shutil
 
 from foxhound.db_engine.core_models import (
-    VirtualSystem, Tenant,FirewallRule,
+    VirtualSystem, Tenant, FirewallRule,
     Domain
 )
 import utils
@@ -33,11 +33,18 @@ def get_ip_db():
         print('\nDone')
 
 
+def seed_threatdb():
+    items = set()
+    for file in os.listdir(config.THREAT_DB_PATH):
+        items = items | set(open(file).read().split('\n'))
+    pass
+
+
 def seed(run=True):
     if not run:
         return
-    #get_ip_db()
-    #utils.get_blacklisted_ip(engine)
+    # get_ip_db()
+    # utils.get_blacklisted_ip(engine)
     if session.query(VirtualSystem).count() == 0:
         print('Seeding database....')
         print('Creating Default Virtual System')
