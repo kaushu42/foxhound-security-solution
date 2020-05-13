@@ -1,16 +1,3 @@
-#
-#
-#
-# Binary Defense Systems Artillery Threat Intelligence Feed and Banlist Feed
-# https://www.binarydefense.com
-#
-# Note that this is for public use only.
-# The ATIF feed may not be used for commercial resale or in products that are charging fees for such services.
-# Use of these feeds for commerical (having others pay for a service) use is strictly prohibited.
-#
-#
-#
-
 1.2.227.32
 1.6.139.235
 1.10.143.17

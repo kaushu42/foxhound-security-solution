@@ -25,7 +25,7 @@ findspark.init()
 def create_directory(path):
     if not os.path.exists(path):
         os.mkdir(path)
-        
+
 
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 
@@ -49,6 +49,8 @@ IP_DB_FILENAME = 'GeoLite2-City.mmdb'
 
 BLACKLISTED_IP_URL = 'https://blocklist.greensnow.co/greensnow.txt'
 BLACKLISTED_IP_FILENAME = 'greensnow.txt'
+
+THREAT_DB_PATH = os.path.join(BASE_PATH, '../threatdb')
 
 DUMPS_PATH = os.path.join(BASE_PATH, '../dumps')
 
