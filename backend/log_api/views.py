@@ -14,6 +14,7 @@ from core.models import (
     TrafficLog, TrafficLogDetailHourly,
     Country,
     ProcessedTrafficLogDetail,
+    ThreatLogDetailEvent,
     ProcessedThreatLogDetail,
     Application,
     ThreatLog,
@@ -287,7 +288,6 @@ class LatestThreatLogDateApiView(LatestLogDateApiView):
     def post(self, request):
         return self.get_response(request, ProcessedThreatLogDetail)
 
-
 class BlacklistLogApiView(PaginatedView):
     serializer_class = TrafficLogDetailGranularHourSerializer
 
@@ -297,13 +297,13 @@ class BlacklistLogApiView(PaginatedView):
         objects = list(
             TrafficMisRequestFromBlacklistedIPDaily.objects.filter(
                 firewall_rule__in=firewall_ids,
-                source_ip=ip
+                source_address=ip
             )
         )
         objects += list(
             TrafficMisResponseToBlacklistedIPDaily.objects.filter(
                 firewall_rule__in=firewall_ids,
-                destination_ip=ip
+                destination_address=ip
             )
         )
         page = self.paginate_queryset(objects)

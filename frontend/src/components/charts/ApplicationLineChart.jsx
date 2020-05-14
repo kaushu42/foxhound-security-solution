@@ -251,23 +251,39 @@ class ApplicationLineChart extends Component {
           }
         ]
       },
-      yAxis: [
-        {
-          min: 0,
-          minorTickInterval: 0.1,
-          lineWidth: 0,
-          offset: 0,
-          showLastLabel: true,
-          title: {
-            text: this.state.basis
-          },
-          labels: {
-            formatter: function() {
-              return this.value + " " + unit;
+      yAxis: {
+        min: 0,
+        title: {
+            text: 'Total fruit consumption'
+        },
+        stackLabels: {
+            enabled: true,
+            style: {
+                fontWeight: 'bold',
+                color: ( // theme
+                    Highcharts.defaultOptions.title.style &&
+                    Highcharts.defaultOptions.title.style.color
+                ) || 'gray'
             }
-          },
         }
-      ]    
+      },
+      // yAxis: [
+      //   {
+      //     min: 0,
+      //     minorTickInterval: 0.1,
+      //     lineWidth: 0,
+      //     offset: 0,
+      //     showLastLabel: true,
+      //     title: {
+      //       text: this.state.basis
+      //     },
+      //     labels: {
+      //       formatter: function() {
+      //         return this.value + " " + unit;
+      //       }
+      //     },
+      //   }
+      // ]    
     });
     this.chart.redraw();
     const seriesLength = this.chart.series.length;
@@ -279,7 +295,7 @@ class ApplicationLineChart extends Component {
     for (let i = 0; i < data.length; i++) {
       this.chart.addSeries({
         name: data[i].name,
-        type: "areaspline",
+        type: "column",
         data: data[i].data,
         showInNavigator: true,
         events: {
@@ -420,42 +436,42 @@ class ApplicationLineChart extends Component {
   
   render() {
     const options = {
-      plotOptions: {
-        arearange: {
-          showInLegend: true,
-          stickyTracking: true,
-          trackByArea: false,
-          dataGrouping: {
-            enabled: false
-          }
-        },
-        areaspline: {
-          showInLegend: true,
-          stickyTracking: true,
-          trackByArea: false,
-          marker: {
-            enabled: false
-          },
-          softThreshold: false,
-          connectNulls: false,
-          dataGrouping: {
-            enabled: false
-          }
-        },
-        series: {
-          stickyTracking: false,
-          trackByArea: false,
-          turboThreshold: 0,
-          events: {
-            legendItemClick: () => {
-              return true;
-            }
-          },
-          dataGrouping: {
-            enabled: false
-          }
-        }
-      },
+      // plotOptions: {
+      //   arearange: {
+      //     showInLegend: true,
+      //     stickyTracking: true,
+      //     trackByArea: false,
+      //     dataGrouping: {
+      //       enabled: false
+      //     }
+      //   },
+      //   areaspline: {
+      //     showInLegend: true,
+      //     stickyTracking: true,
+      //     trackByArea: false,
+      //     marker: {
+      //       enabled: false
+      //     },
+      //     softThreshold: false,
+      //     connectNulls: false,
+      //     dataGrouping: {
+      //       enabled: false
+      //     }
+      //   },
+      //   series: {
+      //     stickyTracking: false,
+      //     trackByArea: false,
+      //     turboThreshold: 0,
+      //     events: {
+      //       legendItemClick: () => {
+      //         return true;
+      //       }
+      //     },
+      //     dataGrouping: {
+      //       enabled: false
+      //     }
+      //   }
+      // },
       xAxis: {
         dateTimeLabelFormats: {
           day: "%Y-%b-%d"
@@ -471,9 +487,25 @@ class ApplicationLineChart extends Component {
           enabled: true
         }
       },
-      yAxis:{
-        crosshair:true
+      yAxis: {
+        min: 0,
+        title: {
+            text: 'Total fruit consumption'
+        },
+        stackLabels: {
+            enabled: true,
+            style: {
+                fontWeight: 'bold',
+                color: ( // theme
+                    Highcharts.defaultOptions.title.style &&
+                    Highcharts.defaultOptions.title.style.color
+                ) || 'gray'
+            }
+        }
       },
+      // yAxis:{
+      //   crosshair:true
+      // },
       tooltip:{
       },
       time:{

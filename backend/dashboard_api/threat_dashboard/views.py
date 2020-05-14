@@ -8,7 +8,7 @@ from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from views.views import PaginatedView
 
-from core.models import ThreatLogDetail
+from core.models import ThreatLogDetailEvent
 
 from serializers.serializers import ThreatLogSerializer
 
@@ -31,7 +31,7 @@ class ThreatFiltersApiView(APIView):
 
     def post(self, request):
         firewall_ids = get_firewall_rules_id_from_request(request)
-        objects = ThreatLogDetail.objects.filter(
+        objects = ThreatLogDetailEvent.objects.filter(
             firewall_rule__in=firewall_ids
         )
         firewall_rule = objects.values_list(
@@ -56,7 +56,7 @@ class ThreatLogTableApiView(PaginatedView):
     def get_filtered_objects(self, request, **kwargs):
         firewall_rule_ids = get_firewall_rules_id_from_request(request)
         query = self.get_search_queries(request)
-        objects = TroubleTicketAnomaly.objects.filter(
+        objects = ThreatLogDetailEvent.objects.filter(
             firewall_rule__in=firewall_rule_ids,
             **kwargs,
             **query,
@@ -88,8 +88,8 @@ class ThreatLogTableApiView(PaginatedView):
         applications = self._get_items(applications)
         data = {
             'application__in': applications,
-            'source_ip__regex': to_regex(source_ips),
-            'destination_ip__regex': to_regex(destination_ips),
+            'source_address__regex': to_regex(source_ips),
+            'destination_address__regex': to_regex(destination_ips),
             'log_name__contains': log_name
         }
         return {i: data[i] for i in data if data[i] is not None}
@@ -104,7 +104,7 @@ class ThreatLogTableApiView(PaginatedView):
         if country:
             kwargs['source_country'] = country
 
-        objects = ThreatLogDetail.objects.filter(
+        objects = ThreatLogDetailEvent.objects.filter(
             **kwargs,
             **query
         )
@@ -125,7 +125,7 @@ class ApplicationApiView(APIView):
         top_count = top_count if top_count else 10000
         queries = get_query_from_request(
             request, model_name='', datetime_field_name='received_datetime')
-        objects = get_objects_from_query(queries, model=ThreatLogDetail)
+        objects = get_objects_from_query(queries, model=ThreatLogDetailEvent)
         firewall_rule_ids = get_firewall_rules_id_from_request(request)
         kwargs = {
             'firewall_rule__in': firewall_rule_ids,
@@ -186,7 +186,7 @@ class CountryApiView(APIView):
 
         objects = get_objects_from_query(
             queries,
-            model=ThreatLogDetail
+            model=ThreatLogDetailEvent
         )
 
         except_countries = request.data.get('except_countries', '')
@@ -195,7 +195,7 @@ class CountryApiView(APIView):
 
         values = defaultdict(int)
         for obj in objects:
-            name, code = get_country_name_and_code(obj.source_ip)
+            name, code = get_country_name_and_code(obj.source_address)
             values[code] += obj.repeat_count
 
         return Response({
@@ -206,10 +206,10 @@ class CountryApiView(APIView):
 class CountryListApiView(APIView):
     def post(self, request):
         firewall_ids = get_firewall_rules_id_from_request(request)
-        objects = ThreatLogDetail.objects.filter(
+        objects = ThreatLogDetailEvent.objects.filter(
             firewall_rule__in=firewall_ids
-        ).distinct('source_ip').values('source_ip')
+        ).distinct('source_address').values('source_address')
         countries = set()
         for obj in objects:
-            countries.add(get_country_name_and_code(obj['source_ip']))
+            countries.add(get_country_name_and_code(obj['source_address']))
         return Response(countries)

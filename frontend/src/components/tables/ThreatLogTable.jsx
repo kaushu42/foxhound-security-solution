@@ -18,16 +18,16 @@ class ThreatLogTable extends Component{
             columns:[
                 {
                     title:"Source Address",
-                    dataIndex:"source_ip",
-                    key:"source_ip",
+                    dataIndex:"source_address",
+                    key:"source_address",
                     render: (text, record) => (
                         <a onClick={() => this.handleShowSourceIpProfile(record)}>{text}</a>
                     )
                 },
                 {
                     title:"Destination Address",
-                    dataIndex:"destination_ip",
-                    key:"destination_ip",
+                    dataIndex:"destination_address",
+                    key:"destination_address",
                     render: (text, record) => (
                         <a onClick={() => this.handleShowDestinationIpProfile(record)}>{text}</a>
                     )
@@ -73,12 +73,12 @@ class ThreatLogTable extends Component{
     }
 
     handleShowSourceIpProfile(record) {
-        this.props.dispatchIpSearchValueUpdate(record.source_ip);
+        this.props.dispatchIpSearchValueUpdate(record.source_address);
         this.setState({ quickIpView: true });
     }
 
     handleShowDestinationIpProfile(record) {
-        this.props.dispatchIpSearchValueUpdate(record.destination_ip);
+        this.props.dispatchIpSearchValueUpdate(record.destination_address);
         this.setState({ quickIpView: true });
     }
 
@@ -118,8 +118,8 @@ class ThreatLogTable extends Component{
 
         let bodyFormData = new FormData();
         bodyFormData.set("country", this.props.selectedCountry)
-        bodyFormData.set("source_ip", this.state.searchSourceIP);
-        bodyFormData.set("destination_ip", this.state.searchDestinationIP);
+        bodyFormData.set("source_address", this.state.searchSourceIP);
+        bodyFormData.set("destination_address", this.state.searchDestinationIP);
         bodyFormData.set("application", this.state.searchApplication);
         bodyFormData.set("log_name", this.state.searchLogname);
         
@@ -166,8 +166,8 @@ class ThreatLogTable extends Component{
              if(data){
                let obj = {
                             'Logged datetime': (new Date(parseInt(data[i].received_datetime)*1000+20700000).toUTCString()).replace(" GMT", ""),
-                            'Source address': data[i].source_ip,
-                            'Destination address': data[i].destination_ip,
+                            'Source address': data[i].source_address,
+                            'Destination address': data[i].destination_address,
                             'Application':data[i].application,
                             'Destination port':data[i].destination_port,
                             'Severity':data[i].severity,

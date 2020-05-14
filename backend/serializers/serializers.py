@@ -12,7 +12,7 @@ from core.models import (
     TenantIPAddressInfo,
     TimeSeriesChart,
     FirewallRule,
-    ThreatLogDetail
+    ThreatLogDetailEvent
 )
 
 from batch.models import Log as BatchMonitorLog
@@ -258,5 +258,5 @@ class MisIpSerializer(serializers.Serializer):
 
 class ThreatLogSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ThreatLogDetail
+        model = ThreatLogDetailEvent
         fields = '__all__'

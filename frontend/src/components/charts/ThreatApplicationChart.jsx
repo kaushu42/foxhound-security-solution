@@ -31,16 +31,16 @@ class ThreatApplicationChart extends Component{
             applicationlogColumns: [
                 {
                     title:"Source Address",
-                    dataIndex:"source_ip",
-                    key:"source_ip",
+                    dataIndex:"source_address",
+                    key:"source_address",
                     render: (text, record) => (
                         <a onClick={() => this.handleShowSourceIpProfile(record)}>{text}</a>
                     )
                 },
                 {
                     title:"Destination Address",
-                    dataIndex:"destination_ip",
-                    key:"destination_ip",
+                    dataIndex:"destination_address",
+                    key:"destination_address",
                     render: (text, record) => (
                         <a onClick={() => this.handleShowDestinationIpProfile(record)}>{text}</a>
                     )

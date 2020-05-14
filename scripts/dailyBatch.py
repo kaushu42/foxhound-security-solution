@@ -215,6 +215,7 @@ def commit_changes_to_production():
 
         insert_stage_data_to_prod_table(
             session, 'fh_stg_tt_anmly_f', 'fh_prd_tt_anmly_f')
+        pass
     except:
         session.rollback()
         raise

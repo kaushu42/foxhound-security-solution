@@ -109,6 +109,7 @@ class DailyThreatMISEngine(object):
         firewall_rules_from_db = self._spark.createDataFrame(
             firewall_rules_from_db, firewall_rules_schema).select("name")
         firewall_rules_from_csv = self._df.select("firewall_rule").distinct()
+        firewall_rules_from_csv.show()
         new_firewall_rules = firewall_rules_from_csv.subtract(
             firewall_rules_from_db).toDF(*["name"])
         new_firewall_rules = new_firewall_rules.withColumn("tenant_id", lit(1))
@@ -122,7 +123,8 @@ class DailyThreatMISEngine(object):
     def _preprocess(self):
         self._df = self._df[self._REQUIRED_COLUMNS]
         self._df = self._df.toDF(*self._HEADER_NAMES)
-        
+        self._df = self._df.fillna({'firewall_rule': 'default'})
+
     def _create_spark_dateframe_from_table(self, table_name):
         columns, column_types = self._get_column_names_types(table_name)
         df = pd.read_sql(table_name, self._db_engine,

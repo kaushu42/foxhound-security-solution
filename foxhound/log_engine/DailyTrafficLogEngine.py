@@ -48,6 +48,7 @@ FH_DB_PASSWORD = ast.literal_eval(config.get("POSTGRES", "password"))
 CAS_KEYSPACE = ast.literal_eval(config.get("CASSANDRA", "CAS_KEYSPACE"))
 
 COUNTRY_DB_FILEPATH = py_config.COUNTRY_DB_FILEPATH
+COUNTRY_DB_FILEPATH = './GeoLite2-City.mmdb'
 
 
 class DailyTrafficLogEngine:
@@ -57,14 +58,14 @@ class DailyTrafficLogEngine:
         self._db_engine = db_engine
         self._spark = spark
         self._REQUIRED_COLUMNS = ['Start Time', 'Threat/Content Type', 'Source address', 'Destination address', 'NAT Source IP',
-                                  'NAT Destination IP', 'Application', 'Log Action',
+                                  'NAT Destination IP', 'Application', 'Log Action', 'Source Country', 'Destination Country',
                                   'NAT Destination Port', 'Rule', 'Flags', 'IP Protocol', 'Source Zone', 'Destination Zone',
                                   'Inbound Interface', 'Outbound Interface', 'Action', 'Category',
                                   'Session End Reason',  'Destination Port',
                                   'Bytes Sent', 'Bytes Received', 'Repeat Count', 'Packets Received',
                                   'Packets Sent', 'Start Time', 'Elapsed Time (sec)', 'Virtual System', 'Device Name']
         self._HEADER_NAMES = ['start_time', "threat_content_type", "source_address", "destination_address", 'nat_source_ip',
-                              "nat_destination_ip", "application", "log_action",
+                              "nat_destination_ip", "application", "log_action", 'source_country', 'destination_country',
                               "nat_destination_port", "firewall_rule", "flags", "protocol", "source_zone", "destination_zone",
                               "inbound_interface", "outbound_interface", "action", "category",
                               "session_end_reason", "destination_port",
@@ -132,16 +133,17 @@ class DailyTrafficLogEngine:
             "firewall_rule_id", setFirewallRulesIdUdf(self._df.firewall_rule))
 
     def _set_traffic_log_id_to_data(self):
-        traffic_lofs_from_db = self._read_traffic_logs_from_db()
+        traffic_logs_from_db = self._read_traffic_logs_from_db()
         self._df = self._df.withColumn(
-            'log_name', lit(self._INPUT_TRAFFIC_LOG))
+            'log_name', lit(os.path.basename(self._INPUT_TRAFFIC_LOG)))
 
         @F.udf(returnType=IntegerType())
         def setTrafficLogsIdUdf(x):
-            return traffic_lofs_from_db[x]
+            return traffic_logs_from_db[x]
 
         self._df = self._df.withColumn(
             "traffic_log_id", setTrafficLogsIdUdf(self._df.log_name))
+
 
     def _resolve_ip_country(self):
         @F.udf(returnType=StringType())
@@ -215,13 +217,13 @@ class DailyTrafficLogEngine:
                             "destination_port", "nat_destination_port", "firewall_rule_id",
                             "flags", "protocol", "source_zone", "destination_zone",
                             "inbound_interface", "outbound_interface", "action",
-                            "category", "session_end_reason", 'vsys', 'device_name']
+                            "category", "session_end_reason", 'vsys', 'device_name','source_country','destination_country']
         COLUMN_HEADERS = ["logged_datetime", "threat_content_type", "source_address", "destination_address",
                           'nat_source_ip', "nat_destination_ip", "application", "log_action",
                           "destination_port", "nat_destination_port", "firewall_rule_id",
                           "flags", "protocol", "source_zone", "destination_zone",
                           "inbound_interface", "outbound_interface", "action",
-                          "category", "session_end_reason", 'vsys', 'device_name', 'sum_time_elapsed',
+                          "category", "session_end_reason", 'vsys', 'device_name','source_country','destination_country', 'sum_time_elapsed',
                           'sum_bytes_received', 'sum_packets_received', 'sum_packets_sent', 'avg_repeat_count',
                           'sum_bytes_sent', 'count_events']
         grouped_df = self._df.groupby(*GROUPING_COLUMNS)
@@ -252,13 +254,13 @@ class DailyTrafficLogEngine:
                             "destination_port", "nat_destination_port", "firewall_rule_id",
                             "flags", "protocol", "source_zone", "destination_zone",
                             "inbound_interface", "outbound_interface", "action",
-                            "category", "session_end_reason", 'vsys', 'device_name']
+                            "category", "session_end_reason", 'vsys', 'device_name','source_country','destination_country']
         COLUMN_HEADERS = ["logged_datetime", "threat_content_type", "source_address", "destination_address",
                           'nat_source_ip', "nat_destination_ip", "application", "log_action",
                           "destination_port", "nat_destination_port", "firewall_rule_id",
                           "flags", "protocol", "source_zone", "destination_zone",
                           "inbound_interface", "outbound_interface", "action",
-                          "category", "session_end_reason", 'vsys', 'device_name', 'sum_time_elapsed',
+                          "category", "session_end_reason", 'vsys', 'device_name','source_country','destination_country', 'sum_time_elapsed',
                           'sum_bytes_received', 'sum_packets_received', 'sum_packets_sent', 'avg_repeat_count',
                           'sum_bytes_sent', 'count_events']
         grouped_df = self._df.groupby(*GROUPING_COLUMNS)
@@ -287,8 +289,8 @@ class DailyTrafficLogEngine:
         self._read_csv()
         self._preprocess()
         self._set_firewall_rules_id_to_data()
-        self._set_traffic_log_id_to_data()
         self._write_log_to_traffic_logs()
+        self._set_traffic_log_id_to_data()
         self._extract_traffic_log_details()
         self._resolve_ip_country()
         self._extract_traffic_logs_details_hourly()

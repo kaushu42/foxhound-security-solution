@@ -741,7 +741,7 @@ class SankeyChart(BaseFilteredChart):
     source_address = models.CharField(max_length=15)
     destination_address = models.CharField(max_length=15)
 
-
+## TODO: DROP THIS TABLE 
 class ThreatLogDetail(models.Model):
     logged_datetime = models.DateTimeField()
     processed_datetime = models.DateTimeField()

@@ -48,6 +48,7 @@ FH_DB_PASSWORD = ast.literal_eval(config.get("POSTGRES", "password"))
 CAS_KEYSPACE = ast.literal_eval(config.get("CASSANDRA", "CAS_KEYSPACE"))
 
 COUNTRY_DB_FILEPATH = py_config.COUNTRY_DB_FILEPATH
+COUNTRY_DB_FILEPATH = './GeoLite2-City.mmdb'
 
 
 class DailyThreatLogEngine:
