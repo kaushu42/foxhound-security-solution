@@ -4,7 +4,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 
 from tensorflow.keras.models import Sequential, load_model
-from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Dense, LeakyReLU
 from tensorflow.keras import regularizers
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.backend import clear_session
@@ -31,12 +31,17 @@ class AutoEncoder:
     def _create_architecture(self, input_size):
         clear_session()
         self._model = Sequential()
-        self._model.add(Dense(16, activation='tanh', activity_regularizer=regularizers.l1(10e-4), input_shape=(input_size,)))
-        self._model.add(Dense(12, activation='tanh', activity_regularizer=regularizers.l1(10e-4)))
-        self._model.add(Dense(8, activation='tanh', activity_regularizer=regularizers.l1(10e-4)))
-        self._model.add(Dense(4, activation='tanh', activity_regularizer=regularizers.l1(10e-4)))
-        self._model.add(Dense(10, activation='tanh', activity_regularizer=regularizers.l1(10e-4)))
-        self._model.add(Dense(input_size, activation='tanh', activity_regularizer=regularizers.l1(10e-4)))
+        self._model.add(Dense(16, activity_regularizer=regularizers.l1(10e-4), input_shape=(input_size,)))
+        self._model.add(LeakyReLU())
+        self._model.add(Dense(12, activity_regularizer=regularizers.l1(10e-4)))
+        self._model.add(LeakyReLU())
+        self._model.add(Dense(8, activity_regularizer=regularizers.l1(10e-4)))
+        self._model.add(LeakyReLU())
+        self._model.add(Dense(4, activity_regularizer=regularizers.l1(10e-4)))
+        self._model.add(LeakyReLU())
+        self._model.add(Dense(10, activity_regularizer=regularizers.l1(10e-4)))
+        self._model.add(LeakyReLU())
+        self._model.add(Dense(input_size, activity_regularizer=regularizers.l1(10e-4)))
 
         self._call_backs = [
             EarlyStopping(
@@ -51,7 +56,6 @@ class AutoEncoder:
 
     def train_model(self, X, model_path):
         try:
-            # print('model found')
             # self._create_architecture(X.shape[1])
             clear_session()
             self._model = load_model(model_path+'/model.h5')
