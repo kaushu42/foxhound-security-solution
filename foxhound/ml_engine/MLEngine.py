@@ -1,6 +1,7 @@
 import os
 import shutil
 import pdb
+import re
 import datetime as dt
 import ipaddress
 
@@ -71,9 +72,11 @@ class MLEngine(AutoEncoder):
 
         self._SPARK = spark_session
 
-        self._TENANT_FEATURE = 'firewall_rule_id'
-        self._USER_FEATURE = 'source_ip_id'
-        self._TIME_FEATURE = 'logged_datetime'
+        self._TENANT_FEATURE = 'Rule'
+        self._USER_FEATURE = 'Source address'
+        self._TIME_FEATURE = 'Time Logged'
+
+        self._prediction_csv_temp_path = '/'.join(self._DAILY_CSV_DIR.split('/')[:-1])+'/temp_prediction_csv_path'
 
         self._model_path = None
 
@@ -134,7 +137,7 @@ class MLEngine(AutoEncoder):
 
         temp[features_to_convert_to_number] = temp[features_to_convert_to_number].apply(
             self._str_to_num, 0)
-
+        # pdb.set_trace()
         return temp
 
     def _get_categorical_params(self, df):
@@ -223,59 +226,64 @@ class MLEngine(AutoEncoder):
                 tenant_profile_dir = os.path.join(
                     self._TENANT_PROFILE_DIR, tenant)
                 tenant_model_dir = os.path.join(self._TENANT_MODEL_DIR, tenant)
-
-                if os.path.isdir(tenant_profile_dir):
-
-                    if os.path.exists(tenant_model_dir) is not True:
-                        os.makedirs(tenant_model_dir)
+                print(f'tenant: {tenant_profile_dir}')
+                if os.path.isdir(tenant_profile_dir) and len(os.listdir(tenant_profile_dir))>0:
+                    # if os.path.exists(tenant_model_dir) is not True:
+                    #     os.makedirs(tenant_model_dir)
 
                     self._model_path = os.path.join(
                             tenant_model_dir)
 
                     df = self._SPARK.read.csv(tenant_profile_dir, header=True).drop(self._USER_FEATURE)
-                    df = df.toPandas()
-                    categorical_params = self._get_categorical_params(df)
-                    df, standarizer = self.normalize_data(df)
+                    
+                    print(df.count())
+                    if df.count() > 10000:
 
-                    training_for = ': '.join(tenant_profile_dir.split('/')[-2:])
-                    print(
-                        f'**************** Training model for {training_for}****************')
-                    self.train_model(df, self._model_path)
-                    print(
-                        f'**************** Trained model for {training_for}****************')
-                    self._save_model_and_params(
-                        {'standarizer': standarizer}, categorical_params
-                    )
+                        df = df.toPandas()
+                        categorical_params = self._get_categorical_params(df)
+                        df, standarizer = self.normalize_data(df)
 
-                    for csv_file in sorted(os.listdir(tenant_profile_dir)):
-                        csv_path = os.path.join(tenant_profile_dir, csv_file)
-                        self._model_path = os.path.join(
-                            tenant_model_dir, csv_file)
-                        
-                        df = self._SPARK.read.csv(csv_path, header=True)
-                        # df = pd.read_csv(csv_path)
-                        
-                        # if len(df.index) > 10000:
-                        print(df.count()) #change this
-                        if df.count() > 1000:
-                            # pdb.set_trace()
-                            df = df.toPandas()
-                            categorical_params = self._get_categorical_params(df)
-                            df, standarizer = self.normalize_data(df)
+                        training_for = ': '.join(tenant_profile_dir.split('/')[-2:])
+                        print(
+                            f'**************** Training model for {training_for}****************')
+                        self.train_model(df, self._model_path)
+                        print(
+                            f'**************** Trained model for {training_for}****************')
+                        self._save_model_and_params(
+                            {'standarizer': standarizer}, categorical_params
+                        )
 
-                            training_for = ': '.join(csv_path.split('/')[-2:])[:-4]
-                            print(
-                                f'**************** Training model for {training_for}****************')
-                            self.train_model(df, self._model_path)
-                            print(
-                                f'**************** Trained model for {training_for}****************')
-                            self._save_model_and_params(
-                                {'standarizer': standarizer}, categorical_params
-                            )
+                        for csv_file in sorted(os.listdir(tenant_profile_dir)):
+                            csv_path = os.path.join(tenant_profile_dir, csv_file)
+                            self._model_path = os.path.join(
+                                tenant_model_dir, csv_file)
 
-                            shutil.rmtree(csv_path)
-                        else:
-                            pass
+                            print(f'ip csv: {csv_file}')
+                            
+                            df = self._SPARK.read.csv(csv_path, header=True)
+                            # df = pd.read_csv(csv_path)
+                            
+                            # if len(df.index) > 10000:
+                            print(df.count()) #change this
+                            if df.count() > 100000000000000:
+                                # pdb.set_trace()
+                                df = df.toPandas()
+                                categorical_params = self._get_categorical_params(df)
+                                df, standarizer = self.normalize_data(df)
+
+                                training_for = ': '.join(csv_path.split('/')[-2:])[:-4]
+                                print(
+                                    f'**************** Training model for {training_for}****************')
+                                self.train_model(df, self._model_path)
+                                print(
+                                    f'**************** Trained model for {training_for}****************')
+                                self._save_model_and_params(
+                                    {'standarizer': standarizer}, categorical_params
+                                )
+
+                                shutil.rmtree(csv_path)
+                            else:
+                                pass
 
     def _get_anomaly_reasons(self, df, model_params, updated_categorical_params, df_categorical_params, anomaly_prop_threshold):
         anomalies = df.copy()
@@ -355,37 +363,42 @@ class MLEngine(AutoEncoder):
         Pandas Dataframe
             Dataframe containing anomalous entries from the input csv
         """
+        # pdb.set_trace()
         truncated_df = df[self._FEATURES].copy()
 
-        truncated_df.session_end_reason_id.fillna('unknown', inplace=True)
+        truncated_df['Session End Reason'].fillna('unknown', inplace=True)
 
-        private_ips_index = truncated_df.source_ip_id.apply(
-            lambda x: ipaddress.ip_address(x).is_private)
-        truncated_df = truncated_df[private_ips_index]
+        # private_ips_index = truncated_df[self._USER_FEATURE].apply(
+        #     lambda x: ipaddress.ip_address(x).is_private)
+        # truncated_df = truncated_df[private_ips_index]
 
         anomalous_df = df.head(0)
         anomalous_without_model_count = 0
         anomalous_features = []
 
-        for tenant in truncated_df[self._TENANT_FEATURE].unique():
-            tenant_df = truncated_df[truncated_df[self._TENANT_FEATURE] == tenant]
-
-            ips = tenant_df[self._USER_FEATURE].unique()
-
-            for ip in ips:
-                ip_csv_path = os.path.join(
-                    self._TENANT_PROFILE_DIR, tenant, f'{ip}.csv')
-                self._model_path = os.path.join(
-                    self._TENANT_MODEL_DIR, tenant, ip)
-
-                ip_df = tenant_df[tenant_df[self._USER_FEATURE] == ip].copy()
-                # ip_df.reset_index(inplace=True)
-                # print(ip)
-                ip_df = ip_df.drop(
-                    columns=[self._TENANT_FEATURE, self._USER_FEATURE])
-
-                if os.path.exists(self._model_path) is True:
+        for (tenant, ip), ip_df in truncated_df.groupby([self._TENANT_FEATURE, self._USER_FEATURE]):
+            print('bhairaxa')
+            if ipaddress.ip_address(ip).is_private:
+                print('ip private raixa')
+                model_path = os.path.join(
+                        self._TENANT_MODEL_DIR, f'Rule={tenant}', f'Source address={ip}')
+                # pdb.set_trace()
+                if os.path.exists(model_path):
+                    self._model_path = model_path
+                elif os.path.exists('/'.join(model_path.split('/')[:-1])):
+                    self._model_path = '/'.join(model_path.split('/')[:-1])
+                else:
+                    self._model_path = None
+    
+                if self._model_path is not None:
+                    print('model vetiyo')
+                    ip_df.reset_index(inplace=True)
+                    ip_df = ip_df.drop(
+                        columns=['index', self._TENANT_FEATURE, self._USER_FEATURE])
                     ip_df = self._preprocess(ip_df)
+                    # pdb.set_trace()
+                    print(tenant, ip)
+                    print(ip_df['Source Port'])
                     has_anomaly, indices, reasons, updated_categorical_params = self._predict(
                         ip_df, 800)
 
@@ -397,16 +410,51 @@ class MLEngine(AutoEncoder):
                         )
                 else:
                     anomalous_without_model_count += len(ip_df.index)
-                    # commented to not put anomaly without model in anomaly csv
-                    # anomalous_features.extend(['No model']*len(ip_df.index))
-                    # anomalous_df = pd.concat(
-                    #     [anomalous_df, df.iloc[ip_df.index]],
-                    #     axis=0, ignore_index=True
-                    #     )
 
                 if save_data_for_ip_profile is True:
-                    self._save_to_csv(ip_df, ip_csv_path)
+                    # self._save_to_csv(ip_df, ip_csv_path)
                     self._save_categorical_params(updated_categorical_params)
+
+        # for tenant in truncated_df[self._TENANT_FEATURE].unique():
+        #     tenant_df = truncated_df[truncated_df[self._TENANT_FEATURE] == tenant]
+
+        #     ips = tenant_df[self._USER_FEATURE].unique()
+
+        #     for ip in ips:
+        #         ip_csv_path = os.path.join(
+        #             self._TENANT_PROFILE_DIR, tenant, f'{ip}.csv')
+        #         self._model_path = os.path.join(
+        #             self._TENANT_MODEL_DIR, tenant, ip)
+
+        #         ip_df = tenant_df[tenant_df[self._USER_FEATURE] == ip].copy()
+        #         # ip_df.reset_index(inplace=True)
+        #         # print(ip)
+        #         ip_df = ip_df.drop(
+        #             columns=[self._TENANT_FEATURE, self._USER_FEATURE])
+
+        #         if os.path.exists(self._model_path) is True:
+        #             ip_df = self._preprocess(ip_df)
+        #             has_anomaly, indices, reasons, updated_categorical_params = self._predict(
+        #                 ip_df, 800)
+
+        #             if has_anomaly:
+        #                 anomalous_features.extend(reasons)
+        #                 anomalous_df = pd.concat(
+        #                     [anomalous_df, df.iloc[ip_df.index[indices]]],
+        #                     axis=0, ignore_index=True
+        #                 )
+        #         else:
+        #             anomalous_without_model_count += len(ip_df.index)
+        #             # commented to not put anomaly without model in anomaly csv
+        #             # anomalous_features.extend(['No model']*len(ip_df.index))
+        #             # anomalous_df = pd.concat(
+        #             #     [anomalous_df, df.iloc[ip_df.index]],
+        #             #     axis=0, ignore_index=True
+        #             #     )
+
+        #         if save_data_for_ip_profile is True:
+        #             self._save_to_csv(ip_df, ip_csv_path)
+        #             self._save_categorical_params(updated_categorical_params)
         anomalous_features_df = pd.DataFrame(
             data=np.array(anomalous_features), columns=['reasons']
         )
@@ -420,61 +468,68 @@ class MLEngine(AutoEncoder):
         ano_with_no_model_count = 0
         ano_with_model_count = 0
         total_data_count = 0
+        
+        chunksize = 10 ** 6
+        df = pd.read_csv(csv_file_path, chunksize=chunksize)  # 100 million
 
-        df = pd.read_csv(csv_file_path)  # 100 million
-
-        # for df_chunk in df:
-        anomalous_df, ano_without_model = self.get_ip_anomalies(
-            df, save_data_for_ip_profile=False
-        )
-        anomalous_df['log_name'] = csv_file_path.split('/')[-2]
-
-        if len(anomalous_df.index):
-            self._save_to_csv(anomalous_df, os.path.join(
-                self._ANOMALIES_CSV_OUTPUT_DIR, str(dt.datetime.now().date())+'.csv')
+        for df_chunk in df:
+            anomalous_df, ano_without_model = self.get_ip_anomalies(
+                df_chunk, save_data_for_ip_profile=False
             )
-        ano_with_no_model_count += ano_without_model
-        ano_with_model_count += len(anomalous_df.index)
-        n_chunks += 1
+            anomalous_df['log_name'] = csv_file_path.split('/')[-2]
+
+            if len(anomalous_df.index):
+                self._save_to_csv(anomalous_df, os.path.join(
+                    self._ANOMALIES_CSV_OUTPUT_DIR, str(dt.datetime.now().date())+'.csv')
+                )
+            ano_with_no_model_count += ano_without_model
+            ano_with_model_count += len(anomalous_df.index)
+            n_chunks += 1
 
         return ano_with_model_count, ano_with_no_model_count, n_chunks
+
+    def _create_filtered_csv(self, raw_csv_path):
+        df = self._SPARK.read.csv(raw_csv_path, header=True)
+        ips = np.array(df.select('Source address').distinct().rdd.flatMap(lambda x: x).collect())
+        private_ips = ips[[ipaddress.ip_address(ip).is_private for ip in ips]].tolist()
+        df = df.filter(df['Source address'].isin(private_ips))
+
+        df.repartition(1).write.csv(self._prediction_csv_temp_path, header=True)
 
     def _predict_anomalies(self):
         """Method to predict anomalies from csvs' from input directory
         """
         if os.path.exists(self._DAILY_CSV_DIR) is True:
-            csv_folders = sorted(os.listdir(self._DAILY_CSV_DIR))
+            csv_folders = sorted([file for file in os.listdir(
+                        self._DAILY_CSV_DIR) if file.endswith('.csv')])
             total_csv_folders = len(csv_folders)
             csv_folder_count = 1
-            pdb.set_trace()
+            total_ano_with_model_count = 0
+            
             if total_csv_folders is not 0:
                 for csv_folder in csv_folders:
                     csv_folder_path = os.path.join(
                         self._DAILY_CSV_DIR, csv_folder)
-                    csv_folder_files = sorted([file for file in os.listdir(
-                        csv_folder_path) if file.endswith('.csv')])
-                    total_folder_files = len(csv_folder_files)
-                    csv_file_count = 1
-
-                    total_ano_with_model_count = 0
-                    for csv in csv_folder_files:
-                        # print(objgraph.show_most_common_types())
-                        if csv.endswith('.csv'):
-                            csv_file_path = os.path.join(csv_folder_path, csv)
-                            print(
-                                f'[{csv_folder_count}/{total_csv_folders}]->[Part: {csv_file_count}/{total_folder_files}] ********** Processing {csv_folder} file **********')
-                            ano_with_model_count, ano_with_no_model_count, n_chunks = self._predict_in_chunks(
-                                csv_file_path)
-                            print(
-                                f"[{csv_folder_count}/{total_csv_folders}]->[Part: {csv_file_count}/{total_folder_files}] ********** Processed {csv_folder} in {n_chunks} chunk **********")
-                            print(
-                                f'[{csv_folder_count}/{total_csv_folders}]->[Part: {csv_file_count}/{total_folder_files}] ********** Predictions: Anomalous model -> [{ano_with_model_count}] Anomalous without model -> [{ano_with_no_model_count}]  **********'
-                            )
-                            total_ano_with_model_count += ano_with_model_count
-                            # print(anomalous_df)
-                            csv_file_count += 1
-                        else:
-                            pass
+                    # pdb.set_trace()
+                    
+                    if csv_folder_path.endswith('.csv'):
+                        print(
+                            f'[{csv_folder_count}/{total_csv_folders}] ********** Processing {csv_folder} file **********')
+                        self._create_filtered_csv(csv_folder_path)
+                        csv_file = [file for file in os.listdir(self._prediction_csv_temp_path) if file.endswith('.csv')][0]
+                        csv_file_path = os.path.join(self._prediction_csv_temp_path, csv_file)
+                        ano_with_model_count, ano_with_no_model_count, n_chunks = self._predict_in_chunks(
+                            csv_file_path)
+                        shutil.rmtree(self._prediction_csv_temp_path)
+                        print(
+                            f"[{csv_folder_count}/{total_csv_folders}]********** Processed {csv_folder} in {n_chunks} chunk **********")
+                        print(
+                            f'[{csv_folder_count}/{total_csv_folders}]->********** Predictions: Anomalous model -> [{ano_with_model_count}] Anomalous without model -> [{ano_with_no_model_count}]  **********'
+                        )
+                        total_ano_with_model_count += ano_with_model_count
+                        # print(anomalous_df)
+                    else:
+                        pass
                     csv_folder_count += 1
                     print(
                         f'Total Anomaly: {total_ano_with_model_count} in file {csv_folder}')

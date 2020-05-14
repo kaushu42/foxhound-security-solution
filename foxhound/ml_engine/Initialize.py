@@ -35,9 +35,9 @@ class Initialize():
         self._dir_to_parse = dir_to_parse
         self._TENANT_PROFILE_DIR = tenant_profile_dir
         self._features = features_list
-        self._TENANT_FEATURE = 'firewall_rule_id'
-        self._USER_FEATURE = 'source_ip_id'
-        self._TIME_FEATURE = 'logged_datetime'
+        self._TENANT_FEATURE = 'Rule'
+        self._USER_FEATURE = 'Source address'
+        self._TIME_FEATURE = 'Time Logged'
 
         self._SPARK = spark_session
 
@@ -103,7 +103,7 @@ class Initialize():
             List of features to consider for analysis
         """
         start = time.time()
-        df = df.na.fill('unknown', subset=['session_end_reason_id'])
+        df = df.na.fill('unknown', subset=['Session End Reason'])
         ips = np.array(df.select(self._USER_FEATURE).distinct().rdd.flatMap(lambda x: x).collect())
         # ips = df.select(self._USER_FEATURE).toPandas()[self._USER_FEATURE].unique()
         private_ips = ips[[ipaddress.ip_address(ip).is_private for ip in ips]].tolist()
