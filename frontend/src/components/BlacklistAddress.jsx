@@ -25,16 +25,16 @@ class BlacklistAddress extends Component {
         columns: [
             {
               title: "Source Address",
-              dataIndex: "source_ip",
-              key: "source_ip",
+              dataIndex: "source_address",
+              key: "source_address",
               render: (text, record) => (
                 <a onClick={() => this.handleShowSourceIpProfile(record)}>{text}</a>
               )
             },
             {
               title: "Destination Address",
-              dataIndex: "destination_ip",
-              key: "destination_ip",
+              dataIndex: "destination_address",
+              key: "destination_address",
               render: (text, record) => (
                 <a onClick={() => this.handleShowDestinationIpProfile(record)}>
                   {text}
@@ -53,14 +53,14 @@ class BlacklistAddress extends Component {
             },
             {
               title: "Bytes Sent",
-              dataIndex: "bytes_sent",
-              key: "bytes_sent",
+              dataIndex: "sum_bytes_sent",
+              key: "sum_bytes_sent",
               render: (text, record) => bytesToSize(text)
             },
             {
               title: "Bytes Received",
-              dataIndex: "bytes_received",
-              key: "bytes_received",
+              dataIndex: "sum_bytes_received",
+              key: "sum_bytes_received",
               render: (text, record) => bytesToSize(text)
             },
             {
@@ -143,11 +143,11 @@ class BlacklistAddress extends Component {
            for (let i in data) {
              if(data){
                let obj = {
-                            'Source address': data[i].source_ip,
-                            'Destination address': data[i].destination_ip,
+                            'Source address': data[i].source_address,
+                            'Destination address': data[i].destination_address,
                             'Application':data[i].application,
-                            'Bytes sent':data[i].bytes_sent,
-                            'Bytes received':data[i].bytes_received,
+                            'Bytes sent':data[i].sum_bytes_sent,
+                            'Bytes received':data[i].sum_bytes_received,
                             'Destination Port':data[i].destination_port,
                             'Firewall rule':data[i].firewall_rule,
                             'Protocol':data[i].protocol,
@@ -158,8 +158,8 @@ class BlacklistAddress extends Component {
                             'Action':data[i].action,
                             'Category':data[i].category,
                             'Session end reason':data[i].session_end_reason,
-                            'Packets received':data[i].packets_received,
-                            'Packets sent':data[i].packets_sent,
+                            'Packets received':data[i].sum_packets_received,
+                            'Packets sent':data[i].sum_packets_sent,
                             'Time elapsed':data[i].time_elapsed,
                             'Source country':data[i].source_country,
                             'Destination country':data[i].destination_country

@@ -16,7 +16,7 @@ from core.models import (
 )
 
 from batch.models import Log as BatchMonitorLog
-from mis.models import TrafficMisNewSourceIPDaily, TrafficMisNewDestinationIPDaily
+from mis.models import TrafficMisNewSourceIPDaily, TrafficMisNewDestinationIPDaily,TrafficMisRequestFromBlacklistedIPDaily,TrafficMisResponseToBlacklistedIPDaily
 
 from troubleticket.models import (
     TroubleTicketAnomaly,
@@ -259,4 +259,16 @@ class MisIpSerializer(serializers.Serializer):
 class ThreatLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = ThreatLogDetailEvent
+        fields = '__all__'
+
+
+class MisDailyRequestFromBlacklistedIpSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TrafficMisRequestFromBlacklistedIPDaily
+        fields = '__all__'
+
+
+class MisDailyResponseToBlacklistedIpSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TrafficMisResponseToBlacklistedIPDaily
         fields = '__all__'

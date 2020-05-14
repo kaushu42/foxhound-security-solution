@@ -46,18 +46,18 @@ class RequestOriginChart extends Component {
         },
         {
             title: 'Source Address',
-            dataIndex: 'source_ip.address',
-            key: 'source_ip.address',
+            dataIndex: 'source_address',
+            key: 'source_address',
         },
         {
             title: 'Destination Address',
-            dataIndex: 'destination_ip.address',
-            key: 'destination_ip.address',
+            dataIndex: 'destination_address',
+            key: 'destination_address',
         },
         {
             title: 'Application',
-            dataIndex: 'application.name',
-            key: 'application.name',
+            dataIndex: 'application',
+            key: 'application',
         },
         {
             title: 'Source Port',

@@ -29,7 +29,9 @@ from serializers.serializers import (
     ProcessedLogDetailSerializer,
     TrafficLogDetailGranularHourSerializer,
     SourceDestinationIPSerializer,
-    ThreatLogSerializer
+    ThreatLogSerializer,
+    MisDailyRequestFromBlacklistedIpSerializer,
+    MisDailyResponseToBlacklistedIpSerializer
 )
 from globalutils.utils import (
     get_tenant_id_from_token,
@@ -288,8 +290,9 @@ class LatestThreatLogDateApiView(LatestLogDateApiView):
     def post(self, request):
         return self.get_response(request, ProcessedThreatLogDetail)
 
+
 class BlacklistLogApiView(PaginatedView):
-    serializer_class = TrafficLogDetailGranularHourSerializer
+    serializer_class = MisDailyRequestFromBlacklistedIpSerializer
 
     def post(self, request):
         firewall_ids = get_firewall_rules_id_from_request(request)

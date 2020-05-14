@@ -83,7 +83,7 @@ class BlacklistedIP(APIView):
         firewall_ids = get_firewall_rules_id_from_request(request)
         objects = model.objects.filter(
             firewall_rule__in=firewall_ids
-        ).values_list('source_address', 'destination_address')
+        ).values_list('source_address', 'destination_address').distinct()
         return objects
 
 

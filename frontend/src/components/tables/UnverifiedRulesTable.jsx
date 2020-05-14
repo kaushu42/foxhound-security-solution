@@ -157,7 +157,7 @@ class UnverifiedRulesTable extends Component {
                 const response = res.data;
                 var blacklistData = []
                 for (var i =0; i<response.length; i++){
-                    blacklistData.push(response[i][1])
+                    blacklistData.push(response[i][0])
                 }
                 this.setState({blackListSourceData:blacklistData});
             }).catch(error => console.log(error));
@@ -201,8 +201,8 @@ class UnverifiedRulesTable extends Component {
         e.preventDefault();
         const {auth_token,unverifiedRulePagination} = this.props;
 
-        const source_ip = this.source_ip.state.value;
-        const destination_ip = this.destination_ip.state.value;
+        const source_address = this.source_address.state.value;
+        const destination_address = this.destination_address.state.value;
         const application = this.application.state.value;
         const description = this.description.state.value;
         const searchSourceIP = this.state.searchSourceIP
@@ -210,16 +210,16 @@ class UnverifiedRulesTable extends Component {
         const searchAlias = this.state.searchAlias
         const searchApplication = this.state.searchApplication
         
-        this.props.dispatchUpdateRule(auth_token,source_ip,destination_ip,application,description,{}, unverifiedRulePagination, searchSourceIP, searchDestinationIP, searchAlias, searchApplication);
+        this.props.dispatchUpdateRule(auth_token,source_address,destination_address,application,description,{}, unverifiedRulePagination, searchSourceIP, searchDestinationIP, searchAlias, searchApplication);
     }
 
     handleShowUnverifiedIpDashboard(record){
-        this.props.dispatchUnverifiedIpSearchValueUpdate(record.source_ip);
+        this.props.dispatchUnverifiedIpSearchValueUpdate(record.source_address);
         this.setState({quickIpView : true})
     }
 
     handleShowUnverifiedIpDashboardDestinationIP(record){
-        this.props.dispatchUnverifiedIpSearchValueUpdate(record.destination_ip);
+        this.props.dispatchUnverifiedIpSearchValueUpdate(record.destination_address);
         this.setState({quickIpView : true})
     }
 
@@ -241,9 +241,9 @@ class UnverifiedRulesTable extends Component {
              if(data){
                let obj = {
                             'Created datetime': (new Date(parseInt(data[i].created_date_time)*1000).toUTCString()).replace(" GMT", ""),
-                            'Source address': data[i].source_ip,
+                            'Source address': data[i].source_address,
                             'Source address alias': data[i].source_ip_alias,
-                            'Destination address': data[i].destination_ip,
+                            'Destination address': data[i].destination_address,
                             'Destination address alias': data[i].destination_ip_alias,
                             'Application':data[i].application,
                             'Firewall rule':data[i].name,
@@ -363,10 +363,10 @@ class UnverifiedRulesTable extends Component {
                             onChange={this.handleTableChange}
                             bordered
                             rowClassName = {record =>  {
-                                if(this.state.blackListSourceData && this.state.blackListSourceData.includes(record.source_ip)){
+                                if(this.state.blackListSourceData && this.state.blackListSourceData.includes(record.source_address)){
                                     return "redTable"
                                 }
-                                if(this.state.blackListDestinationData && this.state.blackListDestinationData.includes(record.destination_ip)){
+                                if(this.state.blackListDestinationData && this.state.blackListDestinationData.includes(record.destination_address)){
                                     return "redTable"
                                 }
 
@@ -390,10 +390,10 @@ class UnverifiedRulesTable extends Component {
                                     {this.props.rejectUnverifiedRuleSuccess ? <p style={{color:'green'}}>{this.props.rejectUnverifiedRuleSuccessMessage} </p>: null }
                                     <Row type="flex" gutter={16}>
                                         <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
-                                            <Statistic title="Source IP" value={selectedUnverifiedRecordToReject.source_ip} />
+                                            <Statistic title="Source Address" value={selectedUnverifiedRecordToReject.source_address} />
                                         </Col>
                                         <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
-                                            <Statistic title="Destination IP" value={selectedUnverifiedRecordToReject.destination_ip}/>
+                                            <Statistic title="Destination Address" value={selectedUnverifiedRecordToReject.destination_address}/>
                                         </Col>
                                         <Col xs={24} sm={12} md={12} lg={24} xl={24} style={drawerInfoStyle}>
                                             <Statistic title="Application" value={selectedUnverifiedRecordToReject.application}/>
@@ -437,10 +437,10 @@ class UnverifiedRulesTable extends Component {
                                 {this.props.acceptUnverifiedRuleSuccess ? <p style={{color:'green'}}>{this.props.acceptUnverifiedRuleSuccessMessage} </p>: null }
                                 <Row type="flex" gutter={16}>
                                     <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
-                                        <Statistic title="Source IP" value={selectedUnverifiedRecordToAccept.source_ip} />
+                                        <Statistic title="Source Address" value={selectedUnverifiedRecordToAccept.source_address} />
                                     </Col>
                                     <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
-                                        <Statistic title="Destination IP" value={selectedUnverifiedRecordToAccept.destination_ip}/>
+                                        <Statistic title="Destination Address" value={selectedUnverifiedRecordToAccept.destination_address}/>
                                     </Col>
                                     <Col xs={24} sm={12} md={12} lg={24} xl={24} style={drawerInfoStyle}>
                                         <Statistic title="Application" value={selectedUnverifiedRecordToAccept.application}/>
@@ -486,10 +486,10 @@ class UnverifiedRulesTable extends Component {
                                     {this.props.updateUnverifiedRuleSuccess ? <p style={{color:'green'}}>{this.props.updateUnverifiedRuleSuccessMessage} </p>: null }
                                     <Row type="flex" gutter={16}>
                                         <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
-                                            <Statistic title="Source IP" value={selectedUnverifiedRecordToUpdate.source_ip} />
+                                            <Statistic title="Source Address" value={selectedUnverifiedRecordToUpdate.source_address} />
                                         </Col>
                                         <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
-                                            <Statistic title="Destination IP" value={selectedUnverifiedRecordToUpdate.destination_ip}/>
+                                            <Statistic title="Destination Address" value={selectedUnverifiedRecordToUpdate.destination_address}/>
                                         </Col>
                                         <Col xs={24} sm={12} md={12} lg={24} xl={24} style={drawerInfoStyle}>
                                             <Statistic title="Application" value={selectedUnverifiedRecordToUpdate.application}/>
@@ -500,12 +500,12 @@ class UnverifiedRulesTable extends Component {
                                         <Row type="flex" gutter={16} style={{paddingTop: 10,paddingBottom: 10}}>
                                             <Form style={{width:'100%'}} name={"updateRuleForm"}>
                                             <Form.Item>
-                                                <label>Source IP</label>
-                                                <Input ref={node => (this.source_ip = node)}  defaultValue={selectedUnverifiedRecordToUpdate.source_ip} />
+                                                <label>Source Address</label>
+                                                <Input ref={node => (this.source_address = node)}  defaultValue={selectedUnverifiedRecordToUpdate.source_address} />
                                             </Form.Item>
                                             <Form.Item>
-                                                <label>Destination IP</label>
-                                                <Input ref={node => (this.destination_ip = node)} defaultValue={selectedUnverifiedRecordToUpdate.destination_ip} />
+                                                <label>Destination Address</label>
+                                                <Input ref={node => (this.destination_address = node)} defaultValue={selectedUnverifiedRecordToUpdate.destination_address} />
                                             </Form.Item>
                                             <Form.Item>
                                                 <label>Application</label>

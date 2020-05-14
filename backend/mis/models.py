@@ -166,6 +166,7 @@ class TrafficMisRequestFromBlacklistedIPDaily(models.Model):
     class Meta:
         db_table = 'fh_prd_trfc_mis_req_frm_blip_dy_a'
 
+
 class StageTrafficMisRequestFromBlacklistedIPDaily(models.Model):
     logged_datetime = models.DateTimeField(null=True)
     processed_datetime = models.DateField(null=True)
@@ -192,6 +193,7 @@ class StageTrafficMisRequestFromBlacklistedIPDaily(models.Model):
 
     class Meta:
         db_table = 'fh_stg_trfc_mis_req_frm_blip_dy_a'
+
 
 class TrafficMisResponseToBlacklistedIPDaily(models.Model):
     logged_datetime = models.DateTimeField(null=True)
