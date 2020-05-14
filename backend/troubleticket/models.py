@@ -2,7 +2,7 @@ from django.db import models
 
 from users.models import FoxhoundUser
 from core.models import TrafficLog, Tenant, FirewallRule
-from rules.models import Rule
+from rules.models import TrafficRule
 
 
 class TroubleTicket(models.Model):
@@ -105,7 +105,7 @@ class TroubleTicketFollowUpAnomaly(TroubleTicketFollowUp):
 
 class TroubleTicketRule(TroubleTicket):
     rule = models.ForeignKey(
-        Rule, on_delete=models.CASCADE, null=True, blank=True)
+        TrafficRule, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return f'{self.rule}-TT'

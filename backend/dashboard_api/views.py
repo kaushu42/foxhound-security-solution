@@ -59,21 +59,18 @@ class StatsApiView(APIView):
                 count=Sum('count_events')
             )
         )
-        print("**********************")
         response['new_source_ip'] = get_objects_with_date_filtered(
             request,
             TrafficMisNewSourceIPDaily,
             'logged_datetime',
             firewall_rule__in=firewall_rule_ids
         ).count()
-        print("**********************")
         response['new_destination_ip'] = get_objects_with_date_filtered(
             request,
             TrafficMisNewDestinationIPDaily,
             'logged_datetime',
             firewall_rule__in=firewall_rule_ids
         ).count()
-        print("**********************")
         response['new_rules'] = get_objects_with_date_filtered(
             request,
             TrafficRule,

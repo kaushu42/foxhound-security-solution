@@ -16,7 +16,7 @@ from core.models import (
 )
 
 from batch.models import Log as BatchMonitorLog
-from mis.models import TrafficMisNewSourceIPDaily, TrafficMisNewDestinationIPDaily,TrafficMisRequestFromBlacklistedIPDaily,TrafficMisResponseToBlacklistedIPDaily
+from mis.models import TrafficMisNewSourceIPDaily, TrafficMisNewDestinationIPDaily, TrafficMisRequestFromBlacklistedIPDaily, TrafficMisResponseToBlacklistedIPDaily
 
 from troubleticket.models import (
     TroubleTicketAnomaly,
@@ -106,8 +106,8 @@ class ApplicationSerializer(serializers.ModelSerializer):
 
 
 class TrafficLogDetailSerializer(serializers.ModelSerializer):
-    source_ip = IPAddressSerializer()
-    destination_ip = IPAddressSerializer()
+    source_address = IPAddressSerializer()
+    destination_address = IPAddressSerializer()
     application = ApplicationSerializer()
 
     class Meta:
@@ -189,8 +189,8 @@ class TroubleTicketAnomalyLogDetailSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     log_name = serializers.CharField()
     created_datetime = serializers.DateTimeField()
-    source_ip = serializers.CharField()
-    destination_ip = serializers.CharField()
+    source_address = serializers.CharField()
+    destination_address = serializers.CharField()
     application = serializers.CharField()
     bytes_sent = serializers.IntegerField()
     bytes_received = serializers.IntegerField()
@@ -206,15 +206,15 @@ class TroubleTicketAnomalyLogDetailSerializer(serializers.Serializer):
 
 
 class RuleEditSerializer(serializers.Serializer):
-    source_ip = serializers.CharField(required=True)
-    destination_ip = serializers.CharField(required=True)
+    source_address = serializers.CharField(required=True)
+    destination_address = serializers.CharField(required=True)
     application = serializers.CharField(required=True)
     description = serializers.CharField(required=False)
 
 
 class SourceDestinationIPSerializer(serializers.Serializer):
-    source_ip = serializers.CharField(required=True)
-    destination_ip = serializers.CharField(required=True)
+    source_address = serializers.CharField(required=True)
+    destination_address = serializers.CharField(required=True)
 
 
 class IPAliasSerializer(serializers.Serializer):

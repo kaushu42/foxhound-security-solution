@@ -30,7 +30,7 @@ from globalutils.utils import (
     is_rule_table_locked,
     unlock_rule_table
 )
-from .models import Rule
+from .models import TrafficRule
 
 DELETE_RULE_FILENAME = '../dumps/delete_rules.txt'
 

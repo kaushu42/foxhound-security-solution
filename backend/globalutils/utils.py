@@ -400,7 +400,7 @@ def get_objects_with_date_filtered(request, model, field_name, type='model', **k
         return model.filter(**query)
 
 
-reader = geoip2.database.Reader("./GeoLite2-City.mmdb")
+# reader = geoip2.database.Reader("./GeoLite2-City.mmdb")
 
 
 def get_country_name_and_code(ip):

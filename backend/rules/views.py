@@ -33,20 +33,22 @@ from mis.models import (
 )
 from globalutils.utils import (
     get_firewall_rules_id_from_request,
-    get_user_from_token
+    get_user_from_token,
+    get_tenant_id_from_token,
 )
 from views.views import PaginatedView
 from globalutils.utils import (
     to_regex
 )
-from .models import Rule,TrafficRule
+from .models import StageTrafficRule as TrafficRule
 
 
 class RulePaginatedView(PaginatedView):
     serializer_class = RuleSerializer
 
     def get_alias_from_page(self, page, firewall_ids):
-        ips = {p.source_address for p in page} | {p.destination_address for p in page}
+        ips = {p.source_address for p in page} | {
+            p.destination_address for p in page}
         aliases = list(DailySourceIP.objects.filter(
             firewall_rule__in=firewall_ids,
             source_address__in=ips
@@ -103,10 +105,10 @@ class RulePaginatedView(PaginatedView):
             request.data.get('application', None)
         )
         source_ips = self._handle_empty_string_from_frontend(
-            request.data.get('source_ip', None)
+            request.data.get('source_address', None)
         )
         destination_ips = self._handle_empty_string_from_frontend(
-            request.data.get('destination_ip', None))
+            request.data.get('destination_address', None))
 
         applications = self._get_items(applications)
         data = {
@@ -153,7 +155,8 @@ class UnverifiedRulesApiView(RulePaginatedView):
             request,
             return_firewall_rules=True,
             is_verified_rule=False,
-            is_anomalous_rule=False
+            is_anomalous_rule=False,
+            parent__isnull=True
         )
 
         page = self.paginate_queryset(objects.order_by('id'))
@@ -172,7 +175,8 @@ class VerifiedRulesApiView(RulePaginatedView):
         objects, firewall_ids = self.get_filtered_objects(
             request,
             return_firewall_rules=True,
-            is_verified_rule=True
+            is_verified_rule=True,
+            parent__isnull=True
         )
         page = self.paginate_queryset(objects.order_by('id'))
         page = self.get_alias_from_page(page, firewall_ids)
@@ -207,7 +211,8 @@ class AnomalousRulesApiView(RulePaginatedView):
 def verify_rule(request, id):
     try:
         tenant_id = get_tenant_id_from_token(request)
-        rule = TrafficRule.objects.get(id=id, firewall_rule__tenant__id=tenant_id)
+        rule = TrafficRule.objects.get(
+            id=id, firewall_rule__tenant__id=tenant_id)
     except Exception as e:
         return Response({
             "traceback": str(traceback.format_exc()),
@@ -227,7 +232,8 @@ def verify_rule(request, id):
 def flag_rule(request, id):
     try:
         tenant_id = get_tenant_id_from_token(request)
-        rule = TrafficRule.objects.get(id=id, firewall_rule__tenant__id=tenant_id)
+        rule = TrafficRule.objects.get(
+            id=id, firewall_rule__tenant__id=tenant_id)
     except Exception as e:
         return Response({
             "traceback": str(traceback.format_exc()),
@@ -245,13 +251,16 @@ def flag_rule(request, id):
 
 @api_view(['POST'])
 def edit_rule(request):
-
+    def handle_empty_regex(string):
+        if string == '*':
+            return '.*'
+        return string
     tenant_id = get_tenant_id_from_token(request)
     serializer = RuleEditSerializer(data=request.data)
     if not serializer.is_valid():
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
-    source_address = handle_empty_regex(serializer.data['source_ip'])
-    destination_address = handle_empty_regex(serializer.data['destination_ip'])
+    source_address = handle_empty_regex(serializer.data['source_address'])
+    destination_address = handle_empty_regex(serializer.data['destination_address'])
     application = handle_empty_regex(serializer.data['application'])
     description = serializer.data.get('description', '')
     query = {
@@ -259,7 +268,8 @@ def edit_rule(request):
         'source_address__regex': source_address,
         'destination_address__regex': destination_address,
         'application__regex': application,
-        'is_anomalous_rule': False
+        'is_anomalous_rule': False,
+        'parent__isnull': True
     }
 
     results = TrafficRule.objects.filter(**query)
@@ -268,12 +278,12 @@ def edit_rule(request):
             "error": "Input does not match any rules"
         })
     # lock_rule_table()
-    results.delete()
+
     # unlock_rule_table()
     firewall_rule = FirewallRule.objects.filter(tenant__id=tenant_id)[0]
     rule_name = f'{source_address}--{destination_address}--{application}'
     user = get_user_from_token(request)
-    TrafficRule(
+    parent_rule = TrafficRule(
         firewall_rule=firewall_rule,
         name=rule_name,
         source_address=source_address,
@@ -282,6 +292,12 @@ def edit_rule(request):
         description=description,
         is_verified_rule=True,
         is_anomalous_rule=False,
-        verified_by_user=user
-    ).save()
+        verified_by_user=user,
+        is_generic=True,
+        parent=None
+    )
+    parent_rule.save()
+    results.update(parent=parent_rule)
+    parent_rule.parent = None
+    parent_rule.save()
     return Response(serializer.data)

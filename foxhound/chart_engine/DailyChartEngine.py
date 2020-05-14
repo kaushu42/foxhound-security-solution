@@ -2,7 +2,11 @@ import os
 import datetime
 import traceback
 import pandas as pd
-from pyspark.sql.functions import unix_timestamp, from_unixtime
+from pyspark.sql.functions import (
+    unix_timestamp,
+    from_unixtime,
+    to_timestamp
+)
 from ..logger import Logger
 from .BaseChart import BaseChart
 from .ApplicationChart import ApplicationChart
@@ -60,6 +64,22 @@ class DailyChartEngine(BaseChart):
         df = df[self._REQUIRED_COLUMNS]
         df = df.toDF(*self._HEADER_NAMES)
         df = df.dropDuplicates()
+        df = df.withColumn(
+            'logged_datetime',
+            to_timestamp(
+                df.logged_datetime,
+                'yyyy/MM/dd HH'
+            )
+        )
+        df = df.groupBy(*self._HEADER_NAMES)
+        df = df.agg({
+            'repeat_count': 'mean',
+            'bytes_sent': 'sum',
+            'bytes_received': 'sum',
+            'time_elapsed': 'sum',
+            'packets_sent': 'sum',
+            'packets_received': 'sum'
+        })
         return df
 
     def _write_new_items_to_db(self, df):
@@ -103,8 +123,6 @@ class DailyChartEngine(BaseChart):
             self._cursor.execute('rollback;')
 
     def _map_df_to_fk(self, df):
-        # import pdb
-        # pdb.set_trace()
         firewall_rules = self._read_table_from_postgres('FH_PRD_FW_RULE_F')
         applications = self._read_table_from_postgres('FH_PRD_TRFC_APPL_F')
         zones = self._read_table_from_postgres('FH_PRD_TRFC_ZONE_F')
@@ -147,9 +165,7 @@ class DailyChartEngine(BaseChart):
         x = x.join(protocols, on=[
             x.protocol == protocols.name
         ]).drop('protocol', 'name').withColumnRenamed('id', 'protocol_id')
-        # Cast the logged datetime as timestamp type
-        x = x.withColumn('logged_datetime', from_unixtime(unix_timestamp(
-            x.logged_datetime, 'yy/MM/dd HH:mm:ss')).cast('timestamp'))
+
         return x
 
     def _write_filters_to_db(self):
