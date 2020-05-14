@@ -40,7 +40,7 @@ from views.views import PaginatedView
 from globalutils.utils import (
     to_regex
 )
-from .models import StageTrafficRule as TrafficRule
+from .models import TrafficRule
 
 
 class RulePaginatedView(PaginatedView):

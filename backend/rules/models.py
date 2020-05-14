@@ -6,9 +6,9 @@ from core.models import FirewallRule, TenantIPAddressInfo
 ###### PROD TABLE #################################################################################################
 class TrafficRule(models.Model):
     firewall_rule = models.ForeignKey(
-        FirewallRule, on_delete=models.CASCADE, null=True, default=None)
+        FirewallRule, on_delete=models.CASCADE, null=True)
     parent = models.ForeignKey(
-        "self", on_delete=models.SET_NULL, null=True)
+        "self", on_delete=models.SET_NULL, null=True, default=None)
     created_date_time = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=250)
     source_address = models.CharField(max_length=50, null=True)
