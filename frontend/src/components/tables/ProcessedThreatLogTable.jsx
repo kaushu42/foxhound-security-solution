@@ -4,7 +4,7 @@ import { Divider, PageHeader, Row, Spin, Table, Tag } from "antd";
 import reqwest from "reqwest";
 import { ROOT_URL, bytesToSize } from "../../utils";
 
-class TrafficLogsTable extends Component {
+class ProcessedThreatLogTable extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -67,7 +67,7 @@ class TrafficLogsTable extends Component {
     console.log("data loading");
     this.setState({ loading: true });
     reqwest({
-      url: `${ROOT_URL}log/traffic/processed/`,
+      url: `${ROOT_URL}log/threat/processed/`,
       method: "get",
       headers: {
         Authorization: `Token ${this.props.auth_token}`
@@ -114,4 +114,4 @@ const mapStateToProps = state => {
   };
 };
 
-export default connect(mapStateToProps, null)(TrafficLogsTable);
+export default connect(mapStateToProps, null)(ProcessedThreatLogTable);
