@@ -155,6 +155,7 @@ def str_to_date(string, timezone=pytz.UTC):
     try:
         return datetime.datetime.strptime(string, '%Y-%m-%d').astimezone(ktm)
     except Exception as e:
+        print(e)
         return None
 
 
