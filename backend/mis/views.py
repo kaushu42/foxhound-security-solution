@@ -4,7 +4,7 @@ from .models import (
     TrafficMisNewDestinationIPDaily,
     TrafficMisNewSourceIPDaily,
     TrafficMisRequestFromBlacklistedIPDaily,
-    StageTrafficMisResponseToBlacklistedIPDaily
+    TrafficMisResponseToBlacklistedIPDaily
 )
 from serializers.serializers import (
     MisDailySourceIpSerializer,
@@ -95,5 +95,5 @@ class SourceBlacklistedIP(BlacklistedIP):
 
 class DestinationBlacklistedIP(BlacklistedIP):
     def post(self, request):
-        objects = self.get_objects(request, StageTrafficMisResponseToBlacklistedIPDaily)
+        objects = self.get_objects(request, TrafficMisResponseToBlacklistedIPDaily)
         return Response(objects)

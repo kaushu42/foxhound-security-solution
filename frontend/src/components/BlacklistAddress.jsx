@@ -24,6 +24,32 @@ class BlacklistAddress extends Component {
         params: {},
         loading: false,
         pagination: {},
+        blackListMainTableColumns : [
+          {
+            title: "Source Address",
+            dataIndex: "source_address",
+            key: "source_address",
+            render: (text, record) => (
+              <a onClick={() => this.selectedIP(text)}>{text}</a>
+            )
+          },
+          {
+            title: "Destination Address",
+            dataIndex: "destination_address",
+            key: "destination_address",
+            render: (text, record) => (
+              <a onClick={() => this.selectedIP(text)}>
+                {text}
+              </a>
+            )
+          },
+          {
+            title: "Total Bytes Transfer",
+            dataIndex: "sum_bytes",
+            key: "sum_bytes",
+            render: (text, record) => bytesToSize(text)
+          },
+        ],
         columns: [
             {
               title: "Source Address",
@@ -90,10 +116,9 @@ class BlacklistAddress extends Component {
         }).catch(error => console.log(error));
     }
 
-    selectedIP = (id) =>{
-        this.props.dispatchIpSearchValueUpdate(id.target.id);
-        var ip = id.target.id
-        this.setState({selectedIPAddress:ip, quickIpView : true, loading:true}, this.fetchLogData);
+    selectedIP = (address) =>{
+        this.props.dispatchIpSearchValueUpdate(address);
+        this.setState({selectedIPAddress:address, quickIpView : true, loading:true}, this.fetchLogData);
     }
 
     fetchLogData = (params = {}) => {
@@ -207,13 +232,12 @@ class BlacklistAddress extends Component {
                     <Card title={"Response From Blacklisted Address"}>
                       {this.state.blacklistSourceData ? (
                           <Fragment>
-                              <List
-                                  style={{height:"150px", overflow:"scroll"}}
-                                  dataSource={this.state.blacklistSourceData}
-                                  renderItem={item => 
-                                      <List.Item>
-                                          <a id={item[0]} onClick={this.selectedIP}>{item[0]}</a> - <a id={item[1]} onClick={this.selectedIP}>{item[1]}</a>
-                                      </List.Item>}
+                              <Table
+                                style={{height:"300px", overflowY:"scroll"}}
+                                pagination={false}
+                                rowKey={record => record.source_address+record.destination_address}
+                                columns={this.state.blackListMainTableColumns}
+                                dataSource={this.state.blacklistSourceData}
                               />
                           </Fragment>
                       ) : null}
@@ -223,14 +247,13 @@ class BlacklistAddress extends Component {
                       <Card title={"Request To Blacklisted Address"}>
                         {this.state.blacklistDestinationData ? (
                             <Fragment>
-                                <List
-                                    style={{height:"150px", overflow:"scroll"}}
-                                    dataSource={this.state.blacklistDestinationData}
-                                    renderItem={item => 
-                                        <List.Item>
-                                            <a id={item[0]} onClick={this.selectedIP}>{item[0]}</a> - <a id={item[1]} onClick={this.selectedIP}>{item[1]}</a>
-                                        </List.Item>}
-                                />
+                                <Table
+                                style={{height:"300px", overflowY:"scroll"}}
+                                pagination={false}
+                                rowKey={record => record.source_address+record.destination_address}
+                                columns={this.state.blacklistDestinationData}
+                                dataSource={this.state.blacklistSourceData}
+                              />
                             </Fragment>
                         ) : null}
                       </Card>

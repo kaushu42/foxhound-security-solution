@@ -156,10 +156,12 @@ class UnverifiedRulesTable extends Component {
             .then(res => {
                 const response = res.data;
                 var blacklistData = []
+                
                 for (var i =0; i<response.length; i++){
-                    blacklistData.push(response[i][0])
+                    blacklistData.push(response[i].source_address)
                 }
                 this.setState({blackListSourceData:blacklistData});
+                console.log(this.state.blackListSourceData);
             }).catch(error => console.log(error));
 
         axios.post(FETCH_BLACKLISTED_DESTINATION_API,null,{headers})
@@ -167,7 +169,7 @@ class UnverifiedRulesTable extends Component {
             const response = res.data;
             var blacklistData = []
             for (var i =0; i<response.length; i++){
-                blacklistData.push(response[i][1])
+                blacklistData.push(response[i].destination_address)
             }
             this.setState({blackListDestinationData:blacklistData});
         }).catch(error => console.log(error));
@@ -268,7 +270,6 @@ class UnverifiedRulesTable extends Component {
     
     render(){
         const {selectedUnverifiedRecordToAccept,selectedUnverifiedRecordToReject,selectedUnverifiedRecordToUpdate} = this.props;
-        const {blackListSourceData} = this.state;
         const applicationSelectListItem = this.state.applicationData.map(
             data => <Select.Option key={data[1]}>{data[1]}</Select.Option>
           );
