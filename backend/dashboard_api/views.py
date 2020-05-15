@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from django.db.models import Sum, F, Max, Count
+from django.db.models import Sum, F, Max, Count, Q
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -23,7 +23,7 @@ from core.models import (
     Protocol,
     ApplicationChart,
     IPChart,
-    
+
     TrafficLogDetailHourly,
     TrafficLogDetailHourly
 )
@@ -226,33 +226,29 @@ class ApplicationApiView(APIView):
 
 class CountryApiView(APIView):
     def post(self, request, format=None):
-        filter_ids = get_filter_ids_from_request(request)
         basis = request.data.get('basis', 'bytes')
-        except_countries = request.data.get('except_countries', '')
+        country = request.data.get('country', '')
+
+        firewall_rule_ids = get_firewall_rules_id_from_request(request)
+
         kwargs = {
-            'filter__in': filter_ids
+            'firewall_rule__in': firewall_rule_ids,
         }
-        if except_countries:
-            except_countries = except_countries.split(',')
+
         objects = get_objects_with_date_filtered(
             request,
-            IPChart,
+            TrafficLogDetailHourly,
             'logged_datetime',
             **kwargs
-        ).values('address').annotate(
-            count=Sum('count_events'),
+        ).values(
+            'source_country'
+        ).annotate(
             bytes=Sum('sum_bytes_sent')+Sum('sum_bytes_received'),
             packets=Sum('sum_packets_sent')+Sum('sum_packets_received'),
-        )
+            count=Count('firewall_rule_id')
+        ).values('source_country', basis)
 
-        values = defaultdict(int)
-
-        for obj in objects:
-            name, code = get_country_name_and_code(obj['address'])
-            values[code] += obj[basis]
-        return Response({
-            i: values[i] for i in values if i not in except_countries
-        })
+        return Response(objects)
 
     def get(self, request, format=None):
         return self.post(request, format=format)

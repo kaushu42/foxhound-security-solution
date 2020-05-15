@@ -12,6 +12,7 @@ for obj in objects:
         Q(destination_address__regex=src) &
         Q(application__regex=src),
         parent__isnull=True,
+        firewall_rule=obj.firewall_rule
     ).update(parent=obj)
 
 
