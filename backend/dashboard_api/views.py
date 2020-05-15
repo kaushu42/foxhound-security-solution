@@ -1,4 +1,5 @@
 from collections import defaultdict
+import datetime
 
 from django.db.models import Sum, F, Max, Count, Q
 
@@ -10,7 +11,9 @@ from globalutils.utils import (
     get_objects_with_date_filtered,
     set_null_items_to_zero,
     get_firewall_rules_id_from_request,
-    get_country_name_and_code
+    get_country_name_and_code,
+    get_filters,
+    str_to_date
 )
 
 
@@ -148,6 +151,23 @@ class UsageApiView(APIView):
         return self.post(request, format=format)
 
 
+def get_model_kwargs(request):
+    kwargs = {}
+    filters = get_filters(request)
+    if filters.get('start_date', ''):
+        start_date = filters['start_date']
+        end_date = filters['end_date']
+
+        kwargs['logged_datetime__gte'] = start_date
+        kwargs['logged_datetime__lte'] = end_date + \
+            datetime.timedelta(days=1)
+
+    for f in filters:
+        if filters[f] is not None and (not f.endswith('date')):
+            kwargs[f'{f}__in'] = set(filters[f].split(','))
+    return kwargs
+
+
 class ApplicationApiView(APIView):
     def post(self, request, format=None):
         top_count = int(request.data.get('topcount', 5))
@@ -162,7 +182,11 @@ class ApplicationApiView(APIView):
 
         kwargs = {
             'firewall_rule__in': firewall_rule_ids,
+            **get_model_kwargs(request)
         }
+        if kwargs.get('application__in'):
+            del kwargs['application__in']
+
         if country:
             kwargs['source_country'] = country
 
@@ -227,13 +251,25 @@ class ApplicationApiView(APIView):
 class CountryApiView(APIView):
     def post(self, request, format=None):
         basis = request.data.get('basis', 'bytes')
-        country = request.data.get('country', '')
+        except_countries = request.data.get('except_countries', '')
 
         firewall_rule_ids = get_firewall_rules_id_from_request(request)
-
         kwargs = {
             'firewall_rule__in': firewall_rule_ids,
         }
+
+        filters = get_filters(request)
+        if filters.get('start_date', ''):
+            start_date = filters['start_date']
+            end_date = filters['end_date']
+
+            kwargs['logged_datetime__gte'] = start_date
+            kwargs['logged_datetime__lte'] = end_date + \
+                datetime.timedelta(days=1)
+
+        for f in filters:
+            if filters[f] is not None and (not f.endswith('date')):
+                kwargs[f'{f}__in'] = set(filters[f].split(','))
 
         objects = get_objects_with_date_filtered(
             request,
