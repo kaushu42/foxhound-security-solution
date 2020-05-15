@@ -154,6 +154,7 @@ class UsageApiView(APIView):
 def get_model_kwargs(request):
     kwargs = {}
     filters = get_filters(request)
+
     if filters.get('start_date', ''):
         start_date = filters['start_date']
         end_date = filters['end_date']
@@ -163,7 +164,7 @@ def get_model_kwargs(request):
             datetime.timedelta(days=1)
 
     for f in filters:
-        if filters[f] is not None and (not f.endswith('date')):
+        if filters[f] and (not f.endswith('date')):
             kwargs[f'{f}__in'] = set(filters[f].split(','))
     return kwargs
 
@@ -178,12 +179,12 @@ class ApplicationApiView(APIView):
         # Assuming applications < 10000
         top_count = top_count if top_count else 10000
 
-        firewall_rule_ids = get_firewall_rules_id_from_request(request)
+        kwargs = get_model_kwargs(request)
 
-        kwargs = {
-            'firewall_rule__in': firewall_rule_ids,
-            **get_model_kwargs(request)
-        }
+        if not kwargs.get('firewall_rule__in'):
+            firewall_rule_ids = get_firewall_rules_id_from_request(request)
+            kwargs['firewall_rule__in'] = firewall_rule_ids
+
         if kwargs.get('application__in'):
             del kwargs['application__in']
 
