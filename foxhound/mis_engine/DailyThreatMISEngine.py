@@ -152,6 +152,10 @@ class DailyThreatMISEngine(object):
         return self._spark.createDataFrame(df, schema)
     
     def run(self):
+        logger = Logger.getInstance()
+        logger.info(f'Daily Threat MIS Engine: {self._INPUT_THREAT_LOG}')
         self._read_csv()
         self._preprocess()
+        logger.info(f'log sucessfullly loaded')
         self._write_new_firewall_rules_to_db()
+        logger.info(f'fh_prd_fw_rule_f successfully loaded')

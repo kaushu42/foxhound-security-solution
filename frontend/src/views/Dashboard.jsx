@@ -1,7 +1,7 @@
 import React, {Component, Fragment} from 'react';
 import {connect} from "react-redux";
 import MasterLayout from "./layout/MasterLayout";
-import {Card, Col, PageHeader, Row} from "antd";
+import {Card, Col, PageHeader, Row, Button} from "antd";
 import Filter from "../components/Filter";
 import {contentLayout} from "../utils";
 import DashboardStats from "../components/stats/DashboardStats";
@@ -19,6 +19,28 @@ import BlacklistAddress from "../components/BlacklistAddress";
 import '../charts/chart.css';
 
 class Dashboard extends Component{
+
+    constructor(props){
+        super(props);
+        this.state = {
+            filterToggleText : "Show filter",
+            filterDisplyStyle : "none",
+            filterVisible : false
+        }
+    }
+    toggleFilterDisplay = () => {
+        if(this.state.filterVisible){
+            this.setState({filterToggleText:"Show filter"});
+            this.setState({filterVisible:false});
+            this.setState({filterDisplyStyle:"none"});
+        }
+        else {
+            this.setState({filterToggleText:"Hide filter"});
+            this.setState({filterVisible:true});
+            this.setState({filterDisplyStyle:""});
+        }
+    }
+
     render() {
         return (
             <Fragment>
@@ -28,28 +50,34 @@ class Dashboard extends Component{
                         title={"Dashboard"}
                         onBack={() => window.history.back()} />
                     <Row style={contentLayout}>
-                        <DashboardFilter />
+                        <Col xs={24} sm={24} md={5} lg={5} xl={5} offset={19}>
+                        <Button 
+                            type={"primary"}
+                            style={{ width: "100%" }}
+                            onClick={this.toggleFilterDisplay}>{this.state.filterToggleText}</Button>
+                        </Col>
                     </Row>
                     <Row style={contentLayout}>
+                        <div style={{display:this.state.filterDisplyStyle}}><DashboardFilter /> </div>
+                    </Row>
+                <Row style={contentLayout}>
                         <DashboardStats />
                     </Row>
+                        <Row style={contentLayout}>
+                            <Col xs={24} sm={24} md={24} lg={24} xl={12}>
+                                <RequestOriginWorldChart/>
+                            </Col>
+                            <Col xs={24} sm={24} md={24} lg={24} xl={12} >
+                                <BandwidthUsageChart />
+                            </Col>
+                        </Row>
                     <Row style={contentLayout}>
-                        <Col xs={24} sm={24} md={24} lg={24} xl={12}>
-                            <RequestOriginWorldChart/>
-                        </Col>
-                        <Col xs={24} sm={24} md={24} lg={24} xl={12} >
-                            <BandwidthUsageChart />
-                        </Col>
+                        <ApplicationLineChart />
                     </Row>
                     <Row style={contentLayout}>
-                        <Col xs={24} sm={24} md={24} lg={24} xl={18}>
-                            <ApplicationLineChart />
-                        </Col>
-                        <Col xs={24} sm={24} md={24} lg={24} xl={6}>
-                            <BlacklistAddress />
-                        </Col>
+                        <BlacklistAddress />
+                    </Row>
 
-                    </Row>
                     <Row style={contentLayout}>
                         <br />
                         <h3>Unverified Rules</h3>

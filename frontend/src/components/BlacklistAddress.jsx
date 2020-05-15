@@ -2,10 +2,12 @@ import React, {Component, Fragment} from 'react';
 import {connect} from "react-redux";
 import {axiosHeader, ROOT_URL, bytesToSize} from "../utils";
 import axios from "axios";
-import {Card, List, Drawer, Table, Spin, Button} from "antd";
+import {Card, List, Drawer, Table, Spin, Button,Row, Col} from "antd";
 import QuickIpView from "../views/QuickIpView"
 import ExportJsonExcel from 'js-export-excel';
 import {search} from "../actions/ipSearchAction";
+import {contentLayout} from "../utils";
+
 
 const FETCH_BLACKLIST_SOURCE_API = `${ROOT_URL}mis/blacklist/source/`;
 const FETCH_BLACKLIST_DESTINATION_API = `${ROOT_URL}mis/blacklist/destination/`;
@@ -200,34 +202,40 @@ class BlacklistAddress extends Component {
                                       </p>;
         return (
             <Fragment>
-                <Card title={"Response From Blacklisted Address"}>
-                    {this.state.blacklistSourceData ? (
-                        <Fragment>
-                            <List
-                                style={{height:"150px", overflow:"scroll"}}
-                                dataSource={this.state.blacklistSourceData}
-                                renderItem={item => 
-                                    <List.Item>
-                                        <a id={item[0]} onClick={this.selectedIP}>{item[0]}</a> - <a id={item[1]} onClick={this.selectedIP}>{item[1]}</a>
-                                    </List.Item>}
-                            />
-                        </Fragment>
-                    ) : null}
-                </Card>
-                <Card title={"Request To Blacklisted Address"}>
-                    {this.state.blacklistDestinationData ? (
-                        <Fragment>
-                            <List
-                                style={{height:"150px", overflow:"scroll"}}
-                                dataSource={this.state.blacklistDestinationData}
-                                renderItem={item => 
-                                    <List.Item>
-                                        <a id={item[0]} onClick={this.selectedIP}>{item[0]}</a> - <a id={item[1]} onClick={this.selectedIP}>{item[1]}</a>
-                                    </List.Item>}
-                            />
-                        </Fragment>
-                    ) : null}
-                </Card>
+                <Row>
+                  <Col xs={24} sm={24} md={24} lg={24} xl={12}>
+                    <Card title={"Response From Blacklisted Address"}>
+                      {this.state.blacklistSourceData ? (
+                          <Fragment>
+                              <List
+                                  style={{height:"150px", overflow:"scroll"}}
+                                  dataSource={this.state.blacklistSourceData}
+                                  renderItem={item => 
+                                      <List.Item>
+                                          <a id={item[0]} onClick={this.selectedIP}>{item[0]}</a> - <a id={item[1]} onClick={this.selectedIP}>{item[1]}</a>
+                                      </List.Item>}
+                              />
+                          </Fragment>
+                      ) : null}
+                  </Card>                        
+                  </Col>
+                    <Col xs={24} sm={24} md={24} lg={24} xl={12} >
+                      <Card title={"Request To Blacklisted Address"}>
+                        {this.state.blacklistDestinationData ? (
+                            <Fragment>
+                                <List
+                                    style={{height:"150px", overflow:"scroll"}}
+                                    dataSource={this.state.blacklistDestinationData}
+                                    renderItem={item => 
+                                        <List.Item>
+                                            <a id={item[0]} onClick={this.selectedIP}>{item[0]}</a> - <a id={item[1]} onClick={this.selectedIP}>{item[1]}</a>
+                                        </List.Item>}
+                                />
+                            </Fragment>
+                        ) : null}
+                      </Card>
+                    </Col>
+                    </Row>
                 <Drawer
                     closable={true}
                     width={800}

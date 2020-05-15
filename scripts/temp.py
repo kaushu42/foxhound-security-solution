@@ -36,3 +36,48 @@ def traffic_log_engine(input_traffic_log):
 for input_traffic_log in os.listdir(TRAFFIC_LOGS_INPUT_DIR):
     input_traffic_log = os.path.join(TRAFFIC_LOGS_INPUT_DIR, input_traffic_log)
     traffic_log_engine(input_traffic_log)
+
+
+
+# INSERT INTO core_blacklistedip(ip_address) values('172.16.5.10');
+# INSERT INTO core_blacklistedip(ip_address) values('54.36.148.130');
+# INSERT INTO core_blacklistedip(ip_address) values('69.191.211.201');
+# INSERT INTO core_blacklistedip(ip_address) values('15.177.38.2');
+# INSERT INTO core_blacklistedip(ip_address) values('172.16.5.12');
+# INSERT INTO core_blacklistedip(ip_address) values('192.168.100.58');
+# INSERT INTO core_blacklistedip(ip_address) values('192.168.100.58');
+# INSERT INTO core_blacklistedip(ip_address) values('192.168.100.38');
+# INSERT INTO core_blacklistedip(ip_address) values('192.168.100.38');
+# INSERT INTO core_blacklistedip(ip_address) values('10.0.77.10');
+# INSERT INTO core_blacklistedip(ip_address) values('10.0.77.10');
+# INSERT INTO core_blacklistedip(ip_address) values('98.207.104.128');
+# INSERT INTO core_blacklistedip(ip_address) values('172.16.5.13');
+# INSERT INTO core_blacklistedip(ip_address) values('172.16.5.13');
+# INSERT INTO core_blacklistedip(ip_address) values('192.168.100.58');
+# INSERT INTO core_blacklistedip(ip_address) values('172.16.5.10');
+# INSERT INTO core_blacklistedip(ip_address) values('114.119.164.218');
+# INSERT INTO core_blacklistedip(ip_address) values('192.168.100.58');
+# INSERT INTO core_blacklistedip(ip_address) values('192.168.100.58');
+# INSERT INTO core_blacklistedip(ip_address) values('10.100.20.169');
+# INSERT INTO core_blacklistedip(ip_address) values('10.100.20.169');
+# INSERT INTO core_blacklistedip(ip_address) values('192.168.20.84');
+# INSERT INTO core_blacklistedip(ip_address) values('192.168.20.84');
+
+# INSERT INTO core_blacklistedip(ip_address) VALUES('3.112.160.225');
+# INSERT INTO core_blacklistedip(ip_address) VALUES('172.16.5.12');
+# INSERT INTO core_blacklistedip(ip_address) VALUES('15.177.54.1');
+# INSERT INTO core_blacklistedip(ip_address) VALUES('192.168.100.58');
+# INSERT INTO core_blacklistedip(ip_address) VALUES('74.96.87.93');
+# INSERT INTO core_blacklistedip(ip_address) VALUES('66.249.66.29');
+# INSERT INTO core_blacklistedip(ip_address) VALUES('10.0.77.10');
+# INSERT INTO core_blacklistedip(ip_address) VALUES('46.229.168.154');
+# INSERT INTO core_blacklistedip(ip_address) VALUES('192.168.100.16');
+# INSERT INTO core_blacklistedip(ip_address) VALUES('192.168.100.173');
+# INSERT INTO core_blacklistedip(ip_address) VALUES('172.16.5.12');
+# INSERT INTO core_blacklistedip(ip_address) VALUES('172.16.5.10');
+# INSERT INTO core_blacklistedip(ip_address) VALUES('27.97.84.224');
+# INSERT INTO core_blacklistedip(ip_address) VALUES('27.34.48.156');
+# INSERT INTO core_blacklistedip(ip_address) VALUES('10.9.9.25');
+# INSERT INTO core_blacklistedip(ip_address) VALUES('192.168.0.22');
+# INSERT INTO core_blacklistedip(ip_address) VALUES('172.16.5.12');
+# INSERT INTO core_blacklistedip(ip_address) VALUES('172.16.5.10');

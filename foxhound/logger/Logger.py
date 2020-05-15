@@ -22,15 +22,15 @@ class Logger:
         self.file.flush()
 
     def error(self, msg):
-        self.file.write(f'[ERROR]: {msg}\n')
+        self.file.write(f'[ERROR]: {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")} {msg}\n')
         self.flush()
 
     def info(self, msg):
-        self.file.write(f'[INFO]: {msg}\n')
+        self.file.write(f'[INFO]: {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")} {msg}\n')
         self.flush()
 
     def debug(self, msg):
-        self.file.write(f'[DEBUG]: {msg}\n')
+        self.file.write(f'[DEBUG]: {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")} {msg}\n')
         self.flush()
 
     def close(self):

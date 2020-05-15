@@ -1,6 +1,7 @@
 import os
 import datetime
 from pyspark.sql.functions import concat, col, lit
+from ..logger import Logger
 
 
 class DailyTrafficRuleEngine:
@@ -78,6 +79,9 @@ class DailyTrafficRuleEngine:
         print("fh_stg_trfc_rule_f load successfully")
 
     def run(self):
+        logger = Logger.getInstance()
+        logger.info(f'Daily Traffic Rule Engine: {self._INPUT_TRAFFIC_LOG}')
         self._read_csv()
         self._preprocess()
         self._extract_rules_from_traffic_log()
+        logger.info("fh_stg_trfc_rule_f load successfully")

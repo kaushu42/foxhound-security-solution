@@ -20,6 +20,7 @@ import traceback
 from ..logger import Logger
 import config as py_config
 
+
 try:
     import configparser
 except:
@@ -123,6 +124,7 @@ class DailyTrafficMISEngine(object):
             firewall_rules_from_db).toDF(*["name"])
         new_firewall_rules = new_firewall_rules.withColumn("tenant_id", lit(1))
         self._write_df_to_postgres(new_firewall_rules, "fh_prd_fw_rule_f", "append")
+        print("fh_prd_fw_rule_f successfully loaded")
     
     def _read_csv(self):
         print(f"reading file {self._INPUT_TRAFFIC_LOG}")
@@ -395,13 +397,23 @@ class DailyTrafficMISEngine(object):
         
         
     def run(self):
+        logger = Logger.getInstance()
         self._read_csv()
+        logger.info(f'Daily Traffic MIS Engine: {self._INPUT_TRAFFIC_LOG}')
         self._preprocess()
+        logger.info(f'log sucessfullly loaded')
         self._write_new_firewall_rules_to_db()
+        logger.info(f'fh_prd_fw_rule_f successfully loaded')
         self._set_firewall_rules_id_to_data()
         self._extract_mis_daily()
+        logger.info(f'fh_stg_trfc_mis_dy_a successfully loaded')
         self._extract_mis_new_source_address()
+        logger.info(f"fh_stg_trfc_mis_new_src_ip_dy_a successfully loaded")
         self._extract_mis_new_destination_address()
+        logger.info(f"fh_stg_trfc_mis_new_dst_ip_dy_a successfully loaded")
         self._extract_mis_new_application()
+        logger.info(f"fh_stg_trfc_mis_new_app_dy_a successfully loaded")
         self._extract_mis_requests_from_blacklisted_ip_event()
+        logger.info(f"fh_stg_trfc_mis_req_frm_blip_dy_a successfully loaded")
         self._extract_mis_responses_to_blacklisted_ip_event()
+        logger.info(f"fh_stg_trfc_mis_res_to_blip_dy_a successfully loaded")

@@ -31,6 +31,7 @@ class ApplicationLineChart extends Component {
       params: {},
       pagination: {},
       chartTitle: null,
+      applicationChartLogLoading:true,
       applicationlogColumns: [
         {
           title: "Source Address",
@@ -192,10 +193,10 @@ class ApplicationLineChart extends Component {
       String(prevProps.destination_zone) !== String(this.props.destination_zone)
     ) {
       {this.props.date_range[0]?this.setState({
-        chartTitle:`Application Line Chart from ${this.props.date_range[0]} to ${this.props.date_range[1]}`
+        chartTitle:`Traffic Breakdown by Application used from ${this.props.date_range[0]} to ${this.props.date_range[1]}`
         }):
         this.setState({
-          chartTitle:`Application Line Chart for ${this.props.defaultDate}`
+          chartTitle:`Traffic Breakdown by Application used in ${this.props.defaultDate}`
         })
       }
       this.handleFetchData();
@@ -223,7 +224,7 @@ class ApplicationLineChart extends Component {
         });
         let tempSeries = {
           name: key,
-          type: "spline",
+          // type: "spline",
           data: key_data
         };
         dataSeries.push(tempSeries);
@@ -242,7 +243,6 @@ class ApplicationLineChart extends Component {
         shared: true,
         followPointer: true,
         snap: 1,
-        // xDateFormat: "%m/%d/%y %l:%M %p",
         valueDecimals: 2,
         crosshairs: [
           {
@@ -253,11 +253,16 @@ class ApplicationLineChart extends Component {
       },
       yAxis: {
         min: 0,
+        labels: {
+                formatter: function() {
+                  return this.value + " " + unit;
+                }
+              },
         title: {
-            text: 'Total fruit consumption'
+            text: "data transferred in " + unit
         },
         stackLabels: {
-            enabled: true,
+            enabled: false,
             style: {
                 fontWeight: 'bold',
                 color: ( // theme
@@ -267,23 +272,6 @@ class ApplicationLineChart extends Component {
             }
         }
       },
-      // yAxis: [
-      //   {
-      //     min: 0,
-      //     minorTickInterval: 0.1,
-      //     lineWidth: 0,
-      //     offset: 0,
-      //     showLastLabel: true,
-      //     title: {
-      //       text: this.state.basis
-      //     },
-      //     labels: {
-      //       formatter: function() {
-      //         return this.value + " " + unit;
-      //       }
-      //     },
-      //   }
-      // ]    
     });
     this.chart.redraw();
     const seriesLength = this.chart.series.length;
@@ -295,9 +283,9 @@ class ApplicationLineChart extends Component {
     for (let i = 0; i < data.length; i++) {
       this.chart.addSeries({
         name: data[i].name,
-        type: "column",
+        // type: "column",
         data: data[i].data,
-        showInNavigator: true,
+        // showInNavigator: true,
         events: {
           click: function(e) {
             const self = this.chart.component;
@@ -353,6 +341,7 @@ class ApplicationLineChart extends Component {
         const page = this.state.pagination;
         page.total = res.data.count;
         this.setState({
+          applicationChartLogLoading : false,
           selectedApplicationLogData: res.data.results,
           pagination: page
         });
@@ -382,7 +371,8 @@ class ApplicationLineChart extends Component {
 
   handleCloseApplicationLogDrawer = () => {
     this.setState({
-      selectedApplicationLogDrawerVisible: false
+      selectedApplicationLogDrawerVisible: false,
+      applicationChartLogLoading: true
     });
   };
 
@@ -436,104 +426,60 @@ class ApplicationLineChart extends Component {
   
   render() {
     const options = {
-      // plotOptions: {
-      //   arearange: {
-      //     showInLegend: true,
-      //     stickyTracking: true,
-      //     trackByArea: false,
-      //     dataGrouping: {
-      //       enabled: false
-      //     }
-      //   },
-      //   areaspline: {
-      //     showInLegend: true,
-      //     stickyTracking: true,
-      //     trackByArea: false,
-      //     marker: {
-      //       enabled: false
-      //     },
-      //     softThreshold: false,
-      //     connectNulls: false,
-      //     dataGrouping: {
-      //       enabled: false
-      //     }
-      //   },
-      //   series: {
-      //     stickyTracking: false,
-      //     trackByArea: false,
-      //     turboThreshold: 0,
-      //     events: {
-      //       legendItemClick: () => {
-      //         return true;
-      //       }
-      //     },
-      //     dataGrouping: {
-      //       enabled: false
-      //     }
-      //   }
-      // },
-      xAxis: {
-        dateTimeLabelFormats: {
-          day: "%Y-%b-%d"
-        },
-        crosshair:true,
-        ordinal: false,
-        followPointer: true,
-        type: "datetime",
-
-        showLastLabel: true,
-        tickWidth: 0,
-        labels: {
-          enabled: true
-        }
-      },
-      yAxis: {
-        min: 0,
-        title: {
-            text: 'Total fruit consumption'
-        },
-        stackLabels: {
-            enabled: true,
-            style: {
-                fontWeight: 'bold',
-                color: ( // theme
-                    Highcharts.defaultOptions.title.style &&
-                    Highcharts.defaultOptions.title.style.color
-                ) || 'gray'
-            }
-        }
-      },
-      // yAxis:{
-      //   crosshair:true
-      // },
-      tooltip:{
-      },
-      time:{
-        timezoneOffset: -5*60 - 45
-      },
       chart: {
+        type: 'column',
         zoomType: "x"
       },
-
-      title: {
-        text: this.state.chartTitle
+      time:{
+            timezoneOffset: -5*60 - 45
       },
-      responsive: {
-        rules: [
-          {
-            condition: {
-              maxWidth: 500
+      title: {
+          text: this.state.chartTitle
+      },
+      xAxis: {
+            dateTimeLabelFormats: {
+              day: "%Y-%b-%d"
             },
-            chartOptions: {
-              legend: {
-                layout: "horizontal",
-                align: "bottom",
-                verticalAlign: "middle"
-              }
+            crosshair:true,
+            ordinal: false,
+            followPointer: true,
+            type: "datetime",
+    
+            showLastLabel: true,
+            tickWidth: 0,
+            labels: {
+              enabled: true
             }
+          },
+      yAxis: {
+          min: 0,
+          title: {
+              text: this.state.basis
+          },
+          stackLabels: {
+              enabled: false,
+              style: {
+                  fontWeight: 'bold',
+                  color: ( // theme
+                      Highcharts.defaultOptions.title.style &&
+                      Highcharts.defaultOptions.title.style.color
+                  ) || 'gray'
+              }
           }
-        ]
-      }
+      },
+      tooltip: {
+          // headerFormat: '<b>{point.x}</b><br/>',
+          // pointFormat: '{series.name}: {point.y}<br/>Total: {point.stackTotal}'
+      },
+      plotOptions: {
+          column: {
+              stacking: 'normal',
+              dataLabels: {
+                  enabled: false
+              }
+          }
+      },
+      series: []
     };
     const expandedRowRender = record => <p><b>Firewall Rule: </b>{record.firewall_rule}<br/>
                                       <b>Protocol: </b>{record.protocol}<br/>
@@ -557,7 +503,7 @@ class ApplicationLineChart extends Component {
             title={
               <Fragment>
                 <div>
-                  Application Used
+                  Traffic Breakdown by Application used
                   <Select
                     onChange={value => this.setState({ top_count: value })}
                     size={"default"}
@@ -602,19 +548,22 @@ class ApplicationLineChart extends Component {
           closable={true}
           onClose={this.handleCloseApplicationLogDrawer}
         >
-                    <Button type="primary" shape="round" icon="download"
-                                onClick={this.downloadExcel}>Export Excel Table
-              </Button>
-          {this.state.selectedApplicationLogData ? (
-            <Table
-              rowKey={record => record.id}
-              columns={this.state.applicationlogColumns}
-              expandedRowRender={expandedRowRender}
-              dataSource={this.state.selectedApplicationLogData}
-              pagination={this.state.pagination}
-              onChange={this.handleTableChange}
-            />
-          ) : null}
+          <Button 
+            type="primary" shape="round" icon="download"
+            onClick={this.downloadExcel}>Export Excel Table
+          </Button>
+          <br></br>
+          {!this.state.applicationChartLogLoading ? 
+          this.state.selectedApplicationLogData ? 
+          <Table
+            rowKey={record => record.id}
+            columns={this.state.applicationlogColumns}
+            expandedRowRender={expandedRowRender}
+            dataSource={this.state.selectedApplicationLogData}
+            pagination={this.state.pagination}
+            onChange={this.handleTableChange}
+          />
+        : null : <Spin loading={this.state.applicationChartLogLoading}></Spin>}
         </Drawer>
         <Drawer
           closable={true}

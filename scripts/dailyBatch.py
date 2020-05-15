@@ -134,8 +134,44 @@ def traffic_tt_engine(input_anomaly_log):
 
 
 def ready_for_staging():
-    # Create SAVE POINT  For DB
-    # Truncate Hourly and Daily Staging Table for Staging
+    engine = utils.get_db_engine()
+    Session = sessionmaker(bind=engine, autocommit=True)
+    session = Session()
+    session.begin()
+    try:
+        rs = session.execute("TRUNCATE TABLE fh_stg_trfc_mis_dy_a")
+        rs = session.execute("TRUNCATE TABLE fh_stg_trfc_mis_new_app_dy_a")
+        rs = session.execute("TRUNCATE TABLE fh_stg_trfc_mis_new_dst_ip_dy_a")
+        rs = session.execute("TRUNCATE TABLE fh_stg_trfc_mis_new_src_ip_dy_a")
+        rs = session.execute("TRUNCATE TABLE fh_stg_trfc_mis_req_frm_blip_dy_a")
+        rs = session.execute("TRUNCATE TABLE fh_stg_trfc_mis_req_frm_blip_dy_a")
+        rs = session.execute("TRUNCATE TABLE fh_stg_trfc_mis_res_to_blip_dy_a")
+
+        rs = session.execute("TRUNCATE TABLE fh_stg_trfc_log_dtl_f")
+        rs = session.execute("TRUNCATE TABLE fh_stg_trfc_log_dtl_hr_a")
+        rs = session.execute("TRUNCATE TABLE fh_stg_trfc_log_dtl_dy_a")
+        
+        rs = session.execute("TRUNCATE TABLE fh_stg_trfc_rule_f")
+        
+        rs = session.execute("TRUNCATE TABLE fh_stg_trfc_chrt_app_dt_hr_a")
+        rs = session.execute("TRUNCATE TABLE fh_stg_trfc_chrt_con_dt_hr_a")
+        rs = session.execute("TRUNCATE TABLE fh_stg_trfc_chrt_ip_dt_hr_a")
+        rs = session.execute("TRUNCATE TABLE fh_stg_trfc_chrt_tm_srs_dt_hr_a")
+
+        rs = session.execute("TRUNCATE TABLE fh_stg_thrt_log_dtl_f")
+        rs = session.execute("TRUNCATE TABLE fh_stg_thrt_log_dtl_evnt_f")
+
+        rs = session.execute("TRUNCATE TABLE fh_stg_tt_anmly_f")
+
+        print("TRUNCATE STAGE TABLE COMPLETED")
+        logger.info(f'truncate stage table completed')
+
+    except:
+        session.rollback()
+        raise
+    finally:
+        session.commit()
+        session.close()
     pass
 
 
@@ -215,10 +251,14 @@ def commit_changes_to_production():
 
         insert_stage_data_to_prod_table(
             session, 'fh_stg_tt_anmly_f', 'fh_prd_tt_anmly_f')
-        pass
+
+        logger.info(f'stage data written to prod table completed')
+
     except:
         session.rollback()
         raise
     finally:
         session.commit()
         session.close()
+
+

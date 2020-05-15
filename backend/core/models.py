@@ -401,6 +401,11 @@ class TrafficLogDetailGranularHour(models.Model):
         return self.__repr__()
 
 
+@architect.install(
+    'partition', type='range',
+    subtype='date', constraint='day',
+    column='logged_datetime'
+)
 class TrafficLogDetailHourly(models.Model):
     traffic_log = models.ForeignKey(
         TrafficLog,
@@ -449,6 +454,7 @@ class TrafficLogDetailHourly(models.Model):
 
     class Meta:
         db_table = 'fh_prd_trfc_log_dtl_hr_a'
+
 
 
 class StageTrafficLogDetailHourly(models.Model):
@@ -501,6 +507,11 @@ class StageTrafficLogDetailHourly(models.Model):
     class Meta:
         db_table = 'fh_stg_trfc_log_dtl_hr_a'
 
+@architect.install(
+    'partition', type='range',
+    subtype='date', constraint='day',
+    column='logged_datetime'
+)
 class TrafficLogDetailDaily(models.Model):
     traffic_log = models.ForeignKey(
         TrafficLog,

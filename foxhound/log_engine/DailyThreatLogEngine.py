@@ -223,11 +223,18 @@ class DailyThreatLogEngine:
         print("fh_stg_thrt_log_dtl_evnt_f successfully loaded")
 
     def run(self):
+        logger = Logger.getInstance()
+        logger.info(f'Daily Threat Log Engine: {self._INPUT_THREAT_LOG}')
         self._read_csv()
         self._preprocess()
+        logger.info(f'log sucessfullly loaded')
         self._set_firewall_rules_id_to_data()
         self._resolve_ip_country()
         self._write_log_to_threat_logs()
+        logger.info(f'fh_prd_thrt_log_f sucessfullly loaded')
         self._set_threat_log_id_to_data()
         self._extract_threat_log_details()
+        logger.info(f'fh_stg_thrt_log_dtl_f sucessfullly loaded')
         self._extract_threat_logs_details_event()
+        logger.info(f'fh_stg_thrt_log_dtl_evnt_f sucessfullly loaded')
+
