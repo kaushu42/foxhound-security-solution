@@ -3,7 +3,7 @@ import {connect} from "react-redux";
 import MasterLayout from "../layout/MasterLayout";
 import {PageHeader, Row} from "antd";
 import {contentLayout} from "../../utils";
-
+import ProcessedThreatLogTable from '../../components/tables/ProcessedThreatLogTable';
 class ThreatLogs extends  Component {
 
 
@@ -13,6 +13,7 @@ class ThreatLogs extends  Component {
                 <MasterLayout activePageKey={this.props.activePageKey}>
                     <PageHeader title={"Threat Logs"} />
                     <Row style={contentLayout}>
+                        <ProcessedThreatLogTable />
                     </Row>
                 </MasterLayout>
             </Fragment>

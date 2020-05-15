@@ -206,7 +206,7 @@ class DailyTrafficLogEngine:
         log_name = os.path.basename(self._INPUT_TRAFFIC_LOG)
         grouped = self._df.groupby('firewall_rule_id').count(
         ).withColumn('log', lit(log_name)).withColumnRenamed('count', 'rows')
-        grouped.withColumn('processed_datetime',
+        grouped = grouped.withColumn('processed_datetime',
                            lit(datetime.datetime.today()))
         self._write_df_to_postgres(grouped, 'fh_stg_trfc_log_dtl_f', 'append')
         print("fh_stg_trfc_log_dtl_f successfully loaded")

@@ -178,7 +178,7 @@ class ProcessedLogDetailSerializer(serializers.Serializer):
     log = serializers.CharField()
     rows = serializers.IntegerField()
     size = serializers.IntegerField()
-    processed_date = serializers.DateField(required=False)
+    processed_datetime = serializers.DateField(required=False)
     log_date = serializers.SerializerMethodField('get_log_date')
 
     def get_log_date(self, obj):

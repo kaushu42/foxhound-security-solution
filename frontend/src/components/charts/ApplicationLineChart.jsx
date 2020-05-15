@@ -168,7 +168,7 @@ class ApplicationLineChart extends Component {
     bodyFormData.set("protocol", this.props.protocol);
     bodyFormData.set("source_zone", this.props.source_zone);
     bodyFormData.set("destination_zone", this.props.destination_zone);
-
+    console.log("@#$%^&*&^%$#@#$%^&*()(*&^%$#@#$%^&*()(*&^%$#@",bodyFormData);
     axios
       .post(FETCH_API, bodyFormData, { headers })
       .then(res => this.setState({ 

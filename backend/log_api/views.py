@@ -13,6 +13,7 @@ from rest_framework.status import (
 from core.models import (
     TrafficLog, TrafficLogDetailHourly,
     Country,
+    ProcessedThreatLogDetail,
     ProcessedTrafficLogDetail,
     ThreatLogDetailEvent,
     ProcessedThreatLogDetail,
@@ -49,7 +50,7 @@ class TrafficLogApiView(PaginatedView):
         firewall_ids = get_firewall_rules_id_from_request(request)
         objects = ProcessedTrafficLogDetail.objects.filter(
             firewall_rule__in=firewall_ids
-        ).values('log', 'processed_date').annotate(
+        ).values('log', 'processed_datetime').annotate(
             rows=Sum('rows'),
             size=F('rows')*self.SIZE_PER_LOG
         )
@@ -61,6 +62,28 @@ class TrafficLogApiView(PaginatedView):
 
     def post(self, request):
         return self.get(request)
+
+class ProcessedThreatLogApiView(PaginatedView):
+    serializer_class = ProcessedLogDetailSerializer
+    SIZE_PER_LOG = 468
+
+    def get(self, request):
+        firewall_ids = get_firewall_rules_id_from_request(request)
+        objects = ProcessedThreatLogDetail.objects.filter(
+            firewall_rule__in=firewall_ids
+        ).values('log', 'processed_datetime').annotate(
+            rows=Sum('rows'),
+            size=F('rows')*self.SIZE_PER_LOG
+        )
+
+        page = self.paginate_queryset(objects.order_by('-log'))
+        if page is not None:
+            serializer = self.serializer_class(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+    def post(self, request):
+        return self.get(request)
+
 
 
 class TrafficLogDetailApiView(PaginatedView):
