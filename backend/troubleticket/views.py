@@ -242,7 +242,7 @@ def close_tt(request, id):
 
     description = request.data.get('description', '')
     severity_level = request.data.get('severity_level')
-    is_anomaly = request.data.get('is_anomaly')
+    is_anomaly = int(request.data.get('is_anomaly', 'true') == 'true')
     user = get_user_from_token(request)
 
     trouble_ticket.is_closed = True
