@@ -124,13 +124,13 @@ def traffic_chart_engine(input_traffic_log):
 
 
 def traffic_tt_engine(input_anomaly_log):
-    # if check_create_bookmark(input_anomaly_log) == "tt":
-    tt = DailyTTEngine(
-        input_anomaly_log,
-        spark=config.SPARK
-    )
-    tt.run()
-    # set_bookmark(input_anomaly_log, "complete")
+    if check_create_bookmark(input_anomaly_log) == "none":
+        tt = DailyTTEngine(
+            input_anomaly_log,
+            spark=config.SPARK
+        )
+        tt.run()
+    set_bookmark(input_anomaly_log, "complete")
 
 
 def ready_for_staging():
