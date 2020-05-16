@@ -162,10 +162,20 @@ def get_model_kwargs(request):
         kwargs['logged_datetime__gte'] = start_date
         kwargs['logged_datetime__lte'] = end_date + \
             datetime.timedelta(days=1)
-
+    # Application, Protocol, Zone
+    # Application.objects.filter()
+    MODEL_MAP = {
+        "application": Application,
+        "protocol": Protocol,
+        "source_zone": Zone,
+        "destination_zone": Zone,
+    }
     for f in filters:
         if filters[f] and (not f.endswith('date')):
-            kwargs[f'{f}__in'] = set(filters[f].split(','))
+            items = set(filters[f].split(','))
+            kwargs[f'{f}__in'] = MODEL_MAP[f].objects.filter(
+                id__in=items).values_list('name')
+
     return kwargs
 
 
