@@ -84,7 +84,6 @@ class ChangeAlias extends Component{
             })
         })
         .catch(e => {
-            console.log("error",e);
             this.setState({
                 successMessage : null,
                 errorMessage : "Something went wrong!!"
@@ -98,9 +97,6 @@ class ChangeAlias extends Component{
     }
 
     handleTableChange = (pagination, filters, sorter) => {
-        console.log('pagination',pagination);
-        console.log('filter',filters)
-        console.log('sorter',sorter)
         const pager = { ...this.state.pagination};
         pager.current = pagination.current;
         this.state.pagination = pager,
@@ -153,7 +149,6 @@ class ChangeAlias extends Component{
             this.onClose()
             return
         }
-        // console.log("input address", ip, "alias name", aliasName)
         const authorization = `Token ${this.props.auth_token}`;
 
         let headers = {
@@ -168,7 +163,6 @@ class ChangeAlias extends Component{
 
         axios.post(SET_ALIAS_API,bodyFormData,{headers})
         .then(res=>{
-            console.log('Alias Name Set Successfully', ip, aliasName);
             this.setState({
                 selectedRecord : null,
                 alias : null,
@@ -178,7 +172,6 @@ class ChangeAlias extends Component{
             })
         })
         this.onClose()
-        console.log("fetching data")
         setTimeout(() => {this.handleFetchData()},3000)
     }
 

@@ -41,7 +41,6 @@ class Login extends Component {
         axios.post(SEND_DOMAIN_NAME_API,data,{headers})
             .then(res => {
                 const data = res.data;
-                console.log('data tenant',data.name)
                 this.setState({
                     tenant_name : data.name
                 });
@@ -83,7 +82,6 @@ class Login extends Component {
                 this.props.history.push("/");
                 })
             .catch((error) => {
-                console.log("authentication error",error);
                 this.setState({
                     error_message : "Invalid Credentials"
                 })

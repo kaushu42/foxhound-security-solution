@@ -25,7 +25,7 @@ class ChangePassword extends Component {
                 <Row style={contentLayout}>
                     <Col xs={24} sm={24} md={24} lg={24} xl={24}>
                         <div style={formLayout}>
-                            {/* <ChangePasswordForm/> */}
+                            <ChangePasswordForm/>
                         </div>
                     </Col>
                 </Row>

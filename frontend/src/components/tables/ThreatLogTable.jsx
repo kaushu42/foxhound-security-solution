@@ -127,7 +127,6 @@ class ThreatLogTable extends Component{
         .then(res => {
             const page = this.state.pagination;
             page.total = res.data.count;
-            console.log(res);
             this.setState({
                 data: res.data.results,
                 pagination: page,
@@ -138,9 +137,6 @@ class ThreatLogTable extends Component{
 
 
     handleTableChange = (pagination, filters, sorter) => {
-        console.log("pagination", pagination);
-        console.log("filter", filters);
-        console.log("sorter", sorter);
         const pager = { ...this.state.pagination };
         pager.current = pagination.current;
         (this.state.pagination = pager),
@@ -162,7 +158,6 @@ class ThreatLogTable extends Component{
          var option={};
          let dataTable = [];
          if (data) {
-            console.log(data);
            for (let i in data) {
              if(data){
                let obj = {

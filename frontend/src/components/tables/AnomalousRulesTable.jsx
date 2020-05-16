@@ -97,9 +97,6 @@ class AnomalousRulesTable extends Component {
     }
 
     handleTableChange = (pagination, filters, sorter) => {
-        console.log('pagination',pagination);
-        console.log('filter',filters)
-        console.log('sorter',sorter)
         const pager = { ...this.props.anomalousRulePagination };
         pager.current = pagination.current;
         this.props.dispatchPaginationUpdate(pager);
@@ -131,7 +128,6 @@ class AnomalousRulesTable extends Component {
                 applicationData: filter_data.application,
             });
         })
-        .catch(error => console.log(error));
     }
 
     handleAcceptRuleSubmit = (e) => {
@@ -164,7 +160,6 @@ class AnomalousRulesTable extends Component {
          var option={};
          let dataTable = [];
          if (data) {
-            console.log(data);
            for (let i in data) {
              if(data){
                let obj = {

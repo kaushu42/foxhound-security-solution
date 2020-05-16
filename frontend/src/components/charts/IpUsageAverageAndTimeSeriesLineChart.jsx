@@ -61,12 +61,10 @@ class IpUsageAverageDailyTrendChart extends Component {
 
         const {auth_token,ip_address} = this.props;
         ipUsageAverageTrendDataService(auth_token,ip_address,this.props).then(res => {
-            console.log('fetching average data for ip',ip_address)
             const data = res.data;
             this.setState({
                 data : data
             });
-            console.log('fetched data ',data);
         })
 
     }
@@ -74,7 +72,6 @@ class IpUsageAverageDailyTrendChart extends Component {
 
     exitHandler = () => {
         if (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement) {
-            console.log('Inside fullscreen. Doing chart stuff.');
             this.chart = this.refs.chart.chart;
             this.chart.update({
                 chart:{
@@ -84,7 +81,6 @@ class IpUsageAverageDailyTrendChart extends Component {
         }
 
         if (!document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
-            console.log('Exiting fullscreen. Doing chart stuff.');
             this.chart = this.refs.chart.chart;
             this.chart.update({
                 chart:{
@@ -150,7 +146,6 @@ class IpUsageAverageDailyTrendChart extends Component {
     }
 
     render() {
-        console.log("loading",this.state.loading);
         return (
             <Fragment>
                 <Card>

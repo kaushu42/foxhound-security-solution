@@ -76,9 +76,7 @@ class IpUsageTimeSeriesChart extends Component {
 
     const { auth_token, ip_address } = this.props;
     ipUsageDataService(auth_token, ip_address, this.state.basis, this.props).then(res => {
-      console.log("fetching current data for ip", ip_address);
       const response = res.data;
-      console.log('response', response.data)
       const data = [];
       const v = getDivisionFactorUnitsFromBasis(response["max"],this.state.basis)
       const division_factor = v["division_factor"];
@@ -86,7 +84,6 @@ class IpUsageTimeSeriesChart extends Component {
       for (var i = 0; i<response.data.length; i++){
         data.push([response.data[i][0]*1000, (response.data[i][1])/division_factor])
       }
-      console.log('data', data)
       this.setState({
         data: data,
         unit: unit
@@ -96,7 +93,6 @@ class IpUsageTimeSeriesChart extends Component {
 
   exitHandler = () => {
     if (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement) {
-      console.log("Inside fullscreen. Doing chart stuff.");
       this.chart = this.refs.chart.chart;
       this.chart.update({
         chart: {
@@ -106,7 +102,6 @@ class IpUsageTimeSeriesChart extends Component {
     }
 
     if (!document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
-      console.log("Exiting fullscreen. Doing chart stuff.");
       this.chart = this.refs.chart.chart;
       this.chart.update({
         chart: {
@@ -147,7 +142,6 @@ class IpUsageTimeSeriesChart extends Component {
     }
     if (prevState.data !== this.state.data) {
       let dataSeries = this.state.data
-      console.log("Bandwidth chart dataseries", dataSeries);
       this.updateChart(dataSeries, this.state.unit);
     }
   }
@@ -197,7 +191,6 @@ class IpUsageTimeSeriesChart extends Component {
   };
 
   render() {
-    console.log("loading", this.state.loading);
     return (
       <Fragment>
         <Card

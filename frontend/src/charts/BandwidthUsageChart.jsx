@@ -210,7 +210,6 @@ class BandwidthUsageChart extends Component {
 
     axios.post(FETCH_API, bodyFormData, { headers }).then(res => {
       const response = res.data;
-      console.log("api data", response.data);
       const data = [];
       const v = getDivisionFactorUnitsFromBasis(response["max"],this.state.basis)
       const division_factor = v["division_factor"];
@@ -231,7 +230,6 @@ class BandwidthUsageChart extends Component {
       document.mozFullScreen ||
       document.msFullscreenElement
     ) {
-      console.log("Inside fullscreen. Doing chart stuff.");
       this.chart = this.refs.chart.chart;
       this.chart.update({
         chart: {
@@ -245,7 +243,6 @@ class BandwidthUsageChart extends Component {
       !document.mozFullScreen &&
       !document.msFullscreenElement
     ) {
-      console.log("Exiting fullscreen. Doing chart stuff.");
       this.chart = this.refs.chart.chart;
       this.chart.update({
         chart: {
@@ -359,9 +356,6 @@ class BandwidthUsageChart extends Component {
   };
 
   handleTableChange = (pagination, filters, sorter) => {
-    console.log("pagination", pagination);
-    console.log("filter", filters);
-    console.log("sorter", sorter);
     const pager = { ...this.state.pagination };
     pager.current = pagination.current;
     (this.state.pagination = pager),

@@ -123,7 +123,6 @@ export function acceptRule(auth_token,description,record){
         axios.post(url_to_verify_flagged_rule,formData,{headers})
             .then(res =>{
                 const response = res.data;
-                console.log(response);
                 dispatch(acceptRuleSuccess());
             })
             .then(res => {
@@ -133,19 +132,6 @@ export function acceptRule(auth_token,description,record){
                 setTimeout(()=>{dispatch(cleanAllDrawerState())},5000);
             })
             .catch(error => dispatch(acceptRuleError(error)));
-        
-        // const url_to_toggle_flag = FLAG_RULE_API + record.id + '/';
-        // dispatch(toggleRuleBegin());
-        // axios.post(url_to_toggle_flag,null,{headers})
-        //     .then(res =>{
-        //         const response = res.data;
-        //         console.log(response);
-        //         dispatch(toggleRuleSuccess());
-        //     })
-        //     .then(res => {
-        //         dispatch(toggleRuleComplete(record));
-        //     })
-        //     .catch(error => dispatch(toggleRuleError(error)));
     }
 }
 
@@ -165,7 +151,6 @@ export function fetchAnomalousRulesData(auth_token, params,  searchSourceIP,  se
         axios.post(FETCH_API,bodyFormData,{headers, params})
             .then(res => {
                 const response = res.data;
-                console.log("anomalous rules",response.results);
                 const page = pagination;
                 page.total  = response.count;
                 updatePagination(page);
