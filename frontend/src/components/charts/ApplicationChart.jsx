@@ -66,7 +66,6 @@ class ApplicationChart extends Component {
         this.chart.component = this;
         let dataSeries = [];
         Object.keys(this.state.data.data).forEach(key=>{
-            console.log(`${key} : ${this.state.data.data[key]}`);
             let tempSeries = {
                 name : key,
                 type : 'spline',
@@ -88,8 +87,6 @@ class ApplicationChart extends Component {
             },
             series: dataSeries
         });
-
-        console.log(this.chart);
     }
 
     render() {

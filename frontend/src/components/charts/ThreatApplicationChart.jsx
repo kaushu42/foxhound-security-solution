@@ -133,7 +133,6 @@ class ThreatApplicationChart extends Component{
 
         axios.post(FETCH_API, bodyFormData, { headers })
         .then(res => {
-            console.log("*************",res);
             this.setState({
                 data: res.data.data,
                 max: res.data.max
@@ -147,7 +146,6 @@ class ThreatApplicationChart extends Component{
             document.mozFullScreen ||
             document.msFullscreenElement
         ) {
-            console.log("Inside fullscreen. Doing chart stuff.");
             this.chart = this.refs.chart.chart;
             this.chart.update({
             chart: {
@@ -161,7 +159,6 @@ class ThreatApplicationChart extends Component{
             !document.mozFullScreen &&
             !document.msFullscreenElement
         ) {
-            console.log("Exiting fullscreen. Doing chart stuff.");
             this.chart = this.refs.chart.chart;
             this.chart.update({
             chart: {
@@ -201,7 +198,6 @@ class ThreatApplicationChart extends Component{
             this.setState({
                 unit: unit
             });
-            console.log("unit",unit);
             Object.keys(this.state.data).forEach(key => {
                 let key_data = this.state.data[key].map(e => [e[0] * 1000, e[1] / division_factor]);
                 key_data.sort(function(a, b) {
@@ -271,8 +267,6 @@ class ThreatApplicationChart extends Component{
                 click: function(e) {
                     const self = this.chart.component;
                     self.handleApplicationLineChartLogView(e.point.x, this.name);
-                    console.log("selected datetime", e.point.x);
-                    console.log("selected datetime", new Date(e.point.x * 1000));
                 }
                 }
             });
@@ -281,7 +275,6 @@ class ThreatApplicationChart extends Component{
         this.setState({
             loading: false
         });
-        console.log("newSeriesdata", data);
     };
 
     handleApplicationLineChartLogView = (selectedTimeStamp, selectedApplication) => {
@@ -318,9 +311,6 @@ class ThreatApplicationChart extends Component{
     };
 
     handleTableChange = (pagination, filters, sorter) => {
-        console.log("pagination", pagination);
-        console.log("filter", filters);
-        console.log("sorter", sorter);
         const pager = { ...this.state.pagination };
         pager.current = pagination.current;
         (this.state.pagination = pager),

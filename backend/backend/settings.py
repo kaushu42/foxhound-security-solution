@@ -32,7 +32,6 @@ INSTALLED_APPS = [
     'profile_api',
     'log_api',
     'session',
-    'casdb',
     'celery',
     'mis',
     'batch',

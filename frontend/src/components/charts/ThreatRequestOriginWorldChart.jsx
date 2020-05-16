@@ -63,7 +63,6 @@ class ThreatRequestOriginWorldChart extends Component{
       this.setState({
         countryList: response
       })
-      console.log('fetched country select List data ', this.state.countryList);
     })
 
     this.handleFetchData()
@@ -99,7 +98,6 @@ class ThreatRequestOriginWorldChart extends Component{
           data: final_data,
           mapChartLoading:false
         })
-        console.log('fetched country data ', this.state.data);
     })
   }
 
@@ -141,9 +139,6 @@ class ThreatRequestOriginWorldChart extends Component{
   }
 
   handleTableChange = (pagination, filters, sorter) => {
-    console.log("pagination", pagination);
-    console.log("filter", filters);
-    console.log("sorter", sorter);
     const pager = { ...this.state.pagination };
     pager.current = pagination.current;
     (this.state.pagination = pager),

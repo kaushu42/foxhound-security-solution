@@ -88,7 +88,6 @@ export function fetchVerifiedRulesData(auth_token, params, searchSourceIP, searc
         axios.post(FETCH_API,bodyFormData,{headers, params})
             .then(res => {
                 const response = res.data;
-                console.log("verified rules data", response.results);
                 const page = pagination;
                 page.total  = response.count;
                 dispatch(updatePagination(page));
@@ -113,7 +112,6 @@ export function rejectRule(auth_token,description,record){
         axios.post(url,formData,{headers})
             .then(res =>{
                 const response = res.data;
-                console.log(response);
                 dispatch(rejectRuleSuccess());
             })
             .then(res => {

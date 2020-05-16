@@ -170,7 +170,6 @@ class IpAsSourceSankeyChart extends Component {
         axios.post(FETCH_API,bodyFormData,{headers}).
         then(res => {
             const response = res.data.src
-            console.log('api data',response);
             var maxValue = 0
             for (var i = 0; i<response.length; i++){
                 if (maxValue <  response[i][2]){
@@ -178,7 +177,6 @@ class IpAsSourceSankeyChart extends Component {
                 }
             }
             const data = []
-            console.log('api data',response);
             const v = getDivisionFactorUnitsFromBasis(maxValue,this.state.basis)
             const division_factor = v["division_factor"];
             const unit = v["unit"];
@@ -194,7 +192,6 @@ class IpAsSourceSankeyChart extends Component {
     }
     exitHandler = () => {
         if (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement) {
-            console.log('Inside fullscreen. Doing chart stuff.');
             this.chart = this.refs.chart.chart;
             this.chart.update({
                 chart:{
@@ -204,7 +201,6 @@ class IpAsSourceSankeyChart extends Component {
         }
 
         if (!document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
-            console.log('Exiting fullscreen. Doing chart stuff.');
             this.chart = this.refs.chart.chart;
             this.chart.update({
                 chart:{
@@ -289,7 +285,6 @@ class IpAsSourceSankeyChart extends Component {
             selectedDestinationIp : destination_ip,
             selectedSourceToDestinationLogDrawerVisible : true
         })
-        // console.log(this.state.selectedSourceIp, this.state.selectedDestinationIp, this.state.selectedSourceToDestinationLogDrawerVisible)
         this.fetchSankeyChartLog();
     }
 
@@ -314,13 +309,9 @@ class IpAsSourceSankeyChart extends Component {
                 })
             });
 
-        console.log("fetched log data for selected application", this.state.selectedSourceToDestinationLogData)
     }
 
     handleTableChange = (pagination, filters, sorter) => {
-        console.log('pagination',pagination);
-        console.log('filter',filters)
-        console.log('sorter',sorter)
         const pager = { ...this.state.pagination};
         pager.current = pagination.current;
         this.state.pagination = pager,

@@ -8,8 +8,6 @@ class Logout extends Component {
         super(props);
         this.props.dispatchSessionLogOut();
 
-        console.log("auth logout");
-
         this.props.history.push("/auth/login");
 
     }

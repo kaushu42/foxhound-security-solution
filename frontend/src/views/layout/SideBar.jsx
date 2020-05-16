@@ -7,7 +7,6 @@ const { Sider } = Layout;
 class SideBar extends Component {
 
     render() {
-        console.log(this.props);
         const {sideBarCollapsed,activePageKey } = this.props;
         return(
             <Fragment>

@@ -147,7 +147,6 @@
             };
             axios.get(`${ROOT_URL}tt/anomaly/${record.id}/`,{headers})
                 .then(res=>{
-                    console.log('follow up record',res.data.results);
                     this.setState({
                         recordFollowUpData : res.data.results
                     })
@@ -178,7 +177,6 @@
 
             axios.post(`${ROOT_URL}tt/anomaly/${this.state.record.id}/`,data,{headers})
                 .then(res=>{
-                    console.log('follow up record',res.data.results);
                     this.setState({
                         recordFollowUpData : res.data.results,
                         recordFollowUpComment : "",
@@ -187,7 +185,6 @@
                     }, ()=>{this.handleFetchAnomalyRecord(this.state.record)})
                 })
                 .catch(e => {
-                    console.log("error",e);
                     this.setState({
                         error_message : "something went wrong!!"
                     })
@@ -204,7 +201,6 @@
                 this.setState({error_message:"Please Enter Reason To Closing Trouble Ticket"});
                 return
             }
-            // console.log("selected tt to close", this.state.record.id)
             const authorization = `Token ${this.props.auth_token}`;
 
             let headers = {
@@ -221,7 +217,6 @@
 
             axios.post(`${ROOT_URL}tt/close/${this.state.record.id}/`,bodyFormData,{headers})
             .then(res=>{
-                console.log('Trouble Ticket Closed Successfully');
                 this.setState({
                     followUpDrawerVisible: false,
                     error_message : "",
@@ -230,7 +225,6 @@
                 })
             })
             .catch(e => {
-                console.log("error",e);
                 this.setState({
                     error_message : "something went wrong!!"
                 })
@@ -266,7 +260,6 @@
                     this.setState({
                         user_list : data
                     });
-                    console.log("user list",this.state.user_list);
                 });
 
         }
@@ -289,7 +282,6 @@
                         ttDetailNumeric: res.data.reasons.numeric,
                         selectedRecord: record.id
                     })
-                    console.log("tt detail data", this.state.ttDetailCategorical, this.state.ttDetailNumeric)
                 })
             }   
             var dataToShow = []
@@ -327,9 +319,6 @@
         }
         
         handleTableChange = (pagination, filters, sorter) => {
-            console.log('pagination',pagination);
-            console.log('filter',filters)
-            console.log('sorter',sorter)
             const pager = { ...this.state.pagination };
             pager.current = pagination.current;
             this.setState({
@@ -345,7 +334,6 @@
         };
 
         fetch = (params = {}) => {
-            console.log("data loading");
             this.setState({ loading: true });
 
             const FETCH_API = `${ROOT_URL}tt/open/`
@@ -393,7 +381,6 @@
              var option={};
              let dataTable = [];
              if (data) {
-                console.log(data);
                for (let i in data) {
                  if(data){
                    let obj = {
