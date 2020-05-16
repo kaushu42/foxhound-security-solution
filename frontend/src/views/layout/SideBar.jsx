@@ -78,13 +78,13 @@ class SideBar extends Component {
                             <Menu.Item key="traffic-logs">
                                 <a href={"/logs/traffic"}>
                                     <Icon type="snippets" />
-                                    <span>Traffic Logs</span>
+                                    <span>Processed Traffic Logs</span>
                                 </a>
                             </Menu.Item>
                             <Menu.Item key="threat-logs">
                                 <a href={"/logs/threat"}>
                                     <Icon type="snippets" />
-                                    <span>Threat Logs</span>
+                                    <span>Processed Threat Logs</span>
                                 </a>
                             </Menu.Item>
                         </Menu.ItemGroup>
@@ -130,7 +130,7 @@ class SideBar extends Component {
                                 </a>
                             </Menu.Item>
                         </Menu.ItemGroup>
-                        <Menu.ItemGroup key={"Core"} title={"Core"}>
+                        {/* <Menu.ItemGroup key={"Core"} title={"Core"}>
                             <Menu.Item key="backgroundjob">
                                 <a href={"/backgroundjob"} >
                                     <Icon type="link" />
@@ -144,7 +144,7 @@ class SideBar extends Component {
                                 </a>
                             </Menu.Item>
 
-                        </Menu.ItemGroup>
+                        </Menu.ItemGroup> */}
                     </Menu>
                 </Sider>
             </Fragment>

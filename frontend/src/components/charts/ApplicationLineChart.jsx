@@ -563,7 +563,7 @@ class ApplicationLineChart extends Component {
             pagination={this.state.pagination}
             onChange={this.handleTableChange}
           />
-        : null : <Spin loading={this.state.applicationChartLogLoading}></Spin>}
+        : null : <Spin spinning={this.state.applicationChartLogLoading}></Spin>}
         </Drawer>
         <Drawer
           closable={true}

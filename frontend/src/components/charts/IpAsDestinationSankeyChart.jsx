@@ -10,7 +10,9 @@ import mapdata from "../../charts/mapdata";
 import {Card, Row, Spin, Drawer, Table, Select, Button} from "antd";
 import HighchartsReact from "highcharts-react-official";
 import ExportJsonExcel from 'js-export-excel';
-import {getDivisionFactorUnitsFromBasis} from '../../utils'
+import {getDivisionFactorUnitsFromBasis} from '../../utils';
+import { search } from "../../actions/ipSearchAction";
+
 
 const FETCH_API = `${ROOT_URL}profile/sankey/`;
 const FETCH_SANKEY_LOG_API = `${ROOT_URL}log/sankey/`;
@@ -108,6 +110,15 @@ class IpAsDestinationSankeyChart extends Component {
                 }
               ],
         }
+    }
+    handleShowSourceIpProfile(record) {
+        this.props.dispatchIpSearchValueUpdate(record.source_address);
+        this.setState({ quickIpView: true });
+    }
+
+    handleShowDestinationIpProfile(record) {
+        this.props.dispatchIpSearchValueUpdate(record.destination_address);
+        this.setState({ quickIpView: true });
     }
 
     handleDataUnit = (point) => {
@@ -463,7 +474,11 @@ const mapStateToProps = state => {
         destination_zone : state.filter.destination_zone
     }
 }
+const mapDispatchToProps = dispatch => {
+    return {
+      dispatchIpSearchValueUpdate: value => dispatch(search(value))
+    };
+  };
 
-export default connect(mapStateToProps,null)(IpAsDestinationSankeyChart);
 
-
+export default connect(mapStateToProps,mapDispatchToProps)(IpAsDestinationSankeyChart);
