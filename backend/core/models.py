@@ -178,13 +178,13 @@ class TrafficLogDetail(models.Model):
         TrafficLog,
         on_delete=models.CASCADE, null=True
     )
-    source_ip = models.ForeignKey(
+    source_address = models.ForeignKey(
         IPAddress, on_delete=models.CASCADE, null=True,
-        related_name='source_ip'
+        related_name='source_address'
     )
-    destination_ip = models.ForeignKey(
+    destination_address = models.ForeignKey(
         IPAddress, on_delete=models.CASCADE, null=True,
-        related_name='destination_ip'
+        related_name='destination_address'
     )
     application = models.ForeignKey(
         Application, on_delete=models.CASCADE, null=True,
@@ -372,8 +372,8 @@ class TrafficLogDetailGranularHour(models.Model):
         related_name='firewall_rule_granular_hour'
     )
 
-    source_ip = models.CharField(max_length=50, null=True)
-    destination_ip = models.CharField(max_length=50, null=True)
+    source_address = models.CharField(max_length=50, null=True)
+    destination_address = models.CharField(max_length=50, null=True)
     application = models.CharField(max_length=250, null=True)
     protocol = models.CharField(max_length=50, null=True)
     source_zone = models.CharField(max_length=250, null=True)
@@ -456,7 +456,6 @@ class TrafficLogDetailHourly(models.Model):
         db_table = 'fh_prd_trfc_log_dtl_hr_a'
 
 
-
 class StageTrafficLogDetailHourly(models.Model):
     traffic_log = models.ForeignKey(
         TrafficLog,
@@ -497,7 +496,6 @@ class StageTrafficLogDetailHourly(models.Model):
     sum_time_elapsed = models.BigIntegerField()
     count_events = models.BigIntegerField()
 
-
     def __repr__(self):
         return f'Log-{self.traffic_log}'
 
@@ -506,6 +504,7 @@ class StageTrafficLogDetailHourly(models.Model):
 
     class Meta:
         db_table = 'fh_stg_trfc_log_dtl_hr_a'
+
 
 @architect.install(
     'partition', type='range',
@@ -552,7 +551,6 @@ class TrafficLogDetailDaily(models.Model):
     sum_time_elapsed = models.BigIntegerField()
     count_events = models.BigIntegerField()
 
-
     def __repr__(self):
         return f'Log-{self.traffic_log}'
 
@@ -561,6 +559,7 @@ class TrafficLogDetailDaily(models.Model):
 
     class Meta:
         db_table = 'fh_prd_trfc_log_dtl_dy_a'
+
 
 class StageTrafficLogDetailDaily(models.Model):
     traffic_log = models.ForeignKey(
@@ -752,7 +751,9 @@ class SankeyChart(BaseFilteredChart):
     source_address = models.CharField(max_length=15)
     destination_address = models.CharField(max_length=15)
 
-## TODO: DROP THIS TABLE 
+# TODO: DROP THIS TABLE
+
+
 class ThreatLogDetail(models.Model):
     logged_datetime = models.DateTimeField()
     processed_datetime = models.DateTimeField()
@@ -761,8 +762,8 @@ class ThreatLogDetail(models.Model):
     log_type = models.CharField(max_length=300, null=True)
     threat_content_type = models.CharField(max_length=300, null=True)
     config_version = models.CharField(max_length=300, null=True)
-    source_ip = models.CharField(max_length=300, null=True)
-    destination_ip = models.CharField(max_length=300, null=True)
+    source_address = models.CharField(max_length=300, null=True)
+    destination_address = models.CharField(max_length=300, null=True)
     firewall_rule = models.ForeignKey(
         FirewallRule, on_delete=models.CASCADE,
         related_name='threat_log_firewall_rule_id', null=True)
@@ -941,6 +942,7 @@ class StageSankeyChart(BaseFilteredChart):
 class Bookmark(models.Model):
     datetime = models.DateTimeField(auto_now_add=True)
     log_name = models.CharField(max_length=500)
-    bookmark = models.CharField(max_length=50,default="none")
+    bookmark = models.CharField(max_length=50, default="none")
+
     class Meta:
         db_table = 'fh_bookmark'

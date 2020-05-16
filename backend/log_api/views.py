@@ -103,7 +103,7 @@ class TrafficLogDetailApiView(PaginatedView):
             kwargs['traffic_log__id'] = int(id)
 
         if ip:
-            kwargs['source_ip'] = ip
+            kwargs['source_address'] = ip
 
         if hour:
             kwargs['logged_datetime__hour'] = hour
@@ -268,13 +268,13 @@ class SankeyLogApiView(PaginatedView):
         if not serializer.is_valid():
             return Response(serializer.errors)
 
-        source_ip = serializer.data['source_ip']
-        destination_ip = serializer.data['destination_ip']
+        source_address = serializer.data['source_address']
+        destination_address = serializer.data['destination_address']
 
         objects = TrafficLogDetailHourly.objects.filter(
             firewall_rule__in=firewall_ids,
-            source_ip=source_ip,
-            destination_ip=destination_ip
+            source_address=source_address,
+            destination_address=destination_address
         ).order_by('id')
 
         page = self.paginate_queryset(objects)

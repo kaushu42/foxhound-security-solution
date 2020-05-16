@@ -66,45 +66,6 @@ class MISEngine(object):
                               "bytes_sent", "bytes_received", "repeat_count", "packets_received",
                               "packets_sent", "logged_datetime", "time_elapsed", 'vsys']
 
-    def _write_raw_log_to_cassandra(self, df):
-        df = df[self._REQUIRED_COLUMNS]
-        df = df.toDF(*self._HEADER_NAMES)
-        df = df.withColumn(
-            "row_number", df["row_number"].cast(LongType()))
-        df = df.withColumn(
-            "source_port", df["source_port"].cast(IntegerType()))
-        df = df.withColumn(
-            "destination_port", df["destination_port"].cast(IntegerType()))
-        df = df.withColumn(
-            "bytes_sent", df["bytes_sent"].cast(LongType()))
-        df = df.withColumn(
-            "bytes_received", df["bytes_received"].cast(LongType()))
-        df = df.withColumn(
-            "packets_received", df["packets_received"].cast(LongType()))
-        df = df.withColumn(
-            "packets_sent", df["packets_sent"].cast(LongType()))
-        df = df.withColumn(
-            "time_elapsed", df["time_elapsed"].cast(LongType()))
-        df = df.withColumn(
-            "repeat_count", df["repeat_count"].cast(LongType()))
-        df = df.withColumn("count_events", lit(1))
-        df = self._set_uuid(df)
-        firewall_rules_from_db = pd.read_sql_table(
-            'core_firewallrule', self._db_engine).set_index("name").to_dict()["id"]
-        df = self._set_firewall_rules_id_to_raw_data(
-            df, firewall_rules_from_db)
-        SELECT_COLUMNS = ['id', 'action', 'application', 'bytes_received', 'bytes_sent', 'category',
-                          'destination_ip', 'destination_port', 'destination_zone', 'firewall_rule', 'inbound_interface', 'logged_datetime',
-                          'outbound_interface', 'packets_received', 'packets_sent', 'protocol', 'repeat_count', 'row_number', 'session_end_reason',
-                          'source_ip', 'source_port', 'source_zone', 'time_elapsed']
-        df = df.select(*SELECT_COLUMNS)
-        print("writing raw log to cassandra")
-        df.write.format("org.apache.spark.sql.cassandra").mode(
-            "append").options(table="traffic_logs", keyspace="casdb").save()
-        print("deleting temp df")
-        del firewall_rules_from_db
-        del df
-
     def _get_column_names_types(self, table_name):
         with self._db_engine.connect() as con:
             rs = con.execute(

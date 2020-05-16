@@ -1,14 +1,10 @@
-from django.db.models import Count, F,Sum
+from django.db.models import Count, F, Sum
 from views.views import PaginatedView
 from .models import (
     TrafficMisNewDestinationIPDaily,
     TrafficMisNewSourceIPDaily,
     TrafficMisRequestFromBlacklistedIPDaily,
     TrafficMisResponseToBlacklistedIPDaily
-)
-from serializers.serializers import (
-    MisDailySourceIpSerializer,
-    MisDailyDestinationIpSerializer
 )
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -37,7 +33,8 @@ class DailyApiView(APIView):
 
 class DailySourceIpApiView(DailyApiView):
     def post(self, request):
-        ips = self._get_items(request, TrafficMisNewSourceIPDaily, 'source_address')
+        ips = self._get_items(
+            request, TrafficMisNewSourceIPDaily, 'source_address')
         return Response(ips)
 
 
@@ -89,11 +86,13 @@ class BlacklistedIP(APIView):
 
 class SourceBlacklistedIP(BlacklistedIP):
     def post(self, request):
-        objects = self.get_objects(request, TrafficMisRequestFromBlacklistedIPDaily)
+        objects = self.get_objects(
+            request, TrafficMisRequestFromBlacklistedIPDaily)
         return Response(objects)
 
 
 class DestinationBlacklistedIP(BlacklistedIP):
     def post(self, request):
-        objects = self.get_objects(request, TrafficMisResponseToBlacklistedIPDaily)
+        objects = self.get_objects(
+            request, TrafficMisResponseToBlacklistedIPDaily)
         return Response(objects)

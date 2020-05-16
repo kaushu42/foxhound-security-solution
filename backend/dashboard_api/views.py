@@ -62,13 +62,13 @@ class StatsApiView(APIView):
                 count=Sum('count_events')
             )
         )
-        response['new_source_ip'] = get_objects_with_date_filtered(
+        response['new_source_address'] = get_objects_with_date_filtered(
             request,
             TrafficMisNewSourceIPDaily,
             'logged_datetime',
             firewall_rule__in=firewall_rule_ids
         ).count()
-        response['new_destination_ip'] = get_objects_with_date_filtered(
+        response['new_destination_address'] = get_objects_with_date_filtered(
             request,
             TrafficMisNewDestinationIPDaily,
             'logged_datetime',
@@ -173,6 +173,9 @@ def get_model_kwargs(request):
     for f in filters:
         if filters[f] and (not f.endswith('date')):
             items = set(filters[f].split(','))
+            if f == 'firewall_rule':
+                kwargs[f'{f}__in'] = items
+                continue
             kwargs[f'{f}__in'] = MODEL_MAP[f].objects.filter(
                 id__in=items).values_list('name')
 

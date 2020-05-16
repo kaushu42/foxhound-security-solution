@@ -75,19 +75,19 @@ class ThreatLogTableApiView(PaginatedView):
         applications = self._handle_empty_string_from_frontend(
             request.data.get('application', None)
         )
-        source_ips = self._handle_empty_string_from_frontend(
-            request.data.get('source_ip', None)
+        source_addresses = self._handle_empty_string_from_frontend(
+            request.data.get('source_address', None)
         )
-        destination_ips = self._handle_empty_string_from_frontend(
-            request.data.get('destination_ip', None))
+        destination_addresses = self._handle_empty_string_from_frontend(
+            request.data.get('destination_address', None))
         log_name = self._handle_empty_string_from_frontend(
             request.data.get('log_name', None)
         )
         applications = self._get_items(applications)
         data = {
             'application__in': applications,
-            'source_address__regex': to_regex(source_ips),
-            'destination_address__regex': to_regex(destination_ips),
+            'source_address__regex': to_regex(source_addresses),
+            'destination_address__regex': to_regex(destination_addresses),
             'log_name__contains': log_name
         }
         return {i: data[i] for i in data if data[i] is not None}
