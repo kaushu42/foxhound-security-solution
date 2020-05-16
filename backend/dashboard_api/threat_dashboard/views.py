@@ -15,9 +15,7 @@ from serializers.serializers import ThreatLogSerializer
 from globalutils.utils import (
     get_firewall_rules_id_from_request,
     to_regex,
-    get_objects_with_date_filtered,
     get_country_name_and_code,
-    get_filters,
     get_query_from_request,
     get_objects_from_query
 )
