@@ -17,7 +17,7 @@ import axios from 'axios';
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 
-const FETCH_THREAT_LOG_LATEST_DATE = `${ROOT_URL}log/latest/threat/`;
+const FETCH_THREAT_LOG_LATEST_DATE = `${ROOT_URL}log/threat/latest/`;
 const FETCH_FILTERS = `${ROOT_URL}dashboard/threat/filters/`;
 
 class DashboardFilter extends Component {
@@ -30,13 +30,11 @@ class DashboardFilter extends Component {
       source_zone_select_data: [],
       destination_zone_select_data: [],
       defaultDate: null,
-      // ip_address_select_data: [],
       loading_firewall_rule_select: true,
       loading_application_select: true,
       loading_protocol_select: true,
       loading_source_zone_select: true,
       loading_destination_zone_select: true,
-      // loading_ip_address_select: true,
       date_range_value: [],
       firewall_rule_value: [],
       application_value: [],
@@ -48,31 +46,6 @@ class DashboardFilter extends Component {
   }
 
   componentDidMount() {
-    
-    // filterSelectDataServiceAsync(this.props.auth_token)
-    //   .then(response => {
-    //     const filter_data = response[0].data;
-    //     const defaultDate = response[2].data;
-
-    //     // const ip_data = response[1].data;
-    //     this.setState({
-    //       defaultDate: defaultDate.date,
-    //       firewall_rule_select_data: filter_data.firewall_rule,
-    //       application_select_data: filter_data.application,
-    //       protocol_select_data: filter_data.protocol,
-    //       source_zone_select_data: filter_data.source_zone,
-    //       destination_zone_select_data: filter_data.destination_zone,
-    //       // ip_address_select_data: ip_data,
-    //       loading_firewall_rule_select: false,
-    //       loading_application_select: false,
-    //       loading_protocol_select: false,
-    //       loading_source_zone_select: false,
-    //       loading_destination_zone_select: false,
-    //       // loading_ip_address_select: false
-    //     });
-    //   })
-    //   .catch(error => console.log(error));
-    
     const token = `Token ${this.props.auth_token}`;
     let headers = {
       Accept: "application/json",
