@@ -3,8 +3,8 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('latest/traffic/', views.LatestTrafficLogDateApiView.as_view()),
-    path('latest/threat/', views.LatestThreatLogDateApiView.as_view()),
+    path('traffic/latest/', views.LatestTrafficLogDateApiView.as_view()),
+    path('threat/latest/', views.LatestThreatLogDateApiView.as_view()),
     path('traffic/processed/', views.TrafficLogApiView.as_view()),
     path('threat/processed/', views.ProcessedThreatLogApiView.as_view()),
     path('detail/', views.TrafficLogDetailApiView.as_view()),
