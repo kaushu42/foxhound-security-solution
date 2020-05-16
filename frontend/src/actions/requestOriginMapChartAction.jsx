@@ -177,9 +177,9 @@ export function fetchRequestOriginMapData(auth_token,start_date,end_date,firewal
          .then(res => {
              const response = res.data;
              let final_data = [];
-             Object.keys(response).forEach(country => {
-                 final_data.push([country,response[country]]);
-                });
+             response.forEach(rec => {
+                final_data.push([rec["source_country"],rec[basis]]);
+             });
              dispatch(mapChartLoading());
              dispatch(fetchMapChartDataSuccess(final_data));
          })
