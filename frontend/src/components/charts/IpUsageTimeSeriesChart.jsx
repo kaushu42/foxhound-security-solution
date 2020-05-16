@@ -131,10 +131,10 @@ class IpUsageTimeSeriesChart extends Component {
     ) {
       if(this.props.ip_address != ""){
         {this.props.date_range[0]?this.setState({
-            chartTitle:`Bandwidth Usage Chart from ${this.props.date_range[0]} to ${this.props.date_range[1]}`
+            chartTitle:`Traffic breakdown by time ${this.props.date_range[0]} to ${this.props.date_range[1]}`
             }):
             this.setState({
-                chartTitle:`Bandwidth Usage Chart for ${this.props.defaultDate}`
+                chartTitle:`Traffic breakdown by time in ${this.props.defaultDate}`
             })
         }
       }
@@ -166,7 +166,6 @@ class IpUsageTimeSeriesChart extends Component {
     bytesReceived.sort(function(a, b) {
       return a[0] > b[0] ? 1 : -1;
     });
-    console.log("******BYTES RECEIVED*******", bytesReceived)
     this.chart.update({
       title: {
         text: this.state.chartTitle

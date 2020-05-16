@@ -219,10 +219,10 @@ class RequestOriginWorldChart extends Component {
       String(prevState.basis) !== String(this.state.basis)
     ) {
       {this.props.start_date?this.setState({
-        chartTitle:`Request Origin Chart from ${this.props.start_date} to ${this.props.end_date}`
+        chartTitle:`Request Origin from ${this.props.start_date} to ${this.props.end_date}`
         }):
         this.setState({
-          chartTitle:`Request Origin Chart for ${this.props.defaultDate}`
+          chartTitle:`Request Origin in${this.props.defaultDate}`
         })
       }
       dispatchFetchRequestOriginMapData(
@@ -333,7 +333,6 @@ class RequestOriginWorldChart extends Component {
 
   render() {
     const { mapChartData } = this.props;
-    console.log("**** map chart data ***",mapChartData)
     const options = {
       chart: {},
       title: {

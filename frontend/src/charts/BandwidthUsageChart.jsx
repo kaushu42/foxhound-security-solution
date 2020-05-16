@@ -104,16 +104,16 @@ class BandwidthUsageChart extends Component {
       columns: [
         {
           title: "Source Address",
-          dataIndex: "source_ip",
-          key: "source_ip",
+          dataIndex: "source_address",
+          key: "source_address",
           render: (text, record) => (
             <a onClick={() => this.handleShowSourceIpProfile(record)}>{text}</a>
           )
         },
         {
           title: "Destination Address",
-          dataIndex: "destination_ip",
-          key: "destination_ip",
+          dataIndex: "destination_address",
+          key: "destination_address",
           render: (text, record) => (
             <a onClick={() => this.handleShowDestinationIpProfile(record)}>
               {text}
@@ -132,14 +132,14 @@ class BandwidthUsageChart extends Component {
         },
         {
           title: "Bytes Sent",
-          dataIndex: "bytes_sent",
-          key: "bytes_sent",
+          dataIndex: "sum_bytes_sent",
+          key: "sum_bytes_sent",
           render: (text, record) => bytesToSize(text)
         },
         {
           title: "Bytes Received",
-          dataIndex: "bytes_received",
-          key: "bytes_received",
+          dataIndex: "sum_bytes_received",
+          key: "sum_bytes_received",
           render: (text, record) => bytesToSize(text)
         },
         {
@@ -153,12 +153,12 @@ class BandwidthUsageChart extends Component {
   }
 
   handleShowSourceIpProfile(record) {
-    this.props.dispatchIpSearchValueUpdate(record.source_ip);
+    this.props.dispatchIpSearchValueUpdate(record.source_address);
     this.setState({ quickIpView: true });
   }
 
   handleShowDestinationIpProfile(record) {
-    this.props.dispatchIpSearchValueUpdate(record.destination_ip);
+    this.props.dispatchIpSearchValueUpdate(record.destination_address);
     this.setState({ quickIpView: true });
   }
 
@@ -268,10 +268,10 @@ class BandwidthUsageChart extends Component {
       String(prevState.basis) !== String(this.state.basis)
     ) {
       {this.props.date_range[0]?this.setState({
-        chartTitle:`Bandwidth Usage Chart from ${this.props.date_range[0]} to ${this.props.date_range[1]}`
+        chartTitle:`Traffic breakdown by time from ${this.props.date_range[0]} to ${this.props.date_range[1]}`
         }):
         this.setState({
-          chartTitle:`Bandwidth Usage Chart for ${this.props.defaultDate}`
+          chartTitle:`Traffic breakdown by time for ${this.props.defaultDate}`
         })
       }
       this.handleFetchData();
@@ -390,11 +390,11 @@ class BandwidthUsageChart extends Component {
          if(data){
            let obj = {
                         'Logged datetime': (new Date(parseInt(data[i].logged_datetime)*1000+20700000).toUTCString()).replace(" GMT", ""),
-                        'Source address': data[i].source_ip,
-                        'Destination address': data[i].destination_ip,
+                        'Source address': data[i].source_address,
+                        'Destination address': data[i].destination_address,
                         'Application':data[i].application,
-                        'Bytes sent':data[i].bytes_sent,
-                        'Bytes received':data[i].bytes_received,
+                        'Bytes sent':data[i].sum_bytes_sent,
+                        'Bytes received':data[i].sum_bytes_received,
                         'Destination Port':data[i].destination_port,
                         'Firewall rule':data[i].firewall_rule,
                         'Protocol':data[i].protocol,
@@ -405,8 +405,8 @@ class BandwidthUsageChart extends Component {
                         'Action':data[i].action,
                         'Category':data[i].category,
                         'Session end reason':data[i].session_end_reason,
-                        'Packets received':data[i].packets_received,
-                        'Packets sent':data[i].packets_sent,
+                        'Packets received':data[i].sum_packets_received,
+                        'Packets sent':data[i].sum_packets_sent,
                         'Time elapsed':data[i].time_elapsed,
                         'Source country':data[i].source_country,
                         'Destination country':data[i].destination_country
@@ -439,8 +439,8 @@ class BandwidthUsageChart extends Component {
                                       <b>Action: </b>{record.action}<br/>
                                       <b>Category: </b>{record.category}<br/>
                                       <b>Session End Reason: </b>{record.session_end_reason}<br/>
-                                      <b>Packets Received: </b>{record.packets_received}<br/>
-                                      <b>Packets Sent: </b>{record.packets_sent}<br/>
+                                      <b>Packets Received: </b>{record.sum_packets_received}<br/>
+                                      <b>Packets Sent: </b>{record.sum_packets_sent}<br/>
                                       <b>Time Elapsed: </b>{record.time_elapsed}<br/>
                                       <b>Source Country: </b>{record.source_country}<br/>
                                       <b>Destination Country: </b>{record.destination_country}<br/>
@@ -451,7 +451,7 @@ class BandwidthUsageChart extends Component {
             title={
               <Fragment>
                 <div>
-                  Time Series Usage
+                  Traffic breakdown by Time
                   <Select
                     onChange={value => this.setState({ basis: value })}
                     size={"default"}
