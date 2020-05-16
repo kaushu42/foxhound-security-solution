@@ -26,6 +26,8 @@
                 record : null,
                 recordFollowUpComment : null,
                 recordFollowUpAssignedTo : this.props.current_session_user_id,
+                recordIsAnomaly:null,
+                recordSeverityLevel: null,
                 recordFollowUpData : [],
                 followUpDrawerVisible : false,
                 applicationData: [],
@@ -41,14 +43,14 @@
                     // },
                     {
                         title: 'Source Address',
-                        dataIndex: 'source_ip',
-                        key: 'source_ip',
+                        dataIndex: 'source_address',
+                        key: 'source_address',
                         render: (text,record) => <a onClick={()=> this.handleShowSourceIpProfile(record)}>{text}</a>,
                     },
                     {
                         title: 'Destination Address',
-                        dataIndex: 'destination_ip',
-                        key: 'destination_ip',
+                        dataIndex: 'destination_address',
+                        key: 'destination_address',
                         render: (text,record) => <a onClick={()=> this.handleShowDestinationIpProfile(record)}>{text}</a>,
                     },
                     {
@@ -101,12 +103,12 @@
         }
 
         handleShowSourceIpProfile(record){
-            this.props.dispatchIpSearchValueUpdate(record.source_ip);
+            this.props.dispatchIpSearchValueUpdate(record.source_address);
             this.setState({quickIpView : true})
         }
 
         handleShowDestinationIpProfile(record){
-            this.props.dispatchIpSearchValueUpdate(record.destination_ip);
+            this.props.dispatchIpSearchValueUpdate(record.destination_address);
             this.setState({quickIpView : true})
         }
 
@@ -195,6 +197,8 @@
         handleAnomalyTTClose = (e) => {
             e.preventDefault();
             const comment = this.state.recordFollowUpComment;
+            const severity_level = this.state.recordSeverityLevel;
+            const is_anomaly = this.state.recordIsAnomaly;
             if(comment == null  || comment == ""){
                 this.setState({error_message:"Please Enter Reason To Closing Trouble Ticket"});
                 return
@@ -211,6 +215,9 @@
 
             let bodyFormData = new FormData();
             bodyFormData.set("description", comment);
+            bodyFormData.set("severity_level", severity_level);
+            bodyFormData.set("is_anomaly", is_anomaly);
+
             axios.post(`${ROOT_URL}tt/close/${this.state.record.id}/`,bodyFormData,{headers})
             .then(res=>{
                 console.log('Trouble Ticket Closed Successfully');
@@ -390,8 +397,8 @@
                  if(data){
                    let obj = {
                                 'Created datetime': (new Date(parseInt(data[i].created_datetime)*1000+20700000).toUTCString()).replace(" GMT", ""),
-                                'Source address': data[i].source_ip,
-                                'Destination address': data[i].destination_ip,
+                                'Source address': data[i].source_address,
+                                'Destination address': data[i].destination_address,
                                 'Application':data[i].application,
                                 'Destination port':data[i].destination_port,
                                 'Bytes sent':data[i].bytes_sent,
@@ -518,10 +525,10 @@
                                     <Fragment>
                                         <Row type="flex" gutter={16}>
                                             <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
-                                                <Statistic title="Source IP" value={this.state.record.source_ip} />
+                                                <Statistic title="Source Address" value={this.state.record.source_address} />
                                             </Col>
                                             <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
-                                                <Statistic title="Destination IP" value={this.state.record.destination_ip}/>
+                                                <Statistic title="Destination Address" value={this.state.record.destination_address}/>
                                             </Col>
                                             <Col xs={24} sm={12} md={12} lg={8} xl={8} style={drawerInfoStyle}>
                                                 <Statistic title="Application" value={this.state.record.application}/>
@@ -535,6 +542,7 @@
                                             <Col xs={24} sm={24} md={24} lg={24} xl={24} style={drawerInfoStyle}>
                                                 <Statistic title="Log Name" value={this.state.record.log.log_name}/>
                                             </Col>
+
                                         </Row>
                                         <br />
 
@@ -560,9 +568,24 @@
                                             <br />
                                             <Form>
                                                 <p style={{color:'red'}}>{this.state.error_message}</p>
+
                                             <Row type="flex" gutter={16} style={{paddingTop: 10,paddingBottom: 10}}>
                                                 <Col xs={24} sm={12} md={24} lg={24} xl={24}>
                                                     <TextArea rows={3} value={this.state.recordFollowUpComment} onChange={(e)=>this.setState({recordFollowUpComment : e.target.value})}/>
+                                                </Col>
+                                                <Col xs={24} sm={12} md={24} lg={12} xl={12} style={{paddingTop: 10,paddingBottom: 10}}>
+                                                    <Select style={{width:'100%'}} defaultValue={"not-applicable"}  onChange={(value)=>this.setState({recordSeverityLevel : value})}>
+                                                        <Option key={"not-applicable"} value={"not-applicable"}>Severity - Not Applicable</Option>
+                                                        <Option key={"low"} value={"low"}>Severity - Low</Option>
+                                                        <Option key={"medium"} value={"medium"}>Severity - Medium</Option>
+                                                        <Option key={"high"} value={"high"}>Severity - High</Option>
+                                                    </Select>
+                                                </Col>
+                                                <Col xs={24} sm={12} md={24} lg={12} xl={12} style={{paddingTop: 10,paddingBottom: 10}}>
+                                                    <Select style={{width:'100%'}} defaultValue={"false"}  onChange={(value)=>this.setState({recordIsAnomaly : value})}>
+                                                        <Option key={"true"} value={"true"}>Is Anomaly - Yes</Option>
+                                                        <Option key={"false"} value={"false"}>Is Anomaly - No</Option>
+                                                    </Select>                                                
                                                 </Col>
                                                 <Col xs={24} sm={12} md={16} lg={12} xl={12} style={{paddingTop: 10,paddingBottom: 10}}>
                                                     <Select style={{width:'100%'}} defaultValue={parseInt(this.props.current_session_user_id)}  onChange={(value)=>this.setState({recordFollowUpAssignedTo : value})}>
@@ -577,6 +600,7 @@
                                                 <Col xs={24} sm={12} md={8} lg={6} xl={6} style={{paddingTop: 10,paddingBottom: 10}}>
                                                     <Button type="danger" style={{width:'100%'}} htmlType="submit" className="login-form-button" onClick={e =>this.handleAnomalyTTClose(e)}>Close TT</Button>
                                                 </Col>
+
                                             </Row>
                                             </Form>
                                         </Fragment>
