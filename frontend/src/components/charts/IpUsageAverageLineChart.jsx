@@ -93,7 +93,6 @@ class IpUsageAverageDailyTrendChart extends Component {
         bodyFormData.set("ip", ip_address);
         bodyFormData.set("basis", this.state.basis);
         bodyFormData.set("date", this.state.date);
-        console.log("date", this.state.date)
 
         axios.post(FETCH_API, bodyFormData, { headers }).then(res => {
             const response = res.data;
@@ -118,7 +117,6 @@ class IpUsageAverageDailyTrendChart extends Component {
             for (var key in recent_data) {
                 recent_data_arr.push(recent_data[key]);
             }
-            console.log("api data", recent_data_arr);
             const averageData = [];
             const dailyData = [];
             const v = getDivisionFactorUnitsFromBasis(max, this.state.basis)
@@ -141,7 +139,6 @@ class IpUsageAverageDailyTrendChart extends Component {
 
     exitHandler = () => {
         if (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement) {
-            console.log('Inside fullscreen. Doing chart stuff.');
             this.chart = this.refs.chart.chart;
             this.chart.update({
                 chart:{
@@ -151,7 +148,6 @@ class IpUsageAverageDailyTrendChart extends Component {
         }
 
         if (!document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
-            console.log('Exiting fullscreen. Doing chart stuff.');
             this.chart = this.refs.chart.chart;
             this.chart.update({
                 chart:{
@@ -254,7 +250,6 @@ class IpUsageAverageDailyTrendChart extends Component {
     }
 
     render() {
-        console.log("loading",this.state.loading);
         return (
             <Fragment>
                 <Card

@@ -71,7 +71,6 @@ class TopSourceAddressChart extends Component {
         axios.post(FETCH_API,bodyFormData,{headers}).
         then(res => {
             const response = res.data;
-            console.log('api data',response);
             this.setState({
                 data : response
             })
@@ -82,7 +81,6 @@ class TopSourceAddressChart extends Component {
 
     exitHandler = () => {
         if (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement) {
-            console.log('Inside fullscreen. Doing chart stuff.');
             this.chart = this.refs.chart.chart;
             this.chart.update({
                 chart:{
@@ -92,7 +90,6 @@ class TopSourceAddressChart extends Component {
         }
 
         if (!document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
-            console.log('Exiting fullscreen. Doing chart stuff.');
             this.chart = this.refs.chart.chart;
             this.chart.update({
                 chart:{

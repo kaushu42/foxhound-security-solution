@@ -102,9 +102,6 @@ class RequestOriginWorldChart extends Component {
   };
 
   handleTableChange = (pagination, filters, sorter) => {
-    console.log("pagination", pagination);
-    console.log("filter", filters);
-    console.log("sorter", sorter);
     const pager = { ...this.props.requestOriginMapPagination };
     pager.current = pagination.current;
     this.props.dispatchPaginationUpdate(pager);

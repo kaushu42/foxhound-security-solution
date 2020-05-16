@@ -121,7 +121,6 @@ class ApplicationLineChart extends Component {
       document.mozFullScreen ||
       document.msFullscreenElement
     ) {
-      console.log("Inside fullscreen. Doing chart stuff.");
       this.chart = this.refs.chart.chart;
       this.chart.update({
         chart: {
@@ -135,7 +134,6 @@ class ApplicationLineChart extends Component {
       !document.mozFullScreen &&
       !document.msFullscreenElement
     ) {
-      console.log("Exiting fullscreen. Doing chart stuff.");
       this.chart = this.refs.chart.chart;
       this.chart.update({
         chart: {
@@ -168,7 +166,6 @@ class ApplicationLineChart extends Component {
     bodyFormData.set("protocol", this.props.protocol);
     bodyFormData.set("source_zone", this.props.source_zone);
     bodyFormData.set("destination_zone", this.props.destination_zone);
-    console.log("@#$%^&*&^%$#@#$%^&*()(*&^%$#@#$%^&*()(*&^%$#@",bodyFormData);
     axios
       .post(FETCH_API, bodyFormData, { headers })
       .then(res => this.setState({ 
@@ -216,7 +213,6 @@ class ApplicationLineChart extends Component {
       this.setState({
         unit: unit
       });
-      console.log("unit",unit);
       Object.keys(this.state.data).forEach(key => {
         let key_data = this.state.data[key].map(e => [e[0] * 1000, e[1] / division_factor]);
         key_data.sort(function(a, b) {
@@ -290,8 +286,6 @@ class ApplicationLineChart extends Component {
           click: function(e) {
             const self = this.chart.component;
             self.handleApplicationLineChartLogView(e.point.x, this.name);
-            console.log("selected datetime", e.point.x);
-            console.log("selected datetime", new Date(e.point.x * 1000));
           }
         }
       });
@@ -300,7 +294,6 @@ class ApplicationLineChart extends Component {
     this.setState({
       loading: false
     });
-    console.log("newSeriesdata", data);
   };
 
   handleApplicationLineChartLogView = (
@@ -312,7 +305,6 @@ class ApplicationLineChart extends Component {
       selectedTimeStamp: selectedTimeStamp,
       selectedApplicationLogDrawerVisible: true
     });
-    console.log(
       "timestamp ",
       selectedTimeStamp,
       "application ",
@@ -347,16 +339,12 @@ class ApplicationLineChart extends Component {
         });
       });
 
-    console.log(
       "fetched log data for selected application",
       this.state.selectedApplicationLogData
     );
   };
 
   handleTableChange = (pagination, filters, sorter) => {
-    console.log("pagination", pagination);
-    console.log("filter", filters);
-    console.log("sorter", sorter);
     const pager = { ...this.state.pagination };
     pager.current = pagination.current;
     (this.state.pagination = pager),

@@ -65,7 +65,6 @@ class TrafficLogsTable extends Component {
   };
 
   fetchProcessedLogsFromDb = (params = {}) => {
-    console.log("data loading");
     this.setState({ loading: true });
     reqwest({
       url: `${ROOT_URL}log/traffic/processed/`,
@@ -80,7 +79,6 @@ class TrafficLogsTable extends Component {
       },
       type: "json"
     }).then(data => {
-      console.log("data fetched", this.data);
       const { pagination } = this.state;
       pagination.total = data.count;
       this.setState({

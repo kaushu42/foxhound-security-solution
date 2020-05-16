@@ -96,9 +96,6 @@ class VerifiedRulesTable extends Component {
     }
 
     handleTableChange = (pagination, filters, sorter) => {
-        console.log('pagination',pagination);
-        console.log('filter',filters)
-        console.log('sorter',sorter)
         const pager = { ...this.props.verifiedRulePagination };
         pager.current = pagination.current;
         this.props.dispatchPaginationUpdate(pager);
@@ -163,7 +160,6 @@ class VerifiedRulesTable extends Component {
          var option={};
          let dataTable = [];
          if (data) {
-            console.log(data);
            for (let i in data) {
              if(data){
                let obj = {
