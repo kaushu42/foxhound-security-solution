@@ -305,12 +305,6 @@ class ApplicationLineChart extends Component {
       selectedTimeStamp: selectedTimeStamp,
       selectedApplicationLogDrawerVisible: true
     });
-      "timestamp ",
-      selectedTimeStamp,
-      "application ",
-      this.state.selectedApplication
-    );
-    // axios.post("");
     this.fetchApplicationLineChartLog();
   };
 
@@ -338,10 +332,6 @@ class ApplicationLineChart extends Component {
           pagination: page
         });
       });
-
-      "fetched log data for selected application",
-      this.state.selectedApplicationLogData
-    );
   };
 
   handleTableChange = (pagination, filters, sorter) => {
