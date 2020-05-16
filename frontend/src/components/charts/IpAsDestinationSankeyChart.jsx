@@ -61,16 +61,16 @@ class IpAsDestinationSankeyChart extends Component {
             logColumns : [
                 {
                   title: "Source Address",
-                  dataIndex: "source_ip",
-                  key: "source_ip",
+                  dataIndex: "source_address",
+                  key: "source_address",
                   render: (text, record) => (
                     <a onClick={() => this.handleShowSourceIpProfile(record)}>{text}</a>
                   )
                 },
                 {
                   title: "Destination Address",
-                  dataIndex: "destination_ip",
-                  key: "destination_ip",
+                  dataIndex: "destination_address",
+                  key: "destination_address",
                   render: (text, record) => (
                     <a onClick={() => this.handleShowDestinationIpProfile(record)}>
                       {text}
@@ -89,14 +89,14 @@ class IpAsDestinationSankeyChart extends Component {
                 },
                 {
                   title: "Bytes Sent",
-                  dataIndex: "bytes_sent",
-                  key: "bytes_sent",
+                  dataIndex: "sum_bytes_sent",
+                  key: "sum_bytes_sent",
                   render: (text, record) => bytesToSize(text)
                 },
                 {
                   title: "Bytes Received",
-                  dataIndex: "bytes_received",
-                  key: "bytes_received",
+                  dataIndex: "sum_bytes_received",
+                  key: "sum_bytes_received",
                   render: (text, record) => bytesToSize(text)
                 },
                 {
@@ -217,10 +217,10 @@ class IpAsDestinationSankeyChart extends Component {
         ){
             if(this.props.ip_address != ""){
                 {this.props.date_range[0]?this.setState({
-                    chartTitle:`Sankey Chart for IP as Destination from ${this.props.date_range[0]} to ${this.props.date_range[1]}`
+                    chartTitle:`Connections as Destination from ${this.props.date_range[0]} to ${this.props.date_range[1]}`
                     }):
                     this.setState({
-                        chartTitle:`Sankey Chart for IP as Destination for ${this.props.defaultDate}`
+                        chartTitle:`Connections as Destination for ${this.props.defaultDate}`
                     })
                 }
               }
@@ -288,8 +288,8 @@ class IpAsDestinationSankeyChart extends Component {
             "Authorization" : token
         };
         let bodyFormDataForLog = new FormData();
-        bodyFormDataForLog.set("source_ip", this.state.selectedSourceIp);
-        bodyFormDataForLog.set("destination_ip", this.state.selectedDestinationIp);
+        bodyFormDataForLog.set("source_address", this.state.selectedSourceIp);
+        bodyFormDataForLog.set("destination_address", this.state.selectedDestinationIp);
 
         axios.post(FETCH_SANKEY_LOG_API,bodyFormDataForLog,{headers, params})
             .then(res => {
@@ -332,16 +332,15 @@ class IpAsDestinationSankeyChart extends Component {
          var option={};
          let dataTable = [];
          if (data) {
-            console.log("******DOWNLOADING EXCEL***********",data);
            for (let i in data) {
              if(data){
                let obj = {
                             'Logged datetime': (new Date(parseInt(data[i].logged_datetime)*1000+20700000).toUTCString()).replace(" GMT", ""),
-                            'Source address': data[i].source_ip,
-                            'Destination address': data[i].destination_ip,
+                            'Source address': data[i].source_address,
+                            'Destination address': data[i].destination_address,
                             'Application':data[i].application,
-                            'Bytes sent':data[i].bytes_sent,
-                            'Bytes received':data[i].bytes_received,
+                            'Bytes sent':data[i].sum_bytes_sent,
+                            'Bytes received':data[i].sum_bytes_received,
                             'Destination Port':data[i].destination_port,
                             'Protocol':data[i].protocol,
                             'Source zone':data[i].source_zone,
@@ -351,8 +350,8 @@ class IpAsDestinationSankeyChart extends Component {
                             'Action':data[i].action,
                             'Category':data[i].category,
                             'Session end reason':data[i].session_end_reason,
-                            'Packets received':data[i].packets_received,
-                            'Packets sent':data[i].packets_sent,
+                            'Packets received':data[i].sum_packets_received,
+                            'Packets sent':data[i].sum_packets_sent,
                             'Time elapsed':data[i].time_elapsed,
                             'Source country':data[i].source_country,
                             'Destination country':data[i].destination_country
