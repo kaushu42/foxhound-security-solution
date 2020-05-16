@@ -23,11 +23,11 @@ class IPAliasApiView(PaginatedView):
         source_kwargs = {}
         destination_kwargs = {}
         if ip:
-            source_kwargs['source_address'] = ip
-            destination_kwargs['destination_address'] = ip
+            source_kwargs['source_address__icontains'] = ip
+            destination_kwargs['destination_address__icontains'] = ip
         if alias:
-            source_kwargs['alias'] = alias
-            destination_kwargs['alias'] = alias
+            source_kwargs['alias__icontains'] = alias
+            destination_kwargs['alias__icontains'] = alias
 
         source_objects = TrafficMisNewSourceIPDaily.objects.filter(
             firewall_rule__in=firewall_ids,
@@ -57,9 +57,7 @@ class IPAliasApiView(PaginatedView):
 
 class SetIPAliasApiView(APIView):
     def set_alias(self, objects, ip, alias):
-        for obj in objects:
-            obj.alias = alias
-            obj.save()
+        objects.update(alias=alias)
 
     def post(self, request):
         firewall_ids = get_firewall_rules_id_from_request(request)

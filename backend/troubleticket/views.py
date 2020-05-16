@@ -17,8 +17,7 @@ from rest_framework.status import (
 from users.models import FoxhoundUser
 
 from core.models import (
-    TrafficLogDetailGranularHour,
-    TrafficLogDetail
+    TrafficLogDetailHourly
 )
 from mis.models import (
     TrafficMisNewDestinationIPDaily,
@@ -287,7 +286,7 @@ class TroubleTicketDetailApiView(APIView):
                 id=id, firewall_rule__in=firewall_rule_ids)
             reasons = [i.strip() for i in tt.reasons.split(',')]
             ip = tt.source_ip
-            objects = TrafficLogDetailGranularHour.objects.filter(
+            objects = TrafficLogDetailHourly.objects.filter(
                 source_ip=ip, firewall_rule__in=firewall_rule_ids)
             query = {}
             max = objects.count()
