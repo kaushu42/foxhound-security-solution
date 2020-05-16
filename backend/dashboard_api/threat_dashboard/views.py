@@ -108,6 +108,8 @@ class ThreatLogTableApiView(PaginatedView):
             **kwargs,
             **query
         )
+        print("**************88")
+        print(objects)
         page = self.paginate_queryset(objects.order_by('id'))
         if page is not None:
             serializer = self.serializer_class(page, many=True)
@@ -132,8 +134,8 @@ class ApplicationApiView(APIView):
         }
 
         country = request.data.get('country', '')
-        if country:
-            kwargs['source_country'] = country.title()
+        # if country:
+        #     kwargs['source_country'] = country.title()
 
         applications = objects.values('application').annotate(
             sum=Sum('repeat_count')

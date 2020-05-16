@@ -347,7 +347,7 @@ class ThreatRequestOriginWorldChart extends Component{
               }}
             >
               <ThreatApplicationChart
-                selectedCountry={this.state.selectedCountryName}
+                selectedCountry={this.state.selectedCountryCode}
               />
             </div>
             <div
@@ -359,7 +359,7 @@ class ThreatRequestOriginWorldChart extends Component{
               }}
             >
               <ThreatLogTable 
-              selectedCountry={this.state.selectedCountryName}/>
+              selectedCountry={this.state.selectedCountryCode}/>
             </div>
           </Spin>
         </Drawer>

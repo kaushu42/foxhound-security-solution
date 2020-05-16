@@ -1,5 +1,5 @@
     import React, {Component, Fragment} from 'react';
-    import {Avatar, Button, Form, List, Select, Spin, Statistic, Table, Tag, Input} from 'antd';
+    import {Button, Form, List, Select, Spin, Statistic, Table, Tag, Input} from 'antd';
     import reqwest from "reqwest";
     import {drawerInfoStyle, ROOT_URL, bytesToSize} from "../../utils";
     import {connect} from "react-redux";
@@ -10,6 +10,7 @@
     import {search} from "../../actions/ipSearchAction";
     import ExportJsonExcel from 'js-export-excel';
     import { filterSelectDataServiceAsync } from "../../services/filterSelectDataService";
+    import Avatar from 'react-avatar';
     import moment from "moment"
     const { Option } = Select;
     const { TextArea } = Input;
@@ -358,8 +359,8 @@
             };
 
             let bodyFormData = new FormData();
-            bodyFormData.set("source_ip", this.state.searchSourceIP);
-            bodyFormData.set("destination_ip", this.state.searchDestinationIP);
+            bodyFormData.set("source_address", this.state.searchSourceIP);
+            bodyFormData.set("destination_address", this.state.searchDestinationIP);
             bodyFormData.set("application", this.state.searchApplication);
             bodyFormData.set("log_name", this.state.searchLogname);
 
@@ -554,7 +555,7 @@
                                                     renderItem={item => (
                                                         <List.Item>
                                                             <List.Item.Meta
-                                                                avatar={<Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />}
+                                                                avatar={<Avatar color={Avatar.getRandomColor('sitebase', ['red', 'green', 'blue'])} size={50} name={item.assigned_by.username} />}
                                                                 title={<b>{item.description}</b>}
                                                                 description={`${(new Date((parseInt(item.follow_up_datetime)+20700)*1000).toUTCString()).replace(" GMT", "")} | Assigned By ${item.assigned_by.username}`}
                                                             />

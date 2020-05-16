@@ -127,6 +127,7 @@ class ThreatLogTable extends Component{
         .then(res => {
             const page = this.state.pagination;
             page.total = res.data.count;
+            console.log(res);
             this.setState({
                 data: res.data.results,
                 pagination: page,

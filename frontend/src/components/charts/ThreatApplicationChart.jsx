@@ -132,10 +132,13 @@ class ThreatApplicationChart extends Component{
         bodyFormData.set("destination_zone", this.props.destination_zone);
 
         axios.post(FETCH_API, bodyFormData, { headers })
-        .then(res => this.setState({ 
-            data: res.data.data,
-            max: res.data.max
-        }));
+        .then(res => {
+            console.log("*************",res);
+            this.setState({
+                data: res.data.data,
+                max: res.data.max
+            })
+        });
     };
 
     exitHandler = () => {

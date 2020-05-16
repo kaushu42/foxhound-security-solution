@@ -77,8 +77,8 @@ class UnverifiedRulesTable extends Component {
                     },
                     {   
                         title: "Alias",
-                        dataIndex: 'destination_ip_alias',
-                        key: 'destination_ip_alias'
+                        dataIndex: 'destination_address_alias',
+                        key: 'destination_address_alias'
                     }
                 ]
             },

@@ -38,8 +38,8 @@ class MyTroubleTickets extends Component {
                 },
                 {
                     title: 'Source Address',
-                    dataIndex: 'source_ip',
-                    key: 'source_ip',
+                    dataIndex: 'source_address',
+                    key: 'source_address',
                     render: (text,record) => <a onClick={()=> this.handleShowSourceIpProfile(record)}>{text}</a>,
                 },
                 {
@@ -52,6 +52,17 @@ class MyTroubleTickets extends Component {
                     title: 'Application',
                     dataIndex: 'application',
                     key: 'application',
+                },
+                {
+                    title: 'Marked Anomaly',
+                    dataIndex: 'is_anomaly',
+                    key: 'is_anomaly',
+                    render: (text) => text ? text.toString() : null,
+                },
+                {
+                    title: 'Severity Level',
+                    dataIndex: 'severity_level',
+                    key: 'severity_level',
                 },
                 {
                     title: 'Log Name',

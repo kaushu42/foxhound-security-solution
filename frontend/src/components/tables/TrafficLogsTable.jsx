@@ -12,12 +12,13 @@ class TrafficLogsTable extends Component {
         {
           title: "Processed Date",
           dataIndex: "processed_datetime",
-          key: "processed_datetime"
+          key: "processed_datetime",
+          render: text => (new Date(text*1000+20700000).toUTCString()).replace(" GMT", "")
         },
         {
           title: "Log Date",
-          dataIndex: "log_datetime",
-          key: "log_datetime"
+          dataIndex: "log_date",
+          key: "log_date"
         },
         {
           title: "Log Name",
