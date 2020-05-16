@@ -436,4 +436,4 @@ def to_regex(string):
 def get_date_from_filename(filename, sep='-'):
     d = re.findall(r'[0-9]{4}_[0-9]{2}_[0-9]{2}',
                    filename)[0].replace("_", sep)
-    return d
+    return str_to_date(d)

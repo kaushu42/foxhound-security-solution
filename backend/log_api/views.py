@@ -63,6 +63,7 @@ class TrafficLogApiView(PaginatedView):
     def post(self, request):
         return self.get(request)
 
+
 class ProcessedThreatLogApiView(PaginatedView):
     serializer_class = ProcessedLogDetailSerializer
     SIZE_PER_LOG = 468
@@ -83,7 +84,6 @@ class ProcessedThreatLogApiView(PaginatedView):
 
     def post(self, request):
         return self.get(request)
-
 
 
 class TrafficLogDetailApiView(PaginatedView):
@@ -294,9 +294,10 @@ class LatestLogDateApiView(APIView):
             objects = model.objects.filter(
                 firewall_rule__in=firewall_ids
             ).latest('id')
-            date = get_date_from_filename(objects.log)
+            date = get_date_from_filename(
+                objects.log) - datetime.timedelta(days=1)
             return Response({
-                'date': date
+                'date': date.date()
             })
         except Exception as e:
             return Response({
