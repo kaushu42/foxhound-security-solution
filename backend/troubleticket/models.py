@@ -84,6 +84,8 @@ class TroubleTicketAnomaly(TroubleTicket):
     verified_by = models.ForeignKey(
         FoxhoundUser, on_delete=models.CASCADE, null=True,
         related_name='verified_by_tt')
+    is_anomaly = models.BooleanField(null=True, default=None)
+    severity_level = models.CharField(max_length=50, null=True)
 
     def __str__(self):
         return f'{self.log}'
@@ -101,26 +103,6 @@ class TroubleTicketFollowUpAnomaly(TroubleTicketFollowUp):
 
     def __repr__(self):
         return self.__str__()
-
-
-class TroubleTicketRule(TroubleTicket):
-    rule = models.ForeignKey(
-        TrafficRule, on_delete=models.CASCADE, null=True, blank=True)
-
-    def __str__(self):
-        return f'{self.rule}-TT'
-
-    def __repr__(self):
-        return self.__str__()
-
-
-class TroubleTicketAnomalyTrafficLog(models.Model):
-    row_number = models.BigIntegerField()
-    log = models.ForeignKey(TrafficLog, on_delete=models.CASCADE, null=True)
-    ticket = models.ForeignKey(
-        TroubleTicketAnomaly, on_delete=models.CASCADE, null=True)
-    # log_detail = models.ForeignKey(
-    #     TrafficLogDetail, on_delete=models.CASCADE, null=True)
 
 
 class StageTroubleTicketAnomaly(TroubleTicket):

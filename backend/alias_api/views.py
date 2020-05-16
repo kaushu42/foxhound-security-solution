@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_204_NO_CONTENT
 
-from mis.models import DailySourceIP, DailyDestinationIP
+from mis.models import TrafficMisNewSourceIPDaily, TrafficMisNewDestinationIPDaily
 from views.views import PaginatedView
 from globalutils.utils import get_firewall_rules_id_from_request
 from serializers.serializers import MisIpSerializer
@@ -29,14 +29,14 @@ class IPAliasApiView(PaginatedView):
             source_kwargs['alias'] = alias
             destination_kwargs['alias'] = alias
 
-        source_objects = DailySourceIP.objects.filter(
+        source_objects = TrafficMisNewSourceIPDaily.objects.filter(
             firewall_rule__in=firewall_ids,
             **source_kwargs
         ).annotate(
             address=F('source_address')
         ).values_list('address', 'alias').order_by('alias')
 
-        destination_objects = (DailyDestinationIP.objects.filter(
+        destination_objects = (TrafficMisNewDestinationIPDaily.objects.filter(
             firewall_rule__in=firewall_ids,
             **destination_kwargs
         ).annotate(
@@ -66,13 +66,13 @@ class SetIPAliasApiView(APIView):
         ip = request.data.get('ip')
         alias = request.data.get('alias')
         try:
-            objects = DailyDestinationIP.objects.filter(
+            objects = TrafficMisNewDestinationIPDaily.objects.filter(
                 firewall_rule__in=firewall_ids,
                 destination_address=ip,
             )
             self.set_alias(objects, ip, alias)
 
-            objects = DailySourceIP.objects.filter(
+            objects = TrafficMisNewSourceIPDaily.objects.filter(
                 firewall_rule__in=firewall_ids,
                 source_address=ip,
             )

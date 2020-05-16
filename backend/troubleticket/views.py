@@ -21,8 +21,8 @@ from core.models import (
     TrafficLogDetail
 )
 from mis.models import (
-    DailyDestinationIP,
-    DailySourceIP
+    TrafficMisNewDestinationIPDaily,
+    TrafficMisNewSourceIPDaily
 )
 from troubleticket.models import (
     TroubleTicketAnomaly,
@@ -240,9 +240,15 @@ def close_tt(request, id):
             "traceback": str(traceback.format_exc()),
             "exception": str(e)
         }, status=HTTP_400_BAD_REQUEST)
+
     description = request.data.get('description', '')
+    severity_level = request.data.get('severity_level')
+    is_anomaly = request.data.get('is_anomaly')
     user = get_user_from_token(request)
+
     trouble_ticket.is_closed = True
+    trouble_ticket.is_anomaly = is_anomaly
+    trouble_ticket.severity_level = severity_level
     trouble_ticket.assigned_to = user
     trouble_ticket.description = description
     trouble_ticket.verified_datetime = now

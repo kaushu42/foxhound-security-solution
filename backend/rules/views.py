@@ -28,8 +28,8 @@ from core.models import (
     IPAddress
 )
 from mis.models import (
-    DailySourceIP,
-    DailyDestinationIP
+    TrafficMisNewSourceIPDaily,
+    TrafficMisNewDestinationIPDaily
 )
 from globalutils.utils import (
     get_firewall_rules_id_from_request,
@@ -49,13 +49,13 @@ class RulePaginatedView(PaginatedView):
     def get_alias_from_page(self, page, firewall_ids):
         ips = {p.source_address for p in page} | {
             p.destination_address for p in page}
-        aliases = list(DailySourceIP.objects.filter(
+        aliases = list(TrafficMisNewSourceIPDaily.objects.filter(
             firewall_rule__in=firewall_ids,
             source_address__in=ips
         ).annotate(
             address=F('source_address')
         ).values(
-            'address', 'alias')) + list(DailyDestinationIP.objects.filter(
+            'address', 'alias')) + list(TrafficMisNewDestinationIPDaily.objects.filter(
                 firewall_rule__in=firewall_ids,
                 destination_address__in=ips
             ).annotate(
@@ -121,12 +121,12 @@ class RulePaginatedView(PaginatedView):
     def _get_alias_ips(self, alias):
         if alias:
             data = []
-            objects = DailyDestinationIP.objects.filter(
+            objects = TrafficMisNewDestinationIPDaily.objects.filter(
                 alias__contains=alias).annotate(
                     address=F('destination_address')
             ).values_list('address')
             data += list(objects)
-            objects = DailySourceIP.objects.filter(
+            objects = TrafficMisNewSourceIPDaily.objects.filter(
                 alias__contains=alias).annotate(
                     address=F('source_address')
             ).values_list('address')
@@ -260,7 +260,8 @@ def edit_rule(request):
     if not serializer.is_valid():
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
     source_address = handle_empty_regex(serializer.data['source_address'])
-    destination_address = handle_empty_regex(serializer.data['destination_address'])
+    destination_address = handle_empty_regex(
+        serializer.data['destination_address'])
     application = handle_empty_regex(serializer.data['application'])
     description = serializer.data.get('description', '')
     query = {

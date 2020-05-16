@@ -15,6 +15,12 @@ class DailyIP(models.Model):
     class Meta:
         abstract = True
 
+
+@architect.install(
+    'partition', type='range',
+    subtype='date', constraint='day',
+    column='logged_datetime'
+)
 class TrafficMisNewSourceIPDaily(DailyIP):
     source_address = models.CharField(max_length=250)
     avg_repeat_count = models.DecimalField(decimal_places=2, max_digits=10)
@@ -55,6 +61,11 @@ class StageTrafficMisNewSourceIPDaily(DailyIP):
         return self.source_address
 
 
+@architect.install(
+    'partition', type='range',
+    subtype='date', constraint='day',
+    column='logged_datetime'
+)
 class TrafficMisNewDestinationIPDaily(DailyIP):
     destination_address = models.CharField(max_length=250)
     avg_repeat_count = models.DecimalField(decimal_places=2, max_digits=10)
@@ -65,7 +76,6 @@ class TrafficMisNewDestinationIPDaily(DailyIP):
     sum_time_elapsed = models.BigIntegerField()
     count_events = models.BigIntegerField()
 
-
     class Meta:
         db_table = 'fh_prd_trfc_mis_new_dst_ip_dy_a'
 
@@ -74,6 +84,7 @@ class TrafficMisNewDestinationIPDaily(DailyIP):
 
     def __repr__(self):
         return self.destination_address
+
 
 class StageTrafficMisNewDestinationIPDaily(DailyIP):
     destination_address = models.CharField(max_length=250)
@@ -85,7 +96,6 @@ class StageTrafficMisNewDestinationIPDaily(DailyIP):
     sum_time_elapsed = models.BigIntegerField()
     count_events = models.BigIntegerField()
 
-
     class Meta:
         db_table = 'fh_stg_trfc_mis_new_dst_ip_dy_a'
 
@@ -94,6 +104,7 @@ class StageTrafficMisNewDestinationIPDaily(DailyIP):
 
     def __repr__(self):
         return self.destination_address
+
 
 class TrafficMisNewApplicationDaily(models.Model):
     logged_datetime = models.DateField(null=True)
@@ -117,6 +128,7 @@ class TrafficMisNewApplicationDaily(models.Model):
     class Meta:
         db_table = 'fh_prd_trfc_mis_new_app_dy_a'
 
+
 class StageTrafficMisNewApplicationDaily(models.Model):
     logged_datetime = models.DateField(null=True)
     processed_datetime = models.DateField(null=True)
@@ -139,6 +151,7 @@ class StageTrafficMisNewApplicationDaily(models.Model):
     class Meta:
         db_table = 'fh_stg_trfc_mis_new_app_dy_a'
 
+
 class TrafficMisRequestFromBlacklistedIPDaily(models.Model):
     logged_datetime = models.DateTimeField(null=True)
     processed_datetime = models.DateField(null=True)
@@ -155,7 +168,8 @@ class TrafficMisRequestFromBlacklistedIPDaily(models.Model):
     category = models.CharField(max_length=250, null=True)
     session_end_reason = models.CharField(max_length=250, null=True)
     destination_port = models.PositiveIntegerField(null=True)
-    avg_repeat_count = models.DecimalField(decimal_places=2, max_digits=10,default=0)
+    avg_repeat_count = models.DecimalField(
+        decimal_places=2, max_digits=10, default=0)
     sum_bytes_sent = models.BigIntegerField(default=0)
     sum_bytes_received = models.BigIntegerField(default=0)
     sum_packets_received = models.BigIntegerField(default=0)
@@ -183,7 +197,8 @@ class StageTrafficMisRequestFromBlacklistedIPDaily(models.Model):
     category = models.CharField(max_length=250, null=True)
     session_end_reason = models.CharField(max_length=250, null=True)
     destination_port = models.PositiveIntegerField(null=True)
-    avg_repeat_count = models.DecimalField(decimal_places=2, max_digits=10,default=0)
+    avg_repeat_count = models.DecimalField(
+        decimal_places=2, max_digits=10, default=0)
     sum_bytes_sent = models.BigIntegerField(default=0)
     sum_bytes_received = models.BigIntegerField(default=0)
     sum_packets_received = models.BigIntegerField(default=0)
@@ -211,7 +226,8 @@ class TrafficMisResponseToBlacklistedIPDaily(models.Model):
     category = models.CharField(max_length=250, null=True)
     session_end_reason = models.CharField(max_length=250, null=True)
     destination_port = models.PositiveIntegerField(null=True)
-    avg_repeat_count = models.DecimalField(decimal_places=2, max_digits=10,default=0)
+    avg_repeat_count = models.DecimalField(
+        decimal_places=2, max_digits=10, default=0)
     sum_bytes_sent = models.BigIntegerField(default=0)
     sum_bytes_received = models.BigIntegerField(default=0)
     sum_packets_received = models.BigIntegerField(default=0)
@@ -221,6 +237,7 @@ class TrafficMisResponseToBlacklistedIPDaily(models.Model):
 
     class Meta:
         db_table = 'fh_prd_trfc_mis_res_to_blip_dy_a'
+
 
 class StageTrafficMisResponseToBlacklistedIPDaily(models.Model):
     logged_datetime = models.DateTimeField(null=True)
@@ -238,7 +255,8 @@ class StageTrafficMisResponseToBlacklistedIPDaily(models.Model):
     category = models.CharField(max_length=250, null=True)
     session_end_reason = models.CharField(max_length=250, null=True)
     destination_port = models.PositiveIntegerField(null=True)
-    avg_repeat_count = models.DecimalField(decimal_places=2, max_digits=10,default=0)
+    avg_repeat_count = models.DecimalField(
+        decimal_places=2, max_digits=10, default=0)
     sum_bytes_sent = models.BigIntegerField(default=0)
     sum_bytes_received = models.BigIntegerField(default=0)
     sum_packets_received = models.BigIntegerField(default=0)
@@ -248,35 +266,6 @@ class StageTrafficMisResponseToBlacklistedIPDaily(models.Model):
 
     class Meta:
         db_table = 'fh_stg_trfc_mis_res_to_blip_dy_a'
-
-@architect.install(
-    'partition', type='range',
-    subtype='date', constraint='day',
-    column='logged_datetime'
-)
-class DailySourceIP(DailyIP):
-    source_address = models.CharField(max_length=250)
-
-    def __str__(self):
-        return self.source_address
-
-    def __repr__(self):
-        return self.source_address
-
-
-@architect.install(
-    'partition', type='range',
-    subtype='date', constraint='day',
-    column='logged_datetime'
-)
-class DailyDestinationIP(DailyIP):
-    destination_address = models.CharField(max_length=250)
-
-    def __str__(self):
-        return self.destination_address
-
-    def __repr__(self):
-        return self.destination_address
 
 
 @architect.install(
@@ -320,7 +309,7 @@ class TrafficMisDaily(models.Model):
         return self.__str__()
 
     class Meta:
-        db_table='fh_prd_trfc_mis_dy_a'
+        db_table = 'fh_prd_trfc_mis_dy_a'
 
 
 class StageTrafficMisDaily(models.Model):
@@ -344,9 +333,9 @@ class StageTrafficMisDaily(models.Model):
 
     def __repr__(self):
         return self.__str__()
-    
+
     class Meta:
-        db_table='fh_stg_trfc_mis_dy_a'
+        db_table = 'fh_stg_trfc_mis_dy_a'
 
 
 class DailyBlacklistEvent(models.Model):
