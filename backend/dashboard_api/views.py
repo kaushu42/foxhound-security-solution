@@ -1,7 +1,7 @@
 from collections import defaultdict
 import datetime
-import pdb
-from django.db.models import Sum, F, Max, Count, Q
+
+from django.db.models import Sum, F, Max, Count
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -12,22 +12,17 @@ from globalutils.utils import (
     set_null_items_to_zero,
     get_firewall_rules_id_from_request,
     get_country_name_and_code,
-    get_filters,
-    str_to_date
+    get_filters
 )
 
 
 from core.models import (
     Filter,
-    FirewallRule,
     TimeSeriesChart,
     Application,
     Zone,
     Protocol,
-    ApplicationChart,
     IPChart,
-
-    TrafficLogDetailHourly,
     TrafficLogDetailHourly
 )
 
@@ -37,11 +32,6 @@ from mis.models import (
 )
 
 from rules.models import TrafficRule
-
-from serializers.serializers import (
-    TimeSeriesChartSerializer,
-    ApplicationChartSerializer
-)
 
 
 class StatsApiView(APIView):
@@ -162,14 +152,14 @@ def get_model_kwargs(request):
         kwargs['logged_datetime__gte'] = start_date
         kwargs['logged_datetime__lte'] = end_date + \
             datetime.timedelta(days=1)
-    # Application, Protocol, Zone
-    # Application.objects.filter()
+
     MODEL_MAP = {
         "application": Application,
         "protocol": Protocol,
         "source_zone": Zone,
         "destination_zone": Zone,
     }
+
     for f in filters:
         if filters[f] and (not f.endswith('date')):
             items = set(filters[f].split(','))

@@ -1,4 +1,3 @@
-import traceback
 import datetime
 import pytz
 
@@ -11,14 +10,10 @@ from rest_framework.status import (
     HTTP_400_BAD_REQUEST
 )
 from core.models import (
-    TrafficLog, TrafficLogDetailHourly,
+    TrafficLogDetailHourly,
     Country,
-    ProcessedThreatLogDetail,
     ProcessedTrafficLogDetail,
-    ThreatLogDetailEvent,
     ProcessedThreatLogDetail,
-    Application,
-    ThreatLog,
     ThreatLogDetail
 )
 from mis.models import (
@@ -35,8 +30,6 @@ from serializers.serializers import (
     MisDailyResponseToBlacklistedIpSerializer
 )
 from globalutils.utils import (
-    get_tenant_id_from_token,
-    get_query_from_request,
     get_firewall_rules_id_from_request,
     get_date_from_filename
 )
@@ -160,32 +153,6 @@ class RequestOriginLogApiView(PaginatedView):
 
     def post(self, request):
         return self.get(request)
-
-
-class RequestEndLogApiView(PaginatedView):
-    serializer_class = TrafficLogDetailGranularHourSerializer
-
-    def get(self, request):
-        country = request.data.get('country')
-        if country is None:
-            return Response({
-                "error": "\"country\" field is required"
-            }, status=HTTP_406_NOT_ACCEPTABLE)
-
-        tenant_id = get_tenant_id_from_token(request)
-        query = get_query_from_request(request)
-        ips = Country.objects.filter(iso_code=country).values('ip_address')
-        objects = get_objects_from_query(query).filter(
-            firewall_rule__tenant__id=tenant_id,
-            destination_ip__in=ips
-        ).order_by('-id')
-        page = self.paginate_queryset(objects)
-        for i in page:
-            i.logged_datetime -= datetime.timedelta(minutes=15)
-        if page is not None:
-            serializer = self.serializer_class(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        return Response({})
 
 
 class ApplicationLogApiView(PaginatedView):

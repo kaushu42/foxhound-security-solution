@@ -14,12 +14,11 @@ from django.db.models import Sum
 from django.db.models import Q
 
 from core.models import (
-    TrafficLogDetailGranularHour,
+    TrafficLogDetailHourly,
     FirewallRule,
     Filter,
     TrafficLog
 )
-from core.models import DBLock
 
 
 def _get_day_index(date):
@@ -266,7 +265,7 @@ def get_query_from_request(
     return query
 
 
-def get_objects_from_query(queries, model=TrafficLogDetailGranularHour,
+def get_objects_from_query(queries, model=TrafficLogDetailHourly,
                            type='model', **kwargs):
     if queries:
         result = queries.pop(0)

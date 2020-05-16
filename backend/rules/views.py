@@ -1,12 +1,7 @@
-import sys
-import os
-import subprocess
 import operator
 import traceback
-from functools import reduce
 from collections import defaultdict
 
-import django
 from django.db.models import Q, F
 
 from rest_framework.response import Response
@@ -22,11 +17,8 @@ from serializers.serializers import (
     RuleEditSerializer
 )
 
-from backend.settings import BASE_DIR
-from core.models import (
-    FirewallRule,
-    IPAddress
-)
+from core.models import FirewallRule
+
 from mis.models import (
     TrafficMisNewSourceIPDaily,
     TrafficMisNewDestinationIPDaily
@@ -37,9 +29,9 @@ from globalutils.utils import (
     get_tenant_id_from_token,
 )
 from views.views import PaginatedView
-from globalutils.utils import (
-    to_regex
-)
+
+from globalutils.utils import to_regex
+
 from .models import TrafficRule
 
 

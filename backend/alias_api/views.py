@@ -1,4 +1,3 @@
-from itertools import chain
 from django.db.models import F
 
 from rest_framework.views import APIView

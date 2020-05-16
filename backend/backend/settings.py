@@ -34,7 +34,6 @@ INSTALLED_APPS = [
     'session',
     'celery',
     'mis',
-    'batch',
     'home'
 ]
 MIDDLEWARE = [

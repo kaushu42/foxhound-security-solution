@@ -1,11 +1,9 @@
+from collections import defaultdict
 import datetime
+import ipaddress
 import pytz
 import time
-import json
-from collections import defaultdict, OrderedDict
 import traceback
-
-import ipaddress
 
 from django.db.models import Sum, Max
 
@@ -19,20 +17,17 @@ from rest_framework.status import (
 )
 
 from core.models import (
-    TrafficLog, TrafficLogDetailHourly,
+    TrafficLogDetailHourly,
     IPAddress, TenantIPAddressInfo,
     FirewallRule, IPChart,
     SankeyChart
 )
 from globalutils import (
-    get_month_day_index,
     groupby_date,
-    get_activity,
     get_usage,
     get_objects_with_date_filtered,
     get_filter_ids_from_request,
     get_firewall_rules_id_from_request,
-    get_max,
     str_to_date
 )
 from views.views import PaginatedView
@@ -40,9 +35,7 @@ from serializers.serializers import (
     IPAliasSerializer,
     IPAddressSerializer
 )
-from .utils import get_ip_from_request, get_filters
-
-TIME_OFFSET = 6
+from .utils import get_ip_from_request
 
 
 def get_ip_type(ip):
@@ -182,7 +175,7 @@ class AverageDailyApiView(APIView):
                 ) + getattr(
                     data, f'sum_{basis}_received'
                 )
-            hour = (data.logged_datetime.hour + TIME_OFFSET*0) % 24
+            hour = data.logged_datetime.hour
             response[hour] += sum_value
             if max < sum_value:
                 max = sum_value
