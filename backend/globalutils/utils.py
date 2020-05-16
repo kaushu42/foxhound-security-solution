@@ -389,7 +389,7 @@ def get_objects_with_date_filtered(request, model, field_name, type='model', **k
             **kwargs,
             f'{field_name}__gte': datetime.datetime.combine(latest_date, datetime.time())
         }
-        print(kwargs)
+
         if type == 'model':
             return model.objects.filter(**kwargs)
         elif type == 'queryset':

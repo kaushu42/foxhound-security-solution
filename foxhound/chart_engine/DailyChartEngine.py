@@ -226,10 +226,6 @@ class DailyChartEngine(BaseChart):
             self._process_filters(df)
 
             # Create all the necessary charts
-            print('**Writing Application Chart Data**')
-            logger.info(f'Chart Engine: Writing Application Chart Data')
-            ApplicationChart(df).run()
-
             print('**Writing Time Series Chart Data**')
             logger.info(f'Chart Engine: Writing Time Series Chart Data')
             TimeSeriesChart(df, spark=self._spark).run()

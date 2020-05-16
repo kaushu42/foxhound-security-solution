@@ -106,8 +106,6 @@ class ThreatLogTableApiView(PaginatedView):
             **kwargs,
             **query
         )
-        print("**************88")
-        print(objects)
         page = self.paginate_queryset(objects.order_by('id'))
         if page is not None:
             serializer = self.serializer_class(page, many=True)

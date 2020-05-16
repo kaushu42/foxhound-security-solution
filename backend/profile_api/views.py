@@ -148,17 +148,15 @@ class AverageDailyApiView(APIView):
         if date is None:
             latest_date = IPChart.objects.latest(
                 'logged_datetime').logged_datetime.astimezone(ktm_tz)
-            print(latest_date)
+
             date = latest_date.replace(
                 hour=0,
                 minute=0,
                 second=0,
                 microsecond=0
             )
-            print('date is none', date)
         else:
             date = str_to_date(date)
-            print('date supplied', date)
         latest_data = objects.filter(logged_datetime__range=(
             date, date + datetime.timedelta(hours=23))
         )
