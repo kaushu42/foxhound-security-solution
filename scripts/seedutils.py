@@ -13,6 +13,14 @@ import config
 engine = utils.get_db_engine()
 session = utils.get_session(engine)
 
+indexes_to_create = {
+    'fh_prd_trfc_log_dtl_f': ['firewall_rule_id'],
+}
+
+
+def create_indices():
+    session.execute()
+
 
 def get_ip_db():
     DB_FILENAME = 'GeoLite2-City.mmdb'
@@ -36,14 +44,20 @@ def get_ip_db():
 def seed_threatdb():
     items = set()
     for file in os.listdir(config.THREAT_DB_PATH):
-        items = items | set(open(file).read().split('\n'))
-    pass
+        filepath = os.path.join(config.THREAT_DB_PATH, file)
+        items = items | set(open(filepath).read().split('\n'))
+    items = items - {""}
+    with open('threatdb.sql', 'w') as f:
+        for i in items:
+            f.write(
+                f"INSERT INTO core_blacklistedip(ip_address) VALUES('{i}');\n")
 
 
 def seed(run=True):
     if not run:
         return
     # get_ip_db()
+
     # utils.get_blacklisted_ip(engine)
     if session.query(VirtualSystem).count() == 0:
         print('Seeding database....')
