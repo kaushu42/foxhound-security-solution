@@ -160,8 +160,8 @@ class VirtualSystemSerializer(serializers.ModelSerializer):
 
 class RuleSerializer(serializers.ModelSerializer):
     verified_by_user = UserSerializer()
-    source_ip_alias = serializers.CharField(required=False)
-    destination_ip_alias = serializers.CharField(required=False)
+    source_address_alias = serializers.CharField(required=False)
+    destination_address_alias = serializers.CharField(required=False)
 
     class Meta:
         model = TrafficRule
