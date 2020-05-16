@@ -383,14 +383,14 @@ def get_objects_with_date_filtered(request, model, field_name, type='model', **k
     filters = get_filters(request)
     start_date = filters['start_date']
 
-    latest_date = TrafficLog.objects.latest('id').log_date
-
-    kwargs = {
-        **kwargs,
-        f'{field_name}__gte': datetime.datetime.combine(latest_date, datetime.time())
-    }
-    print(kwargs)
     if not start_date:  # There was no date filter applied
+        latest_date = TrafficLog.objects.latest(
+            'id').log_date - datetime.timedelta(days=1)
+        kwargs = {
+            **kwargs,
+            f'{field_name}__gte': datetime.datetime.combine(latest_date, datetime.time())
+        }
+        print(kwargs)
         if type == 'model':
             return model.objects.filter(**kwargs)
         elif type == 'queryset':
