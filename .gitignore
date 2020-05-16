@@ -199,3 +199,4 @@ env/*
 outputs/*
 test_ml.py
 *.mmdb
+*.sql
