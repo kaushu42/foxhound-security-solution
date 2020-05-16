@@ -32,7 +32,6 @@ class MasterLayout extends Component {
             .then(res => {
             })
             .catch(error => {
-                console.log('token invalid');
                 window.location.href="/auth/logout";
             })
     }
