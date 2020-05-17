@@ -98,8 +98,7 @@ class MLEngine(AutoEncoder):
             df.to_csv(dest_file_path, mode='a', index=False)
 
     def _str_to_num(self, column):
-        column = [sum([(weight+1)*char for weight, char in enumerate(list(bytearray(cell,
-                                                                                    encoding='utf8'))[::-1])]) if isinstance(cell, str) else cell for cell in column]
+        column = [sum([(weight+1)*char for weight, char in enumerate(list(bytearray(str(cell), encoding='utf8'))[::-1])]) for cell in column]
         return column
 
     # def _dask_apply(self, df, apply_func, axis): # axis col because canot operate using axis=0 for sin cos time int coversion and axis=0 is faster than axis=1
@@ -137,7 +136,7 @@ class MLEngine(AutoEncoder):
 
         temp[features_to_convert_to_number] = temp[features_to_convert_to_number].apply(
             self._str_to_num, 0)
-        # pdb.set_trace()
+        # 
         return temp
 
     def _get_categorical_params(self, df):
@@ -179,9 +178,8 @@ class MLEngine(AutoEncoder):
 
         return categorical_params
 
-    def _save_model_and_params(self, model_params, categorical_params):
+    def _save_model_and_params(self, model_params, categorical_params, has_model):
         """Method to save parameters of ml model
-
         Parameters
         ----------
         params_dict : dictionary
@@ -190,25 +188,27 @@ class MLEngine(AutoEncoder):
             Location to save model's parameters to
         """
         if os.path.exists(self._model_path) is not True:
-            os.makedirs(self._model_path)
-        self.save_model(self._model_path)
+                os.makedirs(self._model_path)
+        if has_model:
+            self.save_model(self._model_path)
         joblib.dump(model_params, f'{self._model_path}/model_params.sav')
         self._save_categorical_params(categorical_params)
 
-    def _load_model_and_params(self):
+    def _load_model_and_params(self, has_model):
         """Method to load ml model's parameters
-
         Parameters
         ----------
         model_path : str
             Location of model to load from
-
         Returns
         -------
         model and dictionary
             Contains model's parameters
         """
-        model = self.load_model(self._model_path)
+        if has_model:
+            model = self.load_model(self._model_path)
+        else:
+            model = None
         model_params = joblib.load(f'{self._model_path}/model_params.sav')
         categorical_params = self._load_categorical_params()
 
@@ -236,9 +236,10 @@ class MLEngine(AutoEncoder):
 
                     df = self._SPARK.read.csv(tenant_profile_dir, header=True).drop(self._USER_FEATURE)
                     
-                    print(df.count())
                     if df.count() > 10000:
-
+                        training_for = ': '.join(tenant_profile_dir.split('/')[-2:])
+                        print(
+                            f'**************** Converting data for {training_for}****************')
                         df = df.toPandas()
                         categorical_params = self._get_categorical_params(df)
                         df, standarizer = self.normalize_data(df)
@@ -250,7 +251,7 @@ class MLEngine(AutoEncoder):
                         print(
                             f'**************** Trained model for {training_for}****************')
                         self._save_model_and_params(
-                            {'standarizer': standarizer}, categorical_params
+                            {'standarizer': standarizer}, categorical_params, True
                         )
 
                         for csv_file in sorted(os.listdir(tenant_profile_dir)):
@@ -258,15 +259,9 @@ class MLEngine(AutoEncoder):
                             self._model_path = os.path.join(
                                 tenant_model_dir, csv_file)
 
-                            print(f'ip csv: {csv_file}')
-                            
-                            df = self._SPARK.read.csv(csv_path, header=True)
-                            # df = pd.read_csv(csv_path)
-                            
-                            # if len(df.index) > 10000:
-                            print(df.count()) #change this
-                            if df.count() > 100000000000000:
-                                # pdb.set_trace()
+                            df = self._SPARK.read.csv(csv_path, header=True, inferSchema=True)
+
+                            if df.count() > 10000:
                                 df = df.toPandas()
                                 categorical_params = self._get_categorical_params(df)
                                 df, standarizer = self.normalize_data(df)
@@ -278,12 +273,15 @@ class MLEngine(AutoEncoder):
                                 print(
                                     f'**************** Trained model for {training_for}****************')
                                 self._save_model_and_params(
-                                    {'standarizer': standarizer}, categorical_params
+                                    {'standarizer': standarizer}, categorical_params, True
                                 )
 
                                 shutil.rmtree(csv_path)
                             else:
                                 pass
+                                # self._save_model_and_params(
+                                #     {'standarizer': standarizer}, categorical_params, False
+                                # )
 
     def _get_anomaly_reasons(self, df, model_params, updated_categorical_params, df_categorical_params, anomaly_prop_threshold):
         anomalies = df.copy()
@@ -294,7 +292,7 @@ class MLEngine(AutoEncoder):
         max_prop = updated_categorical_params['max_proportion']
         df_prop = df_categorical_params['proportion']
 
-        truth_table = np.abs(anomalies-mean) > 3*std
+        truth_table = np.abs(anomalies-mean) > 2.57*std
 
         truth_table[self._CATEGORICAL_FEATURES] = False
 
@@ -314,37 +312,51 @@ class MLEngine(AutoEncoder):
 
         return reasons
 
-    def _predict(self, df, mse_threshold):
+    def _predict(self, df, mse_threshold, has_model):
         """Method to predict anomaly from tenant's dataframe using respective model
-
         Parameters
         ----------
         df : Pandas Dataframe
             Dataframe of tenant to find whether each transaction is an anomaly or not
         model_path : str
             Location of tenant's model
-
         Returns
         -------
         Boolean, list of int, array of str
             True if anomaly found, List of indices that are anomalous, Reasons of anomaly
         """
-        model, model_params, history_categorical_params = self._load_model_and_params()
+        
+        model, model_params, history_categorical_params = self._load_model_and_params(has_model=has_model)
+        
         df_categorical_params = self._get_categorical_params(df)
         updated_categorical_params = self._update_categorical_params(
             history_categorical_params, df_categorical_params)
 
-        x = model_params['standarizer'].transform(df)
-        preds = model.predict(x)
-        mse = np.mean(np.power(x - preds, 2), axis=1)
-        #plt.plot(out, 'ro')
-        indices = np.where(mse > mse_threshold)[0]
+        if has_model:
+            x = model_params['standarizer'].transform(df)
+            preds = model.predict(x)
+            mse = np.mean(np.power(x - preds, 2), axis=1)
+            #plt.plot(out, 'ro')
+            indices = np.where(mse > mse_threshold)[0]
+            if len(indices) is not 0:
+                anomalies_reasons = self._get_anomaly_reasons(
+                    df.iloc[indices], model_params, updated_categorical_params, df_categorical_params, 0.05
+                )
+        else:
+            # print('no model')
+            anomalies_reasons = self._get_anomaly_reasons(
+                    df, model_params, updated_categorical_params, df_categorical_params, 0.01
+                )
+            # print('**************************old*********************************')
+            # print(anomalies_reasons)
+            indices = [index for index, anomaly_reasons in enumerate(anomalies_reasons) if len(anomaly_reasons.split(','))>6]
+            # print('***********************new************************************')
+            anomalies_reasons = np.array(anomalies_reasons)[indices]
+            # print(anomalies_reasons)
+            # print('************************new finish***********************************')
 
         if len(indices) is not 0:
-            reasons = self._get_anomaly_reasons(
-                df.iloc[indices], model_params, updated_categorical_params, df_categorical_params, 0.05
-            )
-            return True, indices, reasons, updated_categorical_params
+                return True, indices, anomalies_reasons, updated_categorical_params
         else:
             return False, None, None, updated_categorical_params
 
@@ -363,7 +375,7 @@ class MLEngine(AutoEncoder):
         Pandas Dataframe
             Dataframe containing anomalous entries from the input csv
         """
-        # pdb.set_trace()
+        
         truncated_df = df[self._FEATURES].copy()
 
         truncated_df['Session End Reason'].fillna('unknown', inplace=True)
@@ -375,90 +387,57 @@ class MLEngine(AutoEncoder):
         anomalous_df = df.head(0)
         anomalous_without_model_count = 0
         anomalous_features = []
+        model_info = []
 
         for (tenant, ip), ip_df in truncated_df.groupby([self._TENANT_FEATURE, self._USER_FEATURE]):
-            print('bhairaxa')
-            if ipaddress.ip_address(ip).is_private:
-                print('ip private raixa')
-                model_path = os.path.join(
-                        self._TENANT_MODEL_DIR, f'Rule={tenant}', f'Source address={ip}')
-                # pdb.set_trace()
-                if os.path.exists(model_path):
-                    self._model_path = model_path
-                elif os.path.exists('/'.join(model_path.split('/')[:-1])):
-                    self._model_path = '/'.join(model_path.split('/')[:-1])
-                else:
-                    self._model_path = None
-    
-                if self._model_path is not None:
-                    print('model vetiyo')
-                    ip_df.reset_index(inplace=True)
-                    ip_df = ip_df.drop(
-                        columns=['index', self._TENANT_FEATURE, self._USER_FEATURE])
-                    ip_df = self._preprocess(ip_df)
-                    # pdb.set_trace()
-                    print(tenant, ip)
-                    print(ip_df['Source Port'])
-                    has_anomaly, indices, reasons, updated_categorical_params = self._predict(
-                        ip_df, 800)
+            print(f'[INFO]: Predicting for ip: {ip} of tenant: {tenant}')
+            model_path = os.path.join(
+                    self._TENANT_MODEL_DIR, f'Rule={tenant}', f'Source address={ip}')
+            # 
+            if os.path.exists(model_path):
+                self._model_path = model_path
+                has_model = True
+                which_model = 'ip'
+            elif os.path.exists('/'.join(model_path.split('/')[:-1])):
+                self._model_path = '/'.join(model_path.split('/')[:-1])
+                has_model = True
+                which_model = 'tenant'
+            else:
+                self._model_path = None
+                has_model = False
 
-                    if has_anomaly:
-                        anomalous_features.extend(reasons)
-                        anomalous_df = pd.concat(
-                            [anomalous_df, df.iloc[ip_df.index[indices]]],
-                            axis=0, ignore_index=True
-                        )
-                else:
-                    anomalous_without_model_count += len(ip_df.index)
+            if self._model_path is not None:
+                ip_df.reset_index(inplace=True)
+                ip_df = ip_df.drop(
+                    columns=['index', self._TENANT_FEATURE, self._USER_FEATURE])
+                ip_df = self._preprocess(ip_df)
+                # 
+                
+                has_anomaly, indices, reasons, updated_categorical_params = self._predict(
+                    ip_df, 800, has_model)
 
-                if save_data_for_ip_profile is True:
-                    # self._save_to_csv(ip_df, ip_csv_path)
-                    self._save_categorical_params(updated_categorical_params)
+                if has_anomaly:
+                    anomalous_features.extend(reasons)
+                    model_info.extend([which_model]*len(reasons))
+                    anomalous_df = pd.concat(
+                        [anomalous_df, df.iloc[ip_df.index[indices]]],
+                        axis=0, ignore_index=True
+                    )
+            else:
+                anomalous_without_model_count += len(ip_df.index)
 
-        # for tenant in truncated_df[self._TENANT_FEATURE].unique():
-        #     tenant_df = truncated_df[truncated_df[self._TENANT_FEATURE] == tenant]
+            if save_data_for_ip_profile is True:
+                # self._save_to_csv(ip_df, ip_csv_path)
+                self._save_categorical_params(updated_categorical_params)
 
-        #     ips = tenant_df[self._USER_FEATURE].unique()
 
-        #     for ip in ips:
-        #         ip_csv_path = os.path.join(
-        #             self._TENANT_PROFILE_DIR, tenant, f'{ip}.csv')
-        #         self._model_path = os.path.join(
-        #             self._TENANT_MODEL_DIR, tenant, ip)
-
-        #         ip_df = tenant_df[tenant_df[self._USER_FEATURE] == ip].copy()
-        #         # ip_df.reset_index(inplace=True)
-        #         # print(ip)
-        #         ip_df = ip_df.drop(
-        #             columns=[self._TENANT_FEATURE, self._USER_FEATURE])
-
-        #         if os.path.exists(self._model_path) is True:
-        #             ip_df = self._preprocess(ip_df)
-        #             has_anomaly, indices, reasons, updated_categorical_params = self._predict(
-        #                 ip_df, 800)
-
-        #             if has_anomaly:
-        #                 anomalous_features.extend(reasons)
-        #                 anomalous_df = pd.concat(
-        #                     [anomalous_df, df.iloc[ip_df.index[indices]]],
-        #                     axis=0, ignore_index=True
-        #                 )
-        #         else:
-        #             anomalous_without_model_count += len(ip_df.index)
-        #             # commented to not put anomaly without model in anomaly csv
-        #             # anomalous_features.extend(['No model']*len(ip_df.index))
-        #             # anomalous_df = pd.concat(
-        #             #     [anomalous_df, df.iloc[ip_df.index]],
-        #             #     axis=0, ignore_index=True
-        #             #     )
-
-        #         if save_data_for_ip_profile is True:
-        #             self._save_to_csv(ip_df, ip_csv_path)
-        #             self._save_categorical_params(updated_categorical_params)
         anomalous_features_df = pd.DataFrame(
             data=np.array(anomalous_features), columns=['reasons']
         )
-        anomalous_df = pd.concat([anomalous_df, anomalous_features_df], axis=1)
+        model_info = pd.DataFrame(
+            data=np.array(model_info), columns=['model_info']
+        )
+        anomalous_df = pd.concat([anomalous_df, anomalous_features_df, model_info], axis=1)
         # print(
         #     f'{anomalous_without_model_count}/{len(anomalous_df.index)} : Anomalous without model')
         return anomalous_df, anomalous_without_model_count
@@ -467,11 +446,11 @@ class MLEngine(AutoEncoder):
         n_chunks = 0
         ano_with_no_model_count = 0
         ano_with_model_count = 0
-        total_data_count = 0
+        # total_data_count = 0
         
-        chunksize = 10 ** 6
+        chunksize = 2*10 ** 6
         df = pd.read_csv(csv_file_path, chunksize=chunksize)  # 100 million
-
+        # df_chunk = pd.read_csv(csv_file_path)#, chunksize=chunksize)
         for df_chunk in df:
             anomalous_df, ano_without_model = self.get_ip_anomalies(
                 df_chunk, save_data_for_ip_profile=False
@@ -489,7 +468,7 @@ class MLEngine(AutoEncoder):
         return ano_with_model_count, ano_with_no_model_count, n_chunks
 
     def _create_filtered_csv(self, raw_csv_path):
-        df = self._SPARK.read.csv(raw_csv_path, header=True)
+        df = self._SPARK.read.csv(raw_csv_path, header=True, inferSchema=True)
         ips = np.array(df.select('Source address').distinct().rdd.flatMap(lambda x: x).collect())
         private_ips = ips[[ipaddress.ip_address(ip).is_private for ip in ips]].tolist()
         df = df.filter(df['Source address'].isin(private_ips))
@@ -510,7 +489,6 @@ class MLEngine(AutoEncoder):
                 for csv_folder in csv_folders:
                     csv_folder_path = os.path.join(
                         self._DAILY_CSV_DIR, csv_folder)
-                    # pdb.set_trace()
                     
                     if csv_folder_path.endswith('.csv'):
                         print(
@@ -531,8 +509,7 @@ class MLEngine(AutoEncoder):
                     else:
                         pass
                     csv_folder_count += 1
-                    print(
-                        f'Total Anomaly: {total_ano_with_model_count} in file {csv_folder}')
+                    print(f'Total Anomaly: {total_ano_with_model_count} in file {csv_folder}')
             else:
                 print(
                     "[Warning]: No csv to find anomaly, TRAFFIC_LOGS_OUTPUT_DIR is empty")
