@@ -111,9 +111,22 @@ class Initialize():
         df = df.filter(df[self._USER_FEATURE].isin(private_ips))
         df = self._preprocess(df)
 
+<<<<<<< HEAD
         df.repartition(1).write.partitionBy([self._TENANT_FEATURE, self._USER_FEATURE]).csv(dest_path, mode='append', header=True)
     
         print(time.time() - start)          
+=======
+    def _parse_in_chunks(self, src_file_path, dest_path, features_list):
+        n_chunks = 0
+        df = pd.read_csv(src_file_path)#, usecols=features_list)#, chunksize=100000000)# 100 million
+
+        # for df_chunk in df:
+            # self._create_ip_profile(df_chunk[features_list], dest_path)
+        self._create_ip_profile(df[features_list], dest_path)
+        n_chunks += 1
+
+        return n_chunks
+>>>>>>> master
 
     def parse_all_csv(self):
         """Method to parse all history csv to create tenant profile

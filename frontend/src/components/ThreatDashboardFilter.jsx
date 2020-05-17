@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import { Row, Col, Select, DatePicker, Divider, Button } from "antd";
+import { Row, Col, Select, DatePicker, Button } from "antd";
 import { connect } from "react-redux";
 import {
   updateDateRangePickerFilter,
@@ -8,14 +8,17 @@ import {
   updateProtocolFilter,
   updateSourceZoneFilter,
   updateDestinationZoneFilter,
-  updateIpAddressFilter
+  defaultDateSet
 } from "../actions/filterAction";
-import { filterSelectDataServiceAsync } from "../services/filterSelectDataService";
 import {ROOT_URL} from "../utils"
 import moment from "moment";
+import axios from 'axios';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
+
+const FETCH_THREAT_LOG_LATEST_DATE = `${ROOT_URL}log/threat/latest/`;
+const FETCH_FILTERS = `${ROOT_URL}dashboard/threat/filters/`;
 
 class DashboardFilter extends Component {
   constructor(props) {
@@ -27,13 +30,11 @@ class DashboardFilter extends Component {
       source_zone_select_data: [],
       destination_zone_select_data: [],
       defaultDate: null,
-      // ip_address_select_data: [],
       loading_firewall_rule_select: true,
       loading_application_select: true,
       loading_protocol_select: true,
       loading_source_zone_select: true,
       loading_destination_zone_select: true,
-      // loading_ip_address_select: true,
       date_range_value: [],
       firewall_rule_value: [],
       application_value: [],
@@ -45,30 +46,30 @@ class DashboardFilter extends Component {
   }
 
   componentDidMount() {
+    const token = `Token ${this.props.auth_token}`;
+    let headers = {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: token
+    };
     
-    filterSelectDataServiceAsync(this.props.auth_token)
-      .then(response => {
-        const filter_data = response[0].data;
-        const defaultDate = response[2].data;
-
-        // const ip_data = response[1].data;
-        this.setState({
-          defaultDate: defaultDate.date,
-          firewall_rule_select_data: filter_data.firewall_rule,
-          application_select_data: filter_data.application,
-          protocol_select_data: filter_data.protocol,
-          source_zone_select_data: filter_data.source_zone,
-          destination_zone_select_data: filter_data.destination_zone,
-          // ip_address_select_data: ip_data,
-          loading_firewall_rule_select: false,
-          loading_application_select: false,
-          loading_protocol_select: false,
-          loading_source_zone_select: false,
-          loading_destination_zone_select: false,
-          // loading_ip_address_select: false
-        });
+    axios.post(FETCH_THREAT_LOG_LATEST_DATE,null,{headers})
+    .then(res =>{
+      this.setState({
+        defaultDate: res.data.date
       })
-      .catch(error => console.log(error));
+    })
+
+    axios.post(FETCH_FILTERS,null,{headers})
+    .then(res =>{
+      this.setState({
+        firewall_rule_select_data: res.data.firewall_rule,
+        application_select_data: res.data.application,
+        protocol_select_data: res.data.protocol,
+        source_zone_select_data: res.data.source_zone,
+        destination_zone_select_data: res.data.destination_zone,
+      })
+    })
   }
 
   handleRangePickerChange = (event, value) => {
@@ -125,31 +126,30 @@ class DashboardFilter extends Component {
       // ip_value
     } = this.state;
     event.preventDefault();
-    console.log("********************APPLYING FILTER*************",defaultDate,date_range_value,firewall_rule_value,application_value,protocol_value,source_zone_value,destination_zone_value)
     this.props.dispatchRangePickerUpdate(date_range_value,defaultDate);
     // this.props.dispatchIpAddressRuleFilterUpdate(ip_value);
-    this.props.dispatchDestinationZoneFilterUpdate(application_value);
-    this.props.dispatchSourceZoneFilterUpdate(protocol_value);
-    this.props.dispatchProtocolFilterUpdate(source_zone_value);
-    this.props.dispatchApplicationFilterUpdate(destination_zone_value);
+    this.props.dispatchDestinationZoneFilterUpdate(destination_zone_value);
+    this.props.dispatchSourceZoneFilterUpdate(source_zone_value);
+    this.props.dispatchProtocolFilterUpdate(protocol_value);
+    this.props.dispatchApplicationFilterUpdate(application_value);
     this.props.dispatchFirewallRuleFilterUpdate(firewall_rule_value);
   };
 
   render() {
     const applicationSelectListItem = this.state.application_select_data.map(
-      data => <Option key={data[0]}>{data[1]}</Option>
+      data => <Option key={data[0]}>{data[0]}</Option>
     );
     const firewallRuleSelectListItem = this.state.firewall_rule_select_data.map(
       data => <Option key={data[0]}>{data[1]}</Option>
     );
     const protocolSelectListItem = this.state.protocol_select_data.map(data => (
-      <Option key={data[0]}>{data[1]}</Option>
+      <Option key={data[0]}>{data[0]}</Option>
     ));
     const sourceZoneSelectListItem = this.state.source_zone_select_data.map(
-      data => <Option key={data[0]}>{data[1]}</Option>
+      data => <Option key={data[0]}>{data[0]}</Option>
     );
     const destinationZoneSelectListItem = this.state.destination_zone_select_data.map(
-      data => <Option key={data[0]}>{data[1]}</Option>
+      data => <Option key={data[0]}>{data[0]}</Option>
     );
     // const ipAddressSelectListItem = this.state.ip_address_select_data.map(
     //   data => <Option key={data["id"]}>{data["address"]}</Option>
@@ -158,7 +158,8 @@ class DashboardFilter extends Component {
     return (
       <Fragment>  
         {this.state.defaultDate ?
-        (<div
+        (this.props.dispatchDefaultDateSet(this.state.defaultDate),
+        <div
           style={{
             padding: 24,
             background: "#fbfbfb",
@@ -308,6 +309,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
+    dispatchDefaultDateSet:(value)=>dispatch(defaultDateSet(value)),
     dispatchRangePickerUpdate: (value, defaultDate) =>
       dispatch(updateDateRangePickerFilter(value, defaultDate)),
     dispatchFirewallRuleFilterUpdate: value =>

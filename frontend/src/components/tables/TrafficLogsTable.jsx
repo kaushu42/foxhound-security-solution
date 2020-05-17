@@ -11,8 +11,9 @@ class TrafficLogsTable extends Component {
       columns: [
         {
           title: "Processed Date",
-          dataIndex: "processed_date",
-          key: "processed_date"
+          dataIndex: "processed_datetime",
+          key: "processed_datetime",
+          render: text => (new Date(text*1000+20700000).toUTCString()).replace(" GMT", "")
         },
         {
           title: "Log Date",
@@ -64,10 +65,9 @@ class TrafficLogsTable extends Component {
   };
 
   fetchProcessedLogsFromDb = (params = {}) => {
-    console.log("data loading");
     this.setState({ loading: true });
     reqwest({
-      url: `${ROOT_URL}log/processed/`,
+      url: `${ROOT_URL}log/traffic/processed/`,
       method: "get",
       headers: {
         Authorization: `Token ${this.props.auth_token}`
@@ -79,7 +79,6 @@ class TrafficLogsTable extends Component {
       },
       type: "json"
     }).then(data => {
-      console.log("data fetched", this.data);
       const { pagination } = this.state;
       pagination.total = data.count;
       this.setState({
@@ -96,7 +95,7 @@ class TrafficLogsTable extends Component {
         <Spin tip={"loading..."} spinning={this.state.loading}>
           <Table
             columns={this.state.columns}
-            rowKey={record => record.id}
+            rowKey={record => record.log}
             dataSource={this.state.data}
             pagination={this.state.pagination}
             loading={this.state.loading}

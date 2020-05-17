@@ -1,5 +1,5 @@
     import React, {Component, Fragment} from 'react';
-    import {Avatar, Button, Form, List, Select, Spin, Statistic, Table, Tag, Input} from 'antd';
+    import {Button, Form, List, Select, Spin, Statistic, Table, Tag, Input} from 'antd';
     import reqwest from "reqwest";
     import {drawerInfoStyle, ROOT_URL, bytesToSize} from "../../utils";
     import {connect} from "react-redux";
@@ -10,6 +10,7 @@
     import {search} from "../../actions/ipSearchAction";
     import ExportJsonExcel from 'js-export-excel';
     import { filterSelectDataServiceAsync } from "../../services/filterSelectDataService";
+    import Avatar from 'react-avatar';
     import moment from "moment"
     const { Option } = Select;
     const { TextArea } = Input;
@@ -26,6 +27,8 @@
                 record : null,
                 recordFollowUpComment : null,
                 recordFollowUpAssignedTo : this.props.current_session_user_id,
+                recordIsAnomaly:null,
+                recordSeverityLevel: null,
                 recordFollowUpData : [],
                 followUpDrawerVisible : false,
                 applicationData: [],
@@ -41,14 +44,14 @@
                     // },
                     {
                         title: 'Source Address',
-                        dataIndex: 'source_ip',
-                        key: 'source_ip',
+                        dataIndex: 'source_address',
+                        key: 'source_address',
                         render: (text,record) => <a onClick={()=> this.handleShowSourceIpProfile(record)}>{text}</a>,
                     },
                     {
                         title: 'Destination Address',
-                        dataIndex: 'destination_ip',
-                        key: 'destination_ip',
+                        dataIndex: 'destination_address',
+                        key: 'destination_address',
                         render: (text,record) => <a onClick={()=> this.handleShowDestinationIpProfile(record)}>{text}</a>,
                     },
                     {
@@ -101,12 +104,12 @@
         }
 
         handleShowSourceIpProfile(record){
-            this.props.dispatchIpSearchValueUpdate(record.source_ip);
+            this.props.dispatchIpSearchValueUpdate(record.source_address);
             this.setState({quickIpView : true})
         }
 
         handleShowDestinationIpProfile(record){
-            this.props.dispatchIpSearchValueUpdate(record.destination_ip);
+            this.props.dispatchIpSearchValueUpdate(record.destination_address);
             this.setState({quickIpView : true})
         }
 
@@ -144,7 +147,6 @@
             };
             axios.get(`${ROOT_URL}tt/anomaly/${record.id}/`,{headers})
                 .then(res=>{
-                    console.log('follow up record',res.data.results);
                     this.setState({
                         recordFollowUpData : res.data.results
                     })
@@ -175,7 +177,6 @@
 
             axios.post(`${ROOT_URL}tt/anomaly/${this.state.record.id}/`,data,{headers})
                 .then(res=>{
-                    console.log('follow up record',res.data.results);
                     this.setState({
                         recordFollowUpData : res.data.results,
                         recordFollowUpComment : "",
@@ -184,7 +185,6 @@
                     }, ()=>{this.handleFetchAnomalyRecord(this.state.record)})
                 })
                 .catch(e => {
-                    console.log("error",e);
                     this.setState({
                         error_message : "something went wrong!!"
                     })
@@ -195,11 +195,12 @@
         handleAnomalyTTClose = (e) => {
             e.preventDefault();
             const comment = this.state.recordFollowUpComment;
+            const severity_level = this.state.recordSeverityLevel;
+            const is_anomaly = this.state.recordIsAnomaly;
             if(comment == null  || comment == ""){
                 this.setState({error_message:"Please Enter Reason To Closing Trouble Ticket"});
                 return
             }
-            // console.log("selected tt to close", this.state.record.id)
             const authorization = `Token ${this.props.auth_token}`;
 
             let headers = {
@@ -211,9 +212,11 @@
 
             let bodyFormData = new FormData();
             bodyFormData.set("description", comment);
+            bodyFormData.set("severity_level", severity_level);
+            bodyFormData.set("is_anomaly", is_anomaly);
+
             axios.post(`${ROOT_URL}tt/close/${this.state.record.id}/`,bodyFormData,{headers})
             .then(res=>{
-                console.log('Trouble Ticket Closed Successfully');
                 this.setState({
                     followUpDrawerVisible: false,
                     error_message : "",
@@ -222,7 +225,6 @@
                 })
             })
             .catch(e => {
-                console.log("error",e);
                 this.setState({
                     error_message : "something went wrong!!"
                 })
@@ -258,7 +260,6 @@
                     this.setState({
                         user_list : data
                     });
-                    console.log("user list",this.state.user_list);
                 });
 
         }
@@ -281,7 +282,6 @@
                         ttDetailNumeric: res.data.reasons.numeric,
                         selectedRecord: record.id
                     })
-                    console.log("tt detail data", this.state.ttDetailCategorical, this.state.ttDetailNumeric)
                 })
             }   
             var dataToShow = []
@@ -319,9 +319,6 @@
         }
         
         handleTableChange = (pagination, filters, sorter) => {
-            console.log('pagination',pagination);
-            console.log('filter',filters)
-            console.log('sorter',sorter)
             const pager = { ...this.state.pagination };
             pager.current = pagination.current;
             this.setState({
@@ -337,7 +334,6 @@
         };
 
         fetch = (params = {}) => {
-            console.log("data loading");
             this.setState({ loading: true });
 
             const FETCH_API = `${ROOT_URL}tt/open/`
@@ -351,8 +347,8 @@
             };
 
             let bodyFormData = new FormData();
-            bodyFormData.set("source_ip", this.state.searchSourceIP);
-            bodyFormData.set("destination_ip", this.state.searchDestinationIP);
+            bodyFormData.set("source_address", this.state.searchSourceIP);
+            bodyFormData.set("destination_address", this.state.searchDestinationIP);
             bodyFormData.set("application", this.state.searchApplication);
             bodyFormData.set("log_name", this.state.searchLogname);
 
@@ -385,13 +381,12 @@
              var option={};
              let dataTable = [];
              if (data) {
-                console.log(data);
                for (let i in data) {
                  if(data){
                    let obj = {
                                 'Created datetime': (new Date(parseInt(data[i].created_datetime)*1000+20700000).toUTCString()).replace(" GMT", ""),
-                                'Source address': data[i].source_ip,
-                                'Destination address': data[i].destination_ip,
+                                'Source address': data[i].source_address,
+                                'Destination address': data[i].destination_address,
                                 'Application':data[i].application,
                                 'Destination port':data[i].destination_port,
                                 'Bytes sent':data[i].bytes_sent,
@@ -518,10 +513,10 @@
                                     <Fragment>
                                         <Row type="flex" gutter={16}>
                                             <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
-                                                <Statistic title="Source IP" value={this.state.record.source_ip} />
+                                                <Statistic title="Source Address" value={this.state.record.source_address} />
                                             </Col>
                                             <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
-                                                <Statistic title="Destination IP" value={this.state.record.destination_ip}/>
+                                                <Statistic title="Destination Address" value={this.state.record.destination_address}/>
                                             </Col>
                                             <Col xs={24} sm={12} md={12} lg={8} xl={8} style={drawerInfoStyle}>
                                                 <Statistic title="Application" value={this.state.record.application}/>
@@ -535,6 +530,7 @@
                                             <Col xs={24} sm={24} md={24} lg={24} xl={24} style={drawerInfoStyle}>
                                                 <Statistic title="Log Name" value={this.state.record.log.log_name}/>
                                             </Col>
+
                                         </Row>
                                         <br />
 
@@ -546,7 +542,7 @@
                                                     renderItem={item => (
                                                         <List.Item>
                                                             <List.Item.Meta
-                                                                avatar={<Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />}
+                                                                avatar={<Avatar color={Avatar.getRandomColor('sitebase', ['red', 'green', 'blue'])} size={50} name={item.assigned_by.username} />}
                                                                 title={<b>{item.description}</b>}
                                                                 description={`${(new Date((parseInt(item.follow_up_datetime)+20700)*1000).toUTCString()).replace(" GMT", "")} | Assigned By ${item.assigned_by.username}`}
                                                             />
@@ -560,9 +556,24 @@
                                             <br />
                                             <Form>
                                                 <p style={{color:'red'}}>{this.state.error_message}</p>
+
                                             <Row type="flex" gutter={16} style={{paddingTop: 10,paddingBottom: 10}}>
                                                 <Col xs={24} sm={12} md={24} lg={24} xl={24}>
                                                     <TextArea rows={3} value={this.state.recordFollowUpComment} onChange={(e)=>this.setState({recordFollowUpComment : e.target.value})}/>
+                                                </Col>
+                                                <Col xs={24} sm={12} md={24} lg={12} xl={12} style={{paddingTop: 10,paddingBottom: 10}}>
+                                                    <Select style={{width:'100%'}} defaultValue={"not-applicable"}  onChange={(value)=>this.setState({recordSeverityLevel : value})}>
+                                                        <Option key={"not-applicable"} value={"not-applicable"}>Severity - Not Applicable</Option>
+                                                        <Option key={"low"} value={"low"}>Severity - Low</Option>
+                                                        <Option key={"medium"} value={"medium"}>Severity - Medium</Option>
+                                                        <Option key={"high"} value={"high"}>Severity - High</Option>
+                                                    </Select>
+                                                </Col>
+                                                <Col xs={24} sm={12} md={24} lg={12} xl={12} style={{paddingTop: 10,paddingBottom: 10}}>
+                                                    <Select style={{width:'100%'}} defaultValue={"false"}  onChange={(value)=>this.setState({recordIsAnomaly : value})}>
+                                                        <Option key={"true"} value={"true"}>Is Anomaly - Yes</Option>
+                                                        <Option key={"false"} value={"false"}>Is Anomaly - No</Option>
+                                                    </Select>                                                
                                                 </Col>
                                                 <Col xs={24} sm={12} md={16} lg={12} xl={12} style={{paddingTop: 10,paddingBottom: 10}}>
                                                     <Select style={{width:'100%'}} defaultValue={parseInt(this.props.current_session_user_id)}  onChange={(value)=>this.setState({recordFollowUpAssignedTo : value})}>
@@ -577,6 +588,7 @@
                                                 <Col xs={24} sm={12} md={8} lg={6} xl={6} style={{paddingTop: 10,paddingBottom: 10}}>
                                                     <Button type="danger" style={{width:'100%'}} htmlType="submit" className="login-form-button" onClick={e =>this.handleAnomalyTTClose(e)}>Close TT</Button>
                                                 </Col>
+
                                             </Row>
                                             </Form>
                                         </Fragment>

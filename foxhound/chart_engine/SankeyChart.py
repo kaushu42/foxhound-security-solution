@@ -22,14 +22,14 @@ class SankeyChart(BaseChart):
         toPublicAddressUdf = udf(lambda x: x if ipaddress.ip_address(
             x).is_private else "Public Address", StringType())
         df = df.withColumn(
-            "source_ip_id", toPublicAddressUdf(df.source_ip_id)).withColumn(
-            "destination_ip_id", toPublicAddressUdf(df.destination_ip_id))
+            "source_address", toPublicAddressUdf(df.source_address)).withColumn(
+            "destination_address", toPublicAddressUdf(df.destination_address))
         # Group by necessary columns
         grouped_df = df.groupBy(
             *self.headers,
             'logged_datetime',
-            'source_ip_id',
-            'destination_ip_id'
+            'source_address',
+            'destination_address'
         )
 
         # Aggregate the bytes
@@ -38,14 +38,14 @@ class SankeyChart(BaseChart):
             'bytes_received': 'sum',
             'packets_sent': 'sum',
             'packets_received': 'sum',
-            'source_ip_id': 'count'
-        }).withColumnRenamed('sum(bytes_received)', 'bytes_received')\
-            .withColumnRenamed('sum(bytes_sent)', 'bytes_sent')\
-            .withColumnRenamed('count(source_ip_id)', 'count')\
-            .withColumnRenamed('sum(packets_received)', 'packets_received')\
-            .withColumnRenamed('sum(packets_sent)', 'packets_sent')
+            'source_address': 'count'
+        }).withColumnRenamed('sum(bytes_received)', 'sum_bytes_received')\
+            .withColumnRenamed('sum(bytes_sent)', 'sum_bytes_sent')\
+            .withColumnRenamed('count(source_address)', 'count_events')\
+            .withColumnRenamed('sum(packets_received)', 'sum_packets_received')\
+            .withColumnRenamed('sum(packets_sent)', 'sum_packets_sent')
         # Get the filters from db
-        filters = self._read_table_from_postgres('core_filter')
+        filters = self._read_table_from_postgres('fh_prd_trfc_fltr_f')
 
         # Get filter ids to write to db
         sankey_chart = grouped_df.join(filters, on=[
@@ -56,19 +56,20 @@ class SankeyChart(BaseChart):
             grouped_df.protocol_id == filters.protocol_id,
         ])[[
             'logged_datetime',
-            'source_ip_id',
-            'destination_ip_id',
-            'bytes_sent',
-            'bytes_received',
-            'packets_sent',
-            'packets_received',
+            'source_address',
+            'destination_address',
+            'sum_bytes_sent',
+            'sum_bytes_received',
+            'sum_packets_sent',
+            'sum_packets_received',
             'id',
-            'count'
+            'count_events'
         ]]\
-            .withColumnRenamed('source_ip_id', 'source_ip')\
-            .withColumnRenamed('destination_ip_id', 'destination_ip')\
+            .withColumnRenamed('source_address', 'source_address')\
+            .withColumnRenamed('destination_address', 'destination_address')\
             .withColumnRenamed('id', 'filter_id')
 
-        self._write_df_to_postgres(sankey_chart, 'core_sankeychart')
+        self._write_df_to_postgres(
+            sankey_chart, 'fh_stg_trfc_chrt_con_dt_hr_a')
 
         return sankey_chart

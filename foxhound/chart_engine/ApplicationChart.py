@@ -21,15 +21,15 @@ class ApplicationChart(BaseChart):
         })
 
         grouped_df = grouped_df.withColumnRenamed(
-            'sum(bytes_sent)', 'bytes_sent'
+            'sum(bytes_sent)', 'sum_bytes_sent'
         ).withColumnRenamed(
-            'sum(packets_sent)', 'packets_sent'
+            'sum(packets_sent)', 'sum_packets_sent'
         ).withColumnRenamed(
-            'sum(bytes_received)', 'bytes_received'
+            'sum(bytes_received)', 'sum_bytes_received'
         ).withColumnRenamed(
-            'sum(packets_received)', 'packets_received'
+            'sum(packets_received)', 'sum_packets_received'
         ).withColumnRenamed(
-            'count(application_id)', 'count'
+            'count(application_id)', 'count_events'
         )
         # # Cast column from float to int
         # grouped_df = grouped_df.withColumn(
@@ -39,10 +39,9 @@ class ApplicationChart(BaseChart):
         grouped_df = grouped_df[[
             'firewall_rule_id',
             'logged_datetime', 'application_id',
-            'bytes_sent', 'bytes_received',
-            'packets_sent', 'packets_received',
-            'count'
+            'sum_bytes_sent', 'sum_bytes_received',
+            'sum_packets_sent', 'sum_packets_received',
+            'count_events'
         ]]
-
         # Write to db
-        self._write_df_to_postgres(grouped_df, 'core_applicationchart')
+        self._write_df_to_postgres(grouped_df, 'fh_stg_trfc_chrt_app_dt_hr_a')

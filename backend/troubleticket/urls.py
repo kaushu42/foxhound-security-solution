@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views_v1, views
+from . import views
 
 urlpatterns = [
     path('open/', views.TroubleTicketAnomalyOpenApiView.as_view()),

@@ -2,11 +2,13 @@ import os
 import re
 import random
 import ipaddress
+import traceback
 import numpy as np
 import pandas as pd
 from datetime import datetime
 from psycopg2 import sql, connect
 from sqlalchemy import create_engine
+from ..logger import Logger
 
 
 class ThreatEngine(object):
@@ -34,7 +36,7 @@ class ThreatEngine(object):
             'source_zone', 'destination_zone', 'inbound_interface',
             'outbound_interface', 'log_action',
             'repeat_count', 'source_port', 'destination_port', 'flags',
-            'ip_protocol', 'action', 'url_filename',
+            'protocol', 'action', 'url_filename',
             'threat_content_name', 'category', 'severity',
             'direction',
             'sequence_number', 'action_flags', 'source_country',
@@ -51,7 +53,7 @@ class ThreatEngine(object):
             'source_zone', 'destination_zone', 'inbound_interface',
             'outbound_interface', 'log_action', 'repeat_count',
             'source_port', 'destination_port', 'flags',
-            'ip_protocol', 'action', 'url_filename',
+            'protocol', 'action', 'url_filename',
             'threat_content_name', 'category', 'severity',
             'direction', 'sequence_number', 'action_flags', 'source_country',
             'destination_country', 'cpadding',
@@ -114,14 +116,23 @@ class ThreatEngine(object):
                         if_exists='append', index=False)
 
     def run(self):
+        logger = Logger.getInstance()
+        logger.info('Threat Engine Running')
         for root, dirs, files in os.walk(self._INPUT_DIR):
             for file in files:
-                if file.endswith(".csv"):
-                    print(
-                        f"processing threat log: {file} inside threat engine")
-                    self._read_csv(file)
-                    self._preprocess()
-                    self._set_firewall_rules_id_to_data()
-                    self._resolve_country_from_ip()
-                    self._show_df(10)
-                    self._write_df_to_db()
+                try:
+                    logger.info(f'Threat Engine: {file}')
+                    if file.endswith(".csv"):
+                        print(
+                            f"processing threat log: {file} inside threat engine")
+                        self._read_csv(file)
+                        self._preprocess()
+                        self._set_firewall_rules_id_to_data()
+                        self._resolve_country_from_ip()
+                        # self._show_df(10)
+                        self._write_df_to_db()
+                except Exception as e:
+                    logger.error(str(traceback.format_exc()))
+                    logger.info(f'Skipping {file}')
+                    continue
+        logger.info('Threat Engine: Done')

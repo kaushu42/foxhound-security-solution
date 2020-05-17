@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from core.models import (
     TrafficLog, TrafficLogDetail,
-    TrafficLogDetailGranularHour,
+    TrafficLogDetailHourly,
     Tenant, Domain,
     VirtualSystem,
     IPAddress,
@@ -12,17 +12,16 @@ from core.models import (
     TenantIPAddressInfo,
     TimeSeriesChart,
     FirewallRule,
-    ThreatLogDetail
+    ThreatLogDetailEvent
 )
 
-from batch.models import Log as BatchMonitorLog
-from mis.models import DailySourceIP, DailyDestinationIP
+from mis.models import TrafficMisNewSourceIPDaily, TrafficMisNewDestinationIPDaily, TrafficMisRequestFromBlacklistedIPDaily, TrafficMisResponseToBlacklistedIPDaily
 
 from troubleticket.models import (
     TroubleTicketAnomaly,
     TroubleTicketFollowUpAnomaly
 )
-from rules.models import Rule
+from rules.models import TrafficRule
 from users.models import FoxhoundUser
 from globalutils.utils import get_date_from_filename
 
@@ -106,8 +105,8 @@ class ApplicationSerializer(serializers.ModelSerializer):
 
 
 class TrafficLogDetailSerializer(serializers.ModelSerializer):
-    source_ip = IPAddressSerializer()
-    destination_ip = IPAddressSerializer()
+    source_address = IPAddressSerializer()
+    destination_address = IPAddressSerializer()
     application = ApplicationSerializer()
 
     class Meta:
@@ -125,7 +124,7 @@ class TrafficLogDetailGranularHourSerializer(serializers.ModelSerializer):
     firewall_rule = serializers.SerializerMethodField('get_firewall_rule_name')
 
     class Meta:
-        model = TrafficLogDetailGranularHour
+        model = TrafficLogDetailHourly
         exclude = ('traffic_log',)
 
     def get_firewall_rule_name(self, obj):
@@ -160,11 +159,11 @@ class VirtualSystemSerializer(serializers.ModelSerializer):
 
 class RuleSerializer(serializers.ModelSerializer):
     verified_by_user = UserSerializer()
-    source_ip_alias = serializers.CharField(required=False)
-    destination_ip_alias = serializers.CharField(required=False)
+    source_address_alias = serializers.CharField(required=False)
+    destination_address_alias = serializers.CharField(required=False)
 
     class Meta:
-        model = Rule
+        model = TrafficRule
         fields = '__all__'
 
 
@@ -178,7 +177,7 @@ class ProcessedLogDetailSerializer(serializers.Serializer):
     log = serializers.CharField()
     rows = serializers.IntegerField()
     size = serializers.IntegerField()
-    processed_date = serializers.DateField(required=False)
+    processed_datetime = serializers.DateTimeField(required=False)
     log_date = serializers.SerializerMethodField('get_log_date')
 
     def get_log_date(self, obj):
@@ -189,8 +188,8 @@ class TroubleTicketAnomalyLogDetailSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     log_name = serializers.CharField()
     created_datetime = serializers.DateTimeField()
-    source_ip = serializers.CharField()
-    destination_ip = serializers.CharField()
+    source_address = serializers.CharField()
+    destination_address = serializers.CharField()
     application = serializers.CharField()
     bytes_sent = serializers.IntegerField()
     bytes_received = serializers.IntegerField()
@@ -206,15 +205,15 @@ class TroubleTicketAnomalyLogDetailSerializer(serializers.Serializer):
 
 
 class RuleEditSerializer(serializers.Serializer):
-    source_ip = serializers.CharField(required=True)
-    destination_ip = serializers.CharField(required=True)
+    source_address = serializers.CharField(required=True)
+    destination_address = serializers.CharField(required=True)
     application = serializers.CharField(required=True)
     description = serializers.CharField(required=False)
 
 
 class SourceDestinationIPSerializer(serializers.Serializer):
-    source_ip = serializers.CharField(required=True)
-    destination_ip = serializers.CharField(required=True)
+    source_address = serializers.CharField(required=True)
+    destination_address = serializers.CharField(required=True)
 
 
 class IPAliasSerializer(serializers.Serializer):
@@ -233,21 +232,15 @@ class ApplicationChartSerializer(serializers.Serializer):
     application = serializers.CharField()
 
 
-class BatchLogSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = BatchMonitorLog
-        fields = '__all__'
-
-
 class MisDailySourceIpSerializer(serializers.ModelSerializer):
     class Meta:
-        model = DailySourceIP
+        model = TrafficMisNewSourceIPDaily
         fields = '__all__'
 
 
 class MisDailyDestinationIpSerializer(serializers.ModelSerializer):
     class Meta:
-        model = DailyDestinationIP
+        model = TrafficMisNewDestinationIPDaily
         fields = '__all__'
 
 
@@ -258,5 +251,17 @@ class MisIpSerializer(serializers.Serializer):
 
 class ThreatLogSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ThreatLogDetail
+        model = ThreatLogDetailEvent
+        fields = '__all__'
+
+
+class MisDailyRequestFromBlacklistedIpSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TrafficMisRequestFromBlacklistedIPDaily
+        fields = '__all__'
+
+
+class MisDailyResponseToBlacklistedIpSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TrafficMisResponseToBlacklistedIPDaily
         fields = '__all__'

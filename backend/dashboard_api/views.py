@@ -1,4 +1,5 @@
 from collections import defaultdict
+import datetime
 
 from django.db.models import Sum, F, Max, Count
 
@@ -10,33 +11,27 @@ from globalutils.utils import (
     get_objects_with_date_filtered,
     set_null_items_to_zero,
     get_firewall_rules_id_from_request,
-    get_country_name_and_code
+    get_country_name_and_code,
+    get_filters
 )
 
 
 from core.models import (
     Filter,
-    FirewallRule,
     TimeSeriesChart,
     Application,
     Zone,
     Protocol,
-    ApplicationChart,
     IPChart,
-    TrafficLogDetailGranularHour
+    TrafficLogDetailHourly
 )
 
 from mis.models import (
-    DailySourceIP,
-    DailyDestinationIP
+    TrafficMisNewSourceIPDaily,
+    TrafficMisNewDestinationIPDaily
 )
 
-from rules.models import Rule
-
-from serializers.serializers import (
-    TimeSeriesChartSerializer,
-    ApplicationChartSerializer
-)
+from rules.models import TrafficRule
 
 
 class StatsApiView(APIView):
@@ -52,26 +47,26 @@ class StatsApiView(APIView):
                 filter__in=filter_ids,
             )
             .aggregate(
-                bytes_sent=Sum('bytes_sent'),
-                bytes_received=Sum('bytes_received'),
-                count=Sum('count')
+                bytes_sent=Sum('sum_bytes_sent'),
+                bytes_received=Sum('sum_bytes_received'),
+                count=Sum('count_events')
             )
         )
-        response['new_source_ip'] = get_objects_with_date_filtered(
+        response['new_source_address'] = get_objects_with_date_filtered(
             request,
-            DailySourceIP,
+            TrafficMisNewSourceIPDaily,
             'logged_datetime',
             firewall_rule__in=firewall_rule_ids
         ).count()
-        response['new_destination_ip'] = get_objects_with_date_filtered(
+        response['new_destination_address'] = get_objects_with_date_filtered(
             request,
-            DailyDestinationIP,
+            TrafficMisNewDestinationIPDaily,
             'logged_datetime',
             firewall_rule__in=firewall_rule_ids
         ).count()
         response['new_rules'] = get_objects_with_date_filtered(
             request,
-            Rule,
+            TrafficRule,
             'created_date_time',
             firewall_rule__in=firewall_rule_ids
         ).count()
@@ -123,9 +118,9 @@ class UsageApiView(APIView):
             'logged_datetime',
             filter__in=filter_ids,
         ).values('logged_datetime').annotate(
-            bytes=Sum('bytes_sent') + Sum('bytes_received'),
-            packets=Sum('packets_sent') + Sum('packets_received'),
-            count=Sum('count')
+            bytes=Sum('sum_bytes_sent') + Sum('sum_bytes_received'),
+            packets=Sum('sum_packets_sent') + Sum('sum_packets_received'),
+            count=Sum('count_events')
         )
 
         data = []
@@ -146,6 +141,37 @@ class UsageApiView(APIView):
         return self.post(request, format=format)
 
 
+def get_model_kwargs(request):
+    kwargs = {}
+    filters = get_filters(request)
+
+    if filters.get('start_date', ''):
+        start_date = filters['start_date']
+        end_date = filters['end_date']
+
+        kwargs['logged_datetime__gte'] = start_date
+        kwargs['logged_datetime__lte'] = end_date + \
+            datetime.timedelta(days=1)
+
+    MODEL_MAP = {
+        "application": Application,
+        "protocol": Protocol,
+        "source_zone": Zone,
+        "destination_zone": Zone,
+    }
+
+    for f in filters:
+        if filters[f] and (not f.endswith('date')):
+            items = set(filters[f].split(','))
+            if f == 'firewall_rule':
+                kwargs[f'{f}__in'] = items
+                continue
+            kwargs[f'{f}__in'] = MODEL_MAP[f].objects.filter(
+                id__in=items).values_list('name')
+
+    return kwargs
+
+
 class ApplicationApiView(APIView):
     def post(self, request, format=None):
         top_count = int(request.data.get('topcount', 5))
@@ -156,25 +182,29 @@ class ApplicationApiView(APIView):
         # Assuming applications < 10000
         top_count = top_count if top_count else 10000
 
-        firewall_rule_ids = get_firewall_rules_id_from_request(request)
+        kwargs = get_model_kwargs(request)
 
-        kwargs = {
-            'firewall_rule__in': firewall_rule_ids,
-        }
+        if not kwargs.get('firewall_rule__in'):
+            firewall_rule_ids = get_firewall_rules_id_from_request(request)
+            kwargs['firewall_rule__in'] = firewall_rule_ids
+
+        if kwargs.get('application__in'):
+            del kwargs['application__in']
+
         if country:
             kwargs['source_country'] = country
 
         objects = get_objects_with_date_filtered(
             request,
-            TrafficLogDetailGranularHour,
+            TrafficLogDetailHourly,
             'logged_datetime',
             **kwargs
         ).values(
             'logged_datetime',
             'application'
         ).annotate(
-            bytes=Sum('bytes_sent')+Sum('bytes_received'),
-            packets=Sum('packets_sent')+Sum('packets_received'),
+            bytes=Sum('sum_bytes_sent')+Sum('sum_bytes_received'),
+            packets=Sum('sum_packets_sent')+Sum('sum_packets_received'),
             count=Count('firewall_rule_id'),
         ).values(
             'bytes',
@@ -224,33 +254,31 @@ class ApplicationApiView(APIView):
 
 class CountryApiView(APIView):
     def post(self, request, format=None):
-        filter_ids = get_filter_ids_from_request(request)
         basis = request.data.get('basis', 'bytes')
         except_countries = request.data.get('except_countries', '')
-        kwargs = {
-            'filter__in': filter_ids
-        }
-        if except_countries:
-            except_countries = except_countries.split(',')
+
+        firewall_rule_ids = get_firewall_rules_id_from_request(request)
+
+        kwargs = get_model_kwargs(request)
+
+        if not kwargs.get('firewall_rule__in'):
+            firewall_rule_ids = get_firewall_rules_id_from_request(request)
+            kwargs['firewall_rule__in'] = firewall_rule_ids
+
         objects = get_objects_with_date_filtered(
             request,
-            IPChart,
+            TrafficLogDetailHourly,
             'logged_datetime',
             **kwargs
-        ).values('address').annotate(
-            count=Sum('count'),
-            bytes=Sum('bytes_sent')+Sum('bytes_received'),
-            packets=Sum('packets_sent')+Sum('packets_received'),
-        )
+        ).values(
+            'source_country'
+        ).annotate(
+            bytes=Sum('sum_bytes_sent')+Sum('sum_bytes_received'),
+            packets=Sum('sum_packets_sent')+Sum('sum_packets_received'),
+            count=Count('firewall_rule_id')
+        ).values('source_country', basis)
 
-        values = defaultdict(int)
-
-        for obj in objects:
-            name, code = get_country_name_and_code(obj['address'])
-            values[code] += obj[basis]
-        return Response({
-            i: values[i] for i in values if i not in except_countries
-        })
+        return Response(objects)
 
     def get(self, request, format=None):
         return self.post(request, format=format)

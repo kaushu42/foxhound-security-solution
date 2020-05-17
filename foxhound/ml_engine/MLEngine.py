@@ -444,7 +444,6 @@ class MLEngine(AutoEncoder):
 
     def _predict_in_chunks(self, csv_file_path):
         n_chunks = 0
-        ano_with_no_model_count = 0
         ano_with_model_count = 0
         # total_data_count = 0
         

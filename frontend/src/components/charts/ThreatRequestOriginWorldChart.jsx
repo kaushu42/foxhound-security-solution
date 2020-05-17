@@ -34,6 +34,7 @@ class ThreatRequestOriginWorldChart extends Component{
     totalBytesReceived:null,
     excludeCountries: [],
     QuickIpView: false,
+    chartTitle: null,
   }
 
   handleShowSourceIpProfile(record) {
@@ -62,7 +63,6 @@ class ThreatRequestOriginWorldChart extends Component{
       this.setState({
         countryList: response
       })
-      console.log('fetched country select List data ', this.state.countryList);
     })
 
     this.handleFetchData()
@@ -98,26 +98,33 @@ class ThreatRequestOriginWorldChart extends Component{
           data: final_data,
           mapChartLoading:false
         })
-        console.log('fetched country data ', this.state.data);
     })
   }
 
   componentDidUpdate = (prevProps, prevState) => {
     if (
       prevState.excludeCountries != this.state.excludeCountries ||
-      String(prevProps.start_date) !== String(this.props.start_date) ||
-      String(prevProps.end_date) !== String(this.props.end_date) ||
+      String(prevProps.defaultDate) !== String(this.props.defaultDate) ||
+      String(prevProps.date_range[0]) !== String(this.props.date_range[0]) ||
+      String(prevProps.date_range[1]) !== String(this.props.date_range[1]) ||
       String(prevProps.firewall_rule) !== String(this.props.firewall_rule) ||
       String(prevProps.application) !== String(this.props.application) ||
       String(prevProps.protocol) !== String(this.props.protocol) ||
       String(prevProps.source_zone) !== String(this.props.source_zone) ||
       String(prevProps.destination_zone) !== String(this.props.destination_zone) ||
-      String(prevState.basis) !== String(this.state.basis) ||
       String(prevState.selectedCountryName) !== String(this.state.selectedCountryName)
     ){
+      {this.props.date_range[0]?this.setState({
+        chartTitle:`Threat Request Origin Chart from ${this.props.date_range[0]} to ${this.props.date_range[1]}`
+        }):
+        this.setState({
+            chartTitle:`Threat Request Origin Chart for ${this.props.defaultDate}`
+        })
+      }
       this.handleFetchData()
     }
   }
+
   
   handleMapChartLogView = (e) => {
     if (event.point.name == "United States of America"){
@@ -132,9 +139,6 @@ class ThreatRequestOriginWorldChart extends Component{
   }
 
   handleTableChange = (pagination, filters, sorter) => {
-    console.log("pagination", pagination);
-    console.log("filter", filters);
-    console.log("sorter", sorter);
     const pager = { ...this.state.pagination };
     pager.current = pagination.current;
     (this.state.pagination = pager),
@@ -194,7 +198,7 @@ class ThreatRequestOriginWorldChart extends Component{
     const options = {
       chart: {},
       title: {
-        text: null
+        text: this.state.chartTitle
       },
       mapNavigation: {
         enabled: true,
@@ -338,7 +342,7 @@ class ThreatRequestOriginWorldChart extends Component{
               }}
             >
               <ThreatApplicationChart
-                selectedCountry={this.state.selectedCountryName}
+                selectedCountry={this.state.selectedCountryCode}
               />
             </div>
             <div
@@ -350,7 +354,7 @@ class ThreatRequestOriginWorldChart extends Component{
               }}
             >
               <ThreatLogTable 
-              selectedCountry={this.state.selectedCountryName}/>
+              selectedCountry={this.state.selectedCountryCode}/>
             </div>
           </Spin>
         </Drawer>
@@ -371,6 +375,7 @@ class ThreatRequestOriginWorldChart extends Component{
 const mapStateToProps = state => {
   return{
     auth_token: state.auth.auth_token,
+    defaultDate: state.filter.defaultDate,
     date_range: state.filter.date_range,
     firewall_rule: state.filter.firewall_rule,
     application: state.filter.application,

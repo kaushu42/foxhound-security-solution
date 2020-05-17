@@ -17,12 +17,11 @@ from rest_framework.status import (
 from users.models import FoxhoundUser
 
 from core.models import (
-    TrafficLogDetailGranularHour,
-    TrafficLogDetail
+    TrafficLogDetailHourly
 )
 from mis.models import (
-    DailyDestinationIP,
-    DailySourceIP
+    TrafficMisNewDestinationIPDaily,
+    TrafficMisNewSourceIPDaily
 )
 from troubleticket.models import (
     TroubleTicketAnomaly,
@@ -240,9 +239,15 @@ def close_tt(request, id):
             "traceback": str(traceback.format_exc()),
             "exception": str(e)
         }, status=HTTP_400_BAD_REQUEST)
+
     description = request.data.get('description', '')
+    severity_level = request.data.get('severity_level')
+    is_anomaly = int(request.data.get('is_anomaly', 'true') == 'true')
     user = get_user_from_token(request)
+
     trouble_ticket.is_closed = True
+    trouble_ticket.is_anomaly = is_anomaly
+    trouble_ticket.severity_level = severity_level
     trouble_ticket.assigned_to = user
     trouble_ticket.description = description
     trouble_ticket.verified_datetime = now
@@ -281,7 +286,7 @@ class TroubleTicketDetailApiView(APIView):
                 id=id, firewall_rule__in=firewall_rule_ids)
             reasons = [i.strip() for i in tt.reasons.split(',')]
             ip = tt.source_ip
-            objects = TrafficLogDetailGranularHour.objects.filter(
+            objects = TrafficLogDetailHourly.objects.filter(
                 source_ip=ip, firewall_rule__in=firewall_rule_ids)
             query = {}
             max = objects.count()

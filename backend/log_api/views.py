@@ -1,4 +1,3 @@
-import traceback
 import datetime
 import pytz
 
@@ -11,28 +10,26 @@ from rest_framework.status import (
     HTTP_400_BAD_REQUEST
 )
 from core.models import (
-    TrafficLog, TrafficLogDetailGranularHour,
+    TrafficLogDetailHourly,
     Country,
     ProcessedTrafficLogDetail,
     ProcessedThreatLogDetail,
-    Application,
-    ThreatLog,
     ThreatLogDetail
 )
 from mis.models import (
-    DailyRequestFromBlackListEvent,
-    DailyResponseToBlackListEvent
+    TrafficMisRequestFromBlacklistedIPDaily,
+    TrafficMisResponseToBlacklistedIPDaily
 )
 from views.views import PaginatedView
 from serializers.serializers import (
     ProcessedLogDetailSerializer,
     TrafficLogDetailGranularHourSerializer,
     SourceDestinationIPSerializer,
-    ThreatLogSerializer
+    ThreatLogSerializer,
+    MisDailyRequestFromBlacklistedIpSerializer,
+    MisDailyResponseToBlacklistedIpSerializer
 )
 from globalutils.utils import (
-    get_tenant_id_from_token,
-    get_query_from_request,
     get_firewall_rules_id_from_request,
     get_date_from_filename
 )
@@ -46,7 +43,29 @@ class TrafficLogApiView(PaginatedView):
         firewall_ids = get_firewall_rules_id_from_request(request)
         objects = ProcessedTrafficLogDetail.objects.filter(
             firewall_rule__in=firewall_ids
-        ).values('log', 'processed_date').annotate(
+        ).values('log', 'processed_datetime').annotate(
+            rows=Sum('rows'),
+            size=F('rows')*self.SIZE_PER_LOG
+        )
+
+        page = self.paginate_queryset(objects.order_by('-log'))
+        if page is not None:
+            serializer = self.serializer_class(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+    def post(self, request):
+        return self.get(request)
+
+
+class ProcessedThreatLogApiView(PaginatedView):
+    serializer_class = ProcessedLogDetailSerializer
+    SIZE_PER_LOG = 468
+
+    def get(self, request):
+        firewall_ids = get_firewall_rules_id_from_request(request)
+        objects = ProcessedThreatLogDetail.objects.filter(
+            firewall_rule__in=firewall_ids
+        ).values('log', 'processed_datetime').annotate(
             rows=Sum('rows'),
             size=F('rows')*self.SIZE_PER_LOG
         )
@@ -77,7 +96,7 @@ class TrafficLogDetailApiView(PaginatedView):
             kwargs['traffic_log__id'] = int(id)
 
         if ip:
-            kwargs['source_ip'] = ip
+            kwargs['source_address'] = ip
 
         if hour:
             kwargs['logged_datetime__hour'] = hour
@@ -90,7 +109,7 @@ class TrafficLogDetailApiView(PaginatedView):
             kwargs['logged_datetime__gte'] = start_date
             kwargs['logged_datetime__lt'] = end_date
 
-        objects = TrafficLogDetailGranularHour.objects.filter(
+        objects = TrafficLogDetailHourly.objects.filter(
             **kwargs
         ).order_by('-id')
 
@@ -114,12 +133,12 @@ class RequestOriginLogApiView(PaginatedView):
         }
         if country:
             kwargs['source_country'] = country
-        objects = TrafficLogDetailGranularHour.objects.filter(
+        objects = TrafficLogDetailHourly.objects.filter(
             **kwargs
         )
         aggregates = objects.aggregate(
-            bytes_sent=Sum('bytes_sent'),
-            bytes_received=Sum('bytes_received'),
+            bytes_sent=Sum('sum_bytes_sent'),
+            bytes_received=Sum('sum_bytes_received'),
             rows=Count('firewall_rule_id')
         )
         page = self.paginate_queryset(objects.order_by('id'))
@@ -134,32 +153,6 @@ class RequestOriginLogApiView(PaginatedView):
 
     def post(self, request):
         return self.get(request)
-
-
-class RequestEndLogApiView(PaginatedView):
-    serializer_class = TrafficLogDetailGranularHourSerializer
-
-    def get(self, request):
-        country = request.data.get('country')
-        if country is None:
-            return Response({
-                "error": "\"country\" field is required"
-            }, status=HTTP_406_NOT_ACCEPTABLE)
-
-        tenant_id = get_tenant_id_from_token(request)
-        query = get_query_from_request(request)
-        ips = Country.objects.filter(iso_code=country).values('ip_address')
-        objects = get_objects_from_query(query).filter(
-            firewall_rule__tenant__id=tenant_id,
-            destination_ip__in=ips
-        ).order_by('-id')
-        page = self.paginate_queryset(objects)
-        for i in page:
-            i.logged_datetime -= datetime.timedelta(minutes=15)
-        if page is not None:
-            serializer = self.serializer_class(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        return Response({})
 
 
 class ApplicationLogApiView(PaginatedView):
@@ -183,7 +176,7 @@ class ApplicationLogApiView(PaginatedView):
         }
         if country:
             kwargs['source_country'] = country
-        objects = TrafficLogDetailGranularHour.objects.filter(
+        objects = TrafficLogDetailHourly.objects.filter(
             **kwargs
         ).order_by('id')
 
@@ -242,13 +235,13 @@ class SankeyLogApiView(PaginatedView):
         if not serializer.is_valid():
             return Response(serializer.errors)
 
-        source_ip = serializer.data['source_ip']
-        destination_ip = serializer.data['destination_ip']
+        source_address = serializer.data['source_address']
+        destination_address = serializer.data['destination_address']
 
-        objects = TrafficLogDetailGranularHour.objects.filter(
+        objects = TrafficLogDetailHourly.objects.filter(
             firewall_rule__in=firewall_ids,
-            source_ip=source_ip,
-            destination_ip=destination_ip
+            source_address=source_address,
+            destination_address=destination_address
         ).order_by('id')
 
         page = self.paginate_queryset(objects)
@@ -268,9 +261,10 @@ class LatestLogDateApiView(APIView):
             objects = model.objects.filter(
                 firewall_rule__in=firewall_ids
             ).latest('id')
-            date = get_date_from_filename(objects.log)
+            date = get_date_from_filename(
+                objects.log) - datetime.timedelta(days=1)
             return Response({
-                'date': date
+                'date': date.date()
             })
         except Exception as e:
             return Response({
@@ -289,21 +283,21 @@ class LatestThreatLogDateApiView(LatestLogDateApiView):
 
 
 class BlacklistLogApiView(PaginatedView):
-    serializer_class = TrafficLogDetailGranularHourSerializer
+    serializer_class = MisDailyRequestFromBlacklistedIpSerializer
 
     def post(self, request):
         firewall_ids = get_firewall_rules_id_from_request(request)
         ip = request.data.get('ip')
         objects = list(
-            DailyRequestFromBlackListEvent.objects.filter(
+            TrafficMisRequestFromBlacklistedIPDaily.objects.filter(
                 firewall_rule__in=firewall_ids,
-                source_ip=ip
+                source_address=ip
             )
         )
         objects += list(
-            DailyResponseToBlackListEvent.objects.filter(
+            TrafficMisResponseToBlacklistedIPDaily.objects.filter(
                 firewall_rule__in=firewall_ids,
-                destination_ip=ip
+                destination_address=ip
             )
         )
         page = self.paginate_queryset(objects)

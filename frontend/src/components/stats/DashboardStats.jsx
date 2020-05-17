@@ -78,8 +78,8 @@ class DashboardStats extends Component {
               unit: "GB",
               opened_tt: data.opened_tt,
               new_rules: data.new_rules,
-              new_source_ip: data.new_source_ip,
-              new_destination_ip: data.new_destination_ip
+              new_source_ip: data.new_source_address,
+              new_destination_ip: data.new_destination_address
             })
           : this.setState({
               uplink: parseFloat(data.bytes_sent / (1024 * 1024)).toFixed(2),
@@ -87,8 +87,8 @@ class DashboardStats extends Component {
               unit: "MB",
               opened_tt: data.opened_tt,
               new_rules: data.new_rules,
-              new_source_ip: data.new_source_ip,
-              new_destination_ip: data.new_destination_ip
+              new_source_ip: data.new_source_address,
+              new_destination_ip: data.new_destination_address
             });
         this.setState({ loading: false });
       })

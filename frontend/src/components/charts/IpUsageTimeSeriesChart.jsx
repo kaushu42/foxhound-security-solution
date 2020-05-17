@@ -18,6 +18,7 @@ class IpUsageTimeSeriesChart extends Component {
       data: [],
       unit: "",
       basis: "bytes",
+      chartTitle: null,
       options: {
         title: {
           text: null
@@ -75,9 +76,7 @@ class IpUsageTimeSeriesChart extends Component {
 
     const { auth_token, ip_address } = this.props;
     ipUsageDataService(auth_token, ip_address, this.state.basis, this.props).then(res => {
-      console.log("fetching current data for ip", ip_address);
       const response = res.data;
-      console.log('response', response.data)
       const data = [];
       const v = getDivisionFactorUnitsFromBasis(response["max"],this.state.basis)
       const division_factor = v["division_factor"];
@@ -85,7 +84,6 @@ class IpUsageTimeSeriesChart extends Component {
       for (var i = 0; i<response.data.length; i++){
         data.push([response.data[i][0]*1000, (response.data[i][1])/division_factor])
       }
-      console.log('data', data)
       this.setState({
         data: data,
         unit: unit
@@ -95,7 +93,6 @@ class IpUsageTimeSeriesChart extends Component {
 
   exitHandler = () => {
     if (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement) {
-      console.log("Inside fullscreen. Doing chart stuff.");
       this.chart = this.refs.chart.chart;
       this.chart.update({
         chart: {
@@ -105,7 +102,6 @@ class IpUsageTimeSeriesChart extends Component {
     }
 
     if (!document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
-      console.log("Exiting fullscreen. Doing chart stuff.");
       this.chart = this.refs.chart.chart;
       this.chart.update({
         chart: {
@@ -118,6 +114,7 @@ class IpUsageTimeSeriesChart extends Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (
       String(prevProps.ip_address) !== String(this.props.ip_address) ||
+      String(prevProps.defaultDate) !== String(this.props.defaultDate) ||
       String(prevProps.date_range[0]) !== String(this.props.date_range[0]) ||
       String(prevProps.date_range[1]) !== String(this.props.date_range[1]) ||
       String(prevProps.firewall_rule) !== String(this.props.firewall_rule) ||
@@ -127,11 +124,24 @@ class IpUsageTimeSeriesChart extends Component {
       String(prevProps.destination_zone) !== String(this.props.destination_zone) ||
       String(prevState.basis) !== String(this.state.basis)
     ) {
+      if(this.props.ip_address != ""){
+        {this.props.date_range[0]?this.setState({
+            chartTitle:`Traffic breakdown by time ${this.props.date_range[0]} to ${this.props.date_range[1]}`
+            }):
+            this.setState({
+                chartTitle:`Traffic breakdown by time in ${this.props.defaultDate}`
+            })
+        }
+      }
+      else{
+          this.setState({
+              chartTitle:null
+          })
+      }
       this.handleFetchData();
     }
     if (prevState.data !== this.state.data) {
       let dataSeries = this.state.data
-      console.log("Bandwidth chart dataseries", dataSeries);
       this.updateChart(dataSeries, this.state.unit);
     }
   }
@@ -150,10 +160,9 @@ class IpUsageTimeSeriesChart extends Component {
     bytesReceived.sort(function(a, b) {
       return a[0] > b[0] ? 1 : -1;
     });
-    console.log("******BYTES RECEIVED*******", bytesReceived)
     this.chart.update({
       title: {
-        text: null
+        text: this.state.chartTitle
       },
       series: [
         {
@@ -182,7 +191,6 @@ class IpUsageTimeSeriesChart extends Component {
   };
 
   render() {
-    console.log("loading", this.state.loading);
     return (
       <Fragment>
         <Card
@@ -218,7 +226,7 @@ const mapStateToProps = state => {
     auth_token: state.auth.auth_token,
 
     ip_address: state.ipSearchBar.ip_address,
-
+    defaultDate: state.filter.defaultDate,
     date_range: state.filter.date_range,
     firewall_rule: state.filter.firewall_rule,
     application: state.filter.application,

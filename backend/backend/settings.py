@@ -32,10 +32,8 @@ INSTALLED_APPS = [
     'profile_api',
     'log_api',
     'session',
-    'casdb',
     'celery',
     'mis',
-    'batch',
     'home'
 ]
 MIDDLEWARE = [
@@ -125,7 +123,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)

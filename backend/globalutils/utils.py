@@ -14,11 +14,11 @@ from django.db.models import Sum
 from django.db.models import Q
 
 from core.models import (
-    TrafficLogDetailGranularHour,
+    TrafficLogDetailHourly,
     FirewallRule,
-    Filter
+    Filter,
+    TrafficLog
 )
-from core.models import DBLock
 
 
 def _get_day_index(date):
@@ -121,10 +121,10 @@ def get_filters(request):
     start_date = request.data.get('start_date', None)
     end_date = request.data.get('end_date', None)
     start_date = str_to_date(start_date)
-    #if start_date is not None:
+    # if start_date is not None:
     #    start_date -= datetime.timedelta(hours=5, minutes=45)
     end_date = str_to_date(end_date)
-    #if end_date is not None:
+    # if end_date is not None:
     #    end_date -= datetime.timedelta(hours=5, minutes=45)
     firewall_rule = request.data.get('firewall_rule', None)
     application = request.data.get('application', None)
@@ -155,6 +155,7 @@ def str_to_date(string, timezone=pytz.UTC):
     try:
         return datetime.datetime.strptime(string, '%Y-%m-%d').astimezone(ktm)
     except Exception as e:
+        print(e)
         return None
 
 
@@ -169,17 +170,22 @@ def _get_query(name, item):
 
 
 def _get_date_queries(start_date, end_date, model_name, datetime_field_name):
+    if not model_name:
+        start_date_query_field = f'{datetime_field_name}__gte'
+        end_date_query_field = f'{datetime_field_name}__lte'
+    else:
+        start_date_query_field = f'{model_name}__{datetime_field_name}__gte'
+        end_date_query_field = f'{model_name}__{datetime_field_name}__lte'
     date_queries = {
         'start_date': {
-            f'{model_name}__{datetime_field_name}__gte': start_date
+            start_date_query_field: start_date
         },
         'end_date': {
-            f'{model_name}__{datetime_field_name}__lte': end_date
+            end_date_query_field: end_date if start_date != end_date else (start_date +
+                                                                           datetime.timedelta(days=1) if start_date is not None else None)
         }
     }
-
     queries = []
-
     if start_date:
         start_date_query = Q(**date_queries['start_date'])
         queries.append(start_date_query)
@@ -259,20 +265,20 @@ def get_query_from_request(
     return query
 
 
-def get_objects_from_query(queries, model=TrafficLogDetailGranularHour,
-                           type='model'):
+def get_objects_from_query(queries, model=TrafficLogDetailHourly,
+                           type='model', **kwargs):
     if queries:
         result = queries.pop(0)
         for query in queries:
             result &= query
         if type == 'model':
-            return model.objects.filter(result)
+            return model.objects.filter(result, **kwargs)
         elif type == 'queryset':
-            return model.filter(result)
+            return model.filter(result, **kwargs)
         else:
             raise Exception("type can be 'model' or 'queryset'")
     if type == 'model':
-        return model.objects.filter()
+        return model.objects.filter(**kwargs)
     elif type == 'queryset':
         return model
 
@@ -372,12 +378,22 @@ def set_null_items_to_zero(dict):
     return dict
 
 
-def get_objects_with_date_filtered(request, model, field_name, **kwargs):
+def get_objects_with_date_filtered(request, model, field_name, type='model', **kwargs):
     filters = get_filters(request)
     start_date = filters['start_date']
 
     if not start_date:  # There was no date filter applied
-        return model.objects.filter(**kwargs)
+        latest_date = TrafficLog.objects.latest(
+            'id').log_date - datetime.timedelta(days=1)
+        kwargs = {
+            **kwargs,
+            f'{field_name}__gte': datetime.datetime.combine(latest_date, datetime.time())
+        }
+
+        if type == 'model':
+            return model.objects.filter(**kwargs)
+        elif type == 'queryset':
+            return model.filter(**kwargs)
     end_date = filters['end_date'] + datetime.timedelta(hours=23)
     query = {
         **kwargs,
@@ -386,7 +402,10 @@ def get_objects_with_date_filtered(request, model, field_name, **kwargs):
             end_date
         ),
     }
-    return model.objects.filter(**query)
+    if type == 'model':
+        return model.objects.filter(**query)
+    if type == 'queryset':
+        return model.filter(**query)
 
 
 reader = geoip2.database.Reader("./GeoLite2-City.mmdb")
@@ -416,4 +435,4 @@ def to_regex(string):
 def get_date_from_filename(filename, sep='-'):
     d = re.findall(r'[0-9]{4}_[0-9]{2}_[0-9]{2}',
                    filename)[0].replace("_", sep)
-    return d
+    return str_to_date(d)

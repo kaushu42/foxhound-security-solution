@@ -1,11 +1,10 @@
-from itertools import chain
 from django.db.models import F
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_204_NO_CONTENT
 
-from mis.models import DailySourceIP, DailyDestinationIP
+from mis.models import TrafficMisNewSourceIPDaily, TrafficMisNewDestinationIPDaily
 from views.views import PaginatedView
 from globalutils.utils import get_firewall_rules_id_from_request
 from serializers.serializers import MisIpSerializer
@@ -23,20 +22,20 @@ class IPAliasApiView(PaginatedView):
         source_kwargs = {}
         destination_kwargs = {}
         if ip:
-            source_kwargs['source_address'] = ip
-            destination_kwargs['destination_address'] = ip
+            source_kwargs['source_address__icontains'] = ip
+            destination_kwargs['destination_address__icontains'] = ip
         if alias:
-            source_kwargs['alias'] = alias
-            destination_kwargs['alias'] = alias
+            source_kwargs['alias__icontains'] = alias
+            destination_kwargs['alias__icontains'] = alias
 
-        source_objects = DailySourceIP.objects.filter(
+        source_objects = TrafficMisNewSourceIPDaily.objects.filter(
             firewall_rule__in=firewall_ids,
             **source_kwargs
         ).annotate(
             address=F('source_address')
         ).values_list('address', 'alias').order_by('alias')
 
-        destination_objects = (DailyDestinationIP.objects.filter(
+        destination_objects = (TrafficMisNewDestinationIPDaily.objects.filter(
             firewall_rule__in=firewall_ids,
             **destination_kwargs
         ).annotate(
@@ -57,22 +56,20 @@ class IPAliasApiView(PaginatedView):
 
 class SetIPAliasApiView(APIView):
     def set_alias(self, objects, ip, alias):
-        for obj in objects:
-            obj.alias = alias
-            obj.save()
+        objects.update(alias=alias)
 
     def post(self, request):
         firewall_ids = get_firewall_rules_id_from_request(request)
         ip = request.data.get('ip')
         alias = request.data.get('alias')
         try:
-            objects = DailyDestinationIP.objects.filter(
+            objects = TrafficMisNewDestinationIPDaily.objects.filter(
                 firewall_rule__in=firewall_ids,
                 destination_address=ip,
             )
             self.set_alias(objects, ip, alias)
 
-            objects = DailySourceIP.objects.filter(
+            objects = TrafficMisNewSourceIPDaily.objects.filter(
                 firewall_rule__in=firewall_ids,
                 source_address=ip,
             )

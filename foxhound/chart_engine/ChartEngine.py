@@ -1,9 +1,9 @@
 import os
 import datetime
-
+import traceback
 import pandas as pd
 
-
+from ..logger import Logger
 from .BaseChart import BaseChart
 from .ApplicationChart import ApplicationChart
 from .IPChart import IPChart
@@ -173,35 +173,50 @@ class ChartEngine(BaseChart):
         self._clear_staging_area()
 
     def run(self):
+        logger = Logger.getInstance()
         for csv in self._csv_paths:
-            df = self._spark.read.csv(csv, header=True)
+            try:
+                logger.info(f'Chart Engine: {csv}')
+                df = self._spark.read.csv(csv, header=True)
 
-            print('**Writing new items to db**')
-            self._write_new_items_to_db(df)
+                print('**Writing new items to db**')
+                logger.info(f'Chart Engine: Writing new items to db')
+                self._write_new_items_to_db(df)
 
-            print('**Mapping to Foreign Keys**')
-            df = self._map_df_to_fk(df)
+                print('**Mapping to Foreign Keys**')
+                logger.info(f'Chart Engine: Mapping Foreign Keys')
+                df = self._map_df_to_fk(df)
 
-            # Persist the dataframe for faster processing
-            df.cache()
+                # Persist the dataframe for faster processing
+                df.cache()
 
-            print('**Processing Filters**')
-            self._process_filters(df)
+                print('**Processing Filters**')
+                logger.info(f'Chart Engine: Processing Filters')
+                self._process_filters(df)
 
-            # Create all the necessary charts
-            print('**Writing Application Chart Data**')
-            ApplicationChart(df).run()
+                # Create all the necessary charts
+                print('**Writing Application Chart Data**')
+                logger.info(f'Chart Engine: Writing Application Chart Data')
+                ApplicationChart(df).run()
 
-            print('**Writing Time Series Chart Data**')
-            TimeSeriesChart(df, spark=self._spark).run()
+                print('**Writing Time Series Chart Data**')
+                logger.info(f'Chart Engine: Writing Time Series Chart Data')
+                TimeSeriesChart(df, spark=self._spark).run()
 
-            print('**Writing IP Profile Chart Data**')
-            IPChart(df, spark=self._spark).run()
+                print('**Writing IP Profile Chart Data**')
+                logger.info(f'Chart Engine: Writing IP Profile Chart Data')
+                IPChart(df, spark=self._spark).run()
 
-            print('**Writing Sankey Chart Data**')
-            SankeyChart(df, spark=self._spark).run()
+                print('**Writing Sankey Chart Data**')
+                logger.info(f'Chart Engine: Writing Sankey Chart Data')
+                SankeyChart(df, spark=self._spark).run()
 
-            # Unpersist the dataframe to free space
-            df.unpersist()
+                # Unpersist the dataframe to free space
+                df.unpersist()
+            except Exception as e:
+                logger.error(str(traceback.format_exc()))
+                logger.info(f'Skipping {csv}')
+                continue
+        logger.info('Chart Engine: Done')
 
         print('Chart Engine finished running on:', datetime.datetime.now())

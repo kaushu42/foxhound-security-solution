@@ -27,19 +27,20 @@ class ThreatApplicationChart extends Component{
             selectedTimeStamp: null,
             params: {},
             pagination: {},
+            chartTitle: null,
             applicationlogColumns: [
                 {
                     title:"Source Address",
-                    dataIndex:"source_ip",
-                    key:"source_ip",
+                    dataIndex:"source_address",
+                    key:"source_address",
                     render: (text, record) => (
                         <a onClick={() => this.handleShowSourceIpProfile(record)}>{text}</a>
                     )
                 },
                 {
                     title:"Destination Address",
-                    dataIndex:"destination_ip",
-                    key:"destination_ip",
+                    dataIndex:"destination_address",
+                    key:"destination_address",
                     render: (text, record) => (
                         <a onClick={() => this.handleShowDestinationIpProfile(record)}>{text}</a>
                     )
@@ -131,10 +132,12 @@ class ThreatApplicationChart extends Component{
         bodyFormData.set("destination_zone", this.props.destination_zone);
 
         axios.post(FETCH_API, bodyFormData, { headers })
-        .then(res => this.setState({ 
-            data: res.data.data,
-            max: res.data.max
-        }));
+        .then(res => {
+            this.setState({
+                data: res.data.data,
+                max: res.data.max
+            })
+        });
     };
 
     exitHandler = () => {
@@ -143,7 +146,6 @@ class ThreatApplicationChart extends Component{
             document.mozFullScreen ||
             document.msFullscreenElement
         ) {
-            console.log("Inside fullscreen. Doing chart stuff.");
             this.chart = this.refs.chart.chart;
             this.chart.update({
             chart: {
@@ -157,7 +159,6 @@ class ThreatApplicationChart extends Component{
             !document.mozFullScreen &&
             !document.msFullscreenElement
         ) {
-            console.log("Exiting fullscreen. Doing chart stuff.");
             this.chart = this.refs.chart.chart;
             this.chart.update({
             chart: {
@@ -171,7 +172,7 @@ class ThreatApplicationChart extends Component{
         if (
             String(prevProps.selectedCountry) !== String(this.props.selectedCountry) ||
             String(prevState.top_count) !== String(this.state.top_count) ||
-            String(prevProps.ip_address) !== String(this.props.ip_address) ||
+            String(prevProps.defaultDate) !== String(this.props.defaultDate) ||
             String(prevProps.date_range[0]) !== String(this.props.date_range[0]) ||
             String(prevProps.date_range[1]) !== String(this.props.date_range[1]) ||
             String(prevProps.firewall_rule) !== String(this.props.firewall_rule) ||
@@ -180,7 +181,13 @@ class ThreatApplicationChart extends Component{
             String(prevProps.source_zone) !== String(this.props.source_zone) ||
             String(prevProps.destination_zone) !== String(this.props.destination_zone)
         ) {
-            console.log("********************FETCHING FILTERED DATA*************",this.props.date_range,this.props.firewall_rule,this.props.application,this.props.protocol,this.props.source_zone,this.props.destination_zone)
+            {this.props.date_range[0]?this.setState({
+                chartTitle:`Threat Application Line Chart from ${this.props.date_range[0]} to ${this.props.date_range[1]}`
+                }):
+                this.setState({
+                    chartTitle:`Threat Application Line Chart for ${this.props.defaultDate}`
+                })
+            }
             this.handleFetchData();
         }
         if (prevState.data !== this.state.data) {
@@ -191,7 +198,6 @@ class ThreatApplicationChart extends Component{
             this.setState({
                 unit: unit
             });
-            console.log("unit",unit);
             Object.keys(this.state.data).forEach(key => {
                 let key_data = this.state.data[key].map(e => [e[0] * 1000, e[1] / division_factor]);
                 key_data.sort(function(a, b) {
@@ -210,6 +216,9 @@ class ThreatApplicationChart extends Component{
 
     updateChart = (data,unit) => {
         this.chart.update({
+        title: {
+            text: this.state.chartTitle
+        },
         tooltip: {
             valueSuffix: unit,
             shared: true,
@@ -258,8 +267,6 @@ class ThreatApplicationChart extends Component{
                 click: function(e) {
                     const self = this.chart.component;
                     self.handleApplicationLineChartLogView(e.point.x, this.name);
-                    console.log("selected datetime", e.point.x);
-                    console.log("selected datetime", new Date(e.point.x * 1000));
                 }
                 }
             });
@@ -268,7 +275,6 @@ class ThreatApplicationChart extends Component{
         this.setState({
             loading: false
         });
-        console.log("newSeriesdata", data);
     };
 
     handleApplicationLineChartLogView = (selectedTimeStamp, selectedApplication) => {
@@ -305,9 +311,6 @@ class ThreatApplicationChart extends Component{
     };
 
     handleTableChange = (pagination, filters, sorter) => {
-        console.log("pagination", pagination);
-        console.log("filter", filters);
-        console.log("sorter", sorter);
         const pager = { ...this.state.pagination };
         pager.current = pagination.current;
         (this.state.pagination = pager),
@@ -390,9 +393,8 @@ class ThreatApplicationChart extends Component{
             chart: {
                 zoomType: "x"
             },
-        
             title: {
-                text: null
+                text: this.state.chartTitle
             },
             responsive: {
                 rules: [
@@ -498,6 +500,7 @@ ThreatApplicationChart.defaultProps = {
 const mapStateToProps = state => {
     return{
         auth_token: state.auth.auth_token,
+        defaultDate: state.filter.defaultDate,
         date_range: state.filter.date_range,
         firewall_rule: state.filter.firewall_rule,
         application: state.filter.application,

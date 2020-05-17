@@ -7,7 +7,6 @@ const { Sider } = Layout;
 class SideBar extends Component {
 
     render() {
-        console.log(this.props);
         const {sideBarCollapsed,activePageKey } = this.props;
         return(
             <Fragment>
@@ -20,6 +19,18 @@ class SideBar extends Component {
                                 <a href={"/"}>
                                     <Icon type="dashboard" />
                                     <span>Home</span>
+                                </a>
+                            </Menu.Item>
+                            <Menu.Item key="kibanadashboard">
+                                <a href={"/kibanadashboard"} target="_blank">
+                                    <Icon type="dashboard" />
+                                    <span>Kibana Dashboard</span>
+                                </a>
+                            </Menu.Item>
+                            <Menu.Item key="kibanalivedashboard">
+                                <a href={"/kibanalivedashboard"} target="_blank">
+                                    <Icon type="dashboard" />
+                                    <span>Kibana Live Dashboard</span>
                                 </a>
                             </Menu.Item>
                             <Menu.Item key="threatdashboard">
@@ -66,13 +77,13 @@ class SideBar extends Component {
                             <Menu.Item key="traffic-logs">
                                 <a href={"/logs/traffic"}>
                                     <Icon type="snippets" />
-                                    <span>Traffic Logs</span>
+                                    <span>Processed Traffic Logs</span>
                                 </a>
                             </Menu.Item>
                             <Menu.Item key="threat-logs">
                                 <a href={"/logs/threat"}>
                                     <Icon type="snippets" />
-                                    <span>Threat Logs</span>
+                                    <span>Processed Threat Logs</span>
                                 </a>
                             </Menu.Item>
                         </Menu.ItemGroup>
@@ -118,7 +129,7 @@ class SideBar extends Component {
                                 </a>
                             </Menu.Item>
                         </Menu.ItemGroup>
-                        <Menu.ItemGroup key={"Core"} title={"Core"}>
+                        {/* <Menu.ItemGroup key={"Core"} title={"Core"}>
                             <Menu.Item key="backgroundjob">
                                 <a href={"/backgroundjob"} >
                                     <Icon type="link" />
@@ -132,7 +143,7 @@ class SideBar extends Component {
                                 </a>
                             </Menu.Item>
 
-                        </Menu.ItemGroup>
+                        </Menu.ItemGroup> */}
                     </Menu>
                 </Sider>
             </Fragment>

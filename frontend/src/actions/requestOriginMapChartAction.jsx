@@ -145,7 +145,6 @@ export function fetchCountryListData(auth_token,start_date,end_date,firewall_rul
         axios.post(FETCH_API_COUNTRY_NAMES,bodyFormData,{headers})
             .then(res => {
                 const response = res.data;
-                console.log('fetched country select List data ',response);
                 dispatch(fetchCountryListSuccess(response))})
             .then(res => dispatch(fetchCountryListDataComplete()))
             .catch(e => dispatch(fetchCountryListDataError(e)))
@@ -177,9 +176,9 @@ export function fetchRequestOriginMapData(auth_token,start_date,end_date,firewal
          .then(res => {
              const response = res.data;
              let final_data = [];
-             Object.keys(response).forEach(country => {
-                 final_data.push([country,response[country]]);
-                });
+             response.forEach(rec => {
+                final_data.push([rec["source_country"],rec[basis]]);
+             });
              dispatch(mapChartLoading());
              dispatch(fetchMapChartDataSuccess(final_data));
          })
@@ -224,7 +223,6 @@ export function fetchSelectedCountryLog(auth_token,start_date,end_date,firewall_
         axios.post(FETCH_API_COUNTRY_LOGS,bodyFormData,{headers,params})
          .then(res => {
              const response = res.data;
-             console.log('response count',response.count);
              const page = pagination;
              page.total  = response.count;
              updatePagination(page);

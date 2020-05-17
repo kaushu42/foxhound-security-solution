@@ -258,21 +258,18 @@ export function acceptRule(auth_token,description,record){
 
 export function updateRule(auth_token,source_ip,destination_ip,application,description,params,pagination,searchSourceIP, searchDestinationIP, searchAlias, searchApplication){
     return (dispatch) => {
-       //console.log(auth_token,source_ip,destination_ip,application);
         let headers = axiosHeader(auth_token);
 
         const formData = new FormData();
-        formData.set('source_ip', source_ip);
-        formData.set('destination_ip', destination_ip);
+        formData.set('source_address', source_ip);
+        formData.set('destination_address', destination_ip);
         formData.set('application', application);
         formData.set('description', description);
-        console.log("details at update info ",source_ip, destination_ip, application, description)
         dispatch(updateRuleBegin());
         setTimeout(()=>{
             axios.post(UPDATE_API,formData,{headers})
             .then(res =>{
                 const response = res.data;
-                console.log(response);
                 dispatch(updateRuleSuccess());
             })
             .then(res => {
@@ -300,7 +297,6 @@ export function rejectRule(auth_token,description,record){
         axios.post(url,formData,{headers})
             .then(res =>{
                 const response = res.data;
-                console.log(response);
                 dispatch(rejectRuleSuccess());
             })
             .then(res => {
@@ -328,7 +324,6 @@ export function fetchUnverifiedRulesData(auth_token, params, searchSourceIP, sea
         axios.post(FETCH_API,bodyFormData,{headers, params})
             .then(res => {
                 const response = res.data;
-                // console.log("***********************************",response);
                 const page = pagination;
                 page.total  = response.count;
                 updatePagination(page);

@@ -1,7 +1,8 @@
 import os
 import datetime
-
+import traceback
 from pyspark.sql.functions import lit, to_timestamp
+from ..logger import Logger
 
 
 class TTAnomaly:
@@ -35,32 +36,41 @@ class TTAnomaly:
             password='foxhound123').mode(mode).save()
 
     def run(self):
+        logger = Logger.getInstance()
+        logger.info('TT Engine started')
         for csv in self._csvs:
-            csv_name = os.path.basename(csv)
+            try:
+                logger.info(f'TT Engine: {csv}')
+                csv_name = os.path.basename(csv)
 
-            df = self._spark.read.csv(csv, header=True, inferSchema=True)
-            df = df.withColumn('logged_datetime', to_timestamp(
-                df.logged_datetime, 'yyyy/mm/dd'))
-            firewall_rules = self._read_table_from_postgres(
-                'core_firewallrule')
-            logs = self._read_table_from_postgres('core_trafficlog')
-            mapped = df.join(logs,
-                             on=[df.log_name == logs.log_name],
-                             ).drop('log_name').withColumnRenamed('id', 'log_id').drop(*logs.columns)
-            mapped = mapped.join(firewall_rules, on=[
-                mapped.firewall_rule_id == firewall_rules.name
-            ]).drop('firewall_rule_id').withColumnRenamed('id', 'firewall_rule_id').drop(*firewall_rules.columns)
-            mapped = mapped.drop('virtual_system_id', 'inbound_interface_id', 'outbound_interface_id')\
-                .withColumnRenamed('source_ip_id', 'source_ip')\
-                .withColumnRenamed('destination_ip_id', 'destination_ip')\
-                .withColumnRenamed('application_id', 'application')\
-                .withColumnRenamed('source_zone_id', 'source_zone')\
-                .withColumnRenamed('destination_zone_id', 'destination_zone')\
-                .withColumnRenamed('protocol_id', 'protocol')\
-                .withColumnRenamed('action_id', 'action')\
-                .withColumnRenamed('session_end_reason_id', 'session_end_reason')\
-                .withColumnRenamed('category_id', 'category')\
-                .withColumn('created_datetime', lit(datetime.datetime.now()))\
-                .withColumn('is_closed', lit(False))
-            self._write_df_to_postgres(
-                mapped, 'troubleticket_troubleticketanomaly')
+                df = self._spark.read.csv(csv, header=True, inferSchema=True)
+                df = df.withColumn('logged_datetime', to_timestamp(
+                    df.logged_datetime, 'yyyy/mm/dd'))
+                firewall_rules = self._read_table_from_postgres(
+                    'core_firewallrule')
+                logs = self._read_table_from_postgres('core_trafficlog')
+                mapped = df.join(logs,
+                                 on=[df.log_name == logs.log_name],
+                                 ).drop('log_name').withColumnRenamed('id', 'log_id').drop(*logs.columns)
+                mapped = mapped.join(firewall_rules, on=[
+                    mapped.firewall_rule_id == firewall_rules.name
+                ]).drop('firewall_rule_id').withColumnRenamed('id', 'firewall_rule_id').drop(*firewall_rules.columns)
+                mapped = mapped.drop('virtual_system_id', 'inbound_interface_id', 'outbound_interface_id')\
+                    .withColumnRenamed('source_ip_id', 'source_ip')\
+                    .withColumnRenamed('destination_ip_id', 'destination_ip')\
+                    .withColumnRenamed('application_id', 'application')\
+                    .withColumnRenamed('source_zone_id', 'source_zone')\
+                    .withColumnRenamed('destination_zone_id', 'destination_zone')\
+                    .withColumnRenamed('protocol_id', 'protocol')\
+                    .withColumnRenamed('action_id', 'action')\
+                    .withColumnRenamed('session_end_reason_id', 'session_end_reason')\
+                    .withColumnRenamed('category_id', 'category')\
+                    .withColumn('created_datetime', lit(datetime.datetime.now()))\
+                    .withColumn('is_closed', lit(False))
+                self._write_df_to_postgres(
+                    mapped, 'troubleticket_troubleticketanomaly')
+            except Exception as e:
+                logger.error(str(traceback.format_exc()))
+                logger.info(f'Skipping {csv}')
+                continue
+        logger.info('TT Engine: Done')

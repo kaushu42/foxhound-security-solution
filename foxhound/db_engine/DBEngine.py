@@ -1,6 +1,7 @@
 import os
-
+import traceback
 from pyspark.sql.functions import lit
+from ..logger import Logger
 
 
 class DBEngine:
@@ -35,32 +36,41 @@ class DBEngine:
             password='foxhound123').mode(mode).save()
 
     def run(self, verbose=True):
+        logger = Logger.getInstance()
+        logger.info(f'DB Engine: Started')
         print('******RUNNING DB ENGINE******')
         for csv in self._granular_csvs:
-            print(f'\t ******Processing: {csv}******')
-            df = self._spark.read.csv(csv, header=True, inferSchema=True)
-            csv_name = os.path.basename(csv)
-            firewall_rules = self._read_table_from_postgres(
-                'core_firewallrule')
-            logs = self._read_table_from_postgres('core_trafficlog')
-            log_id = logs.where(logs.log_name == csv_name).collect()[0].id
-            mapped = df.join(
-                firewall_rules,
-                on=[df.firewall_rule_id == firewall_rules.name]
-            )\
-                .drop('source_port', 'firewall_rule_id', 'name', 'tenant_id', 'virtual_system_id')\
-                .withColumnRenamed('id', 'firewall_rule_id')\
-                .withColumnRenamed('source_ip_id', 'source_ip')\
-                .withColumnRenamed('destination_ip_id', 'destination_ip')\
-                .withColumnRenamed('application_id', 'application')\
-                .withColumnRenamed('source_zone_id', 'source_zone')\
-                .withColumnRenamed('destination_zone_id', 'destination_zone')\
-                .withColumnRenamed('protocol_id', 'protocol')\
-                .withColumnRenamed('inbound_interface_id', 'inbound_interface')\
-                .withColumnRenamed('outbound_interface_id', 'outbound_interface')\
-                .withColumnRenamed('action_id', 'action')\
-                .withColumnRenamed('session_end_reason_id', 'session_end_reason')\
-                .withColumnRenamed('category_id', 'category')
-            mapped = mapped.withColumn('traffic_log_id', lit(log_id))
-            self._write_df_to_postgres(
-                mapped, 'core_trafficlogdetailgranularhour')
+            try:
+                print(f'\t ******Processing: {csv}******')
+                logger.info(f'DB Engine: {csv}')
+                df = self._spark.read.csv(csv, header=True, inferSchema=True)
+                csv_name = os.path.basename(csv)
+                firewall_rules = self._read_table_from_postgres(
+                    'core_firewallrule')
+                logs = self._read_table_from_postgres('core_trafficlog')
+                log_id = logs.where(logs.log_name == csv_name).collect()[0].id
+                mapped = df.join(
+                    firewall_rules,
+                    on=[df.firewall_rule_id == firewall_rules.name]
+                )\
+                    .drop('source_port', 'firewall_rule_id', 'name', 'tenant_id', 'virtual_system_id')\
+                    .withColumnRenamed('id', 'firewall_rule_id')\
+                    .withColumnRenamed('source_ip_id', 'source_ip')\
+                    .withColumnRenamed('destination_ip_id', 'destination_ip')\
+                    .withColumnRenamed('application_id', 'application')\
+                    .withColumnRenamed('source_zone_id', 'source_zone')\
+                    .withColumnRenamed('destination_zone_id', 'destination_zone')\
+                    .withColumnRenamed('protocol_id', 'protocol')\
+                    .withColumnRenamed('inbound_interface_id', 'inbound_interface')\
+                    .withColumnRenamed('outbound_interface_id', 'outbound_interface')\
+                    .withColumnRenamed('action_id', 'action')\
+                    .withColumnRenamed('session_end_reason_id', 'session_end_reason')\
+                    .withColumnRenamed('category_id', 'category')
+                mapped = mapped.withColumn('traffic_log_id', lit(log_id))
+                self._write_df_to_postgres(
+                    mapped, 'core_trafficlogdetailgranularhour')
+            except Exception as e:
+                logger.error(str(traceback.format_exc()))
+                logger.info(f'Skipping {csv}')
+                continue
+        logger.info('DB Engine: Done')

@@ -1,14 +1,10 @@
-from django.db.models import Count, F
+from django.db.models import Count, F, Sum
 from views.views import PaginatedView
 from .models import (
-    DailyDestinationIP,
-    DailySourceIP,
-    DailyRequestFromBlackListEvent,
-    DailyResponseToBlackListEvent
-)
-from serializers.serializers import (
-    MisDailySourceIpSerializer,
-    MisDailyDestinationIpSerializer
+    TrafficMisNewDestinationIPDaily,
+    TrafficMisNewSourceIPDaily,
+    TrafficMisRequestFromBlacklistedIPDaily,
+    TrafficMisResponseToBlacklistedIPDaily
 )
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -37,13 +33,14 @@ class DailyApiView(APIView):
 
 class DailySourceIpApiView(DailyApiView):
     def post(self, request):
-        ips = self._get_items(request, DailySourceIP, 'source_address')
+        ips = self._get_items(
+            request, TrafficMisNewSourceIPDaily, 'source_address')
         return Response(ips)
 
 
 class DailyDestinationIpApiView(DailyApiView):
     def post(self, request):
-        ips = self._get_items(request, DailyDestinationIP,
+        ips = self._get_items(request, TrafficMisNewDestinationIPDaily,
                               'destination_address')
         return Response(ips)
 
@@ -68,13 +65,13 @@ class IPCountChart(APIView):
 
 class SourceIPCountChart(IPCountChart):
     def post(self, request):
-        items = self._get_items(request, DailySourceIP)
+        items = self._get_items(request, TrafficMisNewSourceIPDaily)
         return Response(items)
 
 
 class DestinationIPCountChart(IPCountChart):
     def post(self, request):
-        items = self._get_items(request, DailyDestinationIP)
+        items = self._get_items(request, TrafficMisNewDestinationIPDaily)
         return Response(items)
 
 
@@ -83,17 +80,19 @@ class BlacklistedIP(APIView):
         firewall_ids = get_firewall_rules_id_from_request(request)
         objects = model.objects.filter(
             firewall_rule__in=firewall_ids
-        ).values_list('source_ip', 'destination_ip')
+        ).values('source_address', 'destination_address').annotate(sum_bytes=(Sum("sum_bytes_sent")+Sum("sum_bytes_received")))
         return objects
 
 
 class SourceBlacklistedIP(BlacklistedIP):
     def post(self, request):
-        objects = self.get_objects(request, DailyRequestFromBlackListEvent)
+        objects = self.get_objects(
+            request, TrafficMisRequestFromBlacklistedIPDaily)
         return Response(objects)
 
 
 class DestinationBlacklistedIP(BlacklistedIP):
     def post(self, request):
-        objects = self.get_objects(request, DailyResponseToBlackListEvent)
+        objects = self.get_objects(
+            request, TrafficMisResponseToBlacklistedIPDaily)
         return Response(objects)

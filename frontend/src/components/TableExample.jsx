@@ -50,7 +50,6 @@ class TableExample extends React.Component {
   };
 
   fetch = (params = {}) => {
-    console.log("fuck");
     this.setState({ loading: true });
     reqwest({
       url: "http://127.0.0.1:8000/api/v1/log/1",
@@ -66,7 +65,6 @@ class TableExample extends React.Component {
       type: "json"
     }).then(data => {
       const { pagination } = this.state;
-      console.log('pagination', pagination);
       pagination.total = data.count;
       this.setState({
         loading: false,

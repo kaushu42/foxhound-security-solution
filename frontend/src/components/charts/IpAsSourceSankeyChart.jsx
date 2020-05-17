@@ -7,10 +7,12 @@ require("highcharts/modules/exporting")(Highcharts);
 import axios from 'axios';
 import {connect} from "react-redux";
 import mapdata from "../../charts/mapdata";
-import {Card, Row, Spin, Drawer, Table, Select} from "antd";
+import {Card, Row, Spin, Drawer, Table, Select, Button} from "antd";
 import HighchartsReact from "highcharts-react-official";
-import moment from "moment";
+import ExportJsonExcel from 'js-export-excel';
 import {getDivisionFactorUnitsFromBasis} from '../../utils'
+import { search } from "../../actions/ipSearchAction";
+
 
 const FETCH_API = `${ROOT_URL}profile/sankey/`;
 const FETCH_SANKEY_LOG_API = `${ROOT_URL}log/sankey/`;
@@ -29,6 +31,7 @@ class IpAsSourceSankeyChart extends Component {
             selectedSourceToDestinationLogDrawerVisible : false,
             selectedSourceToDestinationLogData : [],
             basis:"bytes",
+            chartTitle: null,
             options : {
                 chart : {
                     margin : 50,
@@ -61,16 +64,16 @@ class IpAsSourceSankeyChart extends Component {
             logColumns : [
                 {
                   title: "Source Address",
-                  dataIndex: "source_ip",
-                  key: "source_ip",
+                  dataIndex: "source_address",
+                  key: "source_address",
                   render: (text, record) => (
                     <a onClick={() => this.handleShowSourceIpProfile(record)}>{text}</a>
                   )
                 },
                 {
                   title: "Destination Address",
-                  dataIndex: "destination_ip",
-                  key: "destination_ip",
+                  dataIndex: "destination_address",
+                  key: "destination_address",
                   render: (text, record) => (
                     <a onClick={() => this.handleShowDestinationIpProfile(record)}>
                       {text}
@@ -89,14 +92,14 @@ class IpAsSourceSankeyChart extends Component {
                 },
                 {
                   title: "Bytes Sent",
-                  dataIndex: "bytes_sent",
-                  key: "bytes_sent",
+                  dataIndex: "sum_bytes_sent",
+                  key: "sum_bytes_sent",
                   render: (text, record) => bytesToSize(text)
                 },
                 {
                   title: "Bytes Received",
-                  dataIndex: "bytes_received",
-                  key: "bytes_received",
+                  dataIndex: "sum_bytes_received",
+                  key: "sum_bytes_received",
                   render: (text, record) => bytesToSize(text)
                 },
                 {
@@ -109,7 +112,16 @@ class IpAsSourceSankeyChart extends Component {
               ],
         }
     }
+    handleShowSourceIpProfile(record) {
+        this.props.dispatchIpSearchValueUpdate(record.source_address);
+        this.setState({ quickIpView: true });
+    }
 
+    handleShowDestinationIpProfile(record) {
+        this.props.dispatchIpSearchValueUpdate(record.destination_address);
+        this.setState({ quickIpView: true });
+    }
+      
     handleDataUnit = (point) => {
         var tooltipValue
         {(point.fromNode || point.toNode)?
@@ -158,7 +170,6 @@ class IpAsSourceSankeyChart extends Component {
         axios.post(FETCH_API,bodyFormData,{headers}).
         then(res => {
             const response = res.data.src
-            console.log('api data',response);
             var maxValue = 0
             for (var i = 0; i<response.length; i++){
                 if (maxValue <  response[i][2]){
@@ -166,7 +177,6 @@ class IpAsSourceSankeyChart extends Component {
                 }
             }
             const data = []
-            console.log('api data',response);
             const v = getDivisionFactorUnitsFromBasis(maxValue,this.state.basis)
             const division_factor = v["division_factor"];
             const unit = v["unit"];
@@ -182,7 +192,6 @@ class IpAsSourceSankeyChart extends Component {
     }
     exitHandler = () => {
         if (document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement) {
-            console.log('Inside fullscreen. Doing chart stuff.');
             this.chart = this.refs.chart.chart;
             this.chart.update({
                 chart:{
@@ -192,7 +201,6 @@ class IpAsSourceSankeyChart extends Component {
         }
 
         if (!document.webkitIsFullScreen && !document.mozFullScreen && !document.msFullscreenElement) {
-            console.log('Exiting fullscreen. Doing chart stuff.');
             this.chart = this.refs.chart.chart;
             this.chart.update({
                 chart:{
@@ -215,6 +223,20 @@ class IpAsSourceSankeyChart extends Component {
             (String(prevProps.destination_zone)!==String(this.props.destination_zone)) ||
             (String(prevState.basis)!==String(this.state.basis))
         ){
+            if(this.props.ip_address != ""){
+                {this.props.date_range[0]?this.setState({
+                    chartTitle:`Connections as Source from ${this.props.date_range[0]} to ${this.props.date_range[1]}`
+                    }):
+                    this.setState({
+                        chartTitle:`Connections as Source for ${this.props.defaultDate}`
+                    })
+                }
+              }
+              else{
+                  this.setState({
+                      chartTitle:null
+                  })
+              }
             this.handleFetchData();
         }
         if(prevState.data!==this.state.data){
@@ -234,6 +256,9 @@ class IpAsSourceSankeyChart extends Component {
         }
 
         this.chart.update({
+            title: {
+                text: this.state.chartTitle
+              },
             series: [
                 {
                     keys: ['from', 'to', 'weight'],
@@ -260,7 +285,6 @@ class IpAsSourceSankeyChart extends Component {
             selectedDestinationIp : destination_ip,
             selectedSourceToDestinationLogDrawerVisible : true
         })
-        // console.log(this.state.selectedSourceIp, this.state.selectedDestinationIp, this.state.selectedSourceToDestinationLogDrawerVisible)
         this.fetchSankeyChartLog();
     }
 
@@ -272,8 +296,8 @@ class IpAsSourceSankeyChart extends Component {
             "Authorization" : token
         };
         let bodyFormDataForLog = new FormData();
-        bodyFormDataForLog.set("source_ip", this.state.selectedSourceIp);
-        bodyFormDataForLog.set("destination_ip", this.state.selectedDestinationIp);
+        bodyFormDataForLog.set("source_address", this.state.selectedSourceIp);
+        bodyFormDataForLog.set("destination_address", this.state.selectedDestinationIp);
 
         axios.post(FETCH_SANKEY_LOG_API,bodyFormDataForLog,{headers, params})
             .then(res => {
@@ -285,13 +309,9 @@ class IpAsSourceSankeyChart extends Component {
                 })
             });
 
-        console.log("fetched log data for selected application", this.state.selectedSourceToDestinationLogData)
     }
 
     handleTableChange = (pagination, filters, sorter) => {
-        console.log('pagination',pagination);
-        console.log('filter',filters)
-        console.log('sorter',sorter)
         const pager = { ...this.state.pagination};
         pager.current = pagination.current;
         this.state.pagination = pager,
@@ -310,6 +330,54 @@ class IpAsSourceSankeyChart extends Component {
             selectedSourceToDestinationLogData : [],
         }
     )}
+
+    downloadExcel = () => {
+        const data = this.state.selectedSourceToDestinationLogData ? this.state.selectedSourceToDestinationLogData : '';//tabular data
+         var option={};
+         let dataTable = [];
+         if (data) {
+           for (let i in data) {
+             if(data){
+               let obj = {
+                            'Logged datetime': (new Date(parseInt(data[i].logged_datetime)*1000+20700000).toUTCString()).replace(" GMT", ""),
+                            'Source address': data[i].source_address,
+                            'Destination address': data[i].destination_address,
+                            'Application':data[i].application,
+                            'Bytes sent':data[i].sum_bytes_sent,
+                            'Bytes received':data[i].sum_bytes_received,
+                            'Destination Port':data[i].destination_port,
+                            'Firewall rule':data[i].firewall_rule,
+                            'Protocol':data[i].protocol,
+                            'Source zone':data[i].source_zone,
+                            'Destination zone':data[i].destination_zone,
+                            'Inbound interface':data[i].inbound_interface,
+                            'Outbound interface':data[i].outbound_interface,
+                            'Action':data[i].action,
+                            'Category':data[i].category,
+                            'Session end reason':data[i].session_end_reason,
+                            'Packets received':data[i].sum_packets_received,
+                            'Packets sent':data[i].sum_packets_sent,
+                            'Time elapsed':data[i].time_elapsed,
+                            'Source country':data[i].source_country,
+                            'Destination country':data[i].destination_country
+               }
+               dataTable.push(obj);
+             }
+           }
+         }
+            option.fileName = 'Sankey Log'
+         option.datas=[
+           {
+             sheetData:dataTable,
+             sheetName:'sheet',
+                    sheetFilter:['Logged datetime','Source address','Destination address','Application','Bytes sent','Bytes received','Destination Port','Firewall rule','Protocol','Source zone','Destination zone','Inbound interface','Outbound interface','Action','Category','Session end reason','Packets received','Packets sent','Time elapsed','Source country','Destination country'],
+                    sheetHeader:['Logged datetime','Source address','Destination address','Application','Bytes sent','Bytes received','Destination Port','Firewall rule','Protocol','Source zone','Destination zone','Inbound interface','Outbound interface','Action','Category','Session end reason','Packets received','Packets sent','Time elapsed','Source country','Destination country']
+           }
+         ];
+        
+         var toExcel = new ExportJsonExcel(option); 
+         toExcel.saveExcel();        
+    }
 
     render() {
         const expandedRowRender = record => <p><b>Firewall Rule: </b>{record.firewall_rule}<br/>
@@ -364,6 +432,9 @@ class IpAsSourceSankeyChart extends Component {
                     closable={true}
                     onClose={this.handleCloseLogDrawer}
                 >
+                    <Button type="primary" shape="round" icon="download"
+                                onClick={this.downloadExcel}>Export Excel Table
+                    </Button>
                     {
                         this.state.selectedSourceToDestinationLogData ? (
                             <Table
@@ -388,7 +459,7 @@ const mapStateToProps = state => {
         auth_token : state.auth.auth_token,
 
         ip_address : state.ipSearchBar.ip_address,
-
+        defaultDate: state.filter.defaultDate,
         date_range : state.filter.date_range,
         firewall_rule : state.filter.firewall_rule,
         application : state.filter.application,
@@ -397,7 +468,13 @@ const mapStateToProps = state => {
         destination_zone : state.filter.destination_zone
     }
 }
+const mapDispatchToProps = dispatch => {
+    return {
+      dispatchIpSearchValueUpdate: value => dispatch(search(value))
+    };
+  };
+  
 
-export default connect(mapStateToProps,null)(IpAsSourceSankeyChart);
+export default connect(mapStateToProps,mapDispatchToProps)(IpAsSourceSankeyChart);
 
 

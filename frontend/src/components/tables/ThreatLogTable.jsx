@@ -18,16 +18,16 @@ class ThreatLogTable extends Component{
             columns:[
                 {
                     title:"Source Address",
-                    dataIndex:"source_ip",
-                    key:"source_ip",
+                    dataIndex:"source_address",
+                    key:"source_address",
                     render: (text, record) => (
                         <a onClick={() => this.handleShowSourceIpProfile(record)}>{text}</a>
                     )
                 },
                 {
                     title:"Destination Address",
-                    dataIndex:"destination_ip",
-                    key:"destination_ip",
+                    dataIndex:"destination_address",
+                    key:"destination_address",
                     render: (text, record) => (
                         <a onClick={() => this.handleShowDestinationIpProfile(record)}>{text}</a>
                     )
@@ -73,12 +73,12 @@ class ThreatLogTable extends Component{
     }
 
     handleShowSourceIpProfile(record) {
-        this.props.dispatchIpSearchValueUpdate(record.source_ip);
+        this.props.dispatchIpSearchValueUpdate(record.source_address);
         this.setState({ quickIpView: true });
     }
 
     handleShowDestinationIpProfile(record) {
-        this.props.dispatchIpSearchValueUpdate(record.destination_ip);
+        this.props.dispatchIpSearchValueUpdate(record.destination_address);
         this.setState({ quickIpView: true });
     }
 
@@ -118,8 +118,8 @@ class ThreatLogTable extends Component{
 
         let bodyFormData = new FormData();
         bodyFormData.set("country", this.props.selectedCountry)
-        bodyFormData.set("source_ip", this.state.searchSourceIP);
-        bodyFormData.set("destination_ip", this.state.searchDestinationIP);
+        bodyFormData.set("source_address", this.state.searchSourceIP);
+        bodyFormData.set("destination_address", this.state.searchDestinationIP);
         bodyFormData.set("application", this.state.searchApplication);
         bodyFormData.set("log_name", this.state.searchLogname);
         
@@ -137,9 +137,6 @@ class ThreatLogTable extends Component{
 
 
     handleTableChange = (pagination, filters, sorter) => {
-        console.log("pagination", pagination);
-        console.log("filter", filters);
-        console.log("sorter", sorter);
         const pager = { ...this.state.pagination };
         pager.current = pagination.current;
         (this.state.pagination = pager),
@@ -161,13 +158,12 @@ class ThreatLogTable extends Component{
          var option={};
          let dataTable = [];
          if (data) {
-            console.log(data);
            for (let i in data) {
              if(data){
                let obj = {
                             'Logged datetime': (new Date(parseInt(data[i].received_datetime)*1000+20700000).toUTCString()).replace(" GMT", ""),
-                            'Source address': data[i].source_ip,
-                            'Destination address': data[i].destination_ip,
+                            'Source address': data[i].source_address,
+                            'Destination address': data[i].destination_address,
                             'Application':data[i].application,
                             'Destination port':data[i].destination_port,
                             'Severity':data[i].severity,
@@ -180,9 +176,6 @@ class ThreatLogTable extends Component{
                             'Action':data[i].action,
                             'Category':data[i].category,
                             'Threat content name':data[i].threat_content_name,
-                            'Packets received':data[i].packets_received,
-                            'Packets sent':data[i].packets_sent,
-                            'Time elapsed':data[i].time_elapsed,
                             'Source country':data[i].source_country,
                             'Destination country':data[i].destination_country,
                }
@@ -195,8 +188,8 @@ class ThreatLogTable extends Component{
            {
              sheetData:dataTable,
              sheetName:'sheet',
-                    sheetFilter:['Logged datetime','Source address','Destination address','Application','Destination port','Severity','Threat content type','Protocol','Source zone','Destination zone','Inbound interface','Outbound interface','Action','Category','Threat content name','Packets received','Packets sent','Time elapsed','Source country','Destination country'],
-                    sheetHeader:['Logged datetime','Source address','Destination address','Application','Destination port','Severity','Threat content type','Protocol','Source zone','Destination zone','Inbound interface','Outbound interface','Action','Category','Threat content name','Packets received','Packets sent','Time elapsed','Source country','Destination country']
+                    sheetFilter:['Logged datetime','Source address','Destination address','Application','Destination port','Severity','Threat content type','Protocol','Source zone','Destination zone','Inbound interface','Outbound interface','Action','Category','Threat content name', 'Source country','Destination country'],
+                    sheetHeader:['Logged datetime','Source address','Destination address','Application','Destination port','Severity','Threat content type','Protocol','Source zone','Destination zone','Inbound interface','Outbound interface','Action','Category','Threat content name', 'Source country','Destination country']
            }
          ];
         
@@ -218,9 +211,6 @@ class ThreatLogTable extends Component{
                                       <b>Category: </b>{record.category}<br/>
                                       <b>Direction: </b>{record.direction}<br/>
                                       <b>Threat Content Name: </b>{record.threat_content_name}<br/>
-                                      <b>Packets Received: </b>{record.packets_received}<br/>
-                                      <b>Packets Sent: </b>{record.packets_sent}<br/>
-                                      <b>Time Elapsed: </b>{record.time_elapsed}<br/>
                                       <b>Source Country: </b>{record.source_country}<br/>
                                       <b>Destination Country: </b>{record.destination_country}<br/>
                                       <b>Log Name: </b>{record.log_name}<br/>

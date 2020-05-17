@@ -16,7 +16,8 @@ from sqlalchemy import create_engine
 from psycopg2 import sql, connect
 import datetime
 import ast
-
+import traceback
+from ..logger import Logger
 try:
     import configparser
 except:
@@ -64,42 +65,6 @@ class MISEngine(object):
                               "session_end_reason", "row_number", "source_port", "destination_port",
                               "bytes_sent", "bytes_received", "repeat_count", "packets_received",
                               "packets_sent", "logged_datetime", "time_elapsed", 'vsys']
-
-    def _write_raw_log_to_cassandra(self,df):
-        df = df[self._REQUIRED_COLUMNS]
-        df = df.toDF(*self._HEADER_NAMES)
-        df = df.withColumn(
-            "row_number", df["row_number"].cast(LongType()))
-        df = df.withColumn(
-            "source_port", df["source_port"].cast(IntegerType()))
-        df = df.withColumn(
-            "destination_port", df["destination_port"].cast(IntegerType()))
-        df = df.withColumn(
-            "bytes_sent", df["bytes_sent"].cast(LongType()))
-        df = df.withColumn(
-            "bytes_received", df["bytes_received"].cast(LongType()))
-        df = df.withColumn(
-            "packets_received", df["packets_received"].cast(LongType()))
-        df = df.withColumn(
-            "packets_sent", df["packets_sent"].cast(LongType()))
-        df = df.withColumn(
-            "time_elapsed", df["time_elapsed"].cast(LongType()))
-        df = df.withColumn(
-            "repeat_count", df["repeat_count"].cast(LongType()))
-        df = df.withColumn("count_events", lit(1))
-        df = self._set_uuid(df)
-        firewall_rules_from_db = pd.read_sql_table('core_firewallrule', self._db_engine).set_index("name").to_dict()["id"]
-        df = self._set_firewall_rules_id_to_raw_data(df,firewall_rules_from_db)
-        SELECT_COLUMNS = ['id','action','application','bytes_received','bytes_sent','category',
-        'destination_ip','destination_port','destination_zone','firewall_rule','inbound_interface','logged_datetime',
-        'outbound_interface','packets_received','packets_sent','protocol','repeat_count','row_number','session_end_reason',
-        'source_ip','source_port','source_zone','time_elapsed']
-        df = df.select(*SELECT_COLUMNS)
-        print("writing raw log to cassandra")
-        df.write.format("org.apache.spark.sql.cassandra").mode("append").options(table="traffic_logs", keyspace="casdb").save()
-        print("deleting temp df")
-        del firewall_rules_from_db
-        del df
 
     def _get_column_names_types(self, table_name):
         with self._db_engine.connect() as con:
@@ -253,7 +218,6 @@ class MISEngine(object):
         setFirewallRulesIdUdf = udf(
             lambda x: firewall_rules_from_db[x], IntegerType())
         return df.withColumn("firewall_rule", setFirewallRulesIdUdf(df.firewall_rule))
-
 
     @staticmethod
     def _set_uuid(df):
@@ -441,71 +405,118 @@ class MISEngine(object):
         return grouped_agg
 
     def run(self):
+        logger = Logger.getInstance()
+        logger.info('MIS Engine running')
         for root, dirs, files in os.walk(self._INPUT_DIR):
             for file in files:
-                if file.endswith(".csv"):
-                    print(f"processing {file} inside mis engine")
-                    raw_df = self._read_csv(file)
-                    df = self._preprocess()
-                    self._write_new_firewall_rules_to_db()
-                    firewall_rules_from_db = self._read_firewall_rules_from_db()
-                    df = self._set_firewall_rules_id_to_data(df, firewall_rules_from_db)
-                    self._write_raw_log_to_cassandra(raw_df)
-                    del raw_df
-                    print("*** processing finished ****")
-                    
-                    self._mis_daily = self._extract_mis_daily(df)
-                    self._mis_daily.show(5)
-                    print("*** mis daily extractng finished ****")
-                    self._write_csv_to_postgres(self._mis_daily,"mis_daily","append")
-                    print("*** writing mis daily to postgres finished ****")
-                    self._write_csv_to_cassandra(self._mis_daily,"mis_daily","append")
-                    print("*** writing mis daily to cassandra finished ****")
+                try:
+                    if file.endswith(".csv"):
+                        logger.info(f'MIS Engine: {file}')
+                        print(f"processing {file} inside mis engine")
+                        raw_df = self._read_csv(file)
+                        df = self._preprocess()
+                        self._write_new_firewall_rules_to_db()
+                        firewall_rules_from_db = self._read_firewall_rules_from_db()
+                        df = self._set_firewall_rules_id_to_data(
+                            df, firewall_rules_from_db)
+                        self._write_raw_log_to_cassandra(raw_df)
+                        del raw_df
+                        print("*** processing finished ****")
 
-                    self._mis_new_source_ip = self._extract_mis_new_source_ip(df)
-                    self._mis_new_source_ip.show(5)
-                    print("*** mis daily new source ip extracting finished ****")
-                    self._write_csv_to_postgres(self._mis_new_source_ip,"mis_dailysourceip","append")
-                    print("*** writing mis daily new source ip to postgres finished ****")
-                    self._write_csv_to_cassandra(self._mis_new_source_ip,"mis_daily_source_ip","append")
-                    print("*** writing mis daily new source ip to cassandra finished ****")
+                        self._mis_daily = self._extract_mis_daily(df)
+                        self._mis_daily.show(5)
+                        print("*** mis daily extractng finished ****")
+                        self._write_csv_to_postgres(
+                            self._mis_daily, "mis_daily", "append")
+                        print("*** writing mis daily to postgres finished ****")
+                        self._write_csv_to_cassandra(
+                            self._mis_daily, "mis_daily", "append")
+                        print("*** writing mis daily to cassandra finished ****")
 
-                    self._mis_new_destination_ip = self._extract_mis_new_destination_ip(df)
-                    self._mis_new_destination_ip.show(5)
-                    print("*** mis daily new destination ip extracting finished ****")
-                    self._write_csv_to_postgres(self._mis_new_destination_ip,"mis_dailydestinationip","append")
-                    print("*** writing mis daily new destination ip to postgres finished ****")
-                    self._write_csv_to_cassandra(self._mis_new_destination_ip,"mis_daily_destination_ip","append")
-                    print("*** writing mis daily new destination ip to cassandra finished ****")
+                        self._mis_new_source_ip = self._extract_mis_new_source_ip(
+                            df)
+                        self._mis_new_source_ip.show(5)
+                        print("*** mis daily new source ip extracting finished ****")
+                        self._write_csv_to_postgres(
+                            self._mis_new_source_ip, "mis_dailysourceip", "append")
+                        print(
+                            "*** writing mis daily new source ip to postgres finished ****")
+                        self._write_csv_to_cassandra(
+                            self._mis_new_source_ip, "mis_daily_source_ip", "append")
+                        print(
+                            "*** writing mis daily new source ip to cassandra finished ****")
 
-                    self._mis_new_application = self._extract_mis_new_application_ip(df)
-                    self._mis_new_application.show(5)
-                    print("*** mis daily new application extracting finished ****")
-                    self._write_csv_to_postgres(self._mis_new_application,"mis_dailyapplication","append")
-                    print("*** writing mis daily new application to postgres finished ****")
-                    self._write_csv_to_cassandra(self._mis_new_application,"mis_daily_application","append")
-                    print("*** writing mis daily new application to cassandra finished ****")
+                        self._mis_new_destination_ip = self._extract_mis_new_destination_ip(
+                            df)
+                        self._mis_new_destination_ip.show(5)
+                        print(
+                            "*** mis daily new destination ip extracting finished ****")
+                        self._write_csv_to_postgres(
+                            self._mis_new_destination_ip, "mis_dailydestinationip", "append")
+                        print(
+                            "*** writing mis daily new destination ip to postgres finished ****")
+                        self._write_csv_to_cassandra(
+                            self._mis_new_destination_ip, "mis_daily_destination_ip", "append")
+                        print(
+                            "*** writing mis daily new destination ip to cassandra finished ****")
 
-                    self._mis_requests_from_blacklisted_ip = self._extract_mis_requests_from_blacklisted_ip_event(df)
-                    self._mis_requests_from_blacklisted_ip.show(5)
-                    print("*** mis daily new blacklist request extracting finished ****")
-                    self._write_csv_to_postgres(self._mis_requests_from_blacklisted_ip,"mis_dailyrequestfromblacklistevent","append")
-                    print("*** writing mis daily requests from blacklist ip to postgres finished ****")
-                    self._write_csv_to_cassandra(self._mis_requests_from_blacklisted_ip,"mis_daily_request_from_black_list_event","append")
-                    print("*** writing mis daily requests from blacklist ip to cassandra finished ****")
+                        self._mis_new_application = self._extract_mis_new_application_ip(
+                            df)
+                        self._mis_new_application.show(5)
+                        print(
+                            "*** mis daily new application extracting finished ****")
+                        self._write_csv_to_postgres(
+                            self._mis_new_application, "mis_dailyapplication", "append")
+                        print(
+                            "*** writing mis daily new application to postgres finished ****")
+                        self._write_csv_to_cassandra(
+                            self._mis_new_application, "mis_daily_application", "append")
+                        print(
+                            "*** writing mis daily new application to cassandra finished ****")
 
-                    self._mis_response_to_blacklisted_ip = self._extract_mis_responses_to_blacklisted_ip_event(df)
-                    self._mis_response_to_blacklisted_ip.show(5)
-                    print("*** mis daily new blacklist response extracting finished ****")
-                    self._write_csv_to_postgres(self._mis_response_to_blacklisted_ip,"mis_dailyresponsetoblacklistevent","append")
-                    print("*** writing mis daily response to blacklist ip to postgres finished ****")
-                    self._write_csv_to_cassandra(self._mis_response_to_blacklisted_ip,"mis_daily_response_to_black_list_event","append")
-                    print("*** writing mis daily response to blacklist ip to to cassandra finished ****")
+                        self._mis_requests_from_blacklisted_ip = self._extract_mis_requests_from_blacklisted_ip_event(
+                            df)
+                        self._mis_requests_from_blacklisted_ip.show(5)
+                        print(
+                            "*** mis daily new blacklist request extracting finished ****")
+                        self._write_csv_to_postgres(
+                            self._mis_requests_from_blacklisted_ip, "mis_dailyrequestfromblacklistevent", "append")
+                        print(
+                            "*** writing mis daily requests from blacklist ip to postgres finished ****")
+                        self._write_csv_to_cassandra(
+                            self._mis_requests_from_blacklisted_ip, "mis_daily_request_from_black_list_event", "append")
+                        print(
+                            "*** writing mis daily requests from blacklist ip to cassandra finished ****")
 
-                    self._mis_new_private_source_destination_pair = self._extract_mis_new_private_source_destination_pair(df)
-                    self._mis_new_private_source_destination_pair.show(5)
-                    print("*** mis daily new source destination extracting finished ****")
-                    self._write_csv_to_postgres(self._mis_new_private_source_destination_pair,"mis_dailypersourcedestinationpair","append")
-                    print("*** writing mis daily per source destination pair request to postgres finished ****")
-                    self._write_csv_to_cassandra(self._mis_new_private_source_destination_pair,"mis_daily_per_source_destination_pair","append")
-                    print("*** writing mis daily per source destination pair request to cassandra finished ****")
+                        self._mis_response_to_blacklisted_ip = self._extract_mis_responses_to_blacklisted_ip_event(
+                            df)
+                        self._mis_response_to_blacklisted_ip.show(5)
+                        print(
+                            "*** mis daily new blacklist response extracting finished ****")
+                        self._write_csv_to_postgres(
+                            self._mis_response_to_blacklisted_ip, "mis_dailyresponsetoblacklistevent", "append")
+                        print(
+                            "*** writing mis daily response to blacklist ip to postgres finished ****")
+                        self._write_csv_to_cassandra(
+                            self._mis_response_to_blacklisted_ip, "mis_daily_response_to_black_list_event", "append")
+                        print(
+                            "*** writing mis daily response to blacklist ip to to cassandra finished ****")
+
+                        self._mis_new_private_source_destination_pair = self._extract_mis_new_private_source_destination_pair(
+                            df)
+                        self._mis_new_private_source_destination_pair.show(5)
+                        print(
+                            "*** mis daily new source destination extracting finished ****")
+                        self._write_csv_to_postgres(
+                            self._mis_new_private_source_destination_pair, "mis_dailypersourcedestinationpair", "append")
+                        print(
+                            "*** writing mis daily per source destination pair request to postgres finished ****")
+                        self._write_csv_to_cassandra(
+                            self._mis_new_private_source_destination_pair, "mis_daily_per_source_destination_pair", "append")
+                        print(
+                            "*** writing mis daily per source destination pair request to cassandra finished ****")
+                except Exception as e:
+                    logger.error(str(traceback.format_exc()))
+                    logger.info(f'Skipping {file}')
+                    continue
+        logger.info('Threat Engine: Done')

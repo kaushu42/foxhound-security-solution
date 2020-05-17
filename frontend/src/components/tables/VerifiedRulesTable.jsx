@@ -32,14 +32,14 @@ class VerifiedRulesTable extends Component {
                 children:[
                     {   
                         title: "IP Address",
-                        dataIndex: 'source_ip',
-                        key: 'source_ip',
+                        dataIndex: 'source_address',
+                        key: 'source_address',
                         render: (text,record) => <a onClick={()=> this.handleShowSourceIpProfile(record)}>{text}</a>,
                     },
                     {   
                         title: "Alias",
-                        dataIndex: 'source_ip_alias',
-                        key: 'source_ip_alias'
+                        dataIndex: 'source_address_alias',
+                        key: 'source_address_alias'
                     }
                 ]
             },
@@ -48,14 +48,14 @@ class VerifiedRulesTable extends Component {
                 children:[
                     {   
                         title: "IP Address",
-                        dataIndex: 'destination_ip',
-                        key: 'destination_ip',
+                        dataIndex: 'destination_address',
+                        key: 'destination_address',
                         render: (text,record) => <a onClick={()=> this.handleShowDestinationIpProfile(record)}>{text}</a>,
                     },
                     {   
                         title: "Alias",
-                        dataIndex: 'destination_ip_alias',
-                        key: 'destination_ip_alias'
+                        dataIndex: 'destination_address_alias',
+                        key: 'destination_address_alias'
                     }
                 ]
             },
@@ -96,9 +96,6 @@ class VerifiedRulesTable extends Component {
     }
 
     handleTableChange = (pagination, filters, sorter) => {
-        console.log('pagination',pagination);
-        console.log('filter',filters)
-        console.log('sorter',sorter)
         const pager = { ...this.props.verifiedRulePagination };
         pager.current = pagination.current;
         this.props.dispatchPaginationUpdate(pager);
@@ -163,7 +160,6 @@ class VerifiedRulesTable extends Component {
          var option={};
          let dataTable = [];
          if (data) {
-            console.log(data);
            for (let i in data) {
              if(data){
                let obj = {

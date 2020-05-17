@@ -1,11 +1,9 @@
+from collections import defaultdict
 import datetime
+import ipaddress
 import pytz
 import time
-import json
-from collections import defaultdict, OrderedDict
 import traceback
-
-import ipaddress
 
 from django.db.models import Sum, Max
 
@@ -19,20 +17,17 @@ from rest_framework.status import (
 )
 
 from core.models import (
-    TrafficLog, TrafficLogDetailGranularHour,
+    TrafficLogDetailHourly,
     IPAddress, TenantIPAddressInfo,
     FirewallRule, IPChart,
     SankeyChart
 )
 from globalutils import (
-    get_month_day_index,
     groupby_date,
-    get_activity,
     get_usage,
     get_objects_with_date_filtered,
     get_filter_ids_from_request,
     get_firewall_rules_id_from_request,
-    get_max,
     str_to_date
 )
 from views.views import PaginatedView
@@ -40,9 +35,7 @@ from serializers.serializers import (
     IPAliasSerializer,
     IPAddressSerializer
 )
-from .utils import get_ip_from_request, get_filters
-
-TIME_OFFSET = 6
+from .utils import get_ip_from_request
 
 
 def get_ip_type(ip):
@@ -64,8 +57,8 @@ class StatsApiView(APIView):
             filter__in=filter_ids,
             address=ip
         ).aggregate(
-            uplink=Sum('bytes_sent'),
-            downlink=Sum('bytes_received'),
+            uplink=Sum('sum_bytes_sent'),
+            downlink=Sum('sum_bytes_received'),
         )
         try:
             alias = IPAddress.objects.get(address=ip).alias
@@ -97,9 +90,9 @@ class UsageApiView(APIView):
             filter__in=filter_ids,
             address=ip
         ).values('logged_datetime').annotate(
-            bytes=Sum('bytes_sent') + Sum('bytes_received'),
-            packets=Sum('packets_sent') + Sum('packets_received'),
-            count=Sum('count')
+            bytes=Sum('sum_bytes_sent') + Sum('sum_bytes_received'),
+            packets=Sum('sum_packets_sent') + Sum('sum_packets_received'),
+            count=Sum('count_events')
         )
 
         data = []
@@ -123,9 +116,9 @@ class UsageApiView(APIView):
 class AverageDailyApiView(APIView):
     def _get_total_avg(self, objects, basis):
         if basis == 'count':
-            fields = ['count']
+            fields = ['count_events']
         else:
-            fields = [f'{basis}_sent', f'{basis}_received']
+            fields = [f'sum_{basis}_sent', f'sum_{basis}_received']
         n_days = objects.distinct('logged_datetime').values('logged_datetime')
         n_days = n_days.count()//24
         if n_days == 0:
@@ -141,7 +134,7 @@ class AverageDailyApiView(APIView):
         max = 0
         for d in data:
             hour = d['date'].hour
-            if basis == 'count':
+            if basis == 'count_events':
                 sum = (d['count'])/n_days
             else:
                 sum = (d[fields[0]] + d[fields[1]])/n_days
@@ -155,17 +148,15 @@ class AverageDailyApiView(APIView):
         if date is None:
             latest_date = IPChart.objects.latest(
                 'logged_datetime').logged_datetime.astimezone(ktm_tz)
-            print(latest_date)
+
             date = latest_date.replace(
                 hour=0,
                 minute=0,
                 second=0,
                 microsecond=0
             )
-            print('date is none', date)
         else:
             date = str_to_date(date)
-            print('date supplied', date)
         latest_data = objects.filter(logged_datetime__range=(
             date, date + datetime.timedelta(hours=23))
         )
@@ -174,15 +165,15 @@ class AverageDailyApiView(APIView):
         max = 0
         for data in latest_data:
             # print(data.logged_datetime)
-            if basis == 'count':
+            if basis == 'count_events':
                 sum_value = data.count
             else:
                 sum_value = getattr(
-                    data, f'{basis}_sent'
+                    data, f'sum_{basis}_sent'
                 ) + getattr(
-                    data, f'{basis}_received'
+                    data, f'sum_{basis}_received'
                 )
-            hour = (data.logged_datetime.hour + TIME_OFFSET) % 24
+            hour = data.logged_datetime.hour
             response[hour] += sum_value
             if max < sum_value:
                 max = sum_value
@@ -222,11 +213,11 @@ class SankeyApiView(APIView):
         kwargs = {}
         if basis == 'count':
             kwargs = {
-                'count': Sum('count')
+                'count': Sum('count_events')
             }
         else:
             kwargs = {
-                basis: Sum(f'{basis}_sent') + Sum(f'{basis}_received')
+                basis: Sum(f'sum_{basis}_sent') + Sum(f'sum_{basis}_received')
             }
         return kwargs
 
@@ -240,15 +231,15 @@ class SankeyApiView(APIView):
             SankeyChart,
             'logged_datetime',
             filter__in=filter_ids,
-            source_ip=ip
-        ).values('destination_ip').annotate(**kwargs)
+            source_address=ip
+        ).values('destination_address').annotate(**kwargs)
         as_destination = get_objects_with_date_filtered(
             request,
             SankeyChart,
             'logged_datetime',
             filter__in=filter_ids,
-            destination_ip=ip
-        ).values('source_ip').annotate(**kwargs)
+            destination_address=ip
+        ).values('source_address').annotate(**kwargs)
         return as_source, as_destination, basis, ip
 
     def post(self, request, format=None):
@@ -257,9 +248,9 @@ class SankeyApiView(APIView):
         dest_response = []
 
         for i in as_src:
-            src_response.append([ip, i['destination_ip'], i[basis]])
+            src_response.append([ip, i['destination_address'], i[basis]])
         for i in as_dest:
-            dest_response.append([i['source_ip'], ip, i[basis]])
+            dest_response.append([i['source_address'], ip, i[basis]])
 
         return Response({
             'src': src_response,
@@ -277,14 +268,14 @@ class TimeSeriesApiView(APIView):
         query = get_query_from_request(request)
 
         if not query:
-            latest_date = TrafficLogDetailGranularHour.objects.latest(
+            latest_date = TrafficLogDetailHourly.objects.latest(
                 'logged_datetime'
             ).logged_datetime.date()
             latest_date = datetime.datetime.combine(
                 latest_date, datetime.time())
 
             objects = groupby_date(
-                TrafficLogDetailGranularHour.objects.filter(
+                TrafficLogDetailHourly.objects.filter(
                     logged_datetime__gte=latest_date,
                     source_ip__address=ip,
                     firewall_rule__tenant__id=tenant_id
@@ -389,40 +380,40 @@ class IPUsageByDateApiView(APIView):
         start_date = request.data.get(
             'date', None)
         if (start_date is None) or (start_date == 'undefined'):
-            latest_date = TrafficLogDetailGranularHour.objects.latest(
+            latest_date = TrafficLogDetailHourly.objects.latest(
                 'logged_datetime'
             ).logged_datetime.date()
             end_date = latest_date + datetime.timedelta(days=1)
             # latest_date = datetime.datetime.combine(
             #     latest_date, datetime.time())
             objects = groupby_date(
-                TrafficLogDetailGranularHour.objects.filter(
+                TrafficLogDetailHourly.objects.filter(
                     logged_datetime__range=(latest_date, end_date),
                     source_ip__address=ip,
                     firewall_rule__in=firewall_rules
                 ),
                 'logged_datetime',
                 'hour',
-                ['bytes_received']
+                ['sum_bytes_received']
             )
         else:
             end_date = str_to_date(start_date) + datetime.timedelta(days=1)
 
             objects = groupby_date(
-                TrafficLogDetailGranularHour.objects.filter(
+                TrafficLogDetailHourly.objects.filter(
                     logged_datetime__range=(start_date, end_date),
                     source_ip__address=ip,
                     firewall_rule__in=firewall_rules
                 ),
                 'logged_datetime',
                 'hour',
-                ['bytes_received']
+                ['sum_bytes_received']
             )
         data = []
         max = 0
         for log in objects:
             time = log['date'].timestamp()
-            bytes_received = log['bytes_received']
+            bytes_received = log['sum_bytes_received']
             max = max if max > bytes_received else bytes_received
             item = [time, bytes_received]
             data.append(item)

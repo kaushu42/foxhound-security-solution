@@ -33,20 +33,31 @@ class ClosedTroubleTickets extends Component {
                 },
                 {
                     title: 'Source Address',
-                    dataIndex: 'source_ip',
-                    key: 'source_ip',
+                    dataIndex: 'source_address',
+                    key: 'source_address',
                     render: (text,record) => <a onClick={()=> this.handleShowSourceIpProfile(record)}>{text}</a>,
                 },
                 {
                     title: 'Destination Address',
-                    dataIndex: 'destination_ip',
-                    key: 'destination_ip',
+                    dataIndex: 'destination_address',
+                    key: 'destination_address',
                     render: (text,record) => <a onClick={()=> this.handleShowDestinationIpProfile(record)}>{text}</a>,
                 },
                 {
                     title: 'Application',
                     dataIndex: 'application',
                     key: 'application',
+                },
+                {
+                    title: 'Marked Anomaly',
+                    dataIndex: 'is_anomaly',
+                    key: 'is_anomaly',
+                    render: (text) => text ? text.toString() : null,
+                },
+                {
+                    title: 'Severity Level',
+                    dataIndex: 'severity_level',
+                    key: 'severity_level',
                 },
                 {
                     title: 'Log Name',
@@ -57,7 +68,7 @@ class ClosedTroubleTickets extends Component {
                     title: 'Description',
                     dataIndex: 'description',
                     key: 'description',
-                },
+                }
             ],
             quickIpView:false
          };
@@ -103,8 +114,8 @@ class ClosedTroubleTickets extends Component {
         };
 
         let bodyFormData = new FormData();
-        bodyFormData.set("source_ip", this.state.searchSourceIP);
-        bodyFormData.set("destination_ip", this.state.searchDestinationIP);
+        bodyFormData.set("source_address", this.state.searchSourceIP);
+        bodyFormData.set("destination_address", this.state.searchDestinationIP);
         bodyFormData.set("application", this.state.searchApplication);
         bodyFormData.set("log_name", this.state.searchLogname);
 
@@ -121,9 +132,6 @@ class ClosedTroubleTickets extends Component {
     }
 
     handleTableChange = (pagination, filters, sorter) => {
-        console.log('pagination',pagination);
-        console.log('filter',filters)
-        console.log('sorter',sorter)
         const pager = { ...this.state.pagination};
         pager.current = pagination.current;
         this.state.pagination = pager,

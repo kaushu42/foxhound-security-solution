@@ -155,7 +155,7 @@ class Protocol(Base):
 
 
 class FirewallRule(Base):
-    __tablename__ = 'core_firewallrule'
+    __tablename__ = 'fh_prd_fw_rule_f'
 
     id = Column(Integer, primary_key=True)
     tenant_id = Column(ForeignKey(

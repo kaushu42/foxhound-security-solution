@@ -1,8 +1,10 @@
 import os
 import datetime
 import re
+import traceback
 
 from pyspark.sql.functions import lit
+from ..logger import Logger
 
 
 class LogEngine:
@@ -110,6 +112,8 @@ class LogEngine:
         return logs
 
     def run(self):
+        logger = Logger.getInstance()
+        logger.info('Running Log Engine')
         TRAFFIC_LOG_TABLE = 'core_trafficlog'
         THREAT_LOG_TABLE = 'core_threatlog'
         traffic_logs_in_db = self._read_table_from_postgres(TRAFFIC_LOG_TABLE)
@@ -127,3 +131,4 @@ class LogEngine:
 
         self._write_df_to_postgres(traffic_logs, TRAFFIC_LOG_TABLE)
         self._write_df_to_postgres(threat_logs, THREAT_LOG_TABLE)
+        logger.info('Log Engine Done')

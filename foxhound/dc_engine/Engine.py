@@ -1,10 +1,12 @@
 from abc import ABC, abstractmethod
 import csv
 import os
-
+import traceback
 import pyspark
 from pyspark.sql import SparkSession
 from pyspark.sql import SQLContext
+
+from ..logger import Logger
 
 
 class Engine(ABC):
@@ -121,7 +123,14 @@ class Engine(ABC):
                   verbose=verbose, message='Deleted:')
 
     def _run(self, callback, csvs, verbose=False, message='Processing:'):
+        logger = Logger.getInstance()
         for csv in csvs:
-            if verbose:
-                print(message, csv)
-            callback(csv)
+            try:
+                logger.info(f'DC Engine: {csv}')
+                if verbose:
+                    print(message, csv)
+                callback(csv)
+            except Exception as e:
+                logger.error(str(traceback.format_exc()))
+                logger.info(f'Skipping {csv}')
+                continue
