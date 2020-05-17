@@ -442,7 +442,7 @@ class MLEngine(AutoEncoder):
         #     f'{anomalous_without_model_count}/{len(anomalous_df.index)} : Anomalous without model')
         return anomalous_df, anomalous_without_model_count
 
-    def _predict_in_chunks(self, csv_file_path):
+    def _predict_in_chunks(self, csv_file_path, csv_folder_path):
         n_chunks = 0
         ano_with_model_count = 0
         # total_data_count = 0
@@ -454,7 +454,7 @@ class MLEngine(AutoEncoder):
             anomalous_df, ano_without_model = self.get_ip_anomalies(
                 df_chunk, save_data_for_ip_profile=False
             )
-            anomalous_df['log_name'] = csv_file_path.split('/')[-2]
+            anomalous_df['log_name'] = csv_folder_path.split('/')[-2]
 
             if len(anomalous_df.index):
                 self._save_to_csv(anomalous_df, os.path.join(
@@ -496,7 +496,7 @@ class MLEngine(AutoEncoder):
                         csv_file = [file for file in os.listdir(self._prediction_csv_temp_path) if file.endswith('.csv')][0]
                         csv_file_path = os.path.join(self._prediction_csv_temp_path, csv_file)
                         ano_with_model_count, ano_with_no_model_count, n_chunks = self._predict_in_chunks(
-                            csv_file_path)
+                            csv_file_path, csv_folder_path)
                         shutil.rmtree(self._prediction_csv_temp_path)
                         print(
                             f"[{csv_folder_count}/{total_csv_folders}]********** Processed {csv_folder} in {n_chunks} chunk **********")
