@@ -132,8 +132,8 @@ class Initialize():
                 if spark_csv_path.endswith('.csv'):
                     print(
                         f'[{spark_csv_file_count}/{total_spark_csv_files}]-> **********Processing {spark_csv} file **********')
-                    df = self._SPARK.read.csv(spark_csv_path, header=True)
-                    df = df.select(features_list)
+                    df = self._SPARK.read.csv(spark_csv_path, header=True, inferSchema=True)
+                    df = df.select(self._features)
                     self._create_ip_profile(df, self._TENANT_PROFILE_DIR)
 
                     print(f"[{spark_csv_file_count}/{total_spark_csv_files}]-> ********** Parsed {spark_csv} file **********")
