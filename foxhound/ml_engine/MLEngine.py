@@ -237,11 +237,12 @@ class MLEngine(AutoEncoder):
                     df = self._SPARK.read.csv(tenant_profile_dir, header=True).drop(self._USER_FEATURE)
                     
                     if df.count() > 10000:
-                        training_for = ': '.join(tenant_profile_dir.split('/')[-2:])
+                        training_for = ': '.join(tenant_profile_dir.split('/'))
                         print(
                             f'**************** Converting data for {training_for}****************')
                         df = df.toPandas()
                         categorical_params = self._get_categorical_params(df)
+
                         df, standarizer = self.normalize_data(df)
 
                         training_for = ': '.join(tenant_profile_dir.split('/')[-2:])
@@ -331,7 +332,7 @@ class MLEngine(AutoEncoder):
         df_categorical_params = self._get_categorical_params(df)
         updated_categorical_params = self._update_categorical_params(
             history_categorical_params, df_categorical_params)
-
+        
         if has_model:
             x = model_params['standarizer'].transform(df)
             preds = model.predict(x)
@@ -407,9 +408,10 @@ class MLEngine(AutoEncoder):
                 has_model = False
 
             if self._model_path is not None:
-                ip_df.reset_index(inplace=True)
+                # ip_df.reset_index(inplace=True)
                 ip_df = ip_df.drop(
-                    columns=['index', self._TENANT_FEATURE, self._USER_FEATURE])
+                    columns=[self._TENANT_FEATURE, self._USER_FEATURE])
+                # pdb.set_trace()
                 ip_df = self._preprocess(ip_df)
                 # 
                 
@@ -445,6 +447,7 @@ class MLEngine(AutoEncoder):
     def _predict_in_chunks(self, csv_file_path, csv_folder_path):
         n_chunks = 0
         ano_with_model_count = 0
+        ano_with_no_model_count = 0
         # total_data_count = 0
         
         chunksize = 2*10 ** 6
