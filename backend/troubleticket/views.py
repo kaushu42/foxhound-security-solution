@@ -71,8 +71,8 @@ class TTPaginatedView(PaginatedView):
         applications = self._handle_empty_string_from_frontend(
             request.data.get('application', None)
         )
-        source_ips = self._handle_empty_string_from_frontend(
-            request.data.get('source_ip', None)
+        source_addresss = self._handle_empty_string_from_frontend(
+            request.data.get('source_address', None)
         )
         destination_ips = self._handle_empty_string_from_frontend(
             request.data.get('destination_ip', None))
@@ -82,7 +82,7 @@ class TTPaginatedView(PaginatedView):
         applications = self._get_items(applications)
         data = {
             'application__in': applications,
-            'source_ip__regex': to_regex(source_ips),
+            'source_address__regex': to_regex(source_addresss),
             'destination_ip__regex': to_regex(destination_ips),
             'log__log_name__contains': log_name
         }
@@ -285,9 +285,9 @@ class TroubleTicketDetailApiView(APIView):
             tt = TroubleTicketAnomaly.objects.get(
                 id=id, firewall_rule__in=firewall_rule_ids)
             reasons = [i.strip() for i in tt.reasons.split(',')]
-            ip = tt.source_ip
+            ip = tt.source_address
             objects = TrafficLogDetailHourly.objects.filter(
-                source_ip=ip, firewall_rule__in=firewall_rule_ids)
+                source_address=ip, firewall_rule__in=firewall_rule_ids)
             query = {}
             max = objects.count()
             if max == 0:
