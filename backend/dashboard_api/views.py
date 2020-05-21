@@ -3,6 +3,8 @@ import datetime
 
 from django.db.models import Sum, F, Max, Count
 
+import pycountry
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
@@ -257,8 +259,6 @@ class CountryApiView(APIView):
         basis = request.data.get('basis', 'bytes')
         except_countries = request.data.get('except_countries', '')
 
-        firewall_rule_ids = get_firewall_rules_id_from_request(request)
-
         kwargs = get_model_kwargs(request)
 
         if not kwargs.get('firewall_rule__in'):
@@ -286,20 +286,28 @@ class CountryApiView(APIView):
 
 class CountryListApiView(APIView):
     def post(self, request, format=None):
-        filter_ids = get_filter_ids_from_request(request)
+        firewall_rule_ids = get_firewall_rules_id_from_request(request)
+
+        kwargs = {'firewall_rule__in': firewall_rule_ids}
+
         objects = get_objects_with_date_filtered(
             request,
-            IPChart,
+            TrafficLogDetailHourly,
             'logged_datetime',
-            filter__in=filter_ids
-        ).values('address').annotate(
-            count=Count('address')
+            **kwargs
         )
+        src = objects.values_list('source_country').distinct()
+        dst = objects.values_list('destination_country').distinct()
+        countries = map(lambda x: x[0], (set(src) | set(dst)))
 
-        countries = set()
-        for obj in objects:
-            countries.add(get_country_name_and_code(obj['address']))
-        return Response(countries)
+        response = []
+        for code in countries:
+            try:
+                country = pycountry.countries.get(alpha_2=code.upper()).name
+            except AttributeError:
+                country = ''
+            response.append([country, code])
+        return Response(response)
 
     def get(self, request, format=None):
         return self.post(request, format=format)
