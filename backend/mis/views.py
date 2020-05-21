@@ -76,23 +76,27 @@ class DestinationIPCountChart(IPCountChart):
 
 
 class BlacklistedIP(APIView):
-    def get_objects(self, request, model):
+    def get_objects(self, request, model, type='from'):
         firewall_ids = get_firewall_rules_id_from_request(request)
+        if type == 'to':
+            items = ('source_address', 'destination_address')
+        else:
+            items = ('destination_address', 'source_address')
         objects = model.objects.filter(
             firewall_rule__in=firewall_ids
-        ).values('source_address', 'destination_address').annotate(sum_bytes=(Sum("sum_bytes_sent")+Sum("sum_bytes_received")))
+        ).values(*items).annotate(sum_bytes=(Sum("sum_bytes_sent")+Sum("sum_bytes_received")))
         return objects
 
 
 class SourceBlacklistedIP(BlacklistedIP):
     def post(self, request):
         objects = self.get_objects(
-            request, TrafficMisRequestFromBlacklistedIPDaily)
+            request, TrafficMisRequestFromBlacklistedIPDaily, type='from')
         return Response(objects)
 
 
 class DestinationBlacklistedIP(BlacklistedIP):
     def post(self, request):
         objects = self.get_objects(
-            request, TrafficMisResponseToBlacklistedIPDaily)
+            request, TrafficMisResponseToBlacklistedIPDaily, type='to')
         return Response(objects)
