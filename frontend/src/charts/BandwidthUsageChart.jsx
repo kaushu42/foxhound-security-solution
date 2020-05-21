@@ -7,7 +7,7 @@ import axios from "axios";
 import QuickIpView from "../views/QuickIpView"
 import {search} from "../actions/ipSearchAction"
 import ExportJsonExcel from 'js-export-excel';
-import { ROOT_URL,getDivisionFactorUnitsFromBasis, bytesToSize } from "../utils";
+import { ROOT_URL,getDivisionFactorUnitsFromBasis, bytesToSize,timeElapsedToString } from "../utils";
 require("highcharts/modules/exporting")(Highcharts);
 import "./chart.css";
 
@@ -401,7 +401,7 @@ class BandwidthUsageChart extends Component {
                         'Session end reason':data[i].session_end_reason,
                         'Packets received':data[i].sum_packets_received,
                         'Packets sent':data[i].sum_packets_sent,
-                        'Time elapsed':data[i].time_elapsed,
+                        'Time elapsed':data[i].sum_time_elapsed,
                         'Source country':data[i].source_country,
                         'Destination country':data[i].destination_country
            }
@@ -435,7 +435,7 @@ class BandwidthUsageChart extends Component {
                                       <b>Session End Reason: </b>{record.session_end_reason}<br/>
                                       <b>Packets Received: </b>{record.sum_packets_received}<br/>
                                       <b>Packets Sent: </b>{record.sum_packets_sent}<br/>
-                                      <b>Time Elapsed: </b>{record.time_elapsed}<br/>
+                                      <b>Time Elapsed: </b>{timeElapsedToString(record.sum_time_elapsed)}<br/>
                                       <b>Source Country: </b>{record.source_country}<br/>
                                       <b>Destination Country: </b>{record.destination_country}<br/>
                                       </p>;

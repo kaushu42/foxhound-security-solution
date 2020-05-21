@@ -165,9 +165,9 @@ class AnomalousRulesTable extends Component {
                let obj = {
                             'Created datetime': (new Date(parseInt(data[i].created_date_time)*1000).toUTCString()).replace(" GMT", ""),
                             'Source address': data[i].source_ip,
-                            'Source address alias': data[i].source_ip_alias,
+                            'Source address alias': data[i].source_address_alias,
                             'Destination address': data[i].destination_ip,
-                            'Destination address alias': data[i].destination_ip_alias,
+                            'Destination address alias': data[i].destination_address_alias,
                             'Application':data[i].application,
                             'Firewall rule':data[i].name,
                             'Flagged date':(new Date(parseInt(data[i].verified_date_time)*1000).toUTCString()).replace(" GMT", ""),
