@@ -151,7 +151,7 @@ class UnverifiedRulesTable extends Component {
         let headers = axiosHeader(auth_token);
         axios.post(FETCH_BLACKLISTED_SOURCE_API,null,{headers})
             .then(res => {
-                const response = res.data;
+                const response = res.data;4
                 var blacklistData = []
                 
                 for (var i =0; i<response.length; i++){
