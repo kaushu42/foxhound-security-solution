@@ -168,7 +168,7 @@ class ThreatLogTable extends Component{
                             'Destination port':data[i].destination_port,
                             'Severity':data[i].severity,
                             'Threat content type':data[i].threat_content_type,
-                            'Protocol':data[i].ip_protocol,
+                            'Protocol':data[i].protocol,
                             'Source zone':data[i].source_zone,
                             'Destination zone':data[i].destination_zone,
                             'Inbound interface':data[i].inbound_interface,
@@ -202,7 +202,7 @@ class ThreatLogTable extends Component{
             data => <Option key={data[1]}>{data[1]}</Option>
         );
         const expandedRowRender = record => <p>
-                                      <b>Protocol: </b>{record.ip_protocol}<br/>
+                                      <b>Protocol: </b>{record.protocol}<br/>
                                       <b>Source Zone: </b>{record.source_zone}<br/>
                                       <b>Destination Zone: </b>{record.destination_zone}<br/>
                                       <b>Inbound Interface: </b>{record.inbound_interface}<br/>
@@ -222,7 +222,7 @@ class ThreatLogTable extends Component{
                     <Row gutter={[16, 16]}>
                     <Col xs={24} sm={24} md={24} lg={4} xl={4}>
                             <Button type="primary" shape="round" icon="download"
-                                onClick={this.downloadExcel}>Export Excel Table
+                                onClick={this.downloadExcel}>Export This Page
                                 </Button>
                             </Col>
                         <Col xs={24} sm={24} md={24} lg={4} xl={4}>

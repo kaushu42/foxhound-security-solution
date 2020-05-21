@@ -217,13 +217,13 @@ class DailyTrafficLogEngine:
                             "destination_port", "nat_destination_port", "firewall_rule_id",
                             "flags", "protocol", "source_zone", "destination_zone",
                             "inbound_interface", "outbound_interface", "action",
-                            "category", "session_end_reason", 'vsys', 'device_name','source_country','destination_country']
+                            "category", "session_end_reason", 'vsys', 'device_name','source_country','destination_country','traffic_log_id']
         COLUMN_HEADERS = ["logged_datetime", "threat_content_type", "source_address", "destination_address",
                           'nat_source_ip', "nat_destination_ip", "application", "log_action",
                           "destination_port", "nat_destination_port", "firewall_rule_id",
                           "flags", "protocol", "source_zone", "destination_zone",
                           "inbound_interface", "outbound_interface", "action",
-                          "category", "session_end_reason", 'vsys', 'device_name','source_country','destination_country', 'sum_time_elapsed',
+                          "category", "session_end_reason", 'vsys', 'device_name','source_country','destination_country','traffic_log_id','sum_time_elapsed',
                           'sum_bytes_received', 'sum_packets_received', 'sum_packets_sent', 'avg_repeat_count',
                           'sum_bytes_sent', 'count_events']
         grouped_df = self._df.groupby(*GROUPING_COLUMNS)
@@ -254,13 +254,13 @@ class DailyTrafficLogEngine:
                             "destination_port", "nat_destination_port", "firewall_rule_id",
                             "flags", "protocol", "source_zone", "destination_zone",
                             "inbound_interface", "outbound_interface", "action",
-                            "category", "session_end_reason", 'vsys', 'device_name','source_country','destination_country']
+                            "category", "session_end_reason", 'vsys', 'device_name','source_country','destination_country','traffic_log_id']
         COLUMN_HEADERS = ["logged_datetime", "threat_content_type", "source_address", "destination_address",
                           'nat_source_ip', "nat_destination_ip", "application", "log_action",
                           "destination_port", "nat_destination_port", "firewall_rule_id",
                           "flags", "protocol", "source_zone", "destination_zone",
                           "inbound_interface", "outbound_interface", "action",
-                          "category", "session_end_reason", 'vsys', 'device_name','source_country','destination_country', 'sum_time_elapsed',
+                          "category", "session_end_reason", 'vsys', 'device_name','source_country','destination_country','traffic_log_id','sum_time_elapsed',
                           'sum_bytes_received', 'sum_packets_received', 'sum_packets_sent', 'avg_repeat_count',
                           'sum_bytes_sent', 'count_events']
         grouped_df = self._df.groupby(*GROUPING_COLUMNS)

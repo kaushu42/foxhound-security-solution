@@ -164,10 +164,10 @@ class VerifiedRulesTable extends Component {
              if(data){
                let obj = {
                             'Created datetime': (new Date(parseInt(data[i].created_date_time)*1000).toUTCString()).replace(" GMT", ""),
-                            'Source address': data[i].source_ip,
-                            'Source address alias': data[i].source_ip_alias,
-                            'Destination address': data[i].destination_ip,
-                            'Destination address alias': data[i].destination_ip_alias,
+                            'Source address': data[i].source_address,
+                            'Source address alias': data[i].source_address_alias,
+                            'Destination address': data[i].destination_address,
+                            'Destination address alias': data[i].destination_address_alias,
                             'Application':data[i].application,
                             'Firewall rule':data[i].name,
                             'Verified date':(new Date(parseInt(data[i].verified_date_time)*1000).toUTCString()).replace(" GMT", ""),
@@ -209,7 +209,7 @@ class VerifiedRulesTable extends Component {
                     <Row gutter={[16, 16]}>
                     <Col xs={24} sm={24} md={24} lg={4} xl={4}>
                             <Button type="primary" shape="round" icon="download"
-                                onClick={this.downloadExcel}>Export Excel Table
+                                onClick={this.downloadExcel}>Export This Page
                                 </Button>
                             </Col>
                         <Col xs={24} sm={24} md={24} lg={4} xl={4}>

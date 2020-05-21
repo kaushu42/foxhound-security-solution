@@ -40,6 +40,14 @@ export const bytesToSize = bytes => {
 };
 
 
+
+export const timeElapsedToString = time_elapsed => {
+  let sizes = ["sec", "min", "hr"];
+  if (time_elapsed == 0) return "0 sec";
+  let i = parseInt(Math.floor(Math.log(time_elapsed) / Math.log(60)));
+  return Math.round(time_elapsed / Math.pow(60, i), 2) + " " + sizes[i];
+  
+}
 export const getDivisionFactorUnitsFromBasis = (max_data,basis) => {
   let division_factor = 1;
   let unit = "";

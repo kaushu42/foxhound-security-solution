@@ -1,7 +1,7 @@
     import React, {Component, Fragment} from 'react';
     import {Button, Form, List, Select, Spin, Statistic, Table, Tag, Input} from 'antd';
     import reqwest from "reqwest";
-    import {drawerInfoStyle, ROOT_URL, bytesToSize} from "../../utils";
+    import {drawerInfoStyle, ROOT_URL, bytesToSize,timeElapsedToString} from "../../utils";
     import {connect} from "react-redux";
     import { Drawer} from 'antd';
     import { Card, Col, Row } from 'antd';
@@ -295,7 +295,7 @@
             dataToShow.push(<Fragment key={"session_end_reason_"}><br/><b>Session End Reason:</b> {record.session_end_reason} </Fragment>)
             dataToShow.push(<Fragment key={"packets_received_"}><br/><b>Packets Received:</b> {record.packets_received} </Fragment>)
             dataToShow.push(<Fragment key={"packets_sent_"}><br/><b>Packets Sent:</b> {record.packets_sent} </Fragment>)
-            dataToShow.push(<Fragment key={"time_elapsed_"}><br/><b>Time Elapsed:</b> {record.time_elapsed} </Fragment>)
+            dataToShow.push(<Fragment key={"time_elapsed_"}><br/><b>Time Elapsed:</b> {timeElapsedToString(record.time_elapsed)} </Fragment>)
             dataToShow.push(<hr key = {"linebreak"}></hr>)
             dataToShow.push(<Fragment key={"reasons"}><b>Reasons For Anomaly:</b></Fragment>)
             {this.state.ttDetailCategorical ? (
@@ -432,7 +432,7 @@
                         <Row gutter={[16, 16]}>
                         <Col xs={24} sm={24} md={24} lg={4} xl={4}>
                             <Button type="primary" shape="round" icon="download"
-                                onClick={this.downloadExcel}>Export Excel Table
+                                onClick={this.downloadExcel}>Export This Page
                                 </Button>
                             </Col>
                             <Col xs={24} sm={24} md={24} lg={4} xl={4}>

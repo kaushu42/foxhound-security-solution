@@ -433,7 +433,7 @@ class IpAsSourceSankeyChart extends Component {
                     onClose={this.handleCloseLogDrawer}
                 >
                     <Button type="primary" shape="round" icon="download"
-                                onClick={this.downloadExcel}>Export Excel Table
+                                onClick={this.downloadExcel}>Export This Page
                     </Button>
                     {
                         this.state.selectedSourceToDestinationLogData ? (
