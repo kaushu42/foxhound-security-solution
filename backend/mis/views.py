@@ -10,7 +10,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from globalutils.utils import (
     get_firewall_rules_id_from_request,
-    str_to_date
+    str_to_date,
+    get_objects_with_date_filtered
 )
 
 
@@ -78,12 +79,19 @@ class DestinationIPCountChart(IPCountChart):
 class BlacklistedIP(APIView):
     def get_objects(self, request, model, type='from'):
         firewall_ids = get_firewall_rules_id_from_request(request)
+
+        kwargs = {'firewall_rule__in': firewall_ids}
+
         if type == 'to':
             items = ('source_address', 'destination_address')
         else:
             items = ('destination_address', 'source_address')
-        objects = model.objects.filter(
-            firewall_rule__in=firewall_ids
+
+        objects = get_objects_with_date_filtered(
+            request,
+            model,
+            'logged_datetime',
+            **kwargs
         ).values(*items).annotate(sum_bytes=(Sum("sum_bytes_sent")+Sum("sum_bytes_received")))
         return objects
 
