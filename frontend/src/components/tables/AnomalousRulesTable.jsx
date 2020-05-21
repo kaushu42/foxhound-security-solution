@@ -212,7 +212,7 @@ class AnomalousRulesTable extends Component {
                         <Row gutter={[16, 16]}>
                         <Col xs={24} sm={24} md={24} lg={4} xl={4}>
                                 <Button type="primary" shape="round" icon="download"
-                                onClick={this.downloadExcel}>Export Excel Table
+                                onClick={this.downloadExcel}>Export this page
                                 </Button>
                             </Col>
                             <Col xs={24} sm={24} md={24} lg={4} xl={4}>

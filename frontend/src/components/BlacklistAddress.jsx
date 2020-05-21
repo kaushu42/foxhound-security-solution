@@ -266,7 +266,7 @@ class BlacklistAddress extends Component {
                     <br />
                     <Spin spinning = {this.state.loading}>
                     <Button type="primary" shape="round" icon="download"
-                                onClick={this.downloadExcel}>Export Excel Table
+                                onClick={this.downloadExcel}>Export This Page
                     </Button>
                     <Table
                         columns={this.state.columns}

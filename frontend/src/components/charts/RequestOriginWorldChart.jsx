@@ -526,7 +526,7 @@ class RequestOriginWorldChart extends Component {
               }}
             >
               <Button type="primary" shape="round" icon="download"
-                                onClick={this.downloadExcel}>Export Excel Table
+                                onClick={this.downloadExcel}>Export This Page
               </Button>
               <Table
                 columns={this.state.columns}
