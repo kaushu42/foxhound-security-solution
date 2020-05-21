@@ -370,7 +370,6 @@ class DailyTrafficMISEngine(object):
         ).select("ip_address").withColumnRenamed("ip_address","destination_address")
         import pdb; pdb.set_trace()
         filtered_df = self._df.join(blacklisted_ip_from_db, ["destination_address"], "leftanti")
-
         # filtered_df = self._df.filter(col("destination_address").isin(blacklisted_ip_from_db))
         COLUMN_HEADERS = ['processed_datetime', 'logged_datetime', 'firewall_rule_id', 'source_address', 
                           'destination_address', 'application','protocol', 'source_zone', 'destination_zone', 
