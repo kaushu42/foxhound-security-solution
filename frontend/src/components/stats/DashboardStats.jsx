@@ -6,7 +6,7 @@ import { ROOT_URL } from "../../utils";
 import NewSourceIPChart from "../charts/NewSourceIPChart"
 import NewDestinationIPChart from "../charts/NewDestinationIPChart"
 const gridStyle = {
-  width: "20%",
+  width: "14%",
   textAlign: "center"
 };
 
@@ -135,11 +135,17 @@ class DashboardStats extends Component {
           <Card.Grid style={gridStyle}>
             <Statistic title="New Rules" value={this.state.new_rules} />
           </Card.Grid>
+          <Card.Grid style={gridStyle}>
+            <Statistic title="Requests from Blacklisted IP" value={this.state.new_destination_ip} />
+          </Card.Grid>
+          <Card.Grid style={gridStyle}>
+            <Statistic title="Response to Blacklisted IP" value={this.state.new_destination_ip} />
+          </Card.Grid>
           <Card.Grid style={gridStyle} onClick={this.showNewSourceIPDrawer}>
-            <Statistic title="New Source IP" value={this.state.new_source_ip} />
+            <Statistic title="New Source IP >" value={this.state.new_source_ip} />
           </Card.Grid>
           <Card.Grid style={gridStyle} onClick={this.showNewDestinationIPDrawer}>
-            <Statistic title="New Destination IP" value={this.state.new_destination_ip} />
+            <Statistic title="New Destination IP >" value={this.state.new_destination_ip} />
           </Card.Grid>
         </Spin>
       <Drawer 

@@ -278,7 +278,7 @@
                 axios.post(url, null, {headers})
                 .then(res=>{
                     this.setState({
-                        // ttDetailCategorical: res.data.reasons.categorical,
+                        ttDetailCategorical: res.data.categorical,
                         ttDetailNumeric: res.data.numeric,
                         selectedRecord: record.id
                     })
@@ -307,8 +307,12 @@
             ):null}
             {this.state.ttDetailNumeric ? (
                 Object.keys(this.state.ttDetailNumeric).forEach(key => {
+                    
                     if(key == "bytes_sent" || key == "bytes_received"){
                         dataToShow.push(<Fragment key={key}><br/>Expected <b>{key}</b>  <b>{bytesToSize(this.state.ttDetailNumeric[key])}</b> found <b>{bytesToSize(record[key])}</b> .</Fragment>)
+                    }
+                    else if(key == "time_elapsed" ){
+                        dataToShow.push(<Fragment key={key}><br/>Expected <b>{key}</b>  <b>{timeElapsedToString(this.state.ttDetailNumeric[key])}</b> found <b>{timeElapsedToString(record[key])}</b> .</Fragment>)
                     }
                     else{
                         dataToShow.push(<Fragment key={key}><br/>Expected <b>{key}</b>  <b>{this.state.ttDetailNumeric[key]}</b> found <b>{record[key]}</b> .</Fragment>)
