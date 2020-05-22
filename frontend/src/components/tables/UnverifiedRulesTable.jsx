@@ -158,7 +158,6 @@ class UnverifiedRulesTable extends Component {
                     blacklistData.push(response[i].source_address)
                 }
                 this.setState({blackListSourceData:blacklistData});
-                console.log("***",blacklistData);
             }).catch(error => console.log(error));
 
         axios.post(FETCH_BLACKLISTED_DESTINATION_API,null,{headers})
@@ -361,7 +360,6 @@ class UnverifiedRulesTable extends Component {
                             bordered
                             rowClassName = {record =>  {
                                 if(this.state.blackListSourceData && this.state.blackListSourceData.includes(record.source_address)){
-                                    console.log("*********************",this.state.blackListSourceData)
                                     return "redTable"
                                 }
                                 if(this.state.blackListDestinationData && this.state.blackListDestinationData.includes(record.destination_address)){
