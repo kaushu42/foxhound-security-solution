@@ -266,19 +266,20 @@ def close_tt(request, id):
 
 
 class TroubleTicketDetailApiView(APIView):
-    _numeric_cols = {
-        'Bytes Sent',
-        'Bytes Received',
-        'Packets Sent',
-        'Packets Received',
-        'Elapsed Time (sec)',
-        'Destination address',
-        'Application',
-        'Source Zone',
-        'IP Protocol',
-        'Category',
-        'Action',
-        'Session End Reason'
+    REASONS_MAP = {
+        'Bytes Sent': 'bytes_sent',
+        'Bytes Received': 'bytes_received',
+        'Packets Sent': "packets_sent",
+        'Packets Received': "packets_received",
+        'Elapsed Time (sec)': "time_elapsed",
+        'Destination Address': "destination_address",
+        'Application': "application",
+        'Source Zone': "source_zone",
+        'Destination Zone': "destination_zone",
+        'IP Protocol': "protocol",
+        'Category': "category",
+        'Action': "action",
+        'Session End Reason': "session_end_reason"
     }
 
     def get_stats(self, objects, reason, max):
@@ -293,13 +294,18 @@ class TroubleTicketDetailApiView(APIView):
                 id=id,
                 firewall_rule__in=firewall_rule_ids
             )
-            reasons = [i.strip() for i in tt.reasons.split(',')]
+            if tt.reasons:
+                reasons = [
+                    self.REASONS_MAP[i.strip()]
+                    for i in tt.reasons.split(',')
+                ]
 
             ip = tt.source_address
             objects = TrafficLogDetailHourly.objects.filter(
                 source_address=ip,
                 firewall_rule__in=firewall_rule_ids
-            ).values('source_address').aggregate(
+            )
+            numeric_values = objects.values('source_address').aggregate(
                 ###### NUMERIC COLS SUM ##############
                 bytes_sent=Sum('sum_bytes_sent'),
                 bytes_received=Sum('sum_bytes_received'),
@@ -309,16 +315,28 @@ class TroubleTicketDetailApiView(APIView):
                 n_records=Count('application')  # Count any arbitrary field
             )
 
-            print(objects)
+            n_records = numeric_values.pop('n_records') - 1
+
             numeric = {}
-            n_records = objects.pop('n_records') - 1
+            numeric_reasons = set()
 
-            for key in objects:
-                difference = objects[key] - getattr(tt, key)
-                numeric[key] = format(difference/n_records, '.2f')
+            for reason in reasons:
+                try:
+                    difference = numeric_values[reason] - getattr(tt, reason)
+                    numeric[reason] = format(difference/n_records, '.2f')
+                    numeric_reasons.add(reason)
+                except KeyError as e:
+                    pass
 
+            categorical = {}
+            categorical_reasons = set(reasons) - numeric_reasons
+            for reason in categorical_reasons:
+                query = {reason: getattr(tt, reason)}
+                count = objects.filter(**query).count()
+                categorical[reason] = count
             return Response({
-                "numeric": numeric
+                "numeric": numeric,
+                "categorical": categorical
             })
             query = {}
             max = objects.count()
