@@ -8,17 +8,24 @@ import {
     VERIFIED_RULE_PAGINATION_UPDATE, 
     VERIFIED_RULE_UPDATE_PAGINATION_PAGE_COUNT,
     VERIFIED_RULE_SELECTED_TO_REJECT,
+    VERIFIED_RULE_SELECTED_TO_DISCARD,
     VERIFIED_REJECT_RULE_DRAWER_TOGGLE,
+    VERIFIED_DISCARD_RULE_DRAWER_TOGGLE,
     REJECT_VERIFIED_RULE_BEGIN,
     REJECT_VERIFIED_RULE_COMPLETE,
     REJECT_VERIFIED_RULE_ERROR,
     REJECT_VERIFIED_RULE_SUCCESS,
+    DISCARD_VERIFIED_RULE_BEGIN,
+    DISCARD_VERIFIED_RULE_COMPLETE,
+    DISCARD_VERIFIED_RULE_ERROR,
+    DISCARD_VERIFIED_RULE_SUCCESS,
     CLOSE_ALL_DRAWER,
     CLEAN_ALL_STATE
 } from "../actionTypes/verifiedRulesActionType";
 
 const FETCH_API  = `${ROOT_URL}rules/verified/`;
-const FLAG_RULE_API = `${ROOT_URL}rules/flag/`
+const FLAG_RULE_API = `${ROOT_URL}rules/flag/`;
+const DISCARD_RULE_API = `${ROOT_URL}rules/delete/`;
 
 export function fetchVerifiedRulesDataBegin(){
     return {
@@ -54,6 +61,14 @@ export function rejectVerifiedRule(auth_token,record){
     }
 }
 
+export function discardVerifiedRule(auth_token,record){
+    return(dispatch) => {
+        dispatch(selectRecordToDiscard(record));
+        dispatch(toggleDiscardDrawer());
+
+    }
+}
+
 export function selectRecordToReject(record){
     return {
         type : VERIFIED_RULE_SELECTED_TO_REJECT,
@@ -61,9 +76,22 @@ export function selectRecordToReject(record){
     }
 }
 
+export function selectRecordToDiscard(record){
+    return {
+        type : VERIFIED_RULE_SELECTED_TO_DISCARD,
+        payload: record
+    }
+}
+
 export function toggleRejectDrawer(){
     return {
         type:VERIFIED_REJECT_RULE_DRAWER_TOGGLE
+    }
+}
+
+export function toggleDiscardDrawer(){
+    return {
+        type:VERIFIED_DISCARD_RULE_DRAWER_TOGGLE
     }
 }
 
@@ -125,6 +153,29 @@ export function rejectRule(auth_token,description,record){
     }
 }
 
+export function discardRule(auth_token,description,record){
+    return (dispatch) => {
+
+        const url = DISCARD_RULE_API + record.id + '/';
+        let headers = axiosHeader(auth_token);
+        console.log("discard url", url)
+        dispatch(discardRuleBegin());
+        axios.post(url,null,{headers})
+            .then(res =>{
+                const response = res.data;
+                dispatch(discardRuleSuccess());
+            })
+            .then(res => {
+                dispatch(discardRuleComplete(record));
+                setTimeout(()=>{dispatch(cleanAllDrawerState())},5000);
+                dispatch(toggleDiscardDrawer());
+
+            })
+            .catch(error => dispatch(discardRuleError(error)));
+
+    }
+}
+
 export function rejectRuleBegin(){
     return {
         type:REJECT_VERIFIED_RULE_BEGIN
@@ -147,6 +198,32 @@ export function rejectRuleComplete(record){
 export function rejectRuleError(error){
     return {
         type:REJECT_VERIFIED_RULE_ERROR,
+        payload:error
+    }
+}
+
+export function discardRuleBegin(){
+    return {
+        type:DISCARD_VERIFIED_RULE_BEGIN
+    }
+}
+
+export function discardRuleSuccess(){
+    return {
+        type:DISCARD_VERIFIED_RULE_SUCCESS
+    }
+}
+
+export function discardRuleComplete(record){
+    return{
+        type:DISCARD_VERIFIED_RULE_COMPLETE,
+        payload:record
+    }
+}
+
+export function discardRuleError(error){
+    return {
+        type:DISCARD_VERIFIED_RULE_ERROR,
         payload:error
     }
 }
