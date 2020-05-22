@@ -221,6 +221,30 @@ def verify_rule(request, id):
 
 
 @api_view(['POST'])
+def delete_rule(request, id):
+    try:
+        tenant_id = get_tenant_id_from_token(request)
+        rule = TrafficRule.objects.get(
+            id=id, firewall_rule__tenant__id=tenant_id)
+    except Exception as e:
+        return Response({
+            "traceback": str(traceback.format_exc()),
+            "exception": str(e)
+        }, status=HTTP_400_BAD_REQUEST)
+    if rule.is_generic:
+        rule.delete()
+    else:
+        rule.is_verified_rule = False
+        rule.is_anomalous_rule = False
+        rule.verified_by_user = None
+        rule.description = None
+        rule.save()
+    return Response({
+        "status": "Rule deleted"
+    })
+
+
+@api_view(['POST'])
 def flag_rule(request, id):
     try:
         tenant_id = get_tenant_id_from_token(request)

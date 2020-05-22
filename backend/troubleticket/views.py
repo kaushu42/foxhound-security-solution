@@ -71,8 +71,8 @@ class TTPaginatedView(PaginatedView):
         applications = self._handle_empty_string_from_frontend(
             request.data.get('application', None)
         )
-        source_ips = self._handle_empty_string_from_frontend(
-            request.data.get('source_ip', None)
+        source_addresss = self._handle_empty_string_from_frontend(
+            request.data.get('source_address', None)
         )
         destination_ips = self._handle_empty_string_from_frontend(
             request.data.get('destination_ip', None))
@@ -82,7 +82,7 @@ class TTPaginatedView(PaginatedView):
         applications = self._get_items(applications)
         data = {
             'application__in': applications,
-            'source_ip__regex': to_regex(source_ips),
+            'source_address__regex': to_regex(source_addresss),
             'destination_ip__regex': to_regex(destination_ips),
             'log__log_name__contains': log_name
         }
@@ -267,11 +267,18 @@ def close_tt(request, id):
 
 class TroubleTicketDetailApiView(APIView):
     _numeric_cols = {
-        'bytes_sent',
-        'bytes_received',
-        'packets_sent',
-        'packets_received',
-        'time_elapsed'
+        'Bytes Sent',
+        'Bytes Received',
+        'Packets Sent',
+        'Packets Received',
+        'Elapsed Time (sec)',
+        'Destination address',
+        'Application',
+        'Source Zone',
+        'IP Protocol',
+        'Category',
+        'Action',
+        'Session End Reason'
     }
 
     def get_stats(self, objects, reason, max):
@@ -283,11 +290,33 @@ class TroubleTicketDetailApiView(APIView):
         try:
             firewall_rule_ids = get_firewall_rules_id_from_request(request)
             tt = TroubleTicketAnomaly.objects.get(
-                id=id, firewall_rule__in=firewall_rule_ids)
+                id=id,
+                firewall_rule__in=firewall_rule_ids
+            )
+
             reasons = [i.strip() for i in tt.reasons.split(',')]
-            ip = tt.source_ip
+
+            ip = tt.source_address
             objects = TrafficLogDetailHourly.objects.filter(
-                source_ip=ip, firewall_rule__in=firewall_rule_ids)
+                source_address=ip,
+                firewall_rule__in=firewall_rule_ids
+            ).annotate(
+                ###### NUMERIC COLS SUM ##############
+                sum_bytes_sent=Sum('sum_bytes_sent'),
+                sum_bytes_received=Sum('sum_bytes_received'),
+                sum_packets_sent=Sum('sum_packets_sent'),
+                sum_packets_received=Sum('sum_packets_received'),
+                sum_time_elapsed=Sum('sum_time_elapsed'),
+                ###### NUMERIC COLS COUNT ############
+                count_destination_address=Count('destination_address'),
+                count_application=Count('application'),
+                count_source_zone=Count('source_zone'),
+                count_destination_zone=Count('destination_zone'),
+                count_protocol=Count('protocol'),
+                count_action=Count('action'),
+                count_session_end_reason=Count('session_end_reason'),
+            )
+
             query = {}
             max = objects.count()
             if max == 0:
@@ -295,11 +324,11 @@ class TroubleTicketDetailApiView(APIView):
                     "categorical": {},
                     "numeric": {}
                 })
+
             for reason in reasons:
-                if '_id' in reason:
-                    reason = reason.replace('_id', '')
                 if reason not in {'logged_datetime'}:
                     query[reason] = self.get_stats(objects, reason, max)
+
             stats = objects.aggregate(**query)
             categorical = {}
             numeric = {}

@@ -15,14 +15,14 @@ class DailyTTEngine:
                                   'Inbound Interface', 'Outbound Interface', 'Action', 'Category',
                                   'Session End Reason',  'Destination Port', 'Source Port',
                                   'Bytes Sent', 'Bytes Received', 'Repeat Count', 'Packets Received',
-                                  'Packets Sent', 'Start Time', 'Elapsed Time (sec)', 'Virtual System', 'Device Name', 'log_name']
+                                  'Packets Sent', 'Start Time', 'Elapsed Time (sec)', 'Virtual System', 'Device Name', 'reasons', 'log_name']
         self._HEADER_NAMES = ["threat_content_type", "source_address", "destination_address", 'nat_source_ip',
                               "nat_destination_ip", "application", "log_action",
                               "nat_destination_port", "firewall_rule", "flags", "protocol", "source_zone", "destination_zone",
                               "inbound_interface", "outbound_interface", "action", "category",
                               "session_end_reason", "destination_port", 'source_port',
                               "bytes_sent", "bytes_received", "repeat_count", "packets_received",
-                              "packets_sent", "logged_datetime", "time_elapsed", 'vsys', 'device_name', 'log_name']
+                              "packets_sent", "logged_datetime", "time_elapsed", 'vsys', 'device_name', 'reasons', 'log_name']
 
     def _preprocess(self, df):
         df = df[self._REQUIRED_COLUMNS]
