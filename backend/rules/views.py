@@ -231,11 +231,14 @@ def delete_rule(request, id):
             "traceback": str(traceback.format_exc()),
             "exception": str(e)
         }, status=HTTP_400_BAD_REQUEST)
-    rule.is_verified_rule = False
-    rule.is_anomalous_rule = False
-    rule.verified_by_user = None
-    rule.description = None
-    rule.save()
+    if rule.is_generic:
+        rule.delete()
+    else:
+        rule.is_verified_rule = False
+        rule.is_anomalous_rule = False
+        rule.verified_by_user = None
+        rule.description = None
+        rule.save()
     return Response({
         "status": "Rule deleted"
     })
