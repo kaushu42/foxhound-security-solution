@@ -139,16 +139,16 @@ class DashboardStats extends Component {
             <Statistic title="Downlink" value={downlink} />
           </Card.Grid>
           <Card.Grid style={gridStyle} >
-            <Statistic title={<a target="_blank" href="/rules/unverified">New Rules</a>} value={this.state.new_rules} />
+          <a target="_blank" href="/rules/unverified"><Statistic title="New Rules" value={this.state.new_rules} /></a>
           </Card.Grid>
           <Card.Grid style={gridStyle}>
-            <Statistic title="New Trouble Tickets" value={this.state.new_tt} />
+            <a target="_blank" href="/tt/my"><Statistic title="New Trouble Tickets" value={this.state.new_tt} /></a>
           </Card.Grid>
           <Card.Grid style={gridStyle} >
-            <Statistic title={<a target="_blank" href="/blacklistedrequests">Request From Blacklisted IP</a>}  value={this.state.blacklist_request} />
+            <a target="_blank" href="/blacklistedrequests"><Statistic title="Request From Blacklisted IP"  value={this.state.blacklist_request} /></a>
           </Card.Grid>
           <Card.Grid style={gridStyle}>
-            <Statistic title={<a target="_blank" href="/blacklistedresponses">Response To Blacklisted IP</a>}  value={this.state.blacklist_response} />
+            <a target="_blank" href="/blacklistedresponses"><Statistic title="Response To Blacklisted IP"  value={this.state.blacklist_response} /></a>
           </Card.Grid>
           <Card.Grid style={gridStyle} onClick={this.showNewSourceIPDrawer}>
             <Statistic title="New Source IP >" value={this.state.new_source_ip} />
