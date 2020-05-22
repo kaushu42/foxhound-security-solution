@@ -4,12 +4,18 @@ import {
     ANOMALOUS_RULES_DATA_FETCH_ERROR,
     ANOMALOUS_RULES_DATA_FETCH_SUCCESS,
     ACCEPT_RULE_DRAWER_TOGGLE,
+    DISCARD_RULE_DRAWER_TOGGLE,
     CLOSE_ALL_DRAWER,
     RULE_SELECTED_TO_ACCEPT,
+    RULE_SELECTED_TO_DISCARD,
     ACCEPT_ANOMALOUS_RULE_BEGIN,
     ACCEPT_ANOMALOUS_RULE_SUCCESS,
     ACCEPT_ANOMALOUS_RULE_COMPLETE,
     ACCEPT_ANOMALOUS_RULE_ERROR,
+    DISCARD_ANOMALOUS_RULE_BEGIN,
+    DISCARD_ANOMALOUS_RULE_SUCCESS,
+    DISCARD_ANOMALOUS_RULE_COMPLETE,
+    DISCARD_ANOMALOUS_RULE_ERROR,
     TOGGLE_FLAGGED_RULE_BEGIN,
     TOGGLE_FLAGGED_RULE_COMPLETE,
     TOGGLE_FLAGGED_RULE_ERROR,
@@ -25,6 +31,7 @@ const initialState = {
     anomalousRulesError: false,
 
     anomalousRuleAcceptDrawerLoading : false,
+    anomalousRuleDiscardDrawerLoading : false,
 
     selectedRecordToAccept : null,
     acceptAnomalousRuleLoading:false,
@@ -32,6 +39,13 @@ const initialState = {
     acceptAnomalousRuleError:false,
     acceptAnomalousRuleSuccessMessage : "Anomalous Rule Verified Successfully",
     acceptAnomalousRuleErrorMessage: "Anomalous Rule Verify Error",
+
+    selectedRecordToDiscard : null,
+    discardAnomalousRuleLoading:false,
+    discardAnomalousRuleSuccess:false,
+    discardAnomalousRuleError:false,
+    discardAnomalousRuleSuccessMessage : "Anomalous Rule Discarded Successfully",
+    discardAnomalousRuleErrorMessage: "Anomalous Rule Discard Error",
 
     selectedRecordToToggle : null,
     toggleFlaggedRuleLoading:false,
@@ -71,6 +85,11 @@ const anomalousRulesReducer = (state=initialState,action)=>{
                 ...state,
                 anomalousRuleAcceptDrawerLoading : !state.anomalousRuleAcceptDrawerLoading
             }
+        case DISCARD_RULE_DRAWER_TOGGLE :
+            return {
+                ...state,
+                anomalousRuleDiscardDrawerLoading : !state.anomalousRuleDiscardDrawerLoading
+            }
         case CLOSE_ALL_DRAWER:
             return{
                 ...state,
@@ -108,6 +127,38 @@ const anomalousRulesReducer = (state=initialState,action)=>{
                 }),
                 selectedRecordToAccept:null,
                 acceptAnomalousRuleLoading: false
+            }
+        case RULE_SELECTED_TO_DISCARD :
+        return {
+            ...state,
+            selectedRecordToDiscard : action.payload
+        }
+        case DISCARD_ANOMALOUS_RULE_BEGIN:
+            return {
+                ...state,
+                discardAnomalousRuleLoading : true
+            }
+        case DISCARD_ANOMALOUS_RULE_SUCCESS:
+            return{
+                ...state,
+                discardAnomalousRuleSuccess: true,
+                discardAnomalousRuleError: false
+            }
+        case DISCARD_ANOMALOUS_RULE_ERROR :
+            return {
+                ...state,
+                discardAnomalousRuleError: true,
+                discardAnomalousRuleSuccess: false,
+                discardAnomalousRuleLoading: false
+            }
+        case DISCARD_ANOMALOUS_RULE_COMPLETE:
+            return{
+                ...state,
+                anomalousRulesData: state.anomalousRulesData.filter(function(value, index, arr){
+                    return value.id != action.payload.id
+                }),
+                selectedRecordToDiscard:null,
+                discardAnomalousRuleLoading: false
             }
         case TOGGLE_FLAGGED_RULE_BEGIN:
             return {
