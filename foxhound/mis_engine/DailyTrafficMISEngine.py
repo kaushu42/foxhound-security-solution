@@ -323,13 +323,9 @@ class DailyTrafficMISEngine(object):
         del grouped_agg,app_from_db_df,new_unique_application,grouped_df
         
     def _extract_mis_requests_from_blacklisted_ip_event(self):
-        #blacklisted_ip_from_db = self._get_table("core_blacklistedip")[
-        #    "ip_address"].tolist()
         blacklisted_ip_from_db = self._create_spark_dateframe_from_table("core_blacklistedip"
         ).select("ip_address").withColumnRenamed("ip_address","source_address")
-        import pdb; pdb.set_trace()
         filtered_df = self._df.join(blacklisted_ip_from_db, ["source_address"], "leftanti")
-        #filtered_df = self._df.filter(col("source_address").isin(blacklisted_ip_from_db))
         COLUMN_HEADERS = ['processed_datetime', 'logged_datetime', 'firewall_rule_id', 'source_address', 'destination_address', 'application',
                           'protocol', 'source_zone', 'destination_zone', 'inbound_interface', 'outbound_interface',
                           'action', 'category', 'session_end_reason', 'destination_port','avg_repeat_count', 'sum_bytes_sent', 
@@ -364,13 +360,9 @@ class DailyTrafficMISEngine(object):
         del grouped_agg,filtered_df,grouped_df
 
     def _extract_mis_responses_to_blacklisted_ip_event(self):
-        # blacklisted_ip_from_db = self._get_table("core_blacklistedip")[
-            # "ip_address"].tolist()
         blacklisted_ip_from_db = self._create_spark_dateframe_from_table("core_blacklistedip"
         ).select("ip_address").withColumnRenamed("ip_address","destination_address")
-        import pdb; pdb.set_trace()
         filtered_df = self._df.join(blacklisted_ip_from_db, ["destination_address"], "leftanti")
-        # filtered_df = self._df.filter(col("destination_address").isin(blacklisted_ip_from_db))
         COLUMN_HEADERS = ['processed_datetime', 'logged_datetime', 'firewall_rule_id', 'source_address', 
                           'destination_address', 'application','protocol', 'source_zone', 'destination_zone', 
                           'inbound_interface', 'outbound_interface','action', 'category', 'session_end_reason', 

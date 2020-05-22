@@ -14,6 +14,11 @@ from globalutils.utils import (
     get_objects_with_date_filtered
 )
 
+from serializers.serializers import (
+    MisDailyRequestFromBlacklistedIpSerializer,
+    MisDailyResponseToBlacklistedIpSerializer
+)
+
 
 class DailyApiView(APIView):
     def _get_items(self, request, model, field_name):
@@ -76,35 +81,53 @@ class DestinationIPCountChart(IPCountChart):
         return Response(items)
 
 
-class BlacklistedIP(APIView):
-    def get_objects(self, request, model, type='from'):
+class MisRequestsFromBlackistListedIPAPIView(PaginatedView):
+    serializer_class = MisDailyRequestFromBlacklistedIpSerializer
+    def get(self, request):
         firewall_ids = get_firewall_rules_id_from_request(request)
+        objects = TrafficMisRequestFromBlacklistedIPDaily.objects.filter(
+            firewall_rule__in=firewall_ids
+        )
+        page = self.paginate_queryset(objects.order_by('-logged_datetime'))
+        if page is not None:
+            serializer = self.serializer_class(page, many=True)
+            return self.get_paginated_response(serializer.data)
+   
+    def post(self, request):
+        return self.get(request)   
 
-        kwargs = {'firewall_rule__in': firewall_ids}
+class MisResponsesToBlackistListedIPAPIView(PaginatedView):
+    serializer_class = MisDailyResponseToBlacklistedIpSerializer
+    def get(self, request):
+        firewall_ids = get_firewall_rules_id_from_request(request)
+        objects = TrafficMisResponseToBlacklistedIPDaily.objects.filter(
+            firewall_rule__in=firewall_ids
+        )
+        page = self.paginate_queryset(objects.order_by('-logged_datetime'))
+        if page is not None:
+            serializer = self.serializer_class(page, many=True)
+            return self.get_paginated_response(serializer.data)
+   
+    def post(self, request):
+        return self.get(request)   
 
-        if type == 'to':
-            items = ('source_address', 'destination_address')
-        else:
-            items = ('destination_address', 'source_address')
 
-        objects = get_objects_with_date_filtered(
-            request,
-            model,
-            'logged_datetime',
-            **kwargs
-        ).values(*items).annotate(sum_bytes=(Sum("sum_bytes_sent")+Sum("sum_bytes_received")))
+class BlacklistedIP(APIView):
+    def get_objects(self, request, model):
+        firewall_ids = get_firewall_rules_id_from_request(request)
+        objects = model.objects.filter(firewall_rule__in=firewall_ids).values('source_address', 'destination_address').distinct()
         return objects
 
 
 class SourceBlacklistedIP(BlacklistedIP):
     def post(self, request):
         objects = self.get_objects(
-            request, TrafficMisRequestFromBlacklistedIPDaily, type='from')
+            request, TrafficMisRequestFromBlacklistedIPDaily)
         return Response(objects)
 
 
 class DestinationBlacklistedIP(BlacklistedIP):
     def post(self, request):
         objects = self.get_objects(
-            request, TrafficMisResponseToBlacklistedIPDaily, type='to')
+            request, TrafficMisResponseToBlacklistedIPDaily)
         return Response(objects)

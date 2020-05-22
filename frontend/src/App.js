@@ -24,6 +24,8 @@ import BackgoundJob from "./views/core/BackgroundJob";
 import BatchMonitor from "./views/core/BatchMonitor";
 import KibanaDashboard from "./views/KibanaDashboard";
 import KibanaLiveDashboard from "./views/KibanaLiveDashboard";
+import BlacklistedRequests from './views/BlacklistedRequests';
+import BlacklistedResponses from './views/BlacklistedResponses';
 
 class App extends Component {
   render() {
@@ -67,6 +69,18 @@ class App extends Component {
             path="/ip"
             activePageKey={"ip"}
             component={IpAddressProfile}
+          />
+          <AuthenticatedRoute
+            auth_token={this.props.auth_token}
+            path="/blacklistedrequests"
+            activePageKey={"blacklistedrequest"}
+            component={BlacklistedRequests}
+          />
+          <AuthenticatedRoute
+            auth_token={this.props.auth_token}
+            path="/blacklistedresponses"
+            activePageKey={"blacklistedresponses"}
+            component={BlacklistedResponses}
           />
           <AuthenticatedRoute
             auth_token={this.props.auth_token}

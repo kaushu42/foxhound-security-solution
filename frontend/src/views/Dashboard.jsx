@@ -75,10 +75,6 @@ class Dashboard extends Component{
                         <ApplicationLineChart />
                     </Row>
                     <Row style={contentLayout}>
-                        <BlacklistAddress />
-                    </Row>
-
-                    <Row style={contentLayout}>
                         <br />
                         <h3>Unverified Rules</h3>
                         <UnverifiedRulesTable />
