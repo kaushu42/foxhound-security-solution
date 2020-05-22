@@ -4,7 +4,9 @@ import {Alert, Avatar, Button, Col, Drawer, Form, Icon, Input, List, Row, Select
 import {
     fetchAnomalousRulesData,
     acceptRule,
+    discardRule,
     acceptAnomalousRule,
+    discardAnomalousRule,
     handleDrawerClose,
     updatePagination
 } from "../../actions/anomalousRulesAction";
@@ -81,6 +83,7 @@ class AnomalousRulesTable extends Component {
                 render : (text,record) => {
                     return (
                         <Fragment>
+                            <a onClick={() => this.props.handleAnomalousRuleDiscard(this.props.auth_token,record)}><Icon type="left-circle" theme="filled" style={{fontSize:16,color:'blue'}}/>&nbsp;&nbsp;</a>
                             <a onClick={() => this.props.handleAnomalousRuleAccept(this.props.auth_token,record)}><Icon type="check-circle" theme="filled" style={{fontSize:16,color:'green'}}/>&nbsp;&nbsp;</a>
                         </Fragment>
                     )
@@ -135,6 +138,13 @@ class AnomalousRulesTable extends Component {
         const {auth_token,selectedRecordToAccept} = this.props;
         const description = this.description.state.value;
         this.props.dispatchAcceptRule(auth_token,description,selectedRecordToAccept);
+    }
+
+    handleDiscardRuleSubmit = (e) => {
+        e.preventDefault();
+        const {auth_token,selectedRecordToDiscard} = this.props;
+        const description = ""
+        this.props.dispatchDiscardRule(auth_token,description,selectedRecordToDiscard);
     }
 
     handleShowAnomalousIpDashboard(record){
@@ -192,7 +202,7 @@ class AnomalousRulesTable extends Component {
     }
 
     render(){
-        const {selectedRecordToAccept} = this.props;
+        const {selectedRecordToAccept, selectedRecordToDiscard} = this.props;
         const expandedRowRender = record => <p><b>Flagged Date: </b>{(new Date(parseInt(record.verified_date_time)*1000).toUTCString()).replace(" GMT", "")} <br/><b>Flagged By: </b> {record.verified_by_user.username} </p>;
         const applicationSelectListItem = this.state.applicationData.map(
             data => <Select.Option key={data[1]}>{data[1]}</Select.Option>
@@ -204,6 +214,12 @@ class AnomalousRulesTable extends Component {
                     : null }
                 {this.props.acceptAnomalousRuleSuccess ?
                     <Alert message="Success" type="success" closeText="Close Now" showIcon description={this.props.acceptAnomalousRuleSuccessMessage} />
+                    : null }
+                {this.props.discardAnomalousRuleError ?
+                    <Alert message="Error" type="error" closeText="Close Now" showIcon description={this.props.discardAnomalousRuleErrorMessage} />
+                    : null }
+                {this.props.discardAnomalousRuleSuccess ?
+                    <Alert message="Success" type="success" closeText="Close Now" showIcon description={this.props.discardAnomalousRuleSuccessMessage} />
                     : null }
                 <Spin spinning={this.props.anomalousRulesLoading}>
                     {/* <div style={{marginBottom:24,padding:24,background:'#fbfbfb',border: '1px solid #d9d9d9',borderRadius: 6}}> */}
@@ -328,6 +344,48 @@ class AnomalousRulesTable extends Component {
                     </Spin>
                 </Drawer>
                 <Drawer
+                    id={"DiscardDrawer"}
+                    visible={this.props.anomalousRuleDiscardDrawerLoading}
+                    title={"Confirm Discard this rule?"}
+                    width={500}
+                    closable={true}
+                    onClose={this.props.dispatchHandleDrawerClose}
+                    placement={'right'}>
+                    <Spin spinning={!selectedRecordToDiscard}>
+                        {
+                            selectedRecordToDiscard ? (
+                            <Fragment>
+                                {this.props.discardAnomalousRuleError ? <p style={{color:'red'}}>{this.props.discardAnomalousRuleErrorMessage }</p>: null }
+                                {this.props.discardAnomalousRuleSuccess ? <p style={{color:'green'}}>{this.props.discardAnomalousRuleSuccessMessage} </p>: null }
+                                <Row type="flex" gutter={16}>
+                                    <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
+                                        <Statistic title="Source IP" value={selectedRecordToDiscard.source_ip} />
+                                    </Col>
+                                    <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
+                                        <Statistic title="Destination IP" value={selectedRecordToDiscard.destination_ip}/>
+                                    </Col>
+                                    <Col xs={24} sm={12} md={12} lg={24} xl={24} style={drawerInfoStyle}>
+                                        <Statistic title="Application" value={selectedRecordToDiscard.application}/>
+                                    </Col>
+                                </Row>
+                                <br />
+                                <p style={{color:'red'}}>{this.props.error_message}</p>
+                                <Row type="flex" gutter={16} style={{paddingTop: 10,paddingBottom: 10}}>
+                                <Button
+                                    type="primary"
+                                    style={{width:'100%'}}
+                                    htmlType="submit"
+                                    className="login-form-button"
+                                    loading={this.props.acceptAnomalousRuleLoading}
+                                    onClick={e =>this.handleDiscardRuleSubmit(e)}>Discard this rule
+                                </Button>
+                                </Row>
+                            </Fragment>
+                            ):null
+                        }
+                    </Spin>
+                </Drawer>
+                <Drawer
                     closable={true}
                     width={800}
                     placement={"right"}
@@ -359,7 +417,15 @@ const mapStateToProps = state => {
         acceptAnomalousRuleErrorMessage: state.anomalousRule.acceptAnomalousRuleErrorMessage,
         selectedRecordToAccept : state.anomalousRule.selectedRecordToAccept,
 
+        discardAnomalousRuleLoading:state.anomalousRule.discardAnomalousRuleLoading,
+        discardAnomalousRuleSuccess:state.anomalousRule.discardAnomalousRuleSuccess,
+        discardAnomalousRuleError:state.anomalousRule.discardAnomalousRuleError,
+        discardAnomalousRuleSuccessMessage : state.anomalousRule.discardAnomalousRuleSuccessMessage,
+        discardAnomalousRuleErrorMessage: state.anomalousRule.discardAnomalousRuleErrorMessage,
+        selectedRecordToDiscard : state.anomalousRule.selectedRecordToDiscard,
+
         anomalousRuleAcceptDrawerLoading: state.anomalousRule.anomalousRuleAcceptDrawerLoading,
+        anomalousRuleDiscardDrawerLoading: state.anomalousRule.anomalousRuleDiscardDrawerLoading,
 
         anomalousRulePagination : state.anomalousRule.anomalousRulePagination
     }
@@ -369,8 +435,10 @@ const mapDispatchToProps = dispatch => {
     return {
         dispatchFetchAnomalousRulesData : (auth_token, params, searchSourceIP,  searchDestinationIP, searchAlias, searchApplication, pagination) => dispatch(fetchAnomalousRulesData(auth_token, params,  searchSourceIP,  searchDestinationIP, searchAlias, searchApplication,pagination)),
         handleAnomalousRuleAccept : (auth_token,record) => dispatch(acceptAnomalousRule(auth_token,record)),
+        handleAnomalousRuleDiscard : (auth_token,record) => dispatch(discardAnomalousRule(auth_token,record)),
         dispatchHandleDrawerClose : () => dispatch(handleDrawerClose()),
         dispatchAcceptRule : (auth_token,description,record) => dispatch(acceptRule(auth_token,description,record)),
+        dispatchDiscardRule : (auth_token,description,record) => dispatch(discardRule(auth_token,description,record)),
         dispatchPaginationUpdate : (pager) => dispatch(updatePagination(pager)),
 
         dispatchAnomalousIpSearchValueUpdate : value => dispatch(search(value))

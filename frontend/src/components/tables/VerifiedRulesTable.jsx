@@ -1,6 +1,6 @@
 import React, {Component, Fragment} from 'react';
 import {connect} from "react-redux";
-import {Spin, Table, Drawer, Icon, Button, Form, Input, Row, Col, Statistic, Card, Select} from 'antd';
+import {Spin, Table, Drawer, Icon, Button, Form, Input, Row, Col, Statistic, Card, Select, Alert} from 'antd';
 import {
     fetchVerifiedRulesData,
     updatePagination, 
@@ -210,10 +210,18 @@ class VerifiedRulesTable extends Component {
           );
         return(
             <Fragment>
-                {this.props.rejectVerifiedRuleError ? <p style={{color:'red'}}>{this.props.rejectVerifiedRuleErrorMessage }</p>: null }
-                {this.props.rejectVerifiedRuleSuccess ? <p style={{color:'green'}}>{this.props.rejectVerifiedRuleSuccessMessage} </p>: null }
-                {this.props.discardVerifiedRuleError ? <p style={{color:'red'}}>{this.props.discardVerifiedRuleErrorMessage }</p>: null }
-                {this.props.discardVerifiedRuleSuccess ? <p style={{color:'green'}}>{this.props.discardVerifiedRuleSuccessMessage} </p>: null }
+                {this.props.rejectVerifiedRuleError ? 
+                    <Alert message="Error" type="error" closeText="Close Now" showIcon description={this.props.rejectVerifiedRuleErrorMessage} />
+                    : null }
+                {this.props.rejectVerifiedRuleSuccess ? 
+                    <Alert message="Success" type="success" closeText="Close Now" showIcon description={this.props.rejectVerifiedRuleSuccessMessage} />
+                    : null }
+                {this.props.discardVerifiedRuleError ? 
+                    <Alert message="Error" type="error" closeText="Close Now" showIcon description={this.props.discardVerifiedRuleErrorMessage} />
+                    : null }
+                {this.props.discardVerifiedRuleSuccess ? 
+                    <Alert message="Success" type="success" closeText="Close Now" showIcon description={this.props.discardVerifiedRuleSuccessMessage} />
+                    : null }
                 <Spin spinning={this.props.verifiedRulesLoading}>
                 {/* <div style={{marginBottom:24,padding:24,background:'#fbfbfb',border: '1px solid #d9d9d9',borderRadius: 6}}> */}
                 <Card title={

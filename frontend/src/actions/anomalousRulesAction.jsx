@@ -6,12 +6,18 @@ import {
     ANOMALOUS_RULES_DATA_FETCH_ERROR,
     ANOMALOUS_RULES_DATA_FETCH_SUCCESS,
     ACCEPT_RULE_DRAWER_TOGGLE,
+    DISCARD_RULE_DRAWER_TOGGLE,
     CLOSE_ALL_DRAWER,
     RULE_SELECTED_TO_ACCEPT,
+    RULE_SELECTED_TO_DISCARD,
     ACCEPT_ANOMALOUS_RULE_BEGIN,
     ACCEPT_ANOMALOUS_RULE_SUCCESS,
     ACCEPT_ANOMALOUS_RULE_COMPLETE,
     ACCEPT_ANOMALOUS_RULE_ERROR,
+    DISCARD_ANOMALOUS_RULE_BEGIN,
+    DISCARD_ANOMALOUS_RULE_SUCCESS,
+    DISCARD_ANOMALOUS_RULE_COMPLETE,
+    DISCARD_ANOMALOUS_RULE_ERROR,
     TOGGLE_FLAGGED_RULE_BEGIN,
     TOGGLE_FLAGGED_RULE_COMPLETE,
     TOGGLE_FLAGGED_RULE_ERROR,
@@ -23,6 +29,7 @@ import {
 
 const FETCH_API  = `${ROOT_URL}rules/anomalous/`;
 const VERIFY_RULE_API = `${ROOT_URL}rules/verify/`;
+const DISCARD_RULE_API = `${ROOT_URL}rules/delete/`;
 const FLAG_RULE_API = `${ROOT_URL}rules/flag/`;
 const UPDATE_API = `${ROOT_URL}rules/edit/`;
 
@@ -58,6 +65,12 @@ export function toggleAcceptDrawer(){
     }
 }
 
+export function toggleDiscardDrawer(){
+    return {
+        type:DISCARD_RULE_DRAWER_TOGGLE
+    }
+}
+
 export function handleDrawerClose(){
     return {
         type: CLOSE_ALL_DRAWER
@@ -67,6 +80,13 @@ export function handleDrawerClose(){
 export function selectRecordToAccept(record){
     return {
         type : RULE_SELECTED_TO_ACCEPT,
+        payload: record
+    }
+}
+
+export function selectRecordToDiscard(record){
+    return {
+        type : RULE_SELECTED_TO_DISCARD,
         payload: record
     }
 }
@@ -97,10 +117,44 @@ export function acceptRuleError(error){
     }
 }
 
+export function discardRuleSuccess(){
+    return {
+        type:DISCARD_ANOMALOUS_RULE_SUCCESS
+    }
+}
+
+export function discardRuleBegin(){
+    return {
+        type:DISCARD_ANOMALOUS_RULE_BEGIN
+    }
+}
+
+export function discardRuleComplete(record){
+    return{
+        type:DISCARD_ANOMALOUS_RULE_COMPLETE,
+        payload:record
+    }
+}
+
+export function discardRuleError(error){
+    return {
+        type:DISCARD_ANOMALOUS_RULE_ERROR,
+        payload:error
+    }
+}
+
 export function acceptAnomalousRule(auth_token,record){
     return(dispatch) => {
         dispatch(selectRecordToAccept(record));
         dispatch(toggleAcceptDrawer());
+
+    }
+}
+
+export function discardAnomalousRule(auth_token,record){
+    return(dispatch) => {
+        dispatch(selectRecordToDiscard(record));
+        dispatch(toggleDiscardDrawer());
 
     }
 }
@@ -132,6 +186,27 @@ export function acceptRule(auth_token,description,record){
                 setTimeout(()=>{dispatch(cleanAllDrawerState())},5000);
             })
             .catch(error => dispatch(acceptRuleError(error)));
+    }
+}
+
+export function discardRule(auth_token,description,record){
+    return (dispatch) => {
+        const url_to_discard_flagged_rule = DISCARD_RULE_API + record.id + '/';
+        let headers = axiosHeader(auth_token);
+
+        dispatch(discardRuleBegin());
+        axios.post(url_to_discard_flagged_rule,null,{headers})
+            .then(res =>{
+                const response = res.data;
+                dispatch(discardRuleSuccess());
+            })
+            .then(res => {
+                dispatch(discardRuleComplete(record));
+                dispatch(toggleDiscardDrawer());
+                dispatch(toggleRuleSuccess());
+                setTimeout(()=>{dispatch(cleanAllDrawerState())},5000);
+            })
+            .catch(error => dispatch(discardRuleError(error)));
     }
 }
 
