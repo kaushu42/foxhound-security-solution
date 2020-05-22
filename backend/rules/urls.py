@@ -10,4 +10,5 @@ urlpatterns = [
     path('verify/<int:id>/', views.verify_rule),
     path('flag/<int:id>/', views.flag_rule),
     path('edit/', views.edit_rule),
+    path('delete/<int:id>/', views.delete_rule),
 ]
