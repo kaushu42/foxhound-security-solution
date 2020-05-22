@@ -102,6 +102,8 @@ const verifiedRulesReducer = (state=initialState,action)=>{
                 ...state,
                 selectedVerifiedRecordToReject:null,
                 verifiedRuleRejectDrawerLoading: false,
+                selectedVerifiedRecordToDiscard:null,
+                verifiedRuleDiscardDrawerLoading: false,
             }
         case REJECT_VERIFIED_RULE_BEGIN:
             return {
