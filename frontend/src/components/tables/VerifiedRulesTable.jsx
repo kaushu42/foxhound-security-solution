@@ -5,8 +5,10 @@ import {
     fetchVerifiedRulesData,
     updatePagination, 
     rejectVerifiedRule,
+    discardVerifiedRule,
     handleDrawerClose,
-    rejectRule
+    rejectRule,
+    discardRule
 } from "../../actions/verifiedRulesAction";
 import {axiosHeader, drawerInfoStyle, ROOT_URL} from "../../utils";
 import moment from "moment";
@@ -80,6 +82,7 @@ class VerifiedRulesTable extends Component {
                 render : (text,record) => {
                     return (
                         <Fragment>
+                            <a onClick={() => this.props.handleVerifiedRuleDiscard(this.props.auth_token,record)}><Icon type="left-circle" theme="filled" style={{fontSize:16,color:'blue'}}/>&nbsp;&nbsp;</a>
                             <a onClick={() => this.props.handleVerifiedRuleReject(this.props.auth_token,record)}><Icon type="close-circle" theme="filled" style={{fontSize:16,color:'red'}}/>&nbsp;&nbsp;</a>
                         </Fragment>
                     )
@@ -134,6 +137,13 @@ class VerifiedRulesTable extends Component {
         this.props.dispatchRejectRule(auth_token,description,selectedVerifiedRecordToReject);
     }
 
+    handleDiscardRuleSubmit = (e) => {
+        e.preventDefault();
+        const {auth_token,selectedVerifiedRecordToDiscard} = this.props;
+        const description = ""
+        this.props.dispatchDiscardRule(auth_token,description,selectedVerifiedRecordToDiscard);
+    }
+
     closeQuickIpView  = () => {
         this.setState({quickIpView: false})
     }
@@ -143,7 +153,7 @@ class VerifiedRulesTable extends Component {
         this.handleFetchVerifiedRulesData(this.state.params)
         filterSelectDataServiceAsync(this.props.auth_token)
         .then(response => {
-            const filter_data = response.data;
+            const filter_data = response[0].data;
             this.setState({
                 applicationData: filter_data.application,
             });
@@ -192,7 +202,7 @@ class VerifiedRulesTable extends Component {
     }
     
     render(){
-        const {selectedVerifiedRecordToReject} = this.props;
+        const {selectedVerifiedRecordToReject, selectedVerifiedRecordToDiscard} = this.props;
         const expandedRowRender = record => <p><b>Verified Date: </b>{(new Date(parseInt(record.verified_date_time)*1000).toUTCString()).replace(" GMT", "")} <br/><b>Verified By: </b> {record.verified_by_user.username} </p>;
         const title = () => <h3>Verified Rules</h3>
         const applicationSelectListItem = this.state.applicationData.map(
@@ -202,6 +212,8 @@ class VerifiedRulesTable extends Component {
             <Fragment>
                 {this.props.rejectVerifiedRuleError ? <p style={{color:'red'}}>{this.props.rejectVerifiedRuleErrorMessage }</p>: null }
                 {this.props.rejectVerifiedRuleSuccess ? <p style={{color:'green'}}>{this.props.rejectVerifiedRuleSuccessMessage} </p>: null }
+                {this.props.discardVerifiedRuleError ? <p style={{color:'red'}}>{this.props.discardVerifiedRuleErrorMessage }</p>: null }
+                {this.props.discardVerifiedRuleSuccess ? <p style={{color:'green'}}>{this.props.discardVerifiedRuleSuccessMessage} </p>: null }
                 <Spin spinning={this.props.verifiedRulesLoading}>
                 {/* <div style={{marginBottom:24,padding:24,background:'#fbfbfb',border: '1px solid #d9d9d9',borderRadius: 6}}> */}
                 <Card title={
@@ -290,10 +302,10 @@ class VerifiedRulesTable extends Component {
                                 <Fragment>
                                     <Row type="flex" gutter={16}>
                                         <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
-                                            <Statistic title="Source IP" value={selectedVerifiedRecordToReject.source_ip} />
+                                            <Statistic title="Source IP" value={selectedVerifiedRecordToReject.source_address} />
                                         </Col>
                                         <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
-                                            <Statistic title="Destination IP" value={selectedVerifiedRecordToReject.destination_ip}/>
+                                            <Statistic title="Destination IP" value={selectedVerifiedRecordToReject.destination_address}/>
                                         </Col>
                                         <Col xs={24} sm={12} md={12} lg={24} xl={24} style={drawerInfoStyle}>
                                             <Statistic title="Application" value={selectedVerifiedRecordToReject.application}/>
@@ -315,6 +327,46 @@ class VerifiedRulesTable extends Component {
                                                 onClick={e =>this.handleRejectRuleSubmit(e)}>Reject this rule
                                             </Button>
                                     </Form>
+                                </Row>
+                                </Fragment>
+                            ):null
+                        }
+                    </Spin>
+                </Drawer>
+
+                <Drawer
+                    id={"DiscardDrawer"}
+                    visible={this.props.verifiedRuleDiscardDrawerLoading}
+                    title={"Flag this rule?"}
+                    width={500}
+                    onClose={this.props.dispatchHandleDrawerClose}
+                    closable={true}
+                    placement={'right'}>
+                    <Spin spinning={!selectedVerifiedRecordToDiscard}>
+                        {
+                            selectedVerifiedRecordToDiscard ? (
+                                <Fragment>
+                                    <Row type="flex" gutter={16}>
+                                        <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
+                                            <Statistic title="Source IP" value={selectedVerifiedRecordToDiscard.source_address} />
+                                        </Col>
+                                        <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
+                                            <Statistic title="Destination IP" value={selectedVerifiedRecordToDiscard.destination_address}/>
+                                        </Col>
+                                        <Col xs={24} sm={12} md={12} lg={24} xl={24} style={drawerInfoStyle}>
+                                            <Statistic title="Application" value={selectedVerifiedRecordToDiscard.application}/>
+                                        </Col>
+                                    </Row>
+                                    <br />
+                                    <Row type="flex" gutter={16} style={{paddingTop: 10,paddingBottom: 10}}>
+                                    <Button
+                                        type="primary"
+                                        style={{width:'100%'}}
+                                        htmlType="submit"
+                                        className="login-form-button"
+                                        loading={this.props.rejectVerifiedRuleLoading}
+                                        onClick={e =>this.handleDiscardRuleSubmit(e)}>Discard this rule
+                                    </Button>
                                 </Row>
                                 </Fragment>
                             ):null
@@ -348,6 +400,7 @@ const mapStateToProps = state => {
         verifiedRulesError: state.verifiedRule.verifiedRulesError,
 
         verifiedRuleRejectDrawerLoading: state.verifiedRule.verifiedRuleRejectDrawerLoading,
+        verifiedRuleDiscardDrawerLoading: state.verifiedRule.verifiedRuleDiscardDrawerLoading,
 
         rejectVerifiedRuleLoading:state.verifiedRule.rejectVerifiedRuleLoading,
         rejectVerifiedRuleSuccess:state.verifiedRule.rejectVerifiedRuleSuccess,
@@ -355,6 +408,13 @@ const mapStateToProps = state => {
         rejectVerifiedRuleSuccessMessage : state.verifiedRule.rejectVerifiedRuleSuccessMessage,
         rejectVerifiedRuleErrorMessage: state.verifiedRule.rejectVerifiedRuleErrorMessage,
         selectedVerifiedRecordToReject : state.verifiedRule.selectedVerifiedRecordToReject,
+
+        discardVerifiedRuleLoading:state.verifiedRule.discardVerifiedRuleLoading,
+        discardVerifiedRuleSuccess:state.verifiedRule.discardVerifiedRuleSuccess,
+        discardVerifiedRuleError:state.verifiedRule.discardVerifiedRuleError,
+        discardVerifiedRuleSuccessMessage : state.verifiedRule.discardVerifiedRuleSuccessMessage,
+        discardVerifiedRuleErrorMessage: state.verifiedRule.discardVerifiedRuleErrorMessage,
+        selectedVerifiedRecordToDiscard : state.verifiedRule.selectedVerifiedRecordToDiscard,
 
         verifiedRulePagination : state.verifiedRule.verifiedRulePagination,
     }
@@ -366,7 +426,9 @@ const mapDispatchToProps = dispatch => {
         dispatchPaginationUpdate : (pager) => dispatch(updatePagination(pager)),
         dispatchIpSearchValueUpdate : value => dispatch(search(value)),
         handleVerifiedRuleReject : (auth_token,record) => dispatch(rejectVerifiedRule(auth_token,record)),
+        handleVerifiedRuleDiscard : (auth_token,record) => dispatch(discardVerifiedRule(auth_token,record)),
         dispatchRejectRule : (auth_token,description,record) => dispatch(rejectRule(auth_token,description,record)),
+        dispatchDiscardRule : (auth_token,description,record) => dispatch(discardRule(auth_token,description,record)),
         dispatchHandleDrawerClose : () => dispatch(handleDrawerClose()),
     }
 }
