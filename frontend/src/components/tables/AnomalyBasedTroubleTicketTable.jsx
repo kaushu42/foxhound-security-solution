@@ -278,8 +278,8 @@
                 axios.post(url, null, {headers})
                 .then(res=>{
                     this.setState({
-                        ttDetailCategorical: res.data.reasons.categorical,
-                        ttDetailNumeric: res.data.reasons.numeric,
+                        // ttDetailCategorical: res.data.reasons.categorical,
+                        ttDetailNumeric: res.data.numeric,
                         selectedRecord: record.id
                     })
                 })
@@ -308,10 +308,10 @@
             {this.state.ttDetailNumeric ? (
                 Object.keys(this.state.ttDetailNumeric).forEach(key => {
                     if(key == "bytes_sent" || key == "bytes_received"){
-                        dataToShow.push(<Fragment key={key}><br/>Average {key} is {bytesToSize(this.state.ttDetailNumeric[key])} but actual {key} is {bytesToSize(record[key])}.</Fragment>)
+                        dataToShow.push(<Fragment key={key}><br/>Expected <b>{key}</b>  <b>{bytesToSize(this.state.ttDetailNumeric[key])}</b> found <b>{bytesToSize(record[key])}</b> .</Fragment>)
                     }
                     else{
-                        dataToShow.push(<Fragment key={key}><br/>Average {key} is {this.state.ttDetailNumeric[key]} but actual {key} is {record[key]}.</Fragment>)
+                        dataToShow.push(<Fragment key={key}><br/>Expected <b>{key}</b>  <b>{this.state.ttDetailNumeric[key]}</b> found <b>{record[key]}</b> .</Fragment>)
                     }
                 })
             ):null}
