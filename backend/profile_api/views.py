@@ -63,7 +63,7 @@ class StatsApiView(APIView):
         try:
             alias = IPAddress.objects.get(address=ip).alias
         except Exception as e:
-            print(e)
+            # print(e)
             alias = None
         response = {
             **objects,

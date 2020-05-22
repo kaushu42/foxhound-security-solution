@@ -30,10 +30,14 @@ from core.models import (
 
 from mis.models import (
     TrafficMisNewSourceIPDaily,
-    TrafficMisNewDestinationIPDaily
+    TrafficMisNewDestinationIPDaily,
+    TrafficMisRequestFromBlacklistedIPDaily,
+    TrafficMisResponseToBlacklistedIPDaily
 )
 
 from rules.models import TrafficRule
+
+from troubleticket.models import TroubleTicketAnomaly
 
 
 class StatsApiView(APIView):
@@ -72,7 +76,24 @@ class StatsApiView(APIView):
             'created_date_time',
             firewall_rule__in=firewall_rule_ids
         ).count()
-
+        response['new_tt'] = get_objects_with_date_filtered(
+            request,
+            TroubleTicketAnomaly,
+            'logged_datetime',
+            firewall_rule__in=firewall_rule_ids
+        ).count()
+        response['blacklist_request'] = get_objects_with_date_filtered(
+            request,
+            TrafficMisRequestFromBlacklistedIPDaily,
+            'logged_datetime',
+            firewall_rule__in=firewall_rule_ids
+        ).count()
+        response['blacklist_response'] = get_objects_with_date_filtered(
+            request,
+            TrafficMisResponseToBlacklistedIPDaily,
+            'logged_datetime',
+            firewall_rule__in=firewall_rule_ids
+        ).count()
         return Response(
             response
         )
