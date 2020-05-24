@@ -5,8 +5,9 @@ import axios from "axios";
 import { ROOT_URL } from "../../utils";
 import NewSourceIPChart from "../charts/NewSourceIPChart"
 import NewDestinationIPChart from "../charts/NewDestinationIPChart"
+import { Redirect } from "react-router-dom";
 const gridStyle = {
-  width: "14%",
+  width: "25%",
   textAlign: "center"
 };
 
@@ -25,7 +26,10 @@ class DashboardStats extends Component {
       new_source_ip: 0,
       new_destination_ip: 0,
       new_source_ip_drawer_visible:false,
-      new_destination_ip_drawer_visible:false
+      new_destination_ip_drawer_visible:false,
+      new_tt:0,
+      blacklist_request:0,
+      blacklist_response:0
     };
   }
 
@@ -79,7 +83,10 @@ class DashboardStats extends Component {
               opened_tt: data.opened_tt,
               new_rules: data.new_rules,
               new_source_ip: data.new_source_address,
-              new_destination_ip: data.new_destination_address
+              new_destination_ip: data.new_destination_address,
+              new_tt:data.new_tt,
+              blacklist_request: data.blacklist_request,
+              blacklist_response: data.blacklist_response
             })
           : this.setState({
               uplink: parseFloat(data.bytes_sent / (1024 * 1024)).toFixed(2),
@@ -118,11 +125,10 @@ class DashboardStats extends Component {
       new_source_ip_drawer_visible: !this.state.new_source_ip_drawer_visible
     });
   }
-
   render() {
     const uplink = `${this.state.uplink} ${this.state.unit}`;
     const downlink = `${this.state.downlink} ${this.state.unit}`;
-
+1
     return (
       <Fragment>
         <Spin tip={"loading..."} spinning={this.state.loading}>
@@ -132,14 +138,17 @@ class DashboardStats extends Component {
           <Card.Grid style={gridStyle}>
             <Statistic title="Downlink" value={downlink} />
           </Card.Grid>
-          <Card.Grid style={gridStyle}>
-            <Statistic title="New Rules" value={this.state.new_rules} />
+          <Card.Grid style={gridStyle} >
+          <a target="_blank" href="/rules/unverified"><Statistic title="New Rules" value={this.state.new_rules} /></a>
           </Card.Grid>
           <Card.Grid style={gridStyle}>
-            <Statistic title="Requests from Blacklisted IP" value={this.state.new_destination_ip} />
+            <a target="_blank" href="/tt/my"><Statistic title="New Trouble Tickets" value={this.state.new_tt} /></a>
+          </Card.Grid>
+          <Card.Grid style={gridStyle} >
+            <a target="_blank" href="/blacklistedrequests"><Statistic title="Request From Blacklisted IP"  value={this.state.blacklist_request} /></a>
           </Card.Grid>
           <Card.Grid style={gridStyle}>
-            <Statistic title="Response to Blacklisted IP" value={this.state.new_destination_ip} />
+            <a target="_blank" href="/blacklistedresponses"><Statistic title="Response To Blacklisted IP"  value={this.state.blacklist_response} /></a>
           </Card.Grid>
           <Card.Grid style={gridStyle} onClick={this.showNewSourceIPDrawer}>
             <Statistic title="New Source IP >" value={this.state.new_source_ip} />

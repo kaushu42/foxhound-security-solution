@@ -95,6 +95,8 @@ const anomalousRulesReducer = (state=initialState,action)=>{
                 ...state,
                 anomalousRuleAcceptDrawerLoading: false,
                 selectedRecordToAccept:null,
+                anomalousRuleDiscardDrawerLoading: false,
+                selectedRecordToDiscard:null,
             }
         case RULE_SELECTED_TO_ACCEPT :
             return {

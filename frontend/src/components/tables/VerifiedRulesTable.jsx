@@ -82,7 +82,7 @@ class VerifiedRulesTable extends Component {
                 render : (text,record) => {
                     return (
                         <Fragment>
-                            <a onClick={() => this.props.handleVerifiedRuleDiscard(this.props.auth_token,record)}><Icon type="left-circle" theme="filled" style={{fontSize:16,color:'blue'}}/>&nbsp;&nbsp;</a>
+                            <a onClick={() => this.props.handleVerifiedRuleDiscard(this.props.auth_token,record)}><Icon type="delete" theme="filled" style={{fontSize:16,color:'blue'}}/>&nbsp;&nbsp;</a>
                             <a onClick={() => this.props.handleVerifiedRuleReject(this.props.auth_token,record)}><Icon type="close-circle" theme="filled" style={{fontSize:16,color:'red'}}/>&nbsp;&nbsp;</a>
                         </Fragment>
                     )
@@ -345,7 +345,7 @@ class VerifiedRulesTable extends Component {
                 <Drawer
                     id={"DiscardDrawer"}
                     visible={this.props.verifiedRuleDiscardDrawerLoading}
-                    title={"Flag this rule?"}
+                    title={"Discard this rule?"}
                     width={500}
                     onClose={this.props.dispatchHandleDrawerClose}
                     closable={true}

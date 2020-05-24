@@ -83,7 +83,7 @@ class AnomalousRulesTable extends Component {
                 render : (text,record) => {
                     return (
                         <Fragment>
-                            <a onClick={() => this.props.handleAnomalousRuleDiscard(this.props.auth_token,record)}><Icon type="left-circle" theme="filled" style={{fontSize:16,color:'blue'}}/>&nbsp;&nbsp;</a>
+                            <a onClick={() => this.props.handleAnomalousRuleDiscard(this.props.auth_token,record)}><Icon type="delete" theme="filled" style={{fontSize:16,color:'blue'}}/>&nbsp;&nbsp;</a>
                             <a onClick={() => this.props.handleAnomalousRuleAccept(this.props.auth_token,record)}><Icon type="check-circle" theme="filled" style={{fontSize:16,color:'green'}}/>&nbsp;&nbsp;</a>
                         </Fragment>
                     )
@@ -311,10 +311,10 @@ class AnomalousRulesTable extends Component {
                                 {this.props.acceptAnomalousRuleSuccess ? <p style={{color:'green'}}>{this.props.acceptAnomalousRuleSuccessMessage} </p>: null }
                                 <Row type="flex" gutter={16}>
                                     <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
-                                        <Statistic title="Source IP" value={selectedRecordToAccept.source_ip} />
+                                        <Statistic title="Source IP" value={selectedRecordToAccept.source_address} />
                                     </Col>
                                     <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
-                                        <Statistic title="Destination IP" value={selectedRecordToAccept.destination_ip}/>
+                                        <Statistic title="Destination IP" value={selectedRecordToAccept.destination_address}/>
                                     </Col>
                                     <Col xs={24} sm={12} md={12} lg={24} xl={24} style={drawerInfoStyle}>
                                         <Statistic title="Application" value={selectedRecordToAccept.application}/>
@@ -359,10 +359,10 @@ class AnomalousRulesTable extends Component {
                                 {this.props.discardAnomalousRuleSuccess ? <p style={{color:'green'}}>{this.props.discardAnomalousRuleSuccessMessage} </p>: null }
                                 <Row type="flex" gutter={16}>
                                     <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
-                                        <Statistic title="Source IP" value={selectedRecordToDiscard.source_ip} />
+                                        <Statistic title="Source IP" value={selectedRecordToDiscard.source_address} />
                                     </Col>
                                     <Col xs={24} sm={12} md={12} lg={12} xl={12} style={drawerInfoStyle}>
-                                        <Statistic title="Destination IP" value={selectedRecordToDiscard.destination_ip}/>
+                                        <Statistic title="Destination IP" value={selectedRecordToDiscard.destination_address}/>
                                     </Col>
                                     <Col xs={24} sm={12} md={12} lg={24} xl={24} style={drawerInfoStyle}>
                                         <Statistic title="Application" value={selectedRecordToDiscard.application}/>
