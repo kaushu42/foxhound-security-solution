@@ -272,7 +272,7 @@ class TroubleTicketDetailApiView(APIView):
         'Packets Sent': "packets_sent",
         'Packets Received': "packets_received",
         'Elapsed Time (sec)': "time_elapsed",
-        'Destination Address': "destination_address",
+        'Destination address': "destination_address",
         'Application': "application",
         'Source Zone': "source_zone",
         'Destination Zone': "destination_zone",
