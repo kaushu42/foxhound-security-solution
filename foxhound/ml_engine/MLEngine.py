@@ -14,7 +14,8 @@ import pandas as pd
 import csv
 import joblib
 
-from .variables import features_list, categorical_features, features_to_convert_to_number
+from .spark_config import raw_datafield_schema
+from .variables import features_list, categorical_features, features_to_convert_to_number, required_columns
 from .model import AutoEncoder
 
 
@@ -330,8 +331,8 @@ class MLEngine(AutoEncoder):
         model, model_params, history_categorical_params = self._load_model_and_params(has_model=has_model)
         
         df_categorical_params = self._get_categorical_params(df)
-        updated_categorical_params = self._update_categorical_params(
-            history_categorical_params, df_categorical_params)
+        # updated_categorical_params = self._update_categorical_params(
+        #     history_categorical_params, df_categorical_params)
         
         if has_model:
             x = model_params['standarizer'].transform(df)
@@ -339,6 +340,9 @@ class MLEngine(AutoEncoder):
             mse = np.mean(np.power(x - preds, 2), axis=1)
             #plt.plot(out, 'ro')
             indices = np.where(mse > mse_threshold)[0]
+            df_categorical_params = self._get_categorical_params(df.drop(df.index[indices], axis=0))
+            updated_categorical_params = self._update_categorical_params(
+                history_categorical_params, df_categorical_params)
             if len(indices) is not 0:
                 anomalies_reasons = self._get_anomaly_reasons(
                     df.iloc[indices], model_params, updated_categorical_params, df_categorical_params, 0.05
@@ -411,7 +415,7 @@ class MLEngine(AutoEncoder):
                 # ip_df.reset_index(inplace=True)
                 ip_df = ip_df.drop(
                     columns=[self._TENANT_FEATURE, self._USER_FEATURE])
-                # pdb.set_trace()
+                
                 ip_df = self._preprocess(ip_df)
                 # 
                 
@@ -419,18 +423,24 @@ class MLEngine(AutoEncoder):
                     ip_df, 800, has_model)
 
                 if has_anomaly:
+                    # pdb.set_trace()
+                    print(f'It has {len(indices)} anomalies from {which_model} model')
                     anomalous_features.extend(reasons)
                     model_info.extend([which_model]*len(reasons))
                     anomalous_df = pd.concat(
                         [anomalous_df, df.iloc[ip_df.index[indices]]],
                         axis=0, ignore_index=True
                     )
+                    ip_df.drop(ip_df.index[indices], axis=0, inplace=True)
             else:
                 anomalous_without_model_count += len(ip_df.index)
 
             if save_data_for_ip_profile is True:
                 # self._save_to_csv(ip_df, ip_csv_path)
-                self._save_categorical_params(updated_categorical_params)
+                ip_df =self._SPARK.createDataFrame(ip_df)
+                ip_df.write.csv(model_path.replace('model', 'profile'), header=True)
+                if self._model_path is not None:
+                    self._save_categorical_params(updated_categorical_params)
 
 
         anomalous_features_df = pd.DataFrame(
@@ -455,9 +465,9 @@ class MLEngine(AutoEncoder):
         # df_chunk = pd.read_csv(csv_file_path)#, chunksize=chunksize)
         for df_chunk in df:
             anomalous_df, ano_without_model = self.get_ip_anomalies(
-                df_chunk, save_data_for_ip_profile=False
+                df_chunk, save_data_for_ip_profile=True
             )
-            anomalous_df['log_name'] = csv_folder_path.split('/')[-2]
+            anomalous_df['log_name'] = csv_folder_path.split('/')[-1]
 
             if len(anomalous_df.index):
                 self._save_to_csv(anomalous_df, os.path.join(
@@ -470,11 +480,11 @@ class MLEngine(AutoEncoder):
         return ano_with_model_count, ano_with_no_model_count, n_chunks
 
     def _create_filtered_csv(self, raw_csv_path):
-        df = self._SPARK.read.csv(raw_csv_path, header=True, inferSchema=True)
+        df = self._SPARK.read.csv(raw_csv_path, schema=raw_datafield_schema, header=True)
         ips = np.array(df.select('Source address').distinct().rdd.flatMap(lambda x: x).collect())
         private_ips = ips[[ipaddress.ip_address(ip).is_private for ip in ips]].tolist()
         df = df.filter(df['Source address'].isin(private_ips))
-
+        df = df[required_columns]
         df.repartition(1).write.csv(self._prediction_csv_temp_path, header=True)
 
     def _predict_anomalies(self):
