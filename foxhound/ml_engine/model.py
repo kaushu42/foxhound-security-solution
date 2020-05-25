@@ -42,6 +42,7 @@ class AutoEncoder:
         self._model.add(Dense(10, activity_regularizer=regularizers.l1(10e-4)))
         self._model.add(LeakyReLU())
         self._model.add(Dense(input_size, activity_regularizer=regularizers.l1(10e-4)))
+        self._model.add(LeakyReLU())
 
         self._call_backs = [
             EarlyStopping(
@@ -65,7 +66,7 @@ class AutoEncoder:
                 optimizer='adam', loss='mean_squared_error', metrics=['accuracy'])
         finally:
             self._model.fit(
-                X, X, epochs=100, batch_size=256, shuffle=True,
+                X, X, epochs=200, batch_size=256, shuffle=True,
                 validation_split=0.2, verbose=self._verbose, callbacks=self._call_backs)
 
     def save_model(self, model_path):
