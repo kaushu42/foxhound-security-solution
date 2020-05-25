@@ -10,6 +10,7 @@ import csv
 
 from pyspark.sql.functions import udf
 
+from .spark_config import raw_datafield_schema
 from .variables import features_list, features_to_convert_to_number
 
 
@@ -132,7 +133,7 @@ class Initialize():
                 if spark_csv_path.endswith('.csv'):
                     print(
                         f'[{spark_csv_file_count}/{total_spark_csv_files}]-> **********Processing {spark_csv} file **********')
-                    df = self._SPARK.read.csv(spark_csv_path, header=True, inferSchema=True)
+                    df = self._SPARK.read.csv(spark_csv_path, schema=raw_datafield_schema, header=True)
                     df = df.select(self._features)
                     self._create_ip_profile(df, self._TENANT_PROFILE_DIR)
 
