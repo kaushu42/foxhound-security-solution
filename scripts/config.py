@@ -35,9 +35,15 @@ DATABASE_URL = f'{DATABASE_BASE_URL}/GeoLite2-City.tar.gz'
 MIS_OUTPUT_INPUT_DIR = os.path.join(BASE_PATH, '../outputs/mis')
 TRAFFIC_LOGS_INPUT_DIR = os.path.join(BASE_PATH, '../inputs/traffic_logs')
 THREAT_LOGS_INPUT_DIR = os.path.join(BASE_PATH, '../inputs/threat_logs')
-TRAFFIC_LOGS_OUTPUT_DIR = os.path.join(BASE_PATH, '../outputs/traffic_logs')
+# TRAFFIC_LOGS_OUTPUT_DIR = os.path.join(BASE_PATH, '../outputs/traffic_logs')
 TENANT_PROFILE_OUTPUT_DIR = os.path.join(
     BASE_PATH, "../outputs/tenant_profile")
+
+# DAILY_LOGS_DIR = os.path.join(
+#     BASE_PATH, "../inputs/traffic_logs")
+TEMP_TENANT_PROFILE_FOR_PRED_OUTPUT_DIR = os.path.join(
+    BASE_PATH, "../outputs/temp_tenant_profile_for_prediction")
+
 TENANT_MODEL_OUTPUT_DIR = os.path.join(BASE_PATH, "../outputs/tenant_model")
 ANOMALY_LOGS_OUTPUT_DIR = os.path.join(BASE_PATH, "../outputs/anomaly_logs")
 
@@ -67,7 +73,7 @@ COUNTRY_DB_FILEPATH = SparkFiles.get(IP_DB_FILENAME)
 # INIT DIRECTORIESd
 create_directory(DUMPS_PATH)
 create_directory(TRAFFIC_LOGS_INPUT_DIR)
-create_directory(TRAFFIC_LOGS_OUTPUT_DIR)
+# create_directory(TRAFFIC_LOGS_OUTPUT_DIR)
 create_directory(TENANT_PROFILE_OUTPUT_DIR)
 create_directory(TENANT_MODEL_OUTPUT_DIR)
 create_directory(ANOMALY_LOGS_OUTPUT_DIR)
