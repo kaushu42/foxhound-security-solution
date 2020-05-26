@@ -19,36 +19,9 @@ import ast
 import traceback
 import geoip2.database
 import geoip2.errors
-import config as py_config
 
 from ..logger import Logger
-try:
-    import configparser
-except:
-    from six.moves import configparser
-config = configparser.ConfigParser()
-
-config.read('../config.ini')
-
-PG_DRIVER = ast.literal_eval(config.get("SPARK", "PG_DRIVER"))
-SPARK_MASTER_URL = ast.literal_eval(config.get("SPARK", "SPARK_MASTER_URL"))
-CLUSTER_SEEDS = ast.literal_eval(config.get("SPARK", "CLUSTER_SEEDS"))
-SPARK_APP_NAME = ast.literal_eval(config.get("SPARK", "SPARK_APP_NAME"))
-SPARK_DB_URL = ast.literal_eval(config.get("SPARK", "SPARK_DB_URL"))
-SPARK_DB_DRIVER = ast.literal_eval(config.get("SPARK", "SPARK_DB_DRIVER"))
-SPARK_CASDB_DRIVER = ast.literal_eval(
-    config.get("SPARK", "SPARK_CASDB_DRIVER"))
-
-
-HOST = ast.literal_eval(config.get("POSTGRES", "host"))
-DB_NAME = ast.literal_eval(config.get("POSTGRES", "db_name"))
-FH_DB_USER = ast.literal_eval(config.get("POSTGRES", "username"))
-FH_DB_PASSWORD = ast.literal_eval(config.get("POSTGRES", "password"))
-
-CAS_KEYSPACE = ast.literal_eval(config.get("CASSANDRA", "CAS_KEYSPACE"))
-
-COUNTRY_DB_FILEPATH = py_config.COUNTRY_DB_FILEPATH
-COUNTRY_DB_FILEPATH = './GeoLite2-City.mmdb'
+from ..config import Config
 
 
 class DailyTrafficLogEngine:
@@ -73,11 +46,11 @@ class DailyTrafficLogEngine:
                               "packets_sent", "logged_datetime", "time_elapsed", 'vsys', 'device_name']
 
     def _read_table_from_postgres(self, table):
-        url = 'postgresql://localhost/fhdb'
+        url = Config.SPARK_DB_URL
         properties = {
-            'user': 'foxhounduser',
-            'password': 'foxhound123',
-            'driver': 'org.postgresql.Driver'
+            'user': Config.FH_DB_USER,
+            'password': Config.FH_DB_PASSWORD,
+            'driver': Config.SPARK_DB_DRIVER
         }
         return self._spark.read.jdbc(
             url='jdbc:%s' % url,
@@ -86,13 +59,12 @@ class DailyTrafficLogEngine:
         )
 
     def _write_df_to_postgres(self, df, table_name, mode='append'):
-        url = 'postgresql://localhost/fhdb'
         df.write.format('jdbc').options(
-            url='jdbc:%s' % url,
-            driver='org.postgresql.Driver',
+            url='jdbc:%s' % Config.SPARK_DB_URL,
+            driver=Config.SPARK_DB_DRIVER,
             dbtable=table_name,
-            user='foxhounduser',
-            password='foxhound123').mode(mode).save()
+            user=Config.FH_DB_USER,
+            password=Config.FH_DB_PASSWORD).mode(mode).save()
 
     def str_to_date(self, string):
         """
@@ -144,13 +116,15 @@ class DailyTrafficLogEngine:
         self._df = self._df.withColumn(
             "traffic_log_id", setTrafficLogsIdUdf(self._df.log_name))
 
-
     def _resolve_ip_country(self):
         @F.udf(returnType=StringType())
         def getCountryNameFromIpUdf(ip_address):
             if ipaddress.ip_address(ip_address).is_private:
                 return "np"
-            reader = geoip2.database.Reader(COUNTRY_DB_FILEPATH)
+            # TODO: NEED TO HARDCODE THIS
+            # ENTER ABSOLUTE PATH OF FILE HERE
+            reader = geoip2.database.Reader(
+                '/home/kaush/projects/foxhound/scripts/GeoLite2-City.mmdb')
             try:
                 response = reader.city(ip_address)
                 return response.country.iso_code.lower()
@@ -207,7 +181,7 @@ class DailyTrafficLogEngine:
         grouped = self._df.groupby('firewall_rule_id').count(
         ).withColumn('log', lit(log_name)).withColumnRenamed('count', 'rows')
         grouped = grouped.withColumn('processed_datetime',
-                           lit(datetime.datetime.today()))
+                                     lit(datetime.datetime.today()))
         self._write_df_to_postgres(grouped, 'fh_stg_trfc_log_dtl_f', 'append')
         print("fh_stg_trfc_log_dtl_f successfully loaded")
 
@@ -217,13 +191,13 @@ class DailyTrafficLogEngine:
                             "destination_port", "nat_destination_port", "firewall_rule_id",
                             "flags", "protocol", "source_zone", "destination_zone",
                             "inbound_interface", "outbound_interface", "action",
-                            "category", "session_end_reason", 'vsys', 'device_name','source_country','destination_country','traffic_log_id']
+                            "category", "session_end_reason", 'vsys', 'device_name', 'source_country', 'destination_country', 'traffic_log_id']
         COLUMN_HEADERS = ["logged_datetime", "threat_content_type", "source_address", "destination_address",
                           'nat_source_ip', "nat_destination_ip", "application", "log_action",
                           "destination_port", "nat_destination_port", "firewall_rule_id",
                           "flags", "protocol", "source_zone", "destination_zone",
                           "inbound_interface", "outbound_interface", "action",
-                          "category", "session_end_reason", 'vsys', 'device_name','source_country','destination_country','traffic_log_id','sum_time_elapsed',
+                          "category", "session_end_reason", 'vsys', 'device_name', 'source_country', 'destination_country', 'traffic_log_id', 'sum_time_elapsed',
                           'sum_bytes_received', 'sum_packets_received', 'sum_packets_sent', 'avg_repeat_count',
                           'sum_bytes_sent', 'count_events']
         grouped_df = self._df.groupby(*GROUPING_COLUMNS)
@@ -254,13 +228,13 @@ class DailyTrafficLogEngine:
                             "destination_port", "nat_destination_port", "firewall_rule_id",
                             "flags", "protocol", "source_zone", "destination_zone",
                             "inbound_interface", "outbound_interface", "action",
-                            "category", "session_end_reason", 'vsys', 'device_name','source_country','destination_country','traffic_log_id']
+                            "category", "session_end_reason", 'vsys', 'device_name', 'source_country', 'destination_country', 'traffic_log_id']
         COLUMN_HEADERS = ["logged_datetime", "threat_content_type", "source_address", "destination_address",
                           'nat_source_ip', "nat_destination_ip", "application", "log_action",
                           "destination_port", "nat_destination_port", "firewall_rule_id",
                           "flags", "protocol", "source_zone", "destination_zone",
                           "inbound_interface", "outbound_interface", "action",
-                          "category", "session_end_reason", 'vsys', 'device_name','source_country','destination_country','traffic_log_id','sum_time_elapsed',
+                          "category", "session_end_reason", 'vsys', 'device_name', 'source_country', 'destination_country', 'traffic_log_id', 'sum_time_elapsed',
                           'sum_bytes_received', 'sum_packets_received', 'sum_packets_sent', 'avg_repeat_count',
                           'sum_bytes_sent', 'count_events']
         grouped_df = self._df.groupby(*GROUPING_COLUMNS)

@@ -8,7 +8,7 @@ import pandas as pd
 from datetime import datetime
 from psycopg2 import sql, connect
 from sqlalchemy import create_engine
-from ..logger import Logger
+from foxhound.logger import Logger
 
 
 class ThreatEngine(object):

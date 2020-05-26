@@ -17,7 +17,7 @@ from psycopg2 import sql, connect
 import datetime
 import ast
 import traceback
-from ..logger import Logger
+from foxhound.logger import Logger
 try:
     import configparser
 except:

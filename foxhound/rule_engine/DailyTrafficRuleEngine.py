@@ -1,7 +1,8 @@
 import os
 import datetime
 from pyspark.sql.functions import concat, col, lit
-from ..logger import Logger
+from foxhound.logger import Logger
+from foxhound.config import Config
 
 
 class DailyTrafficRuleEngine:
@@ -15,11 +16,11 @@ class DailyTrafficRuleEngine:
             "source_address", "destination_address", "firewall_rule", 'application']
 
     def _read_table_from_postgres(self, table):
-        url = 'postgresql://localhost/fhdb'
+        url = Config.SPARK_DB_URL
         properties = {
-            'user': 'foxhounduser',
-            'password': 'foxhound123',
-            'driver': 'org.postgresql.Driver'
+            'user': Config.FH_DB_USER,
+            'password': Config.FH_DB_PASSWORD,
+            'driver': Config.SPARK_DB_DRIVER
         }
         return self._spark.read.jdbc(
             url='jdbc:%s' % url,
@@ -28,13 +29,13 @@ class DailyTrafficRuleEngine:
         )
 
     def _write_df_to_postgres(self, df, table_name, mode='append'):
-        url = 'postgresql://localhost/fhdb'
+        url = Config.SPARK_DB_URL
         df.write.format('jdbc').options(
             url='jdbc:%s' % url,
-            driver='org.postgresql.Driver',
+            driver=Config.SPARK_DB_DRIVER,
             dbtable=table_name,
-            user='foxhounduser',
-            password='foxhound123').mode(mode).save()
+            user=Config.FH_DB_USER,
+            password=Config.FH_DB_PASSWORD).mode(mode).save()
 
     def _read_csv(self):
         print(f"reading file {self._INPUT_TRAFFIC_LOG}")

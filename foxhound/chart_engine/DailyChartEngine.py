@@ -7,7 +7,7 @@ from pyspark.sql.functions import (
     from_unixtime,
     to_timestamp
 )
-from ..logger import Logger
+from foxhound.logger import Logger
 from .BaseChart import BaseChart
 from .ApplicationChart import ApplicationChart
 from .IPChart import IPChart

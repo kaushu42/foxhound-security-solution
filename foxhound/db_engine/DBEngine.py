@@ -1,7 +1,7 @@
 import os
 import traceback
 from pyspark.sql.functions import lit
-from ..logger import Logger
+from foxhound.logger import Logger
 
 
 class DBEngine:
@@ -14,11 +14,11 @@ class DBEngine:
         return [os.path.join(path, f) for f in os.listdir(path) if f.endswith('csv')]
 
     def _read_table_from_postgres(self, table):
-        url = 'postgresql://localhost/fhdb'
+        url = Config.SPARK_DB_URL
         properties = {
-            'user': 'foxhounduser',
-            'password': 'foxhound123',
-            'driver': 'org.postgresql.Driver'
+            'user': Config.FH_DB_USER,
+            'password': Config.FH_DB_PASSWORD,
+            'driver': Config.SPARK_DB_DRIVER
         }
         return self._spark.read.jdbc(
             url='jdbc:%s' % url,
@@ -27,13 +27,13 @@ class DBEngine:
         )
 
     def _write_df_to_postgres(self, df, table_name, mode='append'):
-        url = 'postgresql://localhost/fhdb'
+        url = Config.SPARK_DB_URL
         df.write.format('jdbc').options(
             url='jdbc:%s' % url,
-            driver='org.postgresql.Driver',
+            driver=Config.SPARK_DB_DRIVER,
             dbtable=table_name,
-            user='foxhounduser',
-            password='foxhound123').mode(mode).save()
+            user=Config.FH_DB_USER,
+            password=Config.FH_DB_PASSWORD).mode(mode).save()
 
     def run(self, verbose=True):
         logger = Logger.getInstance()

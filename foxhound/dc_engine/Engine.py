@@ -6,7 +6,7 @@ import pyspark
 from pyspark.sql import SparkSession
 from pyspark.sql import SQLContext
 
-from ..logger import Logger
+from foxhound.logger import Logger
 
 
 class Engine(ABC):

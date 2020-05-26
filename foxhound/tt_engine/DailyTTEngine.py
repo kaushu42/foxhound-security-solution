@@ -2,7 +2,8 @@ import os
 import datetime
 import traceback
 from pyspark.sql.functions import lit, to_timestamp, unix_timestamp, from_unixtime
-from ..logger import Logger
+from foxhound.logger import Logger
+from foxhound.config import Config
 
 
 class DailyTTEngine:
@@ -31,26 +32,24 @@ class DailyTTEngine:
         return df
 
     def _read_table_from_postgres(self, table):
-        url = 'postgresql://localhost/fhdb'
         properties = {
-            'user': 'foxhounduser',
-            'password': 'foxhound123',
-            'driver': 'org.postgresql.Driver'
+            'user': Config.FH_DB_USER,
+            'password': Config.FH_DB_PASSWORD,
+            'driver': Config.SPARK_DB_DRIVER
         }
         return self._spark.read.jdbc(
-            url='jdbc:%s' % url,
+            url='jdbc:%s' % Config.SPARK_DB_URL,
             table=table,
             properties=properties
         )
 
     def _write_df_to_postgres(self, df, table_name, mode='append'):
-        url = 'postgresql://localhost/fhdb'
         df.write.format('jdbc').options(
-            url='jdbc:%s' % url,
-            driver='org.postgresql.Driver',
+            url='jdbc:%s' % Config.SPARK_DB_URL,
+            driver=Config.SPARK_DB_DRIVER,
             dbtable=table_name,
-            user='foxhounduser',
-            password='foxhound123').mode(mode).save()
+            user=Config.FH_DB_USER,
+            password=Config.FH_DB_PASSWORD).mode(mode).save()
 
     def _map_log_name_and_firewall_rule(self, df):
         firewall_rules = self._read_table_from_postgres(

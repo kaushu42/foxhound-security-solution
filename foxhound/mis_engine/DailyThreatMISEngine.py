@@ -1,5 +1,5 @@
 from pyspark.sql.functions import unix_timestamp, from_unixtime, to_timestamp, current_date, current_timestamp
-from pyspark.sql.types import StructField, StructType, DoubleType, BooleanType,LongType, StringType, IntegerType, DateType, TimestampType
+from pyspark.sql.types import StructField, StructType, DoubleType, BooleanType, LongType, StringType, IntegerType, DateType, TimestampType
 from pyspark.sql.functions import col, lit
 import pyspark.sql.functions as F
 from pyspark.sql.functions import udf
@@ -17,7 +17,7 @@ from psycopg2 import sql, connect
 import datetime
 import ast
 import traceback
-from ..logger import Logger
+from foxhound.logger import Logger
 import config as py_config
 
 try:
@@ -56,11 +56,12 @@ class DailyThreatMISEngine(object):
         self._OUTPUT_DIR = output_dir
         self._REQUIRED_COLUMNS = ['Rule']
         self._HEADER_NAMES = ["firewall_rule"]
-    
+
     def _get_date_from_csv_filename(self, filename):
-        d = re.findall(r'[0-9]{4}_[0-9]{2}_[0-9]{2}',filename)[0].replace("_", "/")
+        d = re.findall(r'[0-9]{4}_[0-9]{2}_[0-9]{2}',
+                       filename)[0].replace("_", "/")
         return d
-    
+
     def _get_table(self, table_name):
         return pd.read_sql_table(table_name, self._db_engine)
 
@@ -77,13 +78,14 @@ class DailyThreatMISEngine(object):
 
     def _set_firewall_rules_id_to_data(self):
         firewall_rules_from_db = self._read_firewall_rules_from_db()
-        
+
         @F.udf(returnType=IntegerType())
         def setFirewallRulesIdUdf(x):
             return firewall_rules_from_db[x]
-        
-        self._df = self._df.withColumn("firewall_rule_id", setFirewallRulesIdUdf(self._df.firewall_rule))
-    
+
+        self._df = self._df.withColumn(
+            "firewall_rule_id", setFirewallRulesIdUdf(self._df.firewall_rule))
+
     def _write_df_to_postgres(self, df, table_name, mode):
         if 'id' in df.columns:
             df_without_id = df.drop('id')
@@ -99,7 +101,7 @@ class DailyThreatMISEngine(object):
 
     def _read_firewall_rules_from_db(self):
         return pd.read_sql_table('fh_prd_fw_rule_f', self._db_engine).set_index("name").to_dict()["id"]
-        
+
     def _write_new_firewall_rules_to_db(self):
         firewall_rules_schema = StructType([
             StructField("id", IntegerType(), True),
@@ -113,11 +115,13 @@ class DailyThreatMISEngine(object):
         new_firewall_rules = firewall_rules_from_csv.subtract(
             firewall_rules_from_db).toDF(*["name"])
         new_firewall_rules = new_firewall_rules.withColumn("tenant_id", lit(1))
-        self._write_df_to_postgres(new_firewall_rules, "fh_prd_fw_rule_f", "append")
-    
+        self._write_df_to_postgres(
+            new_firewall_rules, "fh_prd_fw_rule_f", "append")
+
     def _read_csv(self):
         print(f"reading file {self._INPUT_THREAT_LOG}")
-        self._CSV_DATE = self._get_date_from_csv_filename(self._INPUT_THREAT_LOG)
+        self._CSV_DATE = self._get_date_from_csv_filename(
+            self._INPUT_THREAT_LOG)
         self._df = self._spark.read.csv(self._INPUT_THREAT_LOG, header=True)
 
     def _preprocess(self):
@@ -150,7 +154,7 @@ class DailyThreatMISEngine(object):
             df_struct.append(s)
         schema = StructType(df_struct)
         return self._spark.createDataFrame(df, schema)
-    
+
     def run(self):
         logger = Logger.getInstance()
         logger.info(f'Daily Threat MIS Engine: {self._INPUT_THREAT_LOG}')

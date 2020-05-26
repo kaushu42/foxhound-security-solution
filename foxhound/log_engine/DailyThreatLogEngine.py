@@ -21,7 +21,7 @@ import geoip2.database
 import geoip2.errors
 import config as py_config
 
-from ..logger import Logger
+from foxhound.logger import Logger
 try:
     import configparser
 except:
@@ -78,11 +78,11 @@ class DailyThreatLogEngine:
             'device_name', 'file_url', 'thr_category', 'contentver', 'sig_flags']
 
     def _read_table_from_postgres(self, table):
-        url = 'postgresql://localhost/fhdb'
+        url = Config.SPARK_DB_URL
         properties = {
-            'user': 'foxhounduser',
-            'password': 'foxhound123',
-            'driver': 'org.postgresql.Driver'
+            'user': Config.FH_DB_USER,
+            'password': Config.FH_DB_PASSWORD,
+            'driver': Config.SPARK_DB_DRIVER
         }
         return self._spark.read.jdbc(
             url='jdbc:%s' % url,
@@ -91,13 +91,13 @@ class DailyThreatLogEngine:
         )
 
     def _write_df_to_postgres(self, df, table_name, mode='append'):
-        url = 'postgresql://localhost/fhdb'
+        url = Config.SPARK_DB_URL
         df.write.format('jdbc').options(
             url='jdbc:%s' % url,
-            driver='org.postgresql.Driver',
+            driver=Config.SPARK_DB_DRIVER,
             dbtable=table_name,
-            user='foxhounduser',
-            password='foxhound123').mode(mode).save()
+            user=Config.FH_DB_USER,
+            password=Config.FH_DB_PASSWORD).mode(mode).save()
 
     def str_to_date(self, string):
         """
@@ -203,7 +203,7 @@ class DailyThreatLogEngine:
         grouped = self._df.groupby('firewall_rule_id').count(
         ).withColumn('log', lit(log_name)).withColumnRenamed('count', 'rows')
         grouped = grouped.withColumn('processed_datetime',
-                           lit(datetime.date.today()))
+                                     lit(datetime.date.today()))
         self._write_df_to_postgres(grouped, 'fh_stg_thrt_log_dtl_f', 'append')
         print("fh_stg_thrt_log_dtl_f successfully loaded")
 
@@ -237,4 +237,3 @@ class DailyThreatLogEngine:
         logger.info(f'fh_stg_thrt_log_dtl_f sucessfullly loaded')
         self._extract_threat_logs_details_event()
         logger.info(f'fh_stg_thrt_log_dtl_evnt_f sucessfullly loaded')
-
