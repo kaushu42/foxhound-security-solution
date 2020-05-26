@@ -5,6 +5,7 @@ from config import (
     ANOMALY_LOGS_OUTPUT_DIR
 )
 import dailyBatch as daily_batch_run
+import dailyBatchMLEngine as daily_batch_ml_engine_run
 import seedutils
 
 # Ready for staging
@@ -19,6 +20,7 @@ for input_traffic_log in sorted(os.listdir(TRAFFIC_LOGS_INPUT_DIR)):
         daily_batch_run.traffic_log_engine(input_traffic_log)
         daily_batch_run.traffic_rule_engine(input_traffic_log)
         daily_batch_run.traffic_chart_engine(input_traffic_log)
+        daily_batch_ml_engine_run.ml_engine(mle=True, predict=True, input_traffic_log=input_traffic_log)
         daily_batch_run.commit_changes_to_production()
 
 
