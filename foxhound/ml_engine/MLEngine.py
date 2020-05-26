@@ -340,9 +340,13 @@ class MLEngine(AutoEncoder):
             mse = np.mean(np.power(x - preds, 2), axis=1)
             #plt.plot(out, 'ro')
             indices = np.where(mse > mse_threshold)[0]
-            df_categorical_params = self._get_categorical_params(df.drop(df.index[indices], axis=0))
-            updated_categorical_params = self._update_categorical_params(
-                history_categorical_params, df_categorical_params)
+            if len(x) > len(indices):
+                df_categorical_params = self._get_categorical_params(df.drop(df.index[indices], axis=0))
+                updated_categorical_params = self._update_categorical_params(
+                    history_categorical_params, df_categorical_params)
+            else:
+                updated_categorical_params = self._update_categorical_params(
+                    history_categorical_params, history_categorical_params)
             if len(indices) is not 0:
                 anomalies_reasons = self._get_anomaly_reasons(
                     df.iloc[indices], model_params, updated_categorical_params, df_categorical_params, 0.05
@@ -396,6 +400,7 @@ class MLEngine(AutoEncoder):
 
         for (tenant, ip), ip_df in truncated_df.groupby([self._TENANT_FEATURE, self._USER_FEATURE]):
             print(f'[INFO]: Predicting for ip: {ip} of tenant: {tenant}')
+            # pdb.set_trace()
             model_path = os.path.join(
                     self._TENANT_MODEL_DIR, f'Rule={tenant}', f'Source address={ip}')
             # 
@@ -437,8 +442,10 @@ class MLEngine(AutoEncoder):
 
             if save_data_for_ip_profile is True:
                 # self._save_to_csv(ip_df, ip_csv_path)
-                ip_df =self._SPARK.createDataFrame(ip_df)
-                ip_df.write.csv(model_path.replace('model', 'profile'), header=True)
+                print('[INFO]: Saving ip_profile')
+                if len(ip_df) > 0:
+                    ip_df =self._SPARK.createDataFrame(ip_df)
+                    ip_df.write.csv(model_path.replace('model', 'profile'), mode='append', header=True)
                 if self._model_path is not None:
                     self._save_categorical_params(updated_categorical_params)
 
@@ -480,7 +487,8 @@ class MLEngine(AutoEncoder):
         return ano_with_model_count, ano_with_no_model_count, n_chunks
 
     def _create_filtered_csv(self, raw_csv_path):
-        df = self._SPARK.read.csv(raw_csv_path, schema=raw_datafield_schema, header=True)
+        # pdb.set_trace()
+        df = self._SPARK.read.csv(raw_csv_path, inferSchema=True, header=True)
         ips = np.array(df.select('Source address').distinct().rdd.flatMap(lambda x: x).collect())
         private_ips = ips[[ipaddress.ip_address(ip).is_private for ip in ips]].tolist()
         df = df.filter(df['Source address'].isin(private_ips))
