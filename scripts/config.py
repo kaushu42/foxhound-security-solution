@@ -3,6 +3,7 @@ import os
 import findspark
 import ast
 from pyspark import SparkFiles
+import pyspark
 
 try:
     import configparser
@@ -61,11 +62,16 @@ THREAT_DB_PATH = os.path.join(BASE_PATH, '../threatdb')
 DUMPS_PATH = os.path.join(BASE_PATH, '../dumps')
 
 # SPARK CONFIG
+#SPARK = SparkSession.builder.master(SPARK_MASTER_URL).appName(SPARK_APP_NAME).config('spark.driver.memory','10g').config('spark.executer.memory','10g').config('spark.memory.fraction','0.6').config('spark.executor.JavaOptions', '-XX:+UseG1GC').config('spark.serializer', 'org.apache.spark.serializer.KryoSerializer').getOrCreate()
+
+
 SPARK = SparkSession.builder.master(
     SPARK_MASTER_URL
 ).appName(
     SPARK_APP_NAME
 ).getOrCreate()
+
+
 
 COUNTRY_DB_FILEPATH = os.path.join(BASE_PATH, IP_DB_FILENAME)
 SPARK.sparkContext.addFile(COUNTRY_DB_FILEPATH)
