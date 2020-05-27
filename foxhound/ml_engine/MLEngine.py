@@ -416,13 +416,13 @@ class MLEngine(AutoEncoder):
                 self._model_path = None
                 has_model = False
 
-            if self._model_path is not None:
-                # ip_df.reset_index(inplace=True)
-                ip_df = ip_df.drop(
+            ip_df = ip_df.drop(
                     columns=[self._TENANT_FEATURE, self._USER_FEATURE])
                 
-                ip_df = self._preprocess(ip_df)
-                # 
+            ip_df = self._preprocess(ip_df)
+
+            if self._model_path is not None:
+                # ip_df.reset_index(inplace=True) 
                 
                 has_anomaly, indices, reasons, updated_categorical_params = self._predict(
                     ip_df, 800, has_model)
@@ -438,9 +438,11 @@ class MLEngine(AutoEncoder):
                     )
                     ip_df.drop(ip_df.index[indices], axis=0, inplace=True)
             else:
+                # pdb.set_trace()
                 anomalous_without_model_count += len(ip_df.index)
 
             if save_data_for_ip_profile is True:
+                # pdb.set_trace()
                 # self._save_to_csv(ip_df, ip_csv_path)
                 print('[INFO]: Saving ip_profile')
                 if len(ip_df) > 0:
