@@ -47,13 +47,10 @@ CAS_KEYSPACE = ast.literal_eval(config.get("CASSANDRA", "CAS_KEYSPACE"))
 
 
 class DailyThreatMISEngine(object):
-    def __init__(self, spark_session, db_engine, input_threat_log, output_dir):
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
+    def __init__(self, spark_session, db_engine, input_threat_log):
         self._spark = spark_session
         self._db_engine = db_engine
         self._INPUT_THREAT_LOG = input_threat_log
-        self._OUTPUT_DIR = output_dir
         self._REQUIRED_COLUMNS = ['Rule']
         self._HEADER_NAMES = ["firewall_rule"]
 

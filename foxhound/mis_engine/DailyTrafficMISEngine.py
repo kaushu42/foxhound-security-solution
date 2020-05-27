@@ -22,13 +22,10 @@ from foxhound.config import Config
 
 
 class DailyTrafficMISEngine(object):
-    def __init__(self, spark_session, db_engine, input_traffic_log, output_dir):
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
+    def __init__(self, spark_session, db_engine, input_traffic_log):
         self._spark = spark_session
         self._db_engine = db_engine
         self._INPUT_TRAFFIC_LOG = input_traffic_log
-        self._OUTPUT_DIR = output_dir
         self._REQUIRED_COLUMNS = ['Source address', 'Destination address', 'Application',
                                   'IP Protocol', 'Source Zone', 'Destination Zone', 'Rule',
                                   'Inbound Interface', 'Outbound Interface', 'Action', 'Category',

@@ -69,7 +69,7 @@ def is_threat_log_already_processed(input_threat_log):
 def traffic_mis_engine(input_traffic_log):
     if check_create_bookmark(input_traffic_log) == "none":
         mis = DailyTrafficMISEngine(config.SPARK, utils.get_db_engine(
-        ), input_traffic_log, config.MIS_OUTPUT_INPUT_DIR)
+        ), input_traffic_log)
         mis.run()
         set_bookmark(input_traffic_log, "log")
 
@@ -77,7 +77,7 @@ def traffic_mis_engine(input_traffic_log):
 def threat_mis_engine(input_threat_log):
     if(check_create_bookmark(input_threat_log) == "none"):
         mis = DailyThreatMISEngine(config.SPARK, utils.get_db_engine(
-        ), input_threat_log, config.MIS_OUTPUT_INPUT_DIR)
+        ), input_threat_log)
         mis.run()
         set_bookmark(input_threat_log, "log")
 
@@ -86,7 +86,6 @@ def traffic_log_engine(input_traffic_log):
     if check_create_bookmark(input_traffic_log) == "log":
         log = DailyTrafficLogEngine(
             input_traffic_log,
-            config.TRAFFIC_LOGS_OUTPUT_DIR,
             config.COUNTRY_DB_FILEPATH,
             utils.get_db_engine(), config.SPARK)
         log.run()
@@ -105,7 +104,6 @@ def threat_log_engine(input_threat_log):
     if check_create_bookmark(input_threat_log) == "log":
         log = DailyThreatLogEngine(
             input_threat_log,
-            config.TRAFFIC_LOGS_OUTPUT_DIR,
             config.COUNTRY_DB_FILEPATH,
             utils.get_db_engine(), config.SPARK)
         log.run()
