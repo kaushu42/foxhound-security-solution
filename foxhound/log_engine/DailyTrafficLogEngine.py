@@ -124,7 +124,7 @@ class DailyTrafficLogEngine:
             # TODO: NEED TO HARDCODE THIS
             # ENTER ABSOLUTE PATH OF FILE HERE
             reader = geoip2.database.Reader(
-                '/GeoLite2-City.mmdb')
+                './GeoLite2-City.mmdb')
             try:
                 response = reader.city(ip_address)
                 return response.country.iso_code.lower()
