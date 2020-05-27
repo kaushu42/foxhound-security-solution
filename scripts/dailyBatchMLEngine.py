@@ -8,7 +8,7 @@ from config import (
 
 
 
-def ml_engine(init=False, mle=True, create_model=False, predict=True, input_traffic_log=None):
+def ml_engine(init=False, mle=True, create_model=False, predict=False, input_traffic_log=None):
     if init:
         init = Initialize(TRAFFIC_LOGS_INPUT_DIR,
                           TENANT_PROFILE_OUTPUT_DIR, SPARK)
@@ -22,3 +22,5 @@ def ml_engine(init=False, mle=True, create_model=False, predict=True, input_traf
                        verbose=True)
 
         mle.run(create_model=create_model, predict=predict, input_traffic_log=input_traffic_log)
+
+ml_engine(init=True , mle=True, create_model=True)
