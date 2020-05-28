@@ -1,9 +1,14 @@
 from django.db import models
 from users.models import FoxhoundUser
 from core.models import FirewallRule, TenantIPAddressInfo
-
+import architect
 
 ###### PROD TABLE #################################################################################################
+@architect.install(
+    'partition', type='range',
+    subtype='date', constraint='day',
+    column='created_date_time'
+)
 class TrafficRule(models.Model):
     firewall_rule = models.ForeignKey(
         FirewallRule, on_delete=models.CASCADE, null=True)
