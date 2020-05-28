@@ -141,16 +141,18 @@ def ready_for_staging():
         rs = session.execute("TRUNCATE TABLE fh_stg_trfc_mis_new_app_dy_a")
         rs = session.execute("TRUNCATE TABLE fh_stg_trfc_mis_new_dst_ip_dy_a")
         rs = session.execute("TRUNCATE TABLE fh_stg_trfc_mis_new_src_ip_dy_a")
-        rs = session.execute("TRUNCATE TABLE fh_stg_trfc_mis_req_frm_blip_dy_a")
-        rs = session.execute("TRUNCATE TABLE fh_stg_trfc_mis_req_frm_blip_dy_a")
+        rs = session.execute(
+            "TRUNCATE TABLE fh_stg_trfc_mis_req_frm_blip_dy_a")
+        rs = session.execute(
+            "TRUNCATE TABLE fh_stg_trfc_mis_req_frm_blip_dy_a")
         rs = session.execute("TRUNCATE TABLE fh_stg_trfc_mis_res_to_blip_dy_a")
 
         rs = session.execute("TRUNCATE TABLE fh_stg_trfc_log_dtl_f")
         rs = session.execute("TRUNCATE TABLE fh_stg_trfc_log_dtl_hr_a")
         rs = session.execute("TRUNCATE TABLE fh_stg_trfc_log_dtl_dy_a")
-        
+
         rs = session.execute("TRUNCATE TABLE fh_stg_trfc_rule_f")
-        
+
         rs = session.execute("TRUNCATE TABLE fh_stg_trfc_chrt_app_dt_hr_a")
         rs = session.execute("TRUNCATE TABLE fh_stg_trfc_chrt_con_dt_hr_a")
         rs = session.execute("TRUNCATE TABLE fh_stg_trfc_chrt_ip_dt_hr_a")
@@ -180,7 +182,8 @@ def insert_stage_data_to_prod_table(con, stage_table, prod_table):
     )
     mismatch_count = rs.fetchone()[0]
     if(mismatch_count != 0):
-        print(f"Stage table {stage_table} and prod table {prod_table} do not match")
+        print(
+            f"Stage table {stage_table} and prod table {prod_table} do not match")
         return
     rs = con.execute(
         f"SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name ='{stage_table}'"
@@ -258,5 +261,4 @@ def commit_changes_to_production():
     finally:
         session.commit()
         session.close()
-
 
