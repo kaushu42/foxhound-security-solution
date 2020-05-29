@@ -22,37 +22,14 @@ import geoip2.errors
 import config as py_config
 
 from foxhound.logger import Logger
-try:
-    import configparser
-except:
-    from six.moves import configparser
-config = configparser.ConfigParser()
-
-config.read('../config.ini')
-
-PG_DRIVER = ast.literal_eval(config.get("SPARK", "PG_DRIVER"))
-SPARK_MASTER_URL = ast.literal_eval(config.get("SPARK", "SPARK_MASTER_URL"))
-CLUSTER_SEEDS = ast.literal_eval(config.get("SPARK", "CLUSTER_SEEDS"))
-SPARK_APP_NAME = ast.literal_eval(config.get("SPARK", "SPARK_APP_NAME"))
-SPARK_DB_URL = ast.literal_eval(config.get("SPARK", "SPARK_DB_URL"))
-SPARK_DB_DRIVER = ast.literal_eval(config.get("SPARK", "SPARK_DB_DRIVER"))
-SPARK_CASDB_DRIVER = ast.literal_eval(
-    config.get("SPARK", "SPARK_CASDB_DRIVER"))
+from foxhound.config import Config
 
 
-HOST = ast.literal_eval(config.get("POSTGRES", "host"))
-DB_NAME = ast.literal_eval(config.get("POSTGRES", "db_name"))
-FH_DB_USER = ast.literal_eval(config.get("POSTGRES", "username"))
-FH_DB_PASSWORD = ast.literal_eval(config.get("POSTGRES", "password"))
-
-CAS_KEYSPACE = ast.literal_eval(config.get("CASSANDRA", "CAS_KEYSPACE"))
-
-COUNTRY_DB_FILEPATH = py_config.COUNTRY_DB_FILEPATH
 COUNTRY_DB_FILEPATH = './GeoLite2-City.mmdb'
 
 
 class DailyThreatLogEngine:
-    def __init__(self, input_threat_log, output_dir, country_db_file, db_engine, spark):
+    def __init__(self, input_threat_log, country_db_file, db_engine, spark):
         self._INPUT_THREAT_LOG = input_threat_log
         self._country_db_file = country_db_file
         self._db_engine = db_engine

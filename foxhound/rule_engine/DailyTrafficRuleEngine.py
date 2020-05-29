@@ -49,7 +49,7 @@ class DailyTrafficRuleEngine:
     def _read_tables_from_db(self):
         firewall_rules = self._read_table_from_postgres('fh_prd_fw_rule_f')
         rules_table = self._read_table_from_postgres(
-            'fh_stg_trfc_rule_f').drop('id')
+            'fh_prd_trfc_rule_f').select('firewall_rule_id', 'source_address', 'destination_address', 'application')
         return firewall_rules, rules_table
 
     def _extract_rules_from_traffic_log(self):
@@ -57,7 +57,7 @@ class DailyTrafficRuleEngine:
         self._df = self._df.join(
             firewall_rules, on=[self._df.firewall_rule == firewall_rules.name], how='left')
         self._df = self._df.withColumnRenamed('id', 'firewall_rule_id').select(
-            'firewall_rule_id', 'source_address', 'destination_address', 'application')
+            'firewall_rule_id', 'source_address', 'destination_address', 'application').distinct()
         self._df = self._df.join(
             rules_table,
             on=[
