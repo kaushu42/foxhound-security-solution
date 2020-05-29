@@ -1,37 +1,23 @@
 from django.db import models
+from django.db.models import Q
 from rules.models import TrafficRule
+from core.models import FirewallRule
 
 objects = TrafficRule.objects.filter(
     parent__isnull=True,
     is_generic=True
 )
 for obj in objects:
+    tenant_id = FirewallRule.objects.get(id=obj.firewall_rule.id).tenant.id
     src, dst, appl = obj.source_address, obj.destination_address, obj.application
-    TrafficRule.objects.filter(
-        Q(source_address__regex=src) &
-        Q(destination_address__regex=src) &
-        Q(application__regex=src),
+    items = TrafficRule.objects.filter(
+        ~Q(id=obj.id),
+        source_address__regex=src,
+        destination_address__regex=dst,
+        application__regex=appl,
         parent__isnull=True,
-        firewall_rule=obj.firewall_rule
-    ).update(parent=obj)
+        firewall_rule__tenant__id=tenant_id,
+    )
 
-
-def clean(self):
-    for rule in TrafficRule.name.like('%*%'):
-        # Fully generic fields are stored as .* in db
-        # So, we need to replace .* with %
-        # Further if fields are not fully generic
-        # We need to replace * with %
-        source_ip = rule.source_ip.replace('.*', '%').replace('*', '%')
-        destination_ip = rule.destination_ip.replace(
-            '.*', '%').replace('*', '%')
-        application = rule.application.replace('.*', '%').replace('*', '%')
-        for i in BASE_QUERY.filter(
-            Rule.id != rule.id,  # Do not get current item
-            Rule.source_ip.like(source_ip),
-            Rule.destination_ip.like(destination_ip),
-            Rule.application.like(application)
-        ):
-            print(i, 'deleted!')
-            session.delete(i)
-        session.commit()
+    print(f'{items.count()} objects found')
+    items.update(parent=obj)
