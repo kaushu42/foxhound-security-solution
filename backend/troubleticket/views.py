@@ -279,7 +279,8 @@ class TroubleTicketDetailApiView(APIView):
         'IP Protocol': "protocol",
         'Category': "category",
         'Action': "action",
-        'Session End Reason': "session_end_reason"
+        'Session End Reason': "session_end_reason",
+        'Destination Port': "destination_port"
     }
 
     def get_stats(self, objects, reason, max):
