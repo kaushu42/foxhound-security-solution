@@ -80,6 +80,20 @@ class DailyTrafficMISEngine(object):
             user=Config.FH_DB_USER,
             password=Config.FH_DB_PASSWORD).mode(mode).save()
         del df_without_id
+    
+    def _read_table_from_postgres(self, table):
+        url = Config.SPARK_DB_URL
+        properties = {
+            'user': Config.FH_DB_USER,
+            'password': Config.FH_DB_PASSWORD,
+            'driver': Config.SPARK_DB_DRIVER
+        }
+        return self._spark.read.jdbc(
+            url='jdbc:%s' % url,
+            table=table,
+            properties=properties
+        )
+
 
     def _read_firewall_rules_from_db(self):
         return pd.read_sql_table('fh_prd_fw_rule_f', self._db_engine).set_index("name").to_dict()["id"]
@@ -204,18 +218,22 @@ class DailyTrafficMISEngine(object):
         def filter_public_records(source_ip):
             return ipaddress.ip_address(source_ip).is_private
 
-        ip_from_db_df = self._create_spark_dateframe_from_table("fh_stg_trfc_mis_new_src_ip_dy_a"
-                                                                ).select("firewall_rule_id", "source_address")
+        ip_from_db_df = self._read_table_from_postgres("fh_prd_trfc_mis_new_src_ip_dy_a"
+                                                                ).select("firewall_rule_id", "source_address").distinct()
+
         new_unique_source_address = self._df.filter(
-            filter_public_records(self._df.source_address))
+            filter_public_records(self._df.source_address)).select("firewall_rule_id","source_address").distinct()
+        
         new_unique_source_address = new_unique_source_address.join(
             ip_from_db_df, on=['firewall_rule_id', 'source_address'], how='left_anti')
+
+        new_df = self._df.join(new_unique_source_address,["firewall_rule_id","source_address"],how="inner")
 
         GROUPING_COLUMNS = ['processed_datetime',
                             'logged_datetime', 'firewall_rule_id', 'source_address']
         COLUMN_HEADERS = ['processed_datetime', 'logged_datetime', 'source_address', 'avg_repeat_count', 'sum_bytes_sent', 'sum_bytes_received', 'sum_packets_received', 'sum_packets_sent',
                           'sum_time_elapsed', 'count_events', 'firewall_rule_id', ]
-        grouped_df = new_unique_source_address.groupby(*GROUPING_COLUMNS)
+        grouped_df = new_df.groupby(*GROUPING_COLUMNS)
         grouped_agg = grouped_df.agg({
             'repeat_count': 'mean',
             'bytes_sent': 'sum',
@@ -243,18 +261,22 @@ class DailyTrafficMISEngine(object):
         def filter_public_records(destination_ip):
             return ipaddress.ip_address(destination_ip).is_private
 
-        ip_from_db_df = self._create_spark_dateframe_from_table("fh_stg_trfc_mis_new_dst_ip_dy_a"
-                                                                ).select("firewall_rule_id", "destination_address")
+        ip_from_db_df = self._read_table_from_postgres("fh_prd_trfc_mis_new_dst_ip_dy_a"
+                                                                ).select("firewall_rule_id", "destination_address").distinct()
+        
         new_unique_destination_address = self._df.filter(
-            filter_public_records(self._df.destination_address))
+            filter_public_records(self._df.destination_address)).select("firewall_rule_id","destination_address").distinct()
+        
         new_unique_destination_address = new_unique_destination_address.join(
             ip_from_db_df, on=['firewall_rule_id', 'destination_address'], how='left_anti')
 
+        new_df = self._df.join(new_unique_destination_address,["firewall_rule_id","destination_address"],how="inner")
+        
         GROUPING_COLUMNS = ['processed_datetime', 'logged_datetime',
                             'firewall_rule_id', 'destination_address']
         COLUMN_HEADERS = ['processed_datetime', 'logged_datetime', 'destination_address', 'avg_repeat_count', 'sum_bytes_sent', 'sum_bytes_received', 'sum_packets_received', 'sum_packets_sent',
                           'sum_time_elapsed', 'count_events', 'firewall_rule_id', ]
-        grouped_df = new_unique_destination_address.groupby(*GROUPING_COLUMNS)
+        grouped_df = new_df.groupby(*GROUPING_COLUMNS)
         grouped_agg = grouped_df.agg({
             'repeat_count': 'mean',
             'bytes_sent': 'sum',
@@ -278,16 +300,21 @@ class DailyTrafficMISEngine(object):
         del grouped_agg, ip_from_db_df, new_unique_destination_address, grouped_df
 
     def _extract_mis_new_application(self):
-        app_from_db_df = self._create_spark_dateframe_from_table("fh_stg_trfc_mis_new_app_dy_a"
-                                                                 ).select("firewall_rule_id", "application")
-        new_unique_application = self._df.join(
+        app_from_db_df = self._read_table_from_postgres("fh_prd_trfc_mis_new_app_dy_a"
+                                                                 ).select("firewall_rule_id", "application").distinct()
+        
+        new_unique_application = self._df.select("firewall_rule_id","application").distinct()
+        
+        new_unique_application = new_unique_application.join(
             app_from_db_df, on=['firewall_rule_id', 'application'], how='left_anti')
 
+        new_df = self._df.join(new_unique_application,["firewall_rule_id","application"],how="inner")
+        
         GROUPING_COLUMNS = ['processed_datetime',
                             'logged_datetime', 'firewall_rule_id', 'application']
         COLUMN_HEADERS = ['processed_datetime', 'logged_datetime', 'application', 'avg_repeat_count', 'sum_bytes_sent', 'sum_bytes_received', 'sum_packets_received', 'sum_packets_sent',
                           'sum_time_elapsed', 'count_events', 'firewall_rule_id', ]
-        grouped_df = new_unique_application.groupby(*GROUPING_COLUMNS)
+        grouped_df = new_df.groupby(*GROUPING_COLUMNS)
         grouped_agg = grouped_df.agg({
             'repeat_count': 'mean',
             'bytes_sent': 'sum',
@@ -311,10 +338,9 @@ class DailyTrafficMISEngine(object):
         del grouped_agg, app_from_db_df, new_unique_application, grouped_df
 
     def _extract_mis_requests_from_blacklisted_ip_event(self):
-        blacklisted_ip_from_db = self._create_spark_dateframe_from_table("core_blacklistedip"
+        blacklisted_ip_from_db = self._read_table_from_postgres("core_blacklistedip"
                                                                          ).select("ip_address").withColumnRenamed("ip_address", "source_address")
-        filtered_df = self._df.join(blacklisted_ip_from_db, [
-                                    "source_address"], "leftanti")
+        filtered_df = self._df.join(blacklisted_ip_from_db, ["source_address"], "inner")
         COLUMN_HEADERS = ['processed_datetime', 'logged_datetime', 'firewall_rule_id', 'source_address', 'destination_address', 'application',
                           'protocol', 'source_zone', 'destination_zone', 'inbound_interface', 'outbound_interface',
                           'action', 'category', 'session_end_reason', 'destination_port', 'avg_repeat_count', 'sum_bytes_sent',
@@ -350,10 +376,10 @@ class DailyTrafficMISEngine(object):
         del grouped_agg, filtered_df, grouped_df
 
     def _extract_mis_responses_to_blacklisted_ip_event(self):
-        blacklisted_ip_from_db = self._create_spark_dateframe_from_table("core_blacklistedip"
+        blacklisted_ip_from_db = self._read_table_from_postgres("core_blacklistedip"
                                                                          ).select("ip_address").withColumnRenamed("ip_address", "destination_address")
         filtered_df = self._df.join(blacklisted_ip_from_db, [
-                                    "destination_address"], "leftanti")
+                                    "destination_address"], "inner")
         COLUMN_HEADERS = ['processed_datetime', 'logged_datetime', 'firewall_rule_id', 'source_address',
                           'destination_address', 'application', 'protocol', 'source_zone', 'destination_zone',
                           'inbound_interface', 'outbound_interface', 'action', 'category', 'session_end_reason',
@@ -389,6 +415,7 @@ class DailyTrafficMISEngine(object):
 
     def run(self):
         logger = Logger.getInstance()
+        import pdb; pdb.set_trace()
         self._read_csv()
         logger.info(f'Daily Traffic MIS Engine: {self._INPUT_TRAFFIC_LOG}')
         self._preprocess()
