@@ -415,7 +415,6 @@ class DailyTrafficMISEngine(object):
 
     def run(self):
         logger = Logger.getInstance()
-        import pdb; pdb.set_trace()
         self._read_csv()
         logger.info(f'Daily Traffic MIS Engine: {self._INPUT_TRAFFIC_LOG}')
         self._preprocess()
