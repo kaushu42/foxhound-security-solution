@@ -285,7 +285,7 @@
                 })
             }   
             var dataToShow = []
-            dataToShow.push(<Fragment key={"created_datetime_"}><br/><b>Created DateTime:</b> {record.created_datetime} </Fragment>)
+            dataToShow.push(<Fragment key={"created_datetime_"}><br/><b>Created DateTime:</b> {(new Date(parseInt(record.created_datetime)*1000+20700000).toUTCString()).replace(" GMT", "")} </Fragment>)
             dataToShow.push(<Fragment key={"protocol_"}><br/><b>Protocol:</b> {record.protocol} </Fragment>)
             dataToShow.push(<Fragment key={"source_zone_"}><br/><b>Source Zone:</b> {record.source_zone} </Fragment>)
             dataToShow.push(<Fragment key={"destination_zone_"}><br/><b>Destination Zone:</b> {record.destination_zone} </Fragment>)
