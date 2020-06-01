@@ -55,7 +55,7 @@ class TTPaginatedView(PaginatedView):
             **kwargs,
             **query,
         )
-        return objects
+        return objects.order_by('-logged_datetime')
 
     def _get_items(self, field):
         if field is not None:
@@ -108,7 +108,7 @@ class TTPaginatedView(PaginatedView):
 class TroubleTicketAnomalyOpenApiView(TTPaginatedView):
     def get(self, request):
         objects = self.get_filtered_objects(request, is_closed=False)
-        page = self.paginate_queryset(objects.order_by('id'))
+        page = self.paginate_queryset(objects)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
@@ -120,7 +120,7 @@ class TroubleTicketAnomalyOpenApiView(TTPaginatedView):
 class TroubleTicketAnomalyClosedApiView(TTPaginatedView):
     def get(self, request):
         objects = self.get_filtered_objects(request, is_closed=True)
-        page = self.paginate_queryset(objects.order_by('id'))
+        page = self.paginate_queryset(objects)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
@@ -137,7 +137,7 @@ class MyOpenTTApiView(TTPaginatedView):
             assigned_to=user,
             is_closed=False
         )
-        page = self.paginate_queryset(objects.order_by('id'))
+        page = self.paginate_queryset(objects)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
@@ -151,7 +151,7 @@ class MyClosedTTApiView(TTPaginatedView):
             assigned_to=user,
             is_closed=True
         )
-        page = self.paginate_queryset(objects.order_by('id'))
+        page = self.paginate_queryset(objects)
         if page is not None:
             serializer = self.serializer_class(page, many=True)
             return self.get_paginated_response(serializer.data)
