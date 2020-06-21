@@ -6,6 +6,7 @@ from foxhound.rule_engine.DailyTrafficRuleEngine import DailyTrafficRuleEngine
 from foxhound.log_engine.DailyThreatLogEngine import DailyThreatLogEngine
 from foxhound.chart_engine.DailyChartEngine import DailyChartEngine
 from foxhound.tt_engine.DailyTTEngine import DailyTTEngine
+from foxhound.tt_engine.DailyTTGroupEngine import DailyTTGroupEngine
 from foxhound.logger.Logger import Logger
 import config
 import utils
@@ -119,6 +120,20 @@ def traffic_chart_engine(input_traffic_log):
         )
         chart.run()
         set_bookmark(input_traffic_log, "complete")
+
+
+{'flags', 'application', 'log_action', 'bytes_sent', 'destination_address', 'destination_port', 'session_end_reason', 'destination_zone', 'category', 'time_elapsed', 'outbound_interface', 'protocol', 'packets_sent', 'nat_destination_port',
+    'nat_source_ip', 'nat_destination_ip', 'source_address', 'packets_received', 'device_name', 'vsys', 'bytes_received', 'repeat_count', 'threat_content_type', 'source_zone', 'inbound_interface', 'source_port', 'action'}
+
+
+def traffic_tt_group_engine(input_anomaly_log):
+    if check_create_bookmark(input_anomaly_log) == "none":
+        tt = DailyTTGroupEngine(
+            input_anomaly_log,
+            spark=config.SPARK
+        )
+        tt.run()
+    set_bookmark(input_anomaly_log, "complete")
 
 
 def traffic_tt_engine(input_anomaly_log):
@@ -261,4 +276,3 @@ def commit_changes_to_production():
     finally:
         session.commit()
         session.close()
-

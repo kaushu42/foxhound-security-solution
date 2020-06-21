@@ -38,5 +38,6 @@ for input_anomaly_log in sorted(os.listdir(ANOMALY_LOGS_OUTPUT_DIR)):
     bk = daily_batch_run.check_create_bookmark(input_anomaly_log)
     if(bk != "complete"):
         daily_batch_run.ready_for_staging()
+        daily_batch_run.traffic_tt_group_engine(input_anomaly_log)
         daily_batch_run.traffic_tt_engine(input_anomaly_log)
         daily_batch_run.commit_changes_to_production()
