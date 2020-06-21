@@ -173,6 +173,10 @@ class TroubleTicketFollowUpAnomaly(TroubleTicketFollowUp):
 class StageTroubleTicketAnomaly(TroubleTicket):
     class Meta:
         db_table = 'fh_stg_tt_anmly_f'
+    tt_group = models.ForeignKey(
+        TroubleTicketGroupAnomaly,
+        on_delete=models.CASCADE, null=True
+    )
     log = models.ForeignKey(
         TrafficLog, on_delete=models.CASCADE, null=True
     )
