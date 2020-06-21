@@ -133,11 +133,11 @@ def traffic_tt_group_engine(input_anomaly_log):
             spark=config.SPARK
         )
         tt.run()
-    set_bookmark(input_anomaly_log, "complete")
+    set_bookmark(input_anomaly_log, "tt")
 
 
 def traffic_tt_engine(input_anomaly_log):
-    if check_create_bookmark(input_anomaly_log) == "none":
+    if check_create_bookmark(input_anomaly_log) == "tt":
         tt = DailyTTEngine(
             input_anomaly_log,
             spark=config.SPARK
