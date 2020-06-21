@@ -97,9 +97,13 @@ class DailyTTEngine:
         mapped = mapped.join(tt_grp, on=join_cols)
         mapped = mapped.withColumn('logged_datetime', from_unixtime(unix_timestamp(
             mapped.logged_datetime, 'yy/MM/dd HH:mm:ss')).cast('timestamp'))
-        mapped = mapped.select(
-            *[i for i in mapped.columns if not i.endswith('temp')])
-        mapped = mapped.drop('logged_datetime_hr')
+
+        cols_to_keep = [
+            i for i in mapped.columns if not i.endswith('temp')
+        ] + ["id_temp"]
+        mapped = mapped.select(*cols_to_keep)
+        mapped = mapped.drop(
+            'logged_datetime_hr').withColumnRenamed('id_temp', 'tt_group_id')
         return mapped
 
     def run(self):
@@ -107,11 +111,13 @@ class DailyTTEngine:
         logger.info('TT Engine started')
         csv = self._csv
         try:
+            import ipdb
+            ipdb.set_trace()
             logger.info(f'TT Engine: {csv}')
             df = self._spark.read.csv(csv, header=True, inferSchema=True)
             df = self._preprocess(df)
             mapped = self._map_log_name_and_firewall_rule(df)
-            mapped = mapped.drop('vsys', 'inbound_interface', 'outbound_interface')\
+            mapped = mapped\
                 .withColumn('created_datetime', lit(datetime.datetime.now()))\
                 .withColumn('is_closed', lit(False))
             self._write_df_to_postgres(
