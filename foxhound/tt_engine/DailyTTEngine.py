@@ -111,8 +111,6 @@ class DailyTTEngine:
         logger.info('TT Engine started')
         csv = self._csv
         try:
-            import ipdb
-            ipdb.set_trace()
             logger.info(f'TT Engine: {csv}')
             df = self._spark.read.csv(csv, header=True, inferSchema=True)
             df = self._preprocess(df)

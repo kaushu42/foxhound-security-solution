@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from config import (
     TRAFFIC_LOGS_INPUT_DIR,
     THREAT_LOGS_INPUT_DIR,
@@ -7,11 +8,10 @@ from config import (
 import dailyBatch as daily_batch_run
 import seedutils
 
-# Ready for staging
 seedutils.seed()
 
-for input_traffic_log in sorted(os.listdir(TRAFFIC_LOGS_INPUT_DIR)):
-    input_traffic_log = os.path.join(TRAFFIC_LOGS_INPUT_DIR, input_traffic_log)
+for input_traffic_log in sorted(Path(TRAFFIC_LOGS_INPUT_DIR).glob('*.csv')):
+    input_traffic_log = str(input_traffic_log)
     bk = daily_batch_run.check_create_bookmark(input_traffic_log)
     if(bk != "complete"):
         daily_batch_run.ready_for_staging()
@@ -22,8 +22,8 @@ for input_traffic_log in sorted(os.listdir(TRAFFIC_LOGS_INPUT_DIR)):
         daily_batch_run.commit_changes_to_production()
 
 
-for input_threat_log in sorted(os.listdir(THREAT_LOGS_INPUT_DIR)):
-    input_threat_log = os.path.join(THREAT_LOGS_INPUT_DIR, input_threat_log)
+for input_threat_log in sorted(Path(THREAT_LOGS_INPUT_DIR).glob("*.csv")):
+    input_threat_log = str(input_threat_log)
     bk = daily_batch_run.check_create_bookmark(input_threat_log)
     if(bk != "complete"):
         daily_batch_run.ready_for_staging()
@@ -32,9 +32,8 @@ for input_threat_log in sorted(os.listdir(THREAT_LOGS_INPUT_DIR)):
         daily_batch_run.commit_changes_to_production()
 
 
-for input_anomaly_log in sorted(os.listdir(ANOMALY_LOGS_OUTPUT_DIR)):
-    input_anomaly_log = os.path.join(
-        ANOMALY_LOGS_OUTPUT_DIR, input_anomaly_log)
+for input_anomaly_log in sorted(Path(ANOMALY_LOGS_OUTPUT_DIR).glob("*.csv")):
+    input_anomaly_log = str(input_anomaly_log)
     bk = daily_batch_run.check_create_bookmark(input_anomaly_log)
     if(bk != "complete"):
         daily_batch_run.ready_for_staging()
