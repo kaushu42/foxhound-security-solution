@@ -6,7 +6,7 @@ from foxhound.logger import Logger
 from foxhound.config import Config
 
 
-class DailyTTEngine:
+class DailyTTGroupEngine:
     def __init__(self, input_anomaly_log, *, spark):
         self._csv = input_anomaly_log
         self._spark = spark
@@ -28,8 +28,8 @@ class DailyTTEngine:
     def _preprocess(self, df):
         df = df[self._REQUIRED_COLUMNS]
         df = df.toDF(*self._HEADER_NAMES)
-        self._df = self._df.withColumn('logged_datetime', to_timestamp(
-            self._df["logged_datetime"], "yyyy/MM/dd HH"))
+        df = df.withColumn('logged_datetime', to_timestamp(
+            df["logged_datetime"], "yyyy/MM/dd HH"))
         df = df.dropDuplicates()
         return df
 
@@ -87,9 +87,13 @@ class DailyTTEngine:
             df = self._spark.read.csv(csv, header=True, inferSchema=True)
             df = self._preprocess(df)
             mapped = self._map_log_name_and_firewall_rule(df)
-            mapped = mapped.drop('vsys', 'inbound_interface', 'outbound_interface')\
+            mapped = mapped\
                 .withColumn('created_datetime', lit(datetime.datetime.now()))\
-                .withColumn('is_closed', lit(False))
+                .withColumn('is_closed', lit(False)).fillna("nan")
+            # possibly_null = [
+            #     'log_action',
+            #     'outbound_interface',
+            #     ]
             self._write_df_to_postgres(
                 mapped, 'fh_prd_tt_anmly_grp_f')
         except Exception as e:
