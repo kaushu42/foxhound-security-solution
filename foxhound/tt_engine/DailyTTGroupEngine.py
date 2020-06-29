@@ -6,7 +6,7 @@ from foxhound.logger import Logger
 from foxhound.config import Config
 
 
-class DailyTTEngine:
+class DailyTTGroupEngine:
     def __init__(self, input_anomaly_log, *, spark):
         self._csv = input_anomaly_log
         self._spark = spark
@@ -28,10 +28,8 @@ class DailyTTEngine:
     def _preprocess(self, df):
         df = df[self._REQUIRED_COLUMNS]
         df = df.toDF(*self._HEADER_NAMES)
-        df = df.withColumn('logged_datetime_hr', to_timestamp(
-            df["logged_datetime"], "yyyy/MM/dd HH"))
         df = df.withColumn('logged_datetime', to_timestamp(
-            df["logged_datetime"], "yyyy/MM/dd HH:mm:ss"))
+            df["logged_datetime"], "yyyy/MM/dd HH"))
         df = df.dropDuplicates()
         return df
 
@@ -59,7 +57,7 @@ class DailyTTEngine:
         firewall_rules = self._read_table_from_postgres(
             'FH_PRD_FW_RULE_F')
         logs = self._read_table_from_postgres('FH_PRD_TRFC_LOG_F')
-        tt_grp = self._read_table_from_postgres('fh_prd_tt_anmly_grp_f')
+
         mapped = df.join(
             logs,
             on=[df.log_name == logs.log_name],
@@ -77,33 +75,7 @@ class DailyTTEngine:
             'firewall_rule'
         ).withColumnRenamed(
             'id', 'firewall_rule_id'
-        ).drop(*firewall_rules.columns).fillna("nan")
-
-        cols_to_join = set(
-            self._HEADER_NAMES) - {"logged_datetime", "reasons", "firewall_rule", "log_name"}
-        tt_grp = tt_grp.toDF(*[f'{i}_temp' for i in tt_grp.columns])
-        join_cols = []
-
-        for i in cols_to_join:
-            join_cols.append(
-                getattr(tt_grp, f'{i}_temp') == getattr(mapped, i)
-            )
-        join_cols.append(tt_grp.logged_datetime_temp ==
-                         mapped.logged_datetime_hr)
-        join_cols.append(tt_grp.firewall_rule_id_temp ==
-                         mapped.firewall_rule_id)
-        join_cols.append(tt_grp.log_id_temp == mapped.log_id)
-
-        mapped = mapped.join(tt_grp, on=join_cols)
-        mapped = mapped.withColumn('logged_datetime', from_unixtime(unix_timestamp(
-            mapped.logged_datetime, 'yy/MM/dd HH:mm:ss')).cast('timestamp'))
-
-        cols_to_keep = [
-            i for i in mapped.columns if not i.endswith('temp')
-        ] + ["id_temp"]
-        mapped = mapped.select(*cols_to_keep)
-        mapped = mapped.drop(
-            'logged_datetime_hr').withColumnRenamed('id_temp', 'tt_group_id')
+        ).drop(*firewall_rules.columns)
         return mapped
 
     def run(self):
@@ -117,9 +89,13 @@ class DailyTTEngine:
             mapped = self._map_log_name_and_firewall_rule(df)
             mapped = mapped\
                 .withColumn('created_datetime', lit(datetime.datetime.now()))\
-                .withColumn('is_closed', lit(False))
+                .withColumn('is_closed', lit(False)).fillna("nan")
+            # possibly_null = [
+            #     'log_action',
+            #     'outbound_interface',
+            #     ]
             self._write_df_to_postgres(
-                mapped, 'fh_stg_tt_anmly_f')
+                mapped, 'fh_prd_tt_anmly_grp_f')
         except Exception as e:
             print(str(traceback.format_exc()))
             logger.error(str(traceback.format_exc()))
