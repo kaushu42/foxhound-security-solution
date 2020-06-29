@@ -14,7 +14,8 @@ import datetime
 import psycopg2
 from sqlalchemy.orm import sessionmaker
 
-logger = Logger(filename='logs/main.log')
+path = Path(__file__)
+logger = Logger(filename=f'{path.parent}/logs/main.log')
 logger.info(f'Script started on {datetime.datetime.now()}')
 
 
@@ -261,4 +262,3 @@ def commit_changes_to_production():
     finally:
         session.commit()
         session.close()
-
