@@ -25,7 +25,9 @@ from mis.models import (
 )
 from troubleticket.models import (
     TroubleTicketAnomaly,
-    TroubleTicketFollowUpAnomaly
+    TroubleTicketFollowUpAnomaly,
+    TroubleTicketGroupAnomaly,
+    TroubleTicketGroupFollowUpAnomaly
 )
 from views.views import PaginatedView
 
@@ -34,7 +36,9 @@ from serializers.serializers import (
     TroubleTicketFollowUpAnomalySerializer,
     UserNameSerializer,
     TrafficLogDetailGranularHourSerializer,
-    TroubleTicketAnomalyLogDetailSerializer
+    TroubleTicketAnomalyLogDetailSerializer,
+    TroubleTicketGroupAnomalySerializer,
+    TroubleTicketGroupFollowUpAnomalySerializer
 )
 
 from globalutils.utils import (
@@ -45,12 +49,12 @@ from globalutils.utils import (
 
 
 class TTPaginatedView(PaginatedView):
-    serializer_class = TroubleTicketAnomalySerializer
+    serializer_class = TroubleTicketGroupAnomalySerializer
 
     def get_filtered_objects(self, request, **kwargs):
         firewall_rule_ids = get_firewall_rules_id_from_request(request)
         query = self.get_search_queries(request)
-        objects = TroubleTicketAnomaly.objects.filter(
+        objects = TroubleTicketGroupAnomaly.objects.filter(
             firewall_rule__in=firewall_rule_ids,
             **kwargs,
             **query,
@@ -158,8 +162,8 @@ class MyClosedTTApiView(TTPaginatedView):
 
 
 class TroubleTicketFollowUpAnomalyApiView(PaginatedView):
-    queryset = TroubleTicketFollowUpAnomaly.objects
-    serializer_class = TroubleTicketFollowUpAnomalySerializer
+    queryset = TroubleTicketGroupFollowUpAnomaly.objects
+    serializer_class = TroubleTicketGroupFollowUpAnomalySerializer
 
     def get(self, request, id):
         self.queryset = self.queryset.filter(
@@ -171,7 +175,7 @@ class TroubleTicketFollowUpAnomalyApiView(PaginatedView):
 
     def post(self, request, id):
         try:
-            tt_anomaly = TroubleTicketAnomaly.objects.get(id=id)
+            tt_anomaly = TroubleTicketGroupAnomaly.objects.get(id=id)
         except Exception as e:
             return Response({
                 "traceback": str(traceback.format_exc()),

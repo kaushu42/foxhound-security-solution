@@ -19,7 +19,9 @@ from mis.models import TrafficMisNewSourceIPDaily, TrafficMisNewDestinationIPDai
 
 from troubleticket.models import (
     TroubleTicketAnomaly,
-    TroubleTicketFollowUpAnomaly
+    TroubleTicketFollowUpAnomaly,
+    TroubleTicketGroupAnomaly,
+    TroubleTicketGroupFollowUpAnomaly
 )
 from rules.models import TrafficRule
 from users.models import FoxhoundUser
@@ -141,6 +143,16 @@ class TroubleTicketAnomalySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class TroubleTicketGroupAnomalySerializer(serializers.ModelSerializer):
+    log = TrafficLogNameSerializer()
+    verified_by = UserNameSerializer()
+    assigned_to = UserNameSerializer()
+
+    class Meta:
+        model = TroubleTicketGroupAnomaly
+        fields = '__all__'
+
+
 class TroubleTicketFollowUpAnomalySerializer(serializers.ModelSerializer):
     trouble_ticket = TroubleTicketAnomalySerializer()
     assigned_by = UserSerializer()
@@ -149,6 +161,19 @@ class TroubleTicketFollowUpAnomalySerializer(serializers.ModelSerializer):
     class Meta:
         model = TroubleTicketFollowUpAnomaly
         fields = '__all__'
+
+
+class TroubleTicketGroupFollowUpAnomalySerializer(serializers.ModelSerializer):
+    trouble_ticket = TroubleTicketAnomalySerializer()
+    assigned_by = UserSerializer()
+    assigned_to = UserSerializer()
+
+    class Meta:
+        model = TroubleTicketFollowUpAnomaly
+        fields = '__all__'
+
+
+TroubleTicketGroupFollowUpAnomalySerializer
 
 
 class VirtualSystemSerializer(serializers.ModelSerializer):

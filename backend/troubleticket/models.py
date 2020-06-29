@@ -170,6 +170,27 @@ class TroubleTicketFollowUpAnomaly(TroubleTicketFollowUp):
         return self.__str__()
 
 
+class TroubleTicketGroupFollowUpAnomaly(models.Model):
+    follow_up_datetime = models.DateTimeField(auto_now_add=True)
+    assigned_by = models.ForeignKey(
+        FoxhoundUser, on_delete=models.CASCADE,
+        related_name='assigned_by_group', null=True
+    )
+    assigned_to = models.ForeignKey(
+        FoxhoundUser, on_delete=models.CASCADE,
+        related_name='assigned_to_group', null=True
+    )
+    description = models.CharField(max_length=1000)
+    trouble_ticket = models.ForeignKey(
+        TroubleTicketGroupAnomaly, on_delete=models.CASCADE, null=True)
+
+    def __str__(self):
+        return f'Anomaly-{self.trouble_ticket}-followup-{self.id}'
+
+    def __repr__(self):
+        return self.__str__()
+
+
 class StageTroubleTicketAnomaly(TroubleTicket):
     class Meta:
         db_table = 'fh_stg_tt_anmly_f'
