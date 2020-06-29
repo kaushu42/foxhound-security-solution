@@ -236,8 +236,9 @@ def close_tt(request, id):
     now = datetime.datetime.now()
     try:
         firewall_ids = get_firewall_rules_id_from_request(request)
-        trouble_ticket = TroubleTicketAnomaly.objects.get(
+        trouble_ticket_group = TroubleTicketGroupAnomaly.objects.get(
             id=id, firewall_rule__in=firewall_ids)
+
     except Exception as e:
         return Response({
             "traceback": str(traceback.format_exc()),
@@ -249,20 +250,29 @@ def close_tt(request, id):
     is_anomaly = int(request.data.get('is_anomaly', 'true') == 'true')
     user = get_user_from_token(request)
 
-    trouble_ticket.is_closed = True
-    trouble_ticket.is_anomaly = is_anomaly
-    trouble_ticket.severity_level = severity_level
-    trouble_ticket.assigned_to = user
-    trouble_ticket.description = description
-    trouble_ticket.verified_datetime = now
-    trouble_ticket.verified_by = user
-    trouble_ticket.save()
+    TroubleTicketAnomaly.objects.filter(
+        tt_group=trouble_ticket_group).update(
+        is_closed=True,
+        severity_level=severity_level,
+        assigned_to=user,
+        description=description,
+        verified_datetime=now,
+        verified_by=user
+    )
+    trouble_ticket_group.is_closed = True
+    trouble_ticket_group.is_anomaly = is_anomaly
+    trouble_ticket_group.severity_level = severity_level
+    trouble_ticket_group.assigned_to = user
+    trouble_ticket_group.description = description
+    trouble_ticket_group.verified_datetime = now
+    trouble_ticket_group.verified_by = user
+    trouble_ticket_group.save()
 
-    follow_up = TroubleTicketFollowUpAnomaly(
+    follow_up = TroubleTicketGroupFollowUpAnomaly(
         assigned_by=user,
         assigned_to=user,
         description=description,
-        trouble_ticket=trouble_ticket,
+        trouble_ticket=trouble_ticket_group,
         follow_up_datetime=now
     )
     follow_up.save()
