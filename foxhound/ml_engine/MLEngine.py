@@ -75,7 +75,7 @@ class MLEngine(AutoEncoder):
 
         self._TENANT_FEATURE = 'Rule'
         self._USER_FEATURE = 'Source address'
-        self._TIME_FEATURE = 'Time Logged'
+        self._TIME_FEATURE = 'Start Time'
 
         self._prediction_csv_temp_path = '/'.join(self._DAILY_CSV_DIR.split('/')[:-1])+'/temp_prediction_csv_path'
 
@@ -83,7 +83,7 @@ class MLEngine(AutoEncoder):
 
         super(MLEngine, self).__init__(verbose=verbose)
 
-    def _save_to_csv(self, df, dest_file_path):
+    def _save_to_csv(self, df, dest_file_path, mode):
         """Method to save dataframe to respective tenant's csv if available, else create one
 
         Parameters
@@ -93,10 +93,13 @@ class MLEngine(AutoEncoder):
         dest_file_path : str
             Provide the location of tenant's csv file in tenant profile directory to search/use tosave data
         """
-        if os.path.isfile(dest_file_path):
-            df.to_csv(dest_file_path, mode='a', index=False, header=False)
-        else:
-            df.to_csv(dest_file_path, mode='a', index=False)
+        if mode == 'a':
+            if os.path.isfile(dest_file_path):
+                df.to_csv(dest_file_path, mode=mode, index=False, header=False)
+            else:
+                df.to_csv(dest_file_path, mode=mode, index=False)
+        elif mode == 'w':
+            df.to_csv(dest_file_path, mode=mode, index=False, header=True)
 
     def _str_to_num(self, column):
         column = [sum([(weight+1)*char for weight, char in enumerate(list(bytearray(str(cell), encoding='utf8'))[::-1])]) for cell in column]
@@ -463,7 +466,7 @@ class MLEngine(AutoEncoder):
         #     f'{anomalous_without_model_count}/{len(anomalous_df.index)} : Anomalous without model')
         return anomalous_df, anomalous_without_model_count
 
-    def _predict_in_chunks(self, csv_file_path, csv_folder_path):
+    def _predict_in_chunks(self, csv_file_path, csv_folder_path, mode):
         n_chunks = 0
         ano_with_model_count = 0
         ano_with_no_model_count = 0
@@ -480,8 +483,10 @@ class MLEngine(AutoEncoder):
 
             if len(anomalous_df.index):
                 self._save_to_csv(anomalous_df, os.path.join(
-                    self._ANOMALIES_CSV_OUTPUT_DIR, str(dt.datetime.now().date())+'.csv')
+                    self._ANOMALIES_CSV_OUTPUT_DIR, 'anomaly.csv'),
+                    mode=mode
                 )
+                print(f"[INFO]: Anomaly csv saved at {os.path.join(self._ANOMALIES_CSV_OUTPUT_DIR, 'anomaly.csv')} ")
             ano_with_no_model_count += ano_without_model
             ano_with_model_count += len(anomalous_df.index)
             n_chunks += 1
@@ -491,13 +496,19 @@ class MLEngine(AutoEncoder):
     def _create_filtered_csv(self, raw_csv_path):
         # pdb.set_trace()
         df = self._SPARK.read.csv(raw_csv_path, inferSchema=True, header=True)
-        ips = np.array(df.select('Source address').distinct().rdd.flatMap(lambda x: x).collect())
-        private_ips = ips[[ipaddress.ip_address(ip).is_private for ip in ips]].tolist()
-        df = df.filter(df['Source address'].isin(private_ips))
-        df = df[required_columns]
-        df.repartition(1).write.csv(self._prediction_csv_temp_path, header=True)
+        if df.count():
+            ips = np.array(df.select('Source address').distinct().rdd.flatMap(lambda x: x).collect())
+            private_ips = ips[[ipaddress.ip_address(ip).is_private for ip in ips]].tolist()
+            df = df.filter(df['Source address'].isin(private_ips))
+            df = df[required_columns]
+            if os.path.exists(self._prediction_csv_temp_path):
+                shutil.rmtree(self._prediction_csv_temp_path)
+            df.repartition(1).write.csv(self._prediction_csv_temp_path, header=True)
 
-    def _predict_anomalies(self, input_traffic_log):
+            return True
+        return False
+
+    def _predict_anomalies(self, input_traffic_log, predict_on_anomaly_csv=False):
         """Method to predict anomalies from csvs' from input directory
         """
         # if os.path.exists(self._DAILY_CSV_DIR) is True:
@@ -511,21 +522,23 @@ class MLEngine(AutoEncoder):
         #         for csv_folder in csv_folders:
         #             csv_folder_path = os.path.join(
         #                 self._DAILY_CSV_DIR, csv_folder)
+        mode = 'w' if predict_on_anomaly_csv else 'a'
                     
         if input_traffic_log.endswith('.csv'):
             # print(
             #     f'[{csv_folder_count}/{total_csv_folders}] ********** Processing {csv_folder} file **********')
-            self._create_filtered_csv(input_traffic_log)
-            csv_file = [file for file in os.listdir(self._prediction_csv_temp_path) if file.endswith('.csv')][0]
-            csv_file_path = os.path.join(self._prediction_csv_temp_path, csv_file)
-            ano_with_model_count, ano_with_no_model_count, _ = self._predict_in_chunks(
-                csv_file_path, input_traffic_log)
-            shutil.rmtree(self._prediction_csv_temp_path)
-            # print(
-            #     f"[{csv_folder_count}/{total_csv_folders}]********** Processed {csv_folder} in {n_chunks} chunk **********")
-            print(
-                f'********** Predictions: Anomalous model -> [{ano_with_model_count}], Instances skipped without model -> [{ano_with_no_model_count}]  **********'
-            )
+            status = self._create_filtered_csv(input_traffic_log)
+            if status:
+                csv_file = [file for file in os.listdir(self._prediction_csv_temp_path) if file.endswith('.csv')][0]
+                csv_file_path = os.path.join(self._prediction_csv_temp_path, csv_file)
+                ano_with_model_count, ano_with_no_model_count, _ = self._predict_in_chunks(
+                    csv_file_path, input_traffic_log, mode=mode)
+                shutil.rmtree(self._prediction_csv_temp_path)
+                # print(
+                #     f"[{csv_folder_count}/{total_csv_folders}]********** Processed {csv_folder} in {n_chunks} chunk **********")
+                print(
+                    f'********** Predictions: Anomalous model -> [{ano_with_model_count}], Instances skipped without model -> [{ano_with_no_model_count}]  **********'
+                )
             # print(anomalous_df)
         else:
             pass
@@ -538,7 +551,9 @@ class MLEngine(AutoEncoder):
         # else:
         #     print("Daily csv directory does not exist")
 
-    def run(self, create_model=False, predict=False, input_traffic_log=None):
+    
+
+    def run(self, create_model=False, predict=False, input_traffic_log=None, predict_on_anomaly_csv=False):
         """Method to perform create_model and predict operation using MLEngine object
 
         Parameters
@@ -553,4 +568,4 @@ class MLEngine(AutoEncoder):
             self._create_models()
             print("Model created")
         if predict:
-            self._predict_anomalies(input_traffic_log)
+            self._predict_anomalies(input_traffic_log, predict_on_anomaly_csv=is_anomaly_csv)
