@@ -10,8 +10,9 @@ import csv
 
 from pyspark.sql.functions import udf
 
+from foxhound.config import Config
 from .spark_config import raw_datafield_schema
-from .variables import features_list, features_to_convert_to_number
+from .variables import features_list, header_names, required_columns, features_to_convert_to_number
 
 
 class Initialize():
@@ -38,9 +39,23 @@ class Initialize():
         self._features = features_list
         self._TENANT_FEATURE = 'Rule'
         self._USER_FEATURE = 'Source address'
-        self._TIME_FEATURE = 'Time Logged'
+        self._TIME_FEATURE = 'Start Time'
 
         self._SPARK = spark_session
+
+    def _read_table_from_postgres(self, table):
+        url = Config.SPARK_DB_URL
+        properties = {
+            'user': Config.FH_DB_USER,
+            'password': Config.FH_DB_PASSWORD,
+            'driver': Config.SPARK_DB_DRIVER
+        }
+        return self._SPARK.read.jdbc(
+            url='jdbc:%s' % url,
+            table=table,
+            properties=properties
+        )
+
 
     def _str_to_num(self, column):
         return sum([(weight+1)*char for weight, char in enumerate(list(bytearray(column, encoding='utf8'))[::-1])])
@@ -62,7 +77,7 @@ class Initialize():
         def str_to_num(x): # passing object function i.e self._str to lambda function causes pickling error
             return sum([(weight+1)*char for weight, char in enumerate(list(bytearray(x, encoding='utf8'))[::-1])])
 
-        slice_hour = udf(lambda x: x[-8:-6])
+        slice_hour = udf(lambda x: str(x)[-8:-6])
         sin_time = udf(lambda x: round(math.sin((2*math.pi/24)*int(x)), 3))
         cos_time = udf(lambda x: round(math.cos((2*math.pi/24)*int(x)), 3))
         convert_to_num = udf(lambda x: str_to_num(x))
@@ -114,7 +129,23 @@ class Initialize():
 
         df.repartition(1).write.partitionBy([self._TENANT_FEATURE, self._USER_FEATURE]).csv(dest_path, mode='append', header=True)
     
-        print(time.time() - start)          
+        print(time.time() - start)    
+
+    
+    def create_ip_profile_from_db(self):
+        rule_sdf = self._read_table_from_postgres('fh_prd_fw_rule_f')
+        rule_sdf = rule_sdf.toDF(*['firewall_rule_id', 'firewall_rule', 'tenant_id'])
+        sdf = self._read_table_from_postgres('fh_prd_tt_anmly_f')
+        sdf = sdf.filter(sdf['is_anomaly'] == False)
+        if sdf.count():
+            sdf = sdf.join(rule_sdf, sdf['firewall_rule_id']==rule_sdf['firewall_rule_id'])
+            sdf = sdf.select(header_names)
+            sdf = sdf.toDF(*required_columns)
+            sdf = sdf.select(self._features)
+            print(sdf.count(), 'count \n*******************************8')
+            self._create_ip_profile(sdf, self._TENANT_PROFILE_DIR)
+            print('[DONE]: Created ip profile from db data')
+
 
     def parse_all_csv(self):
         """Method to parse all history csv to create tenant profile
@@ -141,3 +172,4 @@ class Initialize():
                 spark_csv_file_count += 1
         else:
             print(f'{self._dir_to_parse} doesnt exist')
+            
