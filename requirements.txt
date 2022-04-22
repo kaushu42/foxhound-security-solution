@@ -113,7 +113,7 @@ pycountry==19.8.18
 pycryptodome==3.9.4
 Pygments==2.4.2
 pyparsing==2.4.2
-PyPDF2==1.26.0
+PyPDF2==1.27.5
 pyresparser==1.0.6
 pyrsistent==0.15.4
 pyspark==2.4.4
