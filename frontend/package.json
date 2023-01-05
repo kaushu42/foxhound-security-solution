@@ -26,7 +26,7 @@
     "react-redux": "latest",
     "react-redux-toastr": "^7.6.4",
     "react-router-dom": "latest",
-    "react-scripts": "0.9.5",
+    "react-scripts": "5.0.1",
     "reactjs-calendar-heatmap": "0.0.10",
     "redux": "latest",
     "redux-thunk": "^2.3.0",
